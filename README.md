@@ -1,135 +1,45 @@
-# Turborepo starter
+# GW2 Emblem Tools
 
-This Turborepo starter is maintained by the Turborepo core team.
+An open-source suite for rendering and designing _Guild Wars 2_ guild emblems using modern edge computing. This project provides a high-speed hotlinking service for Discord/Web and a real-time interactive emblem designer.
 
-## Using this example
+## Features
 
-Run the following command:
+- **Blazing Fast Hotlinks**: Generate and serve guild emblems directly as `.png` files.
+- **Interactive Designer**: A client-side editor to build emblems from scratch using official ArenaNet API resources.
+- **Consistent Rendering**: Uses a shared WebAssembly (WASM) engine to ensure the designer preview exactly matches the final generated image.
+- **Edge-Optimized**: Built specifically for the Cloudflare ecosystem (Workers, Pages, R2).
 
-```sh
-npx create-turbo@latest
-```
+## How it Works
 
-## What's inside?
+### 🎨 The Rendering Engine
 
-This Turborepo includes the following packages/apps:
+ArenaNet's API provides emblem pieces as grayscale textures. To match the in-game look, we use a **Multiply Blending** strategy. This takes the RGB values from the game's color palette and multiplies them against the texture layers. We use the [Photon](https://github.com/silvia-odwyer/photon) library compiled to WASM to perform these operations at near-native speeds.
 
-### Apps and Packages
+### 🚀 Caching Strategy
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+To ensure reliability and speed while respecting ArenaNet's API rate limits, we use a tiered caching approach:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+1. **The Edge Cache**: The most recent requests are served instantly from Cloudflare's CDN.
+2. **Persistent R2 Storage**: Rendered emblems are stored in Cloudflare R2. This acts as a permanent library, ensuring we only render a specific emblem configuration once.
+3. **Smart Prefetching**: Raw grayscale assets are mirrored in R2 to avoid redundant calls to the GW2 render servers.
 
-### Utilities
+### 🛠 Tech Stack
 
-This Turborepo has some additional tools already setup for you:
+- **Framework**: Next.js (Designer UI)
+- **Runtime**: Cloudflare Workers (Hotlink API)
+- **Image Processing**: WASM / Photon
+- **Monorepo Management**: Turborepo
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## Local Development
 
-### Build
+This project is built to be developed locally with high fidelity using Cloudflare's `wrangler` CLI.
 
-To build all apps and packages, run the following command:
+1. Clone the repo.
+2. Install dependencies: `pnpm install`
+3. Run the dev suite: `pnpm dev`
 
-```
-cd my-turborepo
+## License
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+[Choose a license, e.g., MIT]
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+_Disclaimer: This project is not affiliated with ArenaNet or Guild Wars 2. All game assets are property of ArenaNet._
