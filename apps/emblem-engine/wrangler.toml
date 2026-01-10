@@ -11,5 +11,6 @@ type = "CompiledWasm"
 GW2_API_BASE = "https://api.guildwars2.com/v2"
 
 [[kv_namespaces]]
-binding = "GUILD_LOOKUP"
-id = "PASTE_YOUR_KV_ID_HERE"
+binding = "EMBLEM_ENGINE_GUILD_LOOKUP"
+# This is the ID of the KV namespace. It is not a secret and is safe to commit.
+id = "24797f12df1d4f8197edadc01d10535c"
