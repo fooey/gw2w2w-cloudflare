@@ -1,0 +1,15 @@
+name = "emblem-engine"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+
+# Crucial for Photon/Wasm on Cloudflare
+[[rules]]
+globs = ["**/*.wasm"]
+type = "CompiledWasm"
+
+[vars]
+GW2_API_BASE = "https://api.guildwars2.com/v2"
+
+[[kv_namespaces]]
+binding = "GUILD_LOOKUP"
+id = "PASTE_YOUR_KV_ID_HERE"
