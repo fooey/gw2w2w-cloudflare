@@ -1,0 +1,3 @@
+{
+  "google.gemini.allowedShellCommands": ["pnpm", "git", "npx"]
+}
