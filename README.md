@@ -29,14 +29,16 @@ To ensure reliability and speed while respecting ArenaNet's API rate limits, we 
 - **Runtime**: Cloudflare Workers (Hotlink API)
 - **Image Processing**: WASM / Photon
 - **Monorepo Management**: Turborepo
+- **Package Manager**: pnpm
 
 ## Local Development
 
 This project is built to be developed locally with high fidelity using Cloudflare's `wrangler` CLI.
 
 1. Clone the repo.
-2. Install dependencies: `pnpm install`
-3. Run the dev suite: `pnpm dev`
+2. Enable pnpm: `corepack enable`
+3. Install dependencies: `pnpm install`
+4. Run the dev suite: `pnpm dev`
 
 ## License
 
