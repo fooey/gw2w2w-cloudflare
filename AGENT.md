@@ -34,3 +34,31 @@ A high-performance Guild Wars 2 emblem rendering service and interactive designe
 ## Invalidation
 
 - **Global Purge**: Uses Cloudflare API to invalidate specific URLs globally across all data centers for the "Refresh" button.
+
+## API Endpoints
+
+### Resources
+
+- **Foregrounds**
+  - Docs: https://wiki.guildwars2.com/wiki/API:2/emblem/foregrounds
+  - Endpoint: `https://api.guildwars2.com/v2/emblem/foregrounds?ids=all`
+- **Backgrounds**
+  - Docs: https://wiki.guildwars2.com/wiki/API:2/emblem/backgrounds
+  - Endpoint: `https://api.guildwars2.com/v2/emblem/backgrounds?ids=all`
+- **Colors**
+  - Docs: https://wiki.guildwars2.com/wiki/API:2/colors
+  - Endpoint: `https://api.guildwars2.com/v2/colors?ids=all`
+
+### Guilds
+
+- **Search**
+  - Docs: https://wiki.guildwars2.com/wiki/API:2/guild/search
+  - Endpoint: `https://api.guildwars2.com/v2/guild/search?name=[name]`
+- **Details**
+  - Docs: https://wiki.guildwars2.com/wiki/API:2/guild/:id
+  - Endpoint: `https://api.guildwars2.com/v2/guild/[id]`
+
+### General Documentation
+
+- Main API: https://wiki.guildwars2.com/wiki/API:Main
+- Emblem Overview: https://wiki.guildwars2.com/wiki/API:2/emblem
