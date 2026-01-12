@@ -5,6 +5,7 @@ const guildIds = [
   '0560f931-40de-e811-81a8-a25fc8b1a2fe',
   '4b9a0dd5-79e4-e811-81a8-e8b6963692b8',
   '97c007dc-87d5-e311-9621-ac162dae8acd',
+  '41db3c08-78c3-e611-80d4-e4115beba648',
 ];
 
 export default function Home() {
@@ -17,7 +18,7 @@ export default function Home() {
             {guildIds.map((guildId) => (
               <li key={guildId}>
                 <img
-                  className="inline-block w-32 h-32 mb-2 bg-linear-to-br from-white to-black"
+                  className="inline-block w-32 h-32 mb-2 bg-linear-to-br from-white to-red-900"
                   src={`http://127.0.0.1:8787/emblem/${guildId}`}
                   alt="Emblem"
                 />
