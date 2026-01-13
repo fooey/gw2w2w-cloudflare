@@ -48,7 +48,10 @@ async function handleEmblemRoute(
   guildId: string
 ): Promise<Response> {
   try {
-    const emblemBytes = await renderEmblemById(env, guildId);
+    const emblemBytes = await renderEmblemById(guildId, {
+      objectStore: env.EMBLEM_ASSETS,
+      kvStore: env.EMBLEM_ENGINE_GUILD_LOOKUP,
+    });
     const response = new Response(emblemBytes, {
       headers: {
         'Content-Type': 'image/webp',

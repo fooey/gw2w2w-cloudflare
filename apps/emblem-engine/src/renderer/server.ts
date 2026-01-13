@@ -1,4 +1,3 @@
-import type { CloudflareEnv } from '..';
 import {
   fetchBinaryAsBuffer,
   getColor,
@@ -11,11 +10,19 @@ import { renderEmblem } from './shared';
 const R2_TTL = 86400; // 24 hours
 const enableCacheLogging = true;
 
-export async function renderEmblemById(env: CloudflareEnv, guildId: string) {
-  const r2 = env.EMBLEM_ASSETS;
+export interface CacheProviders {
+  objectStore: R2Bucket;
+  kvStore: KVNamespace;
+}
+
+export async function renderEmblemById(
+  guildId: string,
+  cacheProviders: CacheProviders
+): Promise<Uint8Array> {
+  const { objectStore } = cacheProviders;
   const R2_KEY = `emblem:${guildId}`;
 
-  const object = await r2.get(R2_KEY);
+  const object = await objectStore.get(R2_KEY);
 
   if (object !== null) {
     if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
@@ -26,7 +33,7 @@ export async function renderEmblemById(env: CloudflareEnv, guildId: string) {
 
   // 1. Fetch Guild Data
 
-  const guild = await getGuild(env.EMBLEM_ENGINE_GUILD_LOOKUP, guildId);
+  const guild = await getGuild(guildId, cacheProviders);
 
   if (!guild) {
     throw { message: 'Guild not found', status: 404 };
@@ -47,11 +54,9 @@ export async function renderEmblemById(env: CloudflareEnv, guildId: string) {
 
   // Fetch Definitions & Colors
   const [bgDefs, fgDefs, colors] = await Promise.all([
-    bgId ? getEmblemBackground(env.EMBLEM_ASSETS, bgId) : null,
-    fgId ? getEmblemForeground(env.EMBLEM_ASSETS, fgId) : null,
-    uniqueColorIds.length > 0
-      ? getColor(env.EMBLEM_ASSETS, uniqueColorIds)
-      : null,
+    bgId ? getEmblemBackground(bgId, cacheProviders) : null,
+    fgId ? getEmblemForeground(fgId, cacheProviders) : null,
+    uniqueColorIds.length > 0 ? getColor(uniqueColorIds, cacheProviders) : null,
   ]);
 
   if (!colors) {
@@ -61,14 +66,14 @@ export async function renderEmblemById(env: CloudflareEnv, guildId: string) {
   const bgDef = bgDefs ? bgDefs[0] : null;
   const fgDef = fgDefs ? fgDefs[0] : null;
 
-  const bgLayer = bgDef?.layers[0];
-  const fgLayer1 = fgDef?.layers[1];
-  const fgLayer2 = fgDef?.layers[2];
+  const bgLayer = bgDef?.layers[0] ?? null;
+  const fgLayer1 = fgDef?.layers[1] ?? null;
+  const fgLayer2 = fgDef?.layers[2] ?? null;
 
   const [bgBuf, fgBuf1, fgBuf2] = await Promise.all([
-    fetchBinaryAsBuffer(env.EMBLEM_ASSETS, bgLayer),
-    fetchBinaryAsBuffer(env.EMBLEM_ASSETS, fgLayer1),
-    fetchBinaryAsBuffer(env.EMBLEM_ASSETS, fgLayer2),
+    fetchBinaryAsBuffer(bgLayer, cacheProviders),
+    fetchBinaryAsBuffer(fgLayer1, cacheProviders),
+    fetchBinaryAsBuffer(fgLayer2, cacheProviders),
   ]);
 
   const emblem = await renderEmblem(
@@ -81,7 +86,7 @@ export async function renderEmblemById(env: CloudflareEnv, guildId: string) {
 
   const bytes = emblem.get_bytes_webp();
 
-  await r2.put(R2_KEY, bytes, {
+  await objectStore.put(R2_KEY, bytes, {
     customMetadata: {
       expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
     },
