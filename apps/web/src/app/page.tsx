@@ -9,6 +9,7 @@ const guildIds = [
   '97c007dc-87d5-e311-9621-ac162dae8acd',
   '41db3c08-78c3-e611-80d4-e4115beba648',
   'ffffffff-ffff-ffff-ffff-ffffffffffff',
+  '48cdb90b-75be-e811-81aa-bef9b8c3e82e',
 ];
 
 const backgroundClasses = [
