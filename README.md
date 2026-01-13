@@ -13,7 +13,9 @@ An open-source suite for rendering and designing _Guild Wars 2_ guild emblems us
 
 ### 🎨 The Rendering Engine
 
-ArenaNet's API provides emblem pieces as grayscale textures. To match the in-game look, we use a **Multiply Blending** strategy. This takes the RGB values from the game's color palette and multiplies them against the texture layers. We use the [Photon](https://github.com/silvia-odwyer/photon) library compiled to WASM to perform these operations at near-native speeds.
+ArenaNet's API provides emblem pieces as grayscale textures. To match the in-game look, we use a **Multiply Blending** strategy. This takes the RGB values from the game's color palette and multiplies them against the texture layers. We use the [Photon](https://github.com/silvia-odwyer/photon) library (WASM) for high-performance image decoding, encoding, and transformations. The core blending and layer composition is implemented via direct pixel manipulation on the raw buffers exposed by Photon, ensuring the specific Guild Wars 2 color algorithms are applied correctly.
+
+**Shared Logic Goal**: A primary architectural goal is to share the exact same rendering logic between the client-side Designer (React) and the server-side Hotlink API (Cloudflare Workers). By utilizing a shared WASM module powered by Photon, we ensure that what users see in the designer is pixel-perfectly identical to the generated static image served by the edge.
 
 ### 🚀 Caching Strategy
 

@@ -18,7 +18,7 @@ A high-performance Guild Wars 2 emblem rendering service and interactive designe
 
 ## Core Rendering Logic
 
-- **Shared WASM**: The same `renderer` package is used by both the Worker (server-side) and Next.js (client-side preview).
+- **Shared WASM Strategy**: The project utilizes `@cf-wasm/photon` to share rendering logic between the client (Next.js Designer) and the edge (Cloudflare Workers). This ensures 100% visual consistency between the preview and the final generated asset.
 - **Multiply Blend**: Colors from the `/v2/colors` API are applied to grayscale textures using the "multiply" blend mode.
 - **Layer Stacking**:
   - Background: Index 0.
