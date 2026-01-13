@@ -42,6 +42,10 @@ This project is built to be developed locally with high fidelity using Cloudflar
 3. Install dependencies: `pnpm install`
 4. Run the dev suite: `pnpm dev`
 
+## Acknowledgements
+
+- Thanks to [guildwars2-ts](https://gitlab.com/dinckelman/guildwars2-ts) for the Guild Wars 2 API TypeScript definitions.
+
 ## License
 
 [Choose a license, e.g., MIT]

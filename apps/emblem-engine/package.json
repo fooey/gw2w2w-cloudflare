@@ -13,10 +13,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@cf-wasm/photon": "^0.3.4"
+    "@cf-wasm/photon": "^0.3.4",
+    "guildwars2-ts": "^1.6.0"
   },
   "devDependencies": {
-    "wrangler": "^4.0.0",
-    "@cloudflare/workers-types": "^4.20240405.0"
+    "@cloudflare/workers-types": "^4.20240405.0",
+    "wrangler": "^4.0.0"
   }
 }
