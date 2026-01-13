@@ -5,6 +5,9 @@ import {
   getColor,
   getEmblemBackground,
   getEmblemForeground,
+  type Color,
+  type EmblemBackground,
+  type EmblemForeground,
   type Guild,
 } from './resources';
 
@@ -12,24 +15,14 @@ const IMAGE_DIMENSION = 256;
 type ColorRGB = [number, number, number];
 
 export async function renderEmblem(
-  emblem: Guild['emblem']
+  emblem: Guild['emblem'],
+  bgDefs: EmblemBackground[] | null,
+  fgDefs: EmblemForeground[] | null,
+  colors: Color[]
 ): Promise<PhotonImage> {
   if (!emblem) {
     throw new Error('NoEmblemData');
   }
-
-  // Prepare IDs
-  const bgId = emblem.background.id;
-  const fgId = emblem.foreground.id;
-  const colorIds = [...emblem.background.colors, ...emblem.foreground.colors];
-  const uniqueColorIds = [...new Set(colorIds)];
-
-  // Fetch Definitions & Colors
-  const [bgDefs, fgDefs, colors] = await Promise.all([
-    bgId ? getEmblemBackground(bgId) : null,
-    fgId ? getEmblemForeground(fgId) : null,
-    uniqueColorIds.length > 0 ? getColor(uniqueColorIds) : null,
-  ]);
 
   const bgDef = bgDefs ? bgDefs[0] : null;
   const fgDef = fgDefs ? fgDefs[0] : null;

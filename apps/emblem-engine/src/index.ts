@@ -1,5 +1,10 @@
 import { renderEmblem } from './emblem-renderer';
-import { getGuild } from './resources';
+import {
+  getColor,
+  getEmblemBackground,
+  getEmblemForeground,
+  getGuild,
+} from './resources';
 
 interface ErrorPayload {
   message: string;
@@ -8,6 +13,7 @@ interface ErrorPayload {
 
 interface Env {
   EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;
+  EMBLEM_ASSETS: R2Bucket;
 }
 
 export default {
@@ -23,7 +29,7 @@ export default {
 
     if (GUILD_ID) {
       try {
-        const emblem = await renderEmblemById(GUILD_ID);
+        const emblem = await renderEmblemById(GUILD_ID, _env);
         return new Response(emblem.get_bytes_webp(), {
           headers: { 'Content-Type': 'image/webp' },
         });
@@ -41,27 +47,41 @@ export default {
   },
 };
 
-async function renderEmblemById(guildId: string) {
+async function renderEmblemById(guildId: string, env: Env) {
   // 1. Fetch Guild Data
+  const guild = await getGuild(env.EMBLEM_ENGINE_GUILD_LOOKUP, guildId);
 
-  let guild;
-
-  try {
-    guild = await getGuild(guildId);
-  } catch (e) {
+  if (!guild) {
     throw { message: 'Guild not found', status: 404 };
   }
 
-  // if (!guildRes.ok)
-  //   throw {
-  //     message: 'Guild not found',
-  //     status: 404,
-  //   };
-  // const guild = (await guildRes.json()) as Guild;
+  if (!guild.emblem) {
+    throw { message: 'Guild has no emblem', status: 404 };
+  }
 
-  if (!guild.emblem) throw { message: 'Guild has no emblem', status: 404 };
+  // Prepare IDs
+  const bgId = guild.emblem.background.id;
+  const fgId = guild.emblem.foreground.id;
+  const colorIds = [
+    ...guild.emblem.background.colors,
+    ...guild.emblem.foreground.colors,
+  ];
+  const uniqueColorIds = [...new Set(colorIds)];
 
-  const emblem = await renderEmblem(guild.emblem);
+  // Fetch Definitions & Colors
+  const [bgDefs, fgDefs, colors] = await Promise.all([
+    bgId ? getEmblemBackground(env.EMBLEM_ASSETS, bgId) : null,
+    fgId ? getEmblemForeground(env.EMBLEM_ASSETS, fgId) : null,
+    uniqueColorIds.length > 0
+      ? getColor(env.EMBLEM_ASSETS, uniqueColorIds)
+      : null,
+  ]);
+
+  if (!colors) {
+    throw { message: 'Colors not found', status: 500 };
+  }
+
+  const emblem = await renderEmblem(guild.emblem, bgDefs, fgDefs, colors);
 
   return emblem;
 }

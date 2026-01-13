@@ -26,6 +26,9 @@ importers:
       guildwars2-ts:
         specifier: ^1.6.0
         version: 1.6.0
+      zod:
+        specifier: ^4.0.0
+        version: 4.3.5
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20240405.0
