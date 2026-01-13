@@ -1,10 +1,12 @@
+import type { PhotonImage } from '@cf-wasm/photon';
 import { renderEmblem } from './emblem-renderer';
 import {
+  fetchBinaryAsBuffer,
   getColor,
   getEmblemBackground,
   getEmblemForeground,
   getGuild,
-} from './resources';
+} from './resources/resources';
 
 interface ErrorPayload {
   message: string;
@@ -15,6 +17,9 @@ interface Env {
   EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;
   EMBLEM_ASSETS: R2Bucket;
 }
+
+const R2_TTL = 86400; // 24 hours
+const enableCacheLogging = true;
 
 export default {
   async fetch(_request: Request, _env: Env): Promise<Response> {
@@ -29,8 +34,8 @@ export default {
 
     if (GUILD_ID) {
       try {
-        const emblem = await renderEmblemById(GUILD_ID, _env);
-        return new Response(emblem.get_bytes_webp(), {
+        const emblemBytes = await renderEmblemById(_env, GUILD_ID);
+        return new Response(emblemBytes, {
           headers: { 'Content-Type': 'image/webp' },
         });
       } catch (e: unknown) {
@@ -47,8 +52,21 @@ export default {
   },
 };
 
-async function renderEmblemById(guildId: string, env: Env) {
+async function renderEmblemById(env: Env, guildId: string) {
+  const r2 = env.EMBLEM_ASSETS;
+  const R2_KEY = `emblem:${guildId}`;
+
+  const object = await r2.get(R2_KEY);
+
+  if (object !== null) {
+    if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
+    return new Uint8Array(await object.arrayBuffer());
+  }
+
+  if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
+
   // 1. Fetch Guild Data
+
   const guild = await getGuild(env.EMBLEM_ENGINE_GUILD_LOOKUP, guildId);
 
   if (!guild) {
@@ -81,7 +99,37 @@ async function renderEmblemById(guildId: string, env: Env) {
     throw { message: 'Colors not found', status: 500 };
   }
 
-  const emblem = await renderEmblem(guild.emblem, bgDefs, fgDefs, colors);
+  const bgDef = bgDefs ? bgDefs[0] : null;
+  const fgDef = fgDefs ? fgDefs[0] : null;
 
-  return emblem;
+  const bgLayer = bgDef?.layers[0];
+  const fgLayer1 = fgDef?.layers[1];
+  const fgLayer2 = fgDef?.layers[2];
+
+  const [bgBuf, fgBuf1, fgBuf2] = await Promise.all([
+    fetchBinaryAsBuffer(env.EMBLEM_ASSETS, bgLayer),
+    fetchBinaryAsBuffer(env.EMBLEM_ASSETS, fgLayer1),
+    fetchBinaryAsBuffer(env.EMBLEM_ASSETS, fgLayer2),
+  ]);
+
+  const emblem = await renderEmblem(
+    guild.emblem,
+    colors,
+    bgBuf,
+    fgBuf1,
+    fgBuf2
+  );
+
+  const bytes = emblem.get_bytes_webp();
+
+  await r2.put(R2_KEY, bytes, {
+    customMetadata: {
+      expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
+    },
+    httpMetadata: {
+      contentType: 'image/webp',
+    },
+  });
+
+  return bytes;
 }

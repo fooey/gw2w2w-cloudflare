@@ -1,54 +1,25 @@
 // c:\src\gw2w2w-cloudflare\apps\emblem-engine\src\emblem-renderer.ts
 import { fliph, flipv, PhotonImage } from '@cf-wasm/photon';
 
-import {
-  getColor,
-  getEmblemBackground,
-  getEmblemForeground,
-  type Color,
-  type EmblemBackground,
-  type EmblemForeground,
-  type Guild,
-} from './resources';
+import { type Color, type Guild } from './resources/resources';
 
 const IMAGE_DIMENSION = 256;
 type ColorRGB = [number, number, number];
 
 export async function renderEmblem(
   emblem: Guild['emblem'],
-  bgDefs: EmblemBackground[] | null,
-  fgDefs: EmblemForeground[] | null,
-  colors: Color[]
+  colors: Color[],
+  bgBuf: ArrayBuffer | null,
+  fgBuf1: ArrayBuffer | null,
+  fgBuf2: ArrayBuffer | null
 ): Promise<PhotonImage> {
   if (!emblem) {
     throw new Error('NoEmblemData');
   }
 
-  const bgDef = bgDefs ? bgDefs[0] : null;
-  const fgDef = fgDefs ? fgDefs[0] : null;
-
   const colorMap = new Map<number, ColorRGB>(
     colors ? colors.map((c) => [c.id, c.cloth.rgb] as [number, ColorRGB]) : []
   );
-
-  // Fetch Layer Images
-  // Background: Layer 0. Foreground: Layer 1 (Primary), Layer 2 (Secondary).
-  const bgLayer = bgDef?.layers[0];
-  const fgLayer1 = fgDef?.layers[1];
-  const fgLayer2 = fgDef?.layers[2];
-
-  const fetchBuffer = async (url?: string) => {
-    if (!url) return null;
-    const r = await fetch(url);
-    if (!r.ok) return null;
-    return r.arrayBuffer();
-  };
-
-  const [bgBuf, fgBuf1, fgBuf2] = await Promise.all([
-    fetchBuffer(bgLayer),
-    fetchBuffer(fgLayer1),
-    fetchBuffer(fgLayer2),
-  ]);
 
   const flipBgH = emblem.flags?.includes('FlipBackgroundHorizontal') ?? false;
   const flipBgV = emblem.flags?.includes('FlipBackgroundVertical') ?? false;

@@ -30,9 +30,11 @@ function getEmblemForegroundFromApi(): Promise<EmblemForeground[]> {
 function getColorFromApi(): Promise<Color[]> {
   return getApi().colors.get('all');
 }
+
 const NOT_FOUND_CACHE_EXPIRATION = 3600; // 1 hour
 const GUILD_CACHE_EXPIRATION = 86400; // 24 hours
 const NOT_FOUND_CACHE_VALUE = '__NOT_FOUND__';
+const R2_TTL = 86400; // 24 hours
 const enableCacheLogging = true;
 
 export async function getGuild(
@@ -90,7 +92,6 @@ export async function getEmblemBackground(
   id: number | number[] | 'all'
 ): Promise<EmblemBackground[]> {
   const R2_KEY = 'backgrounds.json';
-  const TTL = 86400; // 24 hours
 
   let allItems: EmblemBackground[] | null = null;
   const object = await r2.get(R2_KEY);
@@ -117,7 +118,7 @@ export async function getEmblemBackground(
     allItems = await getEmblemBackgroundFromApi();
     await r2.put(R2_KEY, JSON.stringify(allItems), {
       customMetadata: {
-        expiresAt: new Date(Date.now() + TTL * 1000).toISOString(),
+        expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
       },
     });
   }
@@ -137,7 +138,6 @@ export async function getEmblemForeground(
   id: number | number[] | 'all'
 ): Promise<EmblemForeground[]> {
   const R2_KEY = 'foregrounds.json';
-  const TTL = 86400; // 24 hours
 
   let allItems: EmblemForeground[] | null = null;
   const object = await r2.get(R2_KEY);
@@ -164,7 +164,7 @@ export async function getEmblemForeground(
     allItems = await getEmblemForegroundFromApi();
     await r2.put(R2_KEY, JSON.stringify(allItems), {
       customMetadata: {
-        expiresAt: new Date(Date.now() + TTL * 1000).toISOString(),
+        expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
       },
     });
   }
@@ -194,7 +194,11 @@ export async function getColor(
   } else {
     if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
     allItems = await getColorFromApi();
-    await r2.put(R2_KEY, JSON.stringify(allItems));
+    await r2.put(R2_KEY, JSON.stringify(allItems), {
+      customMetadata: {
+        expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
+      },
+    });
   }
 
   if (allItems === null) {
@@ -205,4 +209,33 @@ export async function getColor(
   const idSet = new Set(ids);
 
   return allItems.filter((item) => idSet.has(item.id));
+}
+
+export async function fetchBinaryAsBuffer(r2: R2Bucket, url?: string) {
+  if (!url) return null;
+
+  const pathname = new URL(url).pathname.replaceAll('/', ':');
+  const R2_KEY = `texture:${pathname}`;
+
+  let buffer: ArrayBuffer | null = null;
+  const object = await r2.get(R2_KEY);
+
+  if (object !== null) {
+    if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
+    buffer = await object.arrayBuffer();
+  } else {
+    if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
+
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    buffer = await r.arrayBuffer();
+
+    await r2.put(R2_KEY, buffer, {
+      customMetadata: {
+        expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
+      },
+    });
+  }
+
+  return buffer;
 }
