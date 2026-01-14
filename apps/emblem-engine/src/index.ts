@@ -52,15 +52,24 @@ async function handleEmblemRoute(
       objectStore: env.EMBLEM_ASSETS,
       kvStore: env.EMBLEM_ENGINE_GUILD_LOOKUP,
     });
+
+    const digest = await crypto.subtle.digest('SHA-1', emblemBytes);
+    const etag = `"${bufferToHex(digest)}"`;
+
     const response = new Response(emblemBytes, {
       headers: {
         'Content-Type': 'image/webp',
         'Cache-Control': 'public, max-age=86400',
+        ETag: etag,
       },
     });
 
     const cache = caches.default;
     ctx.waitUntil(cache.put(request, response.clone()));
+
+    if (request.headers.get('If-None-Match') === etag) {
+      return new Response(null, { status: 304, headers: response.headers });
+    }
 
     return response;
   } catch (e: unknown) {
@@ -71,4 +80,10 @@ async function handleEmblemRoute(
     }
     return new Response('Error rendering emblem', { status: 500 });
   }
+}
+
+function bufferToHex(buffer: ArrayBuffer): string {
+  return [...new Uint8Array(buffer)]
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
