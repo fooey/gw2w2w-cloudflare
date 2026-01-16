@@ -21,24 +21,25 @@ export async function renderEmblem(
     colors ? colors.map((c) => [c.id, c.cloth.rgb] as [number, ColorRGB]) : []
   );
 
-  const flipBgH = emblem.flags?.includes('FlipBackgroundHorizontal') ?? false;
-  const flipBgV = emblem.flags?.includes('FlipBackgroundVertical') ?? false;
-  const flipFgH = emblem.flags?.includes('FlipForegroundHorizontal') ?? false;
-  const flipFgV = emblem.flags?.includes('FlipForegroundVertical') ?? false;
-
   const bgRGB = colorMap.get(emblem.background.colors[0] ?? 0) ?? [0, 0, 0];
   const fg1RGB = colorMap.get(emblem.foreground.colors[0] ?? 0) ?? [0, 0, 0];
   const fg2RGB = colorMap.get(emblem.foreground.colors[1] ?? 0) ?? [0, 0, 0];
 
   return renderEmblemLayers(bgBuf, fgBuf1, fgBuf2, {
-    flipBgH,
-    flipBgV,
-    flipFgH,
-    flipFgV,
+    flags: emblem.flags,
     bgRGB,
     fg1RGB,
     fg2RGB,
   });
+}
+
+function getFlipsFromFlags(flags: string[] | undefined) {
+  return {
+    flipBgH: flags?.includes('FlipBackgroundHorizontal') ?? false,
+    flipBgV: flags?.includes('FlipBackgroundVertical') ?? false,
+    flipFgH: flags?.includes('FlipForegroundHorizontal') ?? false,
+    flipFgV: flags?.includes('FlipForegroundVertical') ?? false,
+  };
 }
 
 export function renderEmblemLayers(
@@ -46,16 +47,14 @@ export function renderEmblemLayers(
   fgBuf1: ArrayBuffer | null,
   fgBuf2: ArrayBuffer | null,
   options: {
-    flipBgH: boolean;
-    flipBgV: boolean;
-    flipFgH: boolean;
-    flipFgV: boolean;
+    flags?: string[];
     bgRGB: ColorRGB;
     fg1RGB: ColorRGB;
     fg2RGB: ColorRGB;
   }
 ) {
-  const { flipBgH, flipBgV, flipFgH, flipFgV, bgRGB, fg1RGB, fg2RGB } = options;
+  const { flags, bgRGB, fg1RGB, fg2RGB } = options;
+  const { flipBgH, flipBgV, flipFgH, flipFgV } = getFlipsFromFlags(flags);
 
   // Helper to prepare layer data
   const prepare = (buf: ArrayBuffer | null, h: boolean, v: boolean) => {
