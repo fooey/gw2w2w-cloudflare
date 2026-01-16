@@ -11,9 +11,9 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "guildwars2-ts": "^1.6.0",
-    "next": "16.1.1",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "next": "^16.1.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -22,7 +22,7 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.1.1",
+    "eslint-config-next": "^16",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

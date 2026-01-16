@@ -1,9 +1,10 @@
 {
   "name": "@repo/emblem-renderer",
   "version": "0.0.0",
+  "private": true,
+  "entry": "src/index.ts",
   "exports": {
-    "./shared": "./src/shared.ts",
-    "./server": "./src/server.ts"
+    "./*": "./src/*.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -11,11 +12,11 @@
   },
   "dependencies": {
     "@cf-wasm/photon": "^0.3.4",
+    "eslint": "^9",
     "guildwars2-ts": "^1.6.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240405.0",
-    "wrangler": "^4.0.0"
+    "@cloudflare/workers-types": "^4.20240405.0"
   }
 }
