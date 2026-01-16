@@ -13,7 +13,9 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@repo/emblem-renderer": "workspace:*"
+    "@repo/emblem-renderer": "workspace:*",
+    "guildwars2-ts": "^1.6.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240405.0",

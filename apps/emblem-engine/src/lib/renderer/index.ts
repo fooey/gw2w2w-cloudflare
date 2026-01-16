@@ -1,19 +1,15 @@
+import { renderEmblem } from '@repo/emblem-renderer/index';
 import {
   fetchBinaryAsBuffer,
   getColor,
   getEmblemBackground,
   getEmblemForeground,
   getGuild,
-} from './resources';
-import { renderEmblem } from './shared';
+  type CacheProviders,
+} from '@/lib/resources';
 
 const R2_TTL = 86400; // 24 hours
 const enableCacheLogging = true;
-
-export interface CacheProviders {
-  objectStore: R2Bucket;
-  kvStore: KVNamespace;
-}
 
 export async function renderEmblemById(
   guildId: string,

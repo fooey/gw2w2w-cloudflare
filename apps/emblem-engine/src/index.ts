@@ -1,4 +1,4 @@
-import { renderEmblemById } from '@repo/emblem-renderer/server';
+import { renderEmblemById } from '@/lib/renderer';
 
 interface ErrorPayload {
   message: string;

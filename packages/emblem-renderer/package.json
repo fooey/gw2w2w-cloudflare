@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@cf-wasm/photon": "^0.3.4",
-    "eslint": "^9",
     "guildwars2-ts": "^1.6.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "eslint": "^9",
     "@cloudflare/workers-types": "^4.20240405.0"
   }
 }
