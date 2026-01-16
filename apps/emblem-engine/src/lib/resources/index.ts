@@ -12,8 +12,7 @@ export interface CacheProviders {
 }
 
 export type Guild = z.infer<typeof GuildDTO>;
-export type EmblemBackground = z.infer<typeof EmblemDTO>[number];
-export type EmblemForeground = z.infer<typeof EmblemDTO>[number];
+export type Emblem = z.infer<typeof EmblemDTO>[number];
 export type Color = z.infer<typeof ColorsDTO>[number];
 
 function getApi() {
@@ -24,11 +23,11 @@ function getGuildFromApi(guildId: string): Promise<Guild> {
   return getApi().guild.get(guildId);
 }
 
-function getEmblemBackgroundFromApi(): Promise<EmblemBackground[]> {
+function getEmblemBackgroundFromApi(): Promise<Emblem[]> {
   return getApi().emblem.get('backgrounds', 'all');
 }
 
-function getEmblemForegroundFromApi(): Promise<EmblemForeground[]> {
+function getEmblemForegroundFromApi(): Promise<Emblem[]> {
   return getApi().emblem.get('foregrounds', 'all');
 }
 
@@ -96,11 +95,11 @@ export async function getGuild(
 export async function getEmblemBackground(
   id: number | number[] | 'all',
   cacheProviders: CacheProviders
-): Promise<EmblemBackground[]> {
+): Promise<Emblem[]> {
   const { objectStore } = cacheProviders;
   const OBJECT_KEY = 'backgrounds.json';
 
-  let allItems: EmblemBackground[] | null = null;
+  let allItems: Emblem[] | null = null;
   const object = await objectStore.get(OBJECT_KEY);
   if (object !== null) {
     const expiresAt = object.customMetadata?.expiresAt;
@@ -108,7 +107,7 @@ export async function getEmblemBackground(
       if (enableCacheLogging) {
         console.log(`object HIT for ${OBJECT_KEY}`);
       }
-      allItems = await object.json<EmblemBackground[]>();
+      allItems = await object.json<Emblem[]>();
     } else {
       if (enableCacheLogging) {
         console.log(`object STALE for ${OBJECT_KEY}`);
@@ -142,11 +141,11 @@ export async function getEmblemBackground(
 export async function getEmblemForeground(
   id: number | number[] | 'all',
   cacheProviders: CacheProviders
-): Promise<EmblemForeground[]> {
+): Promise<Emblem[]> {
   const { objectStore } = cacheProviders;
   const OBJECT_KEY = 'foregrounds.json';
 
-  let allItems: EmblemForeground[] | null = null;
+  let allItems: Emblem[] | null = null;
   const object = await objectStore.get(OBJECT_KEY);
   if (object !== null) {
     const expiresAt = object.customMetadata?.expiresAt;
@@ -154,7 +153,7 @@ export async function getEmblemForeground(
       if (enableCacheLogging) {
         console.log(`object HIT for ${OBJECT_KEY}`);
       }
-      allItems = await object.json<EmblemForeground[]>();
+      allItems = await object.json<Emblem[]>();
     } else {
       if (enableCacheLogging) {
         console.log(`object STALE for ${OBJECT_KEY}`);

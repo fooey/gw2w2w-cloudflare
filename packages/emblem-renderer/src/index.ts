@@ -4,8 +4,7 @@ import { type ColorsDTO, type EmblemDTO, type GuildDTO } from 'guildwars2-ts';
 import { z } from 'zod';
 
 export type Guild = z.infer<typeof GuildDTO>;
-export type EmblemBackground = z.infer<typeof EmblemDTO>[number];
-export type EmblemForeground = z.infer<typeof EmblemDTO>[number];
+export type Emblem = z.infer<typeof EmblemDTO>[number];
 export type Color = z.infer<typeof ColorsDTO>[number];
 
 const IMAGE_DIMENSION = 256;
