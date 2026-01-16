@@ -13,6 +13,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@repo/emblem-renderer": "workspace:*",
     "@cf-wasm/photon": "^0.3.4",
     "guildwars2-ts": "^1.6.0",
     "zod": "^4.0.0"

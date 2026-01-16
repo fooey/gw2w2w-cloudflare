@@ -4,7 +4,7 @@ import {
   getEmblemBackground,
   getEmblemForeground,
   getGuild,
-} from '../resources/resources';
+} from './resources';
 import { renderEmblem } from './shared';
 
 const R2_TTL = 86400; // 24 hours

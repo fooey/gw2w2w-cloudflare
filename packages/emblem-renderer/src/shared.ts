@@ -1,7 +1,7 @@
 // c:\src\gw2w2w-cloudflare\apps\emblem-engine\src\emblem-renderer.ts
 import { fliph, flipv, PhotonImage } from '@cf-wasm/photon';
 
-import { type Color, type Guild } from '../resources/resources';
+import { type Color, type Guild } from './resources';
 
 const IMAGE_DIMENSION = 256;
 type ColorRGB = [number, number, number];

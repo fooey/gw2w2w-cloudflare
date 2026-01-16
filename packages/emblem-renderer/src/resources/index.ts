@@ -5,7 +5,7 @@ import {
   type GuildDTO,
 } from 'guildwars2-ts';
 import { z } from 'zod';
-import type { CacheProviders } from '../renderer/server';
+import type { CacheProviders } from '../server';
 
 export type Guild = z.infer<typeof GuildDTO>;
 export type EmblemBackground = z.infer<typeof EmblemDTO>[number];
