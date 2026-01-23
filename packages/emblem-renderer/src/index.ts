@@ -1,4 +1,3 @@
-// c:\src\gw2w2w-cloudflare\apps\emblem-engine\src\emblem-renderer.ts
 import { fliph, flipv, PhotonImage } from '@cf-wasm/photon';
 import { type ColorsDTO, type EmblemDTO, type GuildDTO } from 'guildwars2-ts';
 import { z } from 'zod';
@@ -15,14 +14,14 @@ export async function renderEmblem(
   colors: Color[],
   bgBuf: ArrayBuffer | null,
   fgBuf1: ArrayBuffer | null,
-  fgBuf2: ArrayBuffer | null
+  fgBuf2: ArrayBuffer | null,
 ): Promise<PhotonImage> {
   if (!emblem) {
     throw new Error('NoEmblemData');
   }
 
   const colorMap = new Map<number, ColorRGB>(
-    colors ? colors.map((c) => [c.id, c.cloth.rgb] as [number, ColorRGB]) : []
+    colors ? colors.map((c) => [c.id, c.cloth.rgb] as [number, ColorRGB]) : [],
   );
 
   const bgRGB = colorMap.get(emblem.background.colors[0] ?? 0) ?? [0, 0, 0];
@@ -55,7 +54,7 @@ export function renderEmblemLayers(
     bgRGB: ColorRGB;
     fg1RGB: ColorRGB;
     fg2RGB: ColorRGB;
-  }
+  },
 ) {
   const { flags, bgRGB, fg1RGB, fg2RGB } = options;
   const { flipBgH, flipBgV, flipFgH, flipFgV } = getFlipsFromFlags(flags);

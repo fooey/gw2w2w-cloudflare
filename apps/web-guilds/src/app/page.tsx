@@ -32,7 +32,7 @@ export default function Home() {
                     <img
                       key={backgroundClass}
                       className={clsx(backgroundClass, 'rounded-xl')}
-                      src={`http://127.0.0.1:8787/emblem/${guildId}`}
+                      src={`/emblem/${guildId}`}
                       alt="Emblem"
                       width={128}
                       height={128}

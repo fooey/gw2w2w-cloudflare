@@ -14,9 +14,11 @@ export default {
   async fetch(
     _request: Request,
     _env: CloudflareEnv,
-    ctx: ExecutionContext
+    ctx: ExecutionContext,
   ): Promise<Response> {
     const url = new URL(_request.url);
+
+    console.log(url.pathname);
 
     if (url.pathname === '/favicon.ico') {
       return new Response(null, { status: 404 });
@@ -45,7 +47,7 @@ async function handleEmblemRoute(
   env: CloudflareEnv,
   ctx: ExecutionContext,
   request: Request,
-  guildId: string
+  guildId: string,
 ): Promise<Response> {
   try {
     const emblemBytes = await renderEmblemById(guildId, {
