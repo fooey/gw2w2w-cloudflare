@@ -1,17 +1,4 @@
 # Top-level configuration for the project.
 # See https://developers.cloudflare.com/workers/wrangler/configuration/#environmental-inheritance
 
-# Shared bindings for all workers
-[[kv_namespaces]]
-binding = "EMBLEM_ENGINE_GUILD_LOOKUP"
-id = "24797f12df1d4f8197edadc01d10535c"
-
-[[r2_buckets]]
-binding = "EMBLEM_ASSETS"
-bucket_name = "emblem-assets-dev"
-
-# You can define different environments here for production, staging etc.
-# [env.production]
-# [[r2_buckets]]
-# binding = "EMBLEM_ASSETS"
-# bucket_name = "emblem-assets-prod"
+compatibility_date = "2026-01-01"

@@ -1,11 +1,7 @@
 name = "web-guilds"
 main = ".open-next/worker.js"
-compatibility_date = "2024-12-30"
 
-compatibility_flags = [
-  "nodejs_compat",
-  "global_fetch_strictly_public",
-]
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
 # Static assets for open-next
 # This replaces the "assets" configuration from wrangler.jsonc
@@ -26,3 +22,14 @@ service = "service-emblem"
 # Enable image optimization
 # see https://opennext.js.org/cloudflare/howtos/image
 binding = "IMAGES"
+
+[[kv_namespaces]]
+binding = "EMBLEM_ENGINE_GUILD_LOOKUP"
+id = "24797f12df1d4f8197edadc01d10535c"
+
+[[r2_buckets]]
+binding = "EMBLEM_ASSETS"
+bucket_name = "emblem-assets-dev"
+
+[vars]
+GW2_API_BASE = "https://api.guildwars2.com/v2"
