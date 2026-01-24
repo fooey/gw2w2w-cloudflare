@@ -24,9 +24,9 @@ export async function renderEmblem(
     colors ? colors.map((c) => [c.id, c.cloth.rgb] as [number, ColorRGB]) : [],
   );
 
-  const bgRGB = colorMap.get(emblem.background.colors[0] ?? 0) ?? [0, 0, 0];
-  const fg1RGB = colorMap.get(emblem.foreground.colors[0] ?? 0) ?? [0, 0, 0];
-  const fg2RGB = colorMap.get(emblem.foreground.colors[1] ?? 0) ?? [0, 0, 0];
+  const bgRGB = colorMap.get(emblem.background.colors[0] ?? -1) ?? [255, 0, 0];
+  const fg1RGB = colorMap.get(emblem.foreground.colors[0] ?? -1) ?? [255, 0, 0];
+  const fg2RGB = colorMap.get(emblem.foreground.colors[1] ?? -1) ?? [255, 0, 0];
 
   return renderEmblemLayers(bgBuf, fgBuf1, fgBuf2, {
     flags: emblem.flags,
