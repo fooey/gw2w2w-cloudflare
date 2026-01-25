@@ -1,5 +1,5 @@
 {
-  "name": "service-emblem",
+  "name": "@repo/service-emblem",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@repo/emblem-renderer": "workspace:*",
     "guildwars2-ts": "^1.6.0",
+    "hono": "^4.11.5",
     "zod": "^4.0.0"
   },
   "devDependencies": {

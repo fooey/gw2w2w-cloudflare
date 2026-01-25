@@ -1,6 +1,13 @@
-import { renderEmblemById } from '@/lib/renderer';
+import { emblemRoutes } from '@/routes/emblem';
+import { gw2apiRoutes } from '@/routes/gw2api';
+import { Hono } from 'hono';
+import { cache } from 'hono/cache';
+import { cors } from 'hono/cors';
+import { csrf } from 'hono/csrf';
+import { etag } from 'hono/etag';
+import { logger } from 'hono/logger';
 
-interface ErrorPayload {
+export interface ErrorPayload {
   message: string;
   status: number;
 }
@@ -10,82 +17,40 @@ export interface CloudflareEnv {
   EMBLEM_ASSETS: R2Bucket;
 }
 
-export default {
-  async fetch(
-    _request: Request,
-    _env: CloudflareEnv,
-    ctx: ExecutionContext,
-  ): Promise<Response> {
-    const url = new URL(_request.url);
-
-    console.log(url.pathname);
-
-    if (url.pathname === '/favicon.ico') {
-      return new Response(null, { status: 404 });
-    }
-
-    const cache = caches.default;
-    const cachedResponse = await cache.match(_request);
-
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-
-    // Example: /emblem/{guildId}
-    const match = /^\/emblem\/([^/]+)/.exec(url.pathname);
-    const GUILD_ID = match ? match[1] : null;
-
-    if (GUILD_ID) {
-      return handleEmblemRoute(_env, ctx, _request, GUILD_ID);
-    }
-
-    return new Response('Not Found', { status: 404 });
-  },
+export type Bindings = {
+  EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;
+  EMBLEM_ASSETS: R2Bucket;
 };
 
-async function handleEmblemRoute(
-  env: CloudflareEnv,
-  ctx: ExecutionContext,
-  request: Request,
-  guildId: string,
-): Promise<Response> {
-  try {
-    const emblemBytes = await renderEmblemById(guildId, {
-      objectStore: env.EMBLEM_ASSETS,
-      kvStore: env.EMBLEM_ENGINE_GUILD_LOOKUP,
-    });
+const app = new Hono<{ Bindings: Bindings }>();
 
-    const digest = await crypto.subtle.digest('SHA-1', emblemBytes);
-    const etag = `"${bufferToHex(digest)}"`;
+app.use(logger());
+app.use('*', cors());
+app.use('*', etag());
+app.use(csrf());
 
-    const response = new Response(emblemBytes, {
-      headers: {
-        'Content-Type': 'image/webp',
-        'Cache-Control': 'public, max-age=86400',
-        ETag: etag,
-      },
-    });
+app.get(
+  '*',
+  cache({
+    cacheName: 'service-emblem',
+    cacheControl: 'max-age=86400',
+  }),
+);
 
-    const cache = caches.default;
-    ctx.waitUntil(cache.put(request, response.clone()));
+app.route('/emblem', emblemRoutes);
+app.route('/gw2api', gw2apiRoutes);
 
-    if (request.headers.get('If-None-Match') === etag) {
-      return new Response(null, { status: 304, headers: response.headers });
-    }
+app.get('*', (c) => {
+  c.status(404);
+  return c.json({
+    message: 'Not Found!',
+    status: 404,
+    url: new URL(c.req.url).pathname,
+  });
+});
 
-    return response;
-  } catch (e: unknown) {
-    console.error(e);
-    if (typeof e === 'object' && e !== null && 'status' in e) {
-      const err = e as ErrorPayload;
-      return new Response(err.message, { status: err.status });
-    }
-    return new Response('Error rendering emblem', { status: 500 });
-  }
-}
+// EXPORT THE APP TYPE (Crucial for RPC)
+export type AppType = typeof app;
 
-function bufferToHex(buffer: ArrayBuffer): string {
-  return [...new Uint8Array(buffer)]
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
+// Default Export for Cloudflare
+export default app;

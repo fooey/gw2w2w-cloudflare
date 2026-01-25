@@ -1,5 +1,6 @@
 name = "service-emblem"
 main = "src/index.ts"
+compatibility_date = "2026-01-01"
 
 # Map the worker to a specific path on your main domain
 [[routes]]
