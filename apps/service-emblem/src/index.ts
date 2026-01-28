@@ -45,11 +45,9 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
         { apiClient },
       );
 
-      const response = new Response(emblemBytes, {
+      return new Response(emblemBytes, {
         headers: { 'Content-Type': 'image/webp' },
       });
-
-      return response;
     },
   )
   .get('*', (c) => {

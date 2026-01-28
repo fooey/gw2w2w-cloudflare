@@ -36,11 +36,6 @@ export async function renderEmblemById(
     (typeof apiClient.gw2api.guild)[':guildId']
   >['form'];
 
-  console.log(`🚀 ~ index.ts ~ renderEmblemById ~ apiClient:`, {
-    guildId,
-    apiClient,
-  });
-
   // 1. Fetch Guild Data
 
   const guild = await parseResponse(
@@ -52,8 +47,6 @@ export async function renderEmblemById(
   ).catch((e: DetailedError) => {
     console.error(e);
   });
-
-  console.log(`🚀 ~ index.ts ~ renderEmblemById ~ guild:`, await guild);
 
   if (!guild) {
     throw { message: 'Guild not found', status: 404 };

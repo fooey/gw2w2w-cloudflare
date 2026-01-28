@@ -15,29 +15,15 @@ export async function GET(
     return new Response('Not Found', { status: 404 });
   }
 
-  return fetchEmblem(guildId, req);
+  return fetchEmblem(guildId);
 }
 
-async function fetchEmblem(guildId: string, req: NextRequest) {
+async function fetchEmblem(guildId: string) {
   const client = hc<EmblemAppType>('http://localhost:8787/');
-  const res = await client.emblem[':guildId'].$get({
+
+  return client.emblem[':guildId'].$get({
     param: {
       guildId,
     },
   });
-
-  console.log(`🚀 ~ route.ts ~ fetchEmblem ~ res:`, res);
-
-  return res;
-
-  // return getCloudflareContext()
-  //   .env.SERVICE_EMBLEM.fetch(`http://internal/emblem/${guildId}`, req)
-  //   .then(
-  //     (res) =>
-  //       new Response(res.body, {
-  //         status: res.status,
-  //         statusText: res.statusText,
-  //         headers: res.headers,
-  //       }),
-  //   );
 }
