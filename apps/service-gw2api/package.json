@@ -1,10 +1,10 @@
 {
-  "name": "@repo/service-emblem",
+  "name": "@repo/service-gw2api",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "wrangler dev --port 8787 --local",
+    "dev": "wrangler dev --port 8788 --local",
     "deploy": "wrangler deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,10 +12,14 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "exports": {
+    ".": "./src/index.ts",
+    "./lib/cache-providers": "./src/lib/cache-providers/index.ts",
+    "./lib/resources": "./src/lib/resources/index.ts"
+  },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
-    "@repo/emblem-renderer": "workspace:*",
-    "@repo/service-gw2api": "workspace:*",
+    "guildwars2-ts": "^1.6.0",
     "hono": "^4.11.5",
     "zod": "^4.0.0"
   },

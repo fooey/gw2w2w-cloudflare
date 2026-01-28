@@ -19,6 +19,10 @@ service = "web-guilds"
 binding = "SERVICE_EMBLEM"
 service = "service-emblem"
 
+[[services]]
+binding = "SERVICE_GW2API"
+service = "service-gw2api"
+
 [images]
 # Enable image optimization
 # see https://opennext.js.org/cloudflare/howtos/image

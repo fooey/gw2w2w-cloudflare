@@ -1,35 +1,59 @@
-import { renderEmblem } from '@repo/emblem-renderer/index';
+import type { AppType as Gw2ApiAppType } from '@repo/service-gw2api';
 import {
   fetchBinaryAsBuffer,
   getColor,
   getEmblemBackground,
   getEmblemForeground,
-  getGuild,
   type CacheProviders,
-} from '@/lib/resources';
+} from '@repo/service-gw2api/lib/resources';
+import { hc, parseResponse, DetailedError } from 'hono/client';
+import type { InferRequestType, InferResponseType } from 'hono/client';
+import { renderEmblem } from '../../../../../packages/emblem-renderer/src';
 
 const R2_TTL = 86400; // 24 hours
 const enableCacheLogging = true;
 
 export async function renderEmblemById(
   guildId: string,
-  cacheProviders: CacheProviders
+  cacheProviders: CacheProviders,
+  env: { apiClient: Fetcher },
 ): Promise<Uint8Array> {
   const { objectStore } = cacheProviders;
   const R2_KEY = `emblem:${guildId}`;
 
-  const object = await objectStore.get(R2_KEY);
+  // const object = await objectStore.get(R2_KEY);
+  // if (object !== null) {
+  //   if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
+  //   return new Uint8Array(await object.arrayBuffer());
+  // }
+  // if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
 
-  if (object !== null) {
-    if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
-    return new Uint8Array(await object.arrayBuffer());
-  }
+  const apiClient = hc<Gw2ApiAppType>('http://127.0.0.1:8788', {
+    fetch: env.apiClient.fetch.bind(env.apiClient),
+  });
 
-  if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
+  type GuildType = InferRequestType<
+    (typeof apiClient.gw2api.guild)[':guildId']
+  >['form'];
+
+  console.log(`🚀 ~ index.ts ~ renderEmblemById ~ apiClient:`, {
+    guildId,
+    apiClient,
+  });
 
   // 1. Fetch Guild Data
 
-  const guild = await getGuild(guildId, cacheProviders);
+  const guild = await parseResponse(
+    apiClient.gw2api.guild[':guildId']!.$get({
+      param: {
+        guildId,
+      },
+    }),
+  ).catch((e: DetailedError) => {
+    console.error(e);
+  });
+
+  console.log(`🚀 ~ index.ts ~ renderEmblemById ~ guild:`, await guild);
 
   if (!guild) {
     throw { message: 'Guild not found', status: 404 };
@@ -38,7 +62,6 @@ export async function renderEmblemById(
   if (!guild.emblem) {
     throw { message: 'Guild has no emblem', status: 404 };
   }
-
   // Prepare IDs
   const bgId = guild.emblem.background.id;
   const fgId = guild.emblem.foreground.id;
@@ -77,7 +100,7 @@ export async function renderEmblemById(
     colors,
     bgBuf,
     fgBuf1,
-    fgBuf2
+    fgBuf2,
   );
 
   const bytes = emblem.get_bytes_webp();

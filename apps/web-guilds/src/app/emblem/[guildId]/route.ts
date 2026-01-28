@@ -1,5 +1,7 @@
-import { getCloudflareContext } from '@opennextjs/cloudflare';
 import type { NextRequest } from 'next/server';
+
+import type { AppType as EmblemAppType } from '@repo/service-emblem';
+import { hc } from 'hono/client';
 
 export async function GET(
   req: NextRequest,
@@ -16,15 +18,26 @@ export async function GET(
   return fetchEmblem(guildId, req);
 }
 
-function fetchEmblem(guildId: string, req: NextRequest) {
-  return getCloudflareContext()
-    .env.SERVICE_EMBLEM.fetch(`http://internal/emblem/${guildId}`, req)
-    .then(
-      (res) =>
-        new Response(res.body, {
-          status: res.status,
-          statusText: res.statusText,
-          headers: res.headers,
-        }),
-    );
+async function fetchEmblem(guildId: string, req: NextRequest) {
+  const client = hc<EmblemAppType>('http://localhost:8787/');
+  const res = await client.emblem[':guildId'].$get({
+    param: {
+      guildId,
+    },
+  });
+
+  console.log(`🚀 ~ route.ts ~ fetchEmblem ~ res:`, res);
+
+  return res;
+
+  // return getCloudflareContext()
+  //   .env.SERVICE_EMBLEM.fetch(`http://internal/emblem/${guildId}`, req)
+  //   .then(
+  //     (res) =>
+  //       new Response(res.body, {
+  //         status: res.status,
+  //         statusText: res.statusText,
+  //         headers: res.headers,
+  //       }),
+  //   );
 }

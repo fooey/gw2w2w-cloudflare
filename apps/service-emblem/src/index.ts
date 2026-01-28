@@ -1,11 +1,13 @@
-import { emblemRoutes } from '@/routes/emblem';
-import { gw2apiRoutes } from '@/routes/gw2api';
+import { renderEmblemById } from '@/lib/renderer';
+import { zValidator } from '@hono/zod-validator';
+import { createCacheProviders } from '@repo/service-gw2api/lib/cache-providers';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
+import z from 'zod';
 
 export interface ErrorPayload {
   message: string;
@@ -15,39 +17,50 @@ export interface ErrorPayload {
 export interface CloudflareEnv {
   EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;
   EMBLEM_ASSETS: R2Bucket;
+  SERVICE_GW2API: Fetcher;
 }
 
-export type Bindings = {
-  EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;
-  EMBLEM_ASSETS: R2Bucket;
-};
+const app = new Hono<{ Bindings: CloudflareEnv }>()
+  .use(logger())
+  .use('*', cors())
+  .use('*', etag())
+  .use(csrf())
+  // .get(
+  //   '*',
+  //   cache({
+  //     cacheName: 'service-emblem',
+  //     cacheControl: 'max-age=86400',
+  //   }),
+  // )
+  .get(
+    '/emblem/:guildId',
+    zValidator('param', z.object({ guildId: z.string() })),
+    async (c) => {
+      const guildId = c.req.param('guildId');
 
-const app = new Hono<{ Bindings: Bindings }>();
+      const apiClient = c.env.SERVICE_GW2API;
+      const emblemBytes = await renderEmblemById(
+        guildId,
+        createCacheProviders(c.env),
+        { apiClient },
+      );
 
-app.use(logger());
-app.use('*', cors());
-app.use('*', etag());
-app.use(csrf());
+      const response = new Response(emblemBytes, {
+        headers: { 'Content-Type': 'image/webp' },
+      });
 
-app.get(
-  '*',
-  cache({
-    cacheName: 'service-emblem',
-    cacheControl: 'max-age=86400',
-  }),
-);
-
-app.route('/emblem', emblemRoutes);
-app.route('/gw2api', gw2apiRoutes);
-
-app.get('*', (c) => {
-  c.status(404);
-  return c.json({
-    message: 'Not Found!',
-    status: 404,
-    url: new URL(c.req.url).pathname,
+      return response;
+    },
+  )
+  .get('*', (c) => {
+    c.status(404);
+    return c.json({
+      message: 'Not Found!',
+      status: 404,
+      url: new URL(c.req.url).pathname,
+      service: 'service-emblem',
+    });
   });
-});
 
 // EXPORT THE APP TYPE (Crucial for RPC)
 export type AppType = typeof app;

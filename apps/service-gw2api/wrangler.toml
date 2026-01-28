@@ -1,20 +1,11 @@
-name = "service-emblem"
+name = "service-gw2api"
 main = "src/index.ts"
 compatibility_date = "2026-01-01"
 
 # Map the worker to a specific path on your main domain
 [[routes]]
-pattern = "guilds.gw2w2w.com/emblem/*"
+pattern = "guilds.gw2w2w.com/gw2api/*"
 zone_name = "guilds.gw2w2w.com"
-
-# Crucial for Photon/Wasm on Cloudflare
-[[rules]]
-globs = ["**/*.wasm"]
-type = "CompiledWasm"
-
-[[services]]
-binding = "SERVICE_GW2API" # The variable name available in env
-service = "service-gw2api" # The name of the target worker
 
 [[kv_namespaces]]
 binding = "EMBLEM_ENGINE_GUILD_LOOKUP"
