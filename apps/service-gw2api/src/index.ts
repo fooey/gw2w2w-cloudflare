@@ -1,5 +1,10 @@
 import guildRoute from '@/routes/guild';
+import colorRoute from '@/routes/color';
 import { Hono } from 'hono';
+import { cache } from 'hono/cache';
+import { cors } from 'hono/cors';
+import { csrf } from 'hono/csrf';
+import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 
 export interface ErrorPayload {
@@ -14,9 +19,9 @@ export interface CloudflareEnv {
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
-  // .use('*', cors())
+  .use('*', cors())
   // .use('*', etag())
-  // .use(csrf())
+  .use(csrf())
   // .get(
   //   '*',
   //   cache({
@@ -25,6 +30,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   //   }),
   // )
   .route('/gw2api/guild', guildRoute)
+  .route('/gw2api/color', colorRoute)
   .get('/gw2api', (c) => c.json({ message: 'API Root', status: 200 }))
   .get('*', (c) => {
     c.status(404);
