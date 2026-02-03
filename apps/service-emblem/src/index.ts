@@ -1,4 +1,4 @@
-import { renderEmblemById } from '@/lib/renderer';
+import emblemRoute from '@/lib/renderer';
 import { zValidator } from '@hono/zod-validator';
 import { createCacheProviders } from '@repo/service-gw2api/lib/cache-providers';
 import { Hono } from 'hono';
@@ -23,7 +23,7 @@ export interface CloudflareEnv {
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', cors())
-  .use('*', etag())
+  // .use('*', etag())
   .use(csrf())
   // .get(
   //   '*',
@@ -32,24 +32,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   //     cacheControl: 'max-age=86400',
   //   }),
   // )
-  .get(
-    '/emblem/:guildId',
-    zValidator('param', z.object({ guildId: z.string() })),
-    async (c) => {
-      const guildId = c.req.param('guildId');
-
-      const apiClient = c.env.SERVICE_GW2API;
-      const emblemBytes = await renderEmblemById(
-        guildId,
-        createCacheProviders(c.env),
-        { apiClient },
-      );
-
-      return new Response(emblemBytes, {
-        headers: { 'Content-Type': 'image/webp' },
-      });
-    },
-  )
+  .route('/emblem', emblemRoute)
   .get('*', (c) => {
     c.status(404);
     return c.json({
