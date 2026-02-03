@@ -13,11 +13,7 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
 
     return getGuild(guildId, createCacheProviders(c.env)).then((guild) => {
       if (!guild) {
-        c.status(404);
-        return c.json({
-          message: 'Guild not found',
-          status: 404,
-        });
+        return c.notFound();
       }
 
       return c.json(guild);
