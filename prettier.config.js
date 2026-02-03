@@ -2,7 +2,7 @@
 const prettierConfig = {
   printWidth: 120,
   semi: true,
-  trailingComma: 'es5',
+  trailingComma: 'all',
   singleQuote: true,
   quoteProps: 'consistent',
   jsxSingleQuote: false,
