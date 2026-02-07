@@ -1,6 +1,6 @@
 import type { CloudflareEnv } from '@/index';
 import { createCacheProviders } from '@/lib/cache-providers';
-import { getGuild } from '@/lib/resources';
+import { getGuild } from '@/lib/resources/guild';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';

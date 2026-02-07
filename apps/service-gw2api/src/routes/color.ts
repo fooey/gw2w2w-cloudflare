@@ -1,6 +1,6 @@
 import type { CloudflareEnv } from '@/index';
 import { createCacheProviders } from '@/lib/cache-providers';
-import { getColor } from '@/lib/resources';
+import { getColor } from '@/lib/resources/color';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -20,5 +20,5 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
 
       return c.json(color);
     });
-  }
+  },
 );
