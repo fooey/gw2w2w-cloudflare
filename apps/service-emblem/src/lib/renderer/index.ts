@@ -5,9 +5,11 @@ import type { AppType as Gw2ApiAppType } from '@repo/service-gw2api';
 import { createCacheProviders } from '@repo/service-gw2api/lib/cache-providers';
 import {
   fetchBinaryAsBuffer,
-  getEmblemBackground,
-  getEmblemForeground,
+  // fetchBinaryAsBuffer,
+  // getEmblemBackground,
+  // getEmblemForeground,
   type Color,
+  type Emblem,
   type Guild,
 } from '@repo/service-gw2api/lib/resources';
 import { Hono } from 'hono';
@@ -33,6 +35,14 @@ function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
 
 function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
   return Promise.all(colorIds.map((id) => getColor(apiClient, id))).then((results) => results.flat());
+}
+
+function getEmblem(apiClient: ApiClient, type: 'background' | 'foreground', emblemId: number): Promise<Emblem> {
+  console.log(`🚀 ~ index.ts ~ getEmblem:`, { type, emblemId });
+
+  const emblemApi = apiClient.gw2api.emblem[`${type}/:emblemId`];
+  if (!emblemApi) throw new Error(`Emblem API not available`);
+  return parseResponse(emblemApi.$get({ param: { emblemId } })).then(([result]) => result);
 }
 
 export default new Hono<{ Bindings: CloudflareEnv }>().get(
@@ -73,16 +83,16 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
     if (!guild.emblem) {
       return c.notFound();
     }
+
     // Prepare IDs
-    const bgId = guild.emblem.background.id;
-    const fgId = guild.emblem.foreground.id;
-    const colorIds = [...guild.emblem.background.colors, ...guild.emblem.foreground.colors];
-    const uniqueColorIds = [...new Set(colorIds)];
+    const backgroundId = guild.emblem.background.id;
+    const foregroundId = guild.emblem.foreground.id;
+    const uniqueColorIds = Array.from(new Set([...guild.emblem.background.colors, ...guild.emblem.foreground.colors])); // Remove duplicates
 
     // Fetch Definitions & Colors
     const [bgDefs, fgDefs, colors] = await Promise.all([
-      bgId ? getEmblemBackground(bgId, cacheProviders) : null,
-      fgId ? getEmblemForeground(fgId, cacheProviders) : null,
+      backgroundId ? getEmblem(apiClient, 'background', backgroundId) : null,
+      foregroundId ? getEmblem(apiClient, 'foreground', foregroundId) : null,
       uniqueColorIds.length > 0 ? await getColors(apiClient, uniqueColorIds) : null,
     ]);
 
@@ -90,8 +100,8 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
       throw { message: 'Colors not found', status: 500 };
     }
 
-    const bgDef = bgDefs ? bgDefs[0] : null;
-    const fgDef = fgDefs ? fgDefs[0] : null;
+    const bgDef = bgDefs ?? null;
+    const fgDef = fgDefs ?? null;
 
     const bgLayer = bgDef?.layers[0] ?? null;
     const fgLayer1 = fgDef?.layers[1] ?? null;
