@@ -3,16 +3,8 @@ import { zValidator } from '@hono/zod-validator';
 import { renderEmblem } from '@repo//emblem-renderer/src';
 import type { AppType as Gw2ApiAppType } from '@repo/service-gw2api';
 import { createCacheProviders } from '@repo/service-gw2api/lib/cache-providers';
-import {
-  fetchBinaryAsBuffer,
-  // fetchBinaryAsBuffer,
-  // getEmblemBackground,
-  // getEmblemForeground,
-  type Color,
-  type Emblem,
-  type Guild,
-} from '@repo/service-gw2api/lib/resources';
-import { Hono } from 'hono';
+import { getTextureArrayBuffer, type Color, type Emblem, type Guild } from '@repo/service-gw2api/lib/resources';
+import { Hono, type Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
 import z from 'zod';
 
@@ -38,11 +30,15 @@ function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
 }
 
 function getEmblem(apiClient: ApiClient, type: 'background' | 'foreground', emblemId: number): Promise<Emblem> {
-  console.log(`🚀 ~ index.ts ~ getEmblem:`, { type, emblemId });
-
   const emblemApi = apiClient.gw2api.emblem[`${type}/:emblemId`];
   if (!emblemApi) throw new Error(`Emblem API not available`);
   return parseResponse(emblemApi.$get({ param: { emblemId } })).then(([result]) => result);
+}
+
+function getApiClient(context: Context): ApiClient {
+  return hc<Gw2ApiAppType>('http://127.0.0.1:8788', {
+    fetch: context.env.SERVICE_GW2API.fetch.bind(context.env.SERVICE_GW2API),
+  });
 }
 
 export default new Hono<{ Bindings: CloudflareEnv }>().get(
@@ -52,70 +48,36 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
     const cacheProviders = createCacheProviders(c.env);
     const guildId = c.req.param('guildId');
     const { objectStore } = cacheProviders;
-    const R2_KEY = `emblem:${guildId}`;
+    const R2_KEY = `emblems:${guildId}`;
 
-    // const object = await objectStore.get(R2_KEY);
-    // if (object !== null) {
-    //   if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
-    //   return new Uint8Array(await object.arrayBuffer());
-    // }
-    // if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
+    let bytes: Uint8Array<ArrayBufferLike> | null = null;
 
-    const apiClient = hc<Gw2ApiAppType>('http://127.0.0.1:8788', {
-      fetch: c.env.SERVICE_GW2API.fetch.bind(c.env.SERVICE_GW2API),
-    });
+    const object = await objectStore.get(R2_KEY);
+    if (object !== null) {
+      if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
+      bytes = new Uint8Array(await object.arrayBuffer());
+    } else {
+      if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
+      try {
+        const apiClient = getApiClient(c);
+        bytes = await getEmblemBytes(apiClient, guildId, cacheProviders);
+      } catch (error: unknown) {
+        if (
+          error instanceof Object &&
+          'status' in error &&
+          'message' in error &&
+          typeof error.status === 'number' &&
+          typeof error.message === 'string'
+        ) {
+          return new Response(JSON.stringify({ error }), {
+            status: error.status,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
 
-    let guild;
-
-    try {
-      guild = await getGuild(apiClient, guildId);
-    } catch (err) {
-      if (err instanceof DetailedError && err.statusCode === 404) {
-        return c.notFound();
+        throw error;
       }
-      throw err;
     }
-
-    if (!guild) {
-      return c.notFound();
-    }
-
-    if (!guild.emblem) {
-      return c.notFound();
-    }
-
-    // Prepare IDs
-    const backgroundId = guild.emblem.background.id;
-    const foregroundId = guild.emblem.foreground.id;
-    const uniqueColorIds = Array.from(new Set([...guild.emblem.background.colors, ...guild.emblem.foreground.colors])); // Remove duplicates
-
-    // Fetch Definitions & Colors
-    const [bgDefs, fgDefs, colors] = await Promise.all([
-      backgroundId ? getEmblem(apiClient, 'background', backgroundId) : null,
-      foregroundId ? getEmblem(apiClient, 'foreground', foregroundId) : null,
-      uniqueColorIds.length > 0 ? await getColors(apiClient, uniqueColorIds) : null,
-    ]);
-
-    if (!colors) {
-      throw { message: 'Colors not found', status: 500 };
-    }
-
-    const bgDef = bgDefs ?? null;
-    const fgDef = fgDefs ?? null;
-
-    const bgLayer = bgDef?.layers[0] ?? null;
-    const fgLayer1 = fgDef?.layers[1] ?? null;
-    const fgLayer2 = fgDef?.layers[2] ?? null;
-
-    const [bgBuf, fgBuf1, fgBuf2] = await Promise.all([
-      fetchBinaryAsBuffer(bgLayer, cacheProviders),
-      fetchBinaryAsBuffer(fgLayer1, cacheProviders),
-      fetchBinaryAsBuffer(fgLayer2, cacheProviders),
-    ]);
-
-    const emblem = await renderEmblem(guild.emblem, colors, bgBuf, fgBuf1, fgBuf2);
-
-    const bytes = emblem.get_bytes_webp();
 
     await objectStore.put(R2_KEY, bytes, {
       customMetadata: {
@@ -131,3 +93,61 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
     });
   },
 );
+
+async function getEmblemBytes(
+  apiClient: ApiClient,
+  guildId: string,
+  cacheProviders: ReturnType<typeof createCacheProviders>,
+): Promise<Uint8Array> {
+  let guild;
+
+  try {
+    guild = await getGuild(apiClient, guildId);
+  } catch (err) {
+    if (err instanceof DetailedError && err.statusCode === 404) {
+      return Promise.reject({ message: 'Guild not found', status: 404 });
+    }
+    throw err;
+  }
+
+  if (!guild) {
+    return Promise.reject({ message: 'Guild not found', status: 404 });
+  }
+
+  if (!guild.emblem) {
+    return Promise.reject({ message: 'Guild emblem not found', status: 404 });
+  }
+
+  // Prepare IDs
+  const backgroundId = guild.emblem.background.id;
+  const foregroundId = guild.emblem.foreground.id;
+  const uniqueColorIds = Array.from(new Set([...guild.emblem.background.colors, ...guild.emblem.foreground.colors])); // Remove duplicates
+
+  // Fetch Definitions & Colors
+  const [bgDefs, fgDefs, colors] = await Promise.all([
+    backgroundId ? getEmblem(apiClient, 'background', backgroundId) : null,
+    foregroundId ? getEmblem(apiClient, 'foreground', foregroundId) : null,
+    uniqueColorIds.length > 0 ? await getColors(apiClient, uniqueColorIds) : null,
+  ]);
+
+  if (!colors) {
+    throw { message: 'Colors not found', status: 500 };
+  }
+
+  const bgDef = bgDefs ?? null;
+  const fgDef = fgDefs ?? null;
+
+  const bgLayer = bgDef?.layers[0] ?? null;
+  const fgLayer1 = fgDef?.layers[1] ?? null;
+  const fgLayer2 = fgDef?.layers[2] ?? null;
+
+  const [bgBuf, fgBuf1, fgBuf2] = await Promise.all([
+    getTextureArrayBuffer(bgLayer, cacheProviders.objectStore),
+    getTextureArrayBuffer(fgLayer1, cacheProviders.objectStore),
+    getTextureArrayBuffer(fgLayer2, cacheProviders.objectStore),
+  ]);
+
+  const emblem = await renderEmblem(guild.emblem, colors, bgBuf, fgBuf1, fgBuf2);
+
+  return emblem.get_bytes_webp();
+}

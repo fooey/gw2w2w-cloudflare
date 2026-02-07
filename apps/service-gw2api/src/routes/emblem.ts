@@ -14,8 +14,6 @@ export default new Hono<{ Bindings: CloudflareEnv }>()
   .get('/background/:emblemId', validateEmblemIdParam, async (c) => {
     const emblemId = Number(c.req.param('emblemId'));
 
-    console.log(`🚀 ~ emblem.ts ~ background ~ emblemId:`, emblemId);
-
     return getEmblemBackground(emblemId, createCacheProviders(c.env)).then((result) => {
       if (!result) {
         return c.notFound();
@@ -26,8 +24,6 @@ export default new Hono<{ Bindings: CloudflareEnv }>()
   })
   .get('/foreground/:emblemId', validateEmblemIdParam, async (c) => {
     const emblemId = Number(c.req.param('emblemId'));
-
-    console.log(`🚀 ~ emblem.ts ~ foreground ~ emblemId:`, emblemId);
 
     return getEmblemForeground(emblemId, createCacheProviders(c.env)).then((result) => {
       if (!result) {

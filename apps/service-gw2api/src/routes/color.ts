@@ -7,11 +7,9 @@ import { z } from 'zod';
 
 export default new Hono<{ Bindings: CloudflareEnv }>().get(
   '/:colorId',
-  zValidator('param', z.object({ colorId: z.string() })),
+  zValidator('param', z.object({ colorId: z.coerce.number().nonnegative().max(999).nonoptional() })),
   async (c) => {
     const colorId = Number(c.req.param('colorId'));
-
-    console.log(`🚀 ~ color.ts ~ colorId:`, colorId);
 
     return getColor(colorId, createCacheProviders(c.env)).then((color) => {
       if (!color) {
