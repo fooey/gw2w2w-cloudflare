@@ -42,6 +42,9 @@ importers:
       hono:
         specifier: ^4.11.5
         version: 4.11.5
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
       zod:
         specifier: ^4.0.0
         version: 4.3.5
@@ -64,6 +67,9 @@ importers:
       hono:
         specifier: ^4.11.5
         version: 4.11.5
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
       zod:
         specifier: ^4.0.0
         version: 4.3.5
@@ -104,16 +110,19 @@ importers:
       react-dom:
         specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20260124.0
         version: 4.20260124.0
       '@opennextjs/aws':
         specifier: ^3.9.12
-        version: 3.9.12(next@16.1.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+        version: 3.9.12(next@16.1.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@opennextjs/cloudflare':
         specifier: ^1.15.1
-        version: 1.15.1(next@16.1.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(wrangler@4.60.0(@cloudflare/workers-types@4.20260124.0))
+        version: 1.15.1(next@16.1.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(wrangler@4.60.0(@cloudflare/workers-types@4.20260124.0))
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.18
@@ -134,7 +143,7 @@ importers:
         version: 9.39.2(jiti@2.6.1)
       eslint-config-next:
         specifier: ^16
-        version: 16.1.2(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.2))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.2)
+        version: 16.1.2(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.2)
       tailwindcss:
         specifier: ^4
         version: 4.1.18
@@ -204,7 +213,7 @@ importers:
     dependencies:
       eslint-config-next:
         specifier: ^16
-        version: 16.1.2(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.2)
+        version: 16.1.2(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.2))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.2)
       next:
         specifier: ^16.1.2
         version: 16.1.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -4104,6 +4113,10 @@ packages:
   urlpattern-polyfill@10.1.0:
     resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==}
 
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
+    hasBin: true
+
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
@@ -5938,7 +5951,7 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@opennextjs/aws@3.9.12(next@16.1.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+  '@opennextjs/aws@3.9.12(next@16.1.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
     dependencies:
       '@ast-grep/napi': 0.40.0
       '@aws-sdk/client-cloudfront': 3.398.0
@@ -5962,11 +5975,11 @@ snapshots:
       - aws-crt
       - supports-color
 
-  '@opennextjs/cloudflare@1.15.1(next@16.1.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(wrangler@4.60.0(@cloudflare/workers-types@4.20260124.0))':
+  '@opennextjs/cloudflare@1.15.1(next@16.1.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(wrangler@4.60.0(@cloudflare/workers-types@4.20260124.0))':
     dependencies:
       '@ast-grep/napi': 0.40.0
       '@dotenvx/dotenvx': 1.31.0
-      '@opennextjs/aws': 3.9.12(next@16.1.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+      '@opennextjs/aws': 3.9.12(next@16.1.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       cloudflare: 4.5.0
       enquirer: 2.4.1
       glob: 12.0.0
@@ -9212,6 +9225,8 @@ snapshots:
       punycode: 2.3.1
 
   urlpattern-polyfill@10.1.0: {}
+
+  uuid@13.0.0: {}
 
   uuid@9.0.1: {}
 

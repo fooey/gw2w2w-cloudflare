@@ -21,7 +21,8 @@
     "hono": "^4.11.5",
     "next": "^16.1.2",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260124.0",

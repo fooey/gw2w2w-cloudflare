@@ -21,6 +21,7 @@
     "@hono/zod-validator": "^0.7.6",
     "guildwars2-ts": "^1.6.0",
     "hono": "^4.11.5",
+    "uuid": "^13.0.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
