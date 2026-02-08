@@ -21,6 +21,24 @@ export function searchGuildFromApi(name: string): Promise<Guild['id'] | undefine
     });
 }
 
+function normalizeGuildName(name: string): string {
+  return (
+    name
+      .toLowerCase() // ASCII-safe, fast
+      .trim()
+      .replaceAll('-', ' ') // Normalize spaces
+      .replace(/\s+/g, ' ') // Normalize spaces
+      // Optional: Handle special characters consistently
+      .normalize('NFD') // Decompose accented characters
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks
+      .substring(0, 100)
+  ); // Prevent extremely long cache keys
+}
+
+function getGuildNameKey(name: string): string {
+  return `guild-name:${normalizeGuildName(name)}`;
+}
+
 export async function getGuild(guildId: string, cacheProviders: CacheProviders): Promise<Guild | null> {
   const key = `guild:${guildId}`;
 
@@ -35,7 +53,7 @@ export async function getGuild(guildId: string, cacheProviders: CacheProviders):
       const kvOptions = { expirationTtl: STORE_KV_TTL };
 
       // Store reverse index: guild name -> guild data
-      await kvStore.put(`guild-name:${freshGuild.name}`, jsonString, kvOptions);
+      await kvStore.put(getGuildNameKey(freshGuild.name), jsonString, kvOptions);
 
       return freshGuild;
     },
@@ -44,7 +62,7 @@ export async function getGuild(guildId: string, cacheProviders: CacheProviders):
 }
 
 export async function searchGuild(name: string, cacheProviders: CacheProviders): Promise<Guild | null> {
-  const kvKey = `guild-name:${name.toLocaleLowerCase()}`;
+  const kvKey = getGuildNameKey(name);
 
   return withKvCache(
     kvKey,
