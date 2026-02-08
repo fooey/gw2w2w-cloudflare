@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-
 import clsx from 'clsx';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const guildIds = [
   '4bbb52aa-d768-4fc6-8ede-c299f2822f0f',
@@ -29,7 +29,7 @@ export default function Home() {
               <li key={guildId} className="my-4">
                 <div className="flex gap-4">
                   {backgroundClasses.map((backgroundClass) => (
-                    <img
+                    <Image
                       key={backgroundClass}
                       className={clsx(backgroundClass, 'rounded-xl')}
                       src={`/emblem/${guildId}`}
@@ -39,7 +39,9 @@ export default function Home() {
                     />
                   ))}
                 </div>
-                <div>{guildId}</div>
+                <div>
+                  <Link href={`/guild/${guildId}`}>{guildId}</Link>
+                </div>
               </li>
             ))}
           </ul>
