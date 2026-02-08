@@ -1,11 +1,8 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import type { NextRequest } from 'next/server';
 
-export async function GET(
-  req: NextRequest,
-  ctx: RouteContext<'/gw2api/[[...slug]]'>,
-) {
-  const { slug } = await ctx.params;
+export async function GET(req: NextRequest, { params }: { params: { slug?: string[] } }) {
+  const { slug } = await params;
 
   // on production this is routed to the gw2api worker directly by cloudflare
   if (!slug || process.env.NODE_ENV === 'production') {
