@@ -24,26 +24,26 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   // .get(
   //   '*',
   //   cache({
-  //     cacheName: 'service-gw2api',
+  //     cacheName: 'service-api',
   //     cacheControl: 'max-age=86400',
   //   }),
   // )
-  .route('/gw2api/guild', guildRoute)
-  .route('/gw2api/color', colorRoute)
-  .route('/gw2api/emblem', emblemRoute)
-  .get('/gw2api', (c) => c.json({ message: 'API Root', status: 200 }))
+  .route('/api/guild', guildRoute)
+  .route('/api/color', colorRoute)
+  .route('/api/emblem', emblemRoute)
+  .get('/api', (c) => c.json({ message: 'API Root', status: 200 }))
   .get('*', (c) => {
     c.status(404);
     return c.json({
       message: 'Not Found',
       status: 404,
       url: new URL(c.req.url).pathname,
-      service: 'service-gw2api',
+      service: 'service-api',
     });
   });
 
 // EXPORT THE APP TYPE (Crucial for RPC)
-export type AppType = typeof app;
+export type ApiAppType = typeof app;
 
 // Default Export for Cloudflare
 export default app;

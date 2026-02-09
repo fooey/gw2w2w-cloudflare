@@ -15,7 +15,7 @@
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
     "@repo/emblem-renderer": "workspace:*",
-    "@repo/service-gw2api": "workspace:*",
+    "@repo/service-api": "workspace:*",
     "hono": "^4.11.5",
     "uuid": "^13.0.0",
     "zod": "^4.0.0"

@@ -20,8 +20,8 @@ binding = "SERVICE_EMBLEM"
 service = "service-emblem"
 
 [[services]]
-binding = "SERVICE_GW2API"
-service = "service-gw2api"
+binding = "SERVICE_API"
+service = "service-api"
 
 [images]
 # Enable image optimization

@@ -1,6 +1,6 @@
 import emblemRoute from '@/lib/renderer';
 import { zValidator } from '@hono/zod-validator';
-import { createCacheProviders } from '@repo/service-gw2api/lib/cache-providers';
+import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
@@ -17,7 +17,7 @@ export interface ErrorPayload {
 export interface CloudflareEnv {
   EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;
   EMBLEM_ASSETS: R2Bucket;
-  SERVICE_GW2API: Fetcher;
+  SERVICE_API: Fetcher;
 }
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()

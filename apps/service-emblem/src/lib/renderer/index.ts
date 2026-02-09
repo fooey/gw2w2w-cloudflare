@@ -1,9 +1,9 @@
 import type { CloudflareEnv } from '@/index';
 import { zValidator } from '@hono/zod-validator';
 import { renderEmblem } from '@repo//emblem-renderer/src';
-import type { AppType as Gw2ApiAppType } from '@repo/service-gw2api';
-import { createCacheProviders } from '@repo/service-gw2api/lib/cache-providers';
-import { getTextureArrayBuffer, type Color, type Emblem, type Guild } from '@repo/service-gw2api/lib/resources';
+import type { AppType as ApiAppType } from '@repo/service-api';
+import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
+import { getTextureArrayBuffer, type Color, type Emblem, type Guild } from '@repo/service-api/lib/resources';
 import { Hono, type Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
 import z from 'zod';
@@ -11,16 +11,16 @@ import z from 'zod';
 const R2_TTL = 86400; // 24 hours
 const enableCacheLogging = true;
 
-type ApiClient = ReturnType<typeof hc<Gw2ApiAppType>>;
+type ApiClient = ReturnType<typeof hc<ApiAppType>>;
 
 function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
-  const guildApi = apiClient.gw2api.guild[':guildId'];
+  const guildApi = apiClient.api.guild[':guildId'];
   if (!guildApi) throw new Error('Guild API not available');
   return parseResponse(guildApi.$get({ param: { guildId } }));
 }
 
 function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
-  const colorApi = apiClient.gw2api.color[':colorId'];
+  const colorApi = apiClient.api.color[':colorId'];
   if (!colorApi) throw new Error('Color API not available');
   return parseResponse(colorApi.$get({ param: { colorId } }));
 }
@@ -30,14 +30,14 @@ function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
 }
 
 function getEmblem(apiClient: ApiClient, type: 'background' | 'foreground', emblemId: number): Promise<Emblem> {
-  const emblemApi = apiClient.gw2api.emblem[`${type}/:emblemId`];
+  const emblemApi = apiClient.api.emblem[`${type}/:emblemId`];
   if (!emblemApi) throw new Error(`Emblem API not available`);
   return parseResponse(emblemApi.$get({ param: { emblemId } })).then(([result]) => result);
 }
 
 function getApiClient(context: Context): ApiClient {
-  return hc<Gw2ApiAppType>('http://127.0.0.1:8788', {
-    fetch: context.env.SERVICE_GW2API.fetch.bind(context.env.SERVICE_GW2API),
+  return hc<ApiAppType>('http://127.0.0.1:8788', {
+    fetch: context.env.SERVICE_API.fetch.bind(context.env.SERVICE_API),
   });
 }
 

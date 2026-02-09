@@ -1,10 +1,10 @@
-name = "service-gw2api"
+name = "service-api"
 main = "src/index.ts"
 compatibility_date = "2026-01-01"
 
 # Map the worker to a specific path on your main domain
 [[routes]]
-pattern = "guilds.gw2w2w.com/gw2api/*"
+pattern = "guilds.gw2w2w.com/api/*"
 zone_name = "guilds.gw2w2w.com"
 
 [[kv_namespaces]]

@@ -13,8 +13,8 @@ globs = ["**/*.wasm"]
 type = "CompiledWasm"
 
 [[services]]
-binding = "SERVICE_GW2API" # The variable name available in env
-service = "service-gw2api" # The name of the target worker
+binding = "SERVICE_API" # The variable name available in env
+service = "service-api" # The name of the target worker
 
 [[kv_namespaces]]
 binding = "EMBLEM_ENGINE_GUILD_LOOKUP"

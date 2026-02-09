@@ -15,7 +15,7 @@
   "dependencies": {
     "@repo/emblem-renderer": "workspace:*",
     "@repo/service-emblem": "workspace:*",
-    "@repo/service-gw2api": "workspace:*",
+    "@repo/service-api": "workspace:*",
     "clsx": "^2.1.1",
     "guildwars2-ts": "^1.6.0",
     "hono": "^4.11.5",

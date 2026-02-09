@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/api/client';
-import type { Guild } from '@repo/service-gw2api/lib/resources';
+import type { Guild } from '@repo/service-api/lib/resources';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { cache } from 'react';
