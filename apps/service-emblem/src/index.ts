@@ -1,13 +1,8 @@
 import emblemRoute from '@/lib/renderer';
-import { zValidator } from '@hono/zod-validator';
-import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { Hono } from 'hono';
-import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
-import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
-import z from 'zod';
 
 export interface ErrorPayload {
   message: string;
@@ -44,7 +39,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   });
 
 // EXPORT THE APP TYPE (Crucial for RPC)
-export type AppType = typeof app;
+export type ServiceEmblemAppType = typeof app;
 
 // Default Export for Cloudflare
 export default app;

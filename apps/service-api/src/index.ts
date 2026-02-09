@@ -43,7 +43,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   });
 
 // EXPORT THE APP TYPE (Crucial for RPC)
-export type ApiAppType = typeof app;
+export type ServiceApiAppType = typeof app;
 
 // Default Export for Cloudflare
 export default app;

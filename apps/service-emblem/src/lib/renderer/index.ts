@@ -1,7 +1,7 @@
 import type { CloudflareEnv } from '@/index';
 import { zValidator } from '@hono/zod-validator';
 import { renderEmblem } from '@repo//emblem-renderer/src';
-import type { AppType as ApiAppType } from '@repo/service-api';
+import type { ServiceApiAppType } from '@repo/service-api';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { getTextureArrayBuffer, type Color, type Emblem, type Guild } from '@repo/service-api/lib/resources';
 import { Hono, type Context } from 'hono';
@@ -11,7 +11,7 @@ import z from 'zod';
 const R2_TTL = 86400; // 24 hours
 const enableCacheLogging = true;
 
-type ApiClient = ReturnType<typeof hc<ApiAppType>>;
+type ApiClient = ReturnType<typeof hc<ServiceApiAppType>>;
 
 function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
   const guildApi = apiClient.api.guild[':guildId'];
@@ -36,7 +36,7 @@ function getEmblem(apiClient: ApiClient, type: 'background' | 'foreground', embl
 }
 
 function getApiClient(context: Context): ApiClient {
-  return hc<ApiAppType>('http://127.0.0.1:8788', {
+  return hc<ServiceApiAppType>('http://127.0.0.1:8788', {
     fetch: context.env.SERVICE_API.fetch.bind(context.env.SERVICE_API),
   });
 }

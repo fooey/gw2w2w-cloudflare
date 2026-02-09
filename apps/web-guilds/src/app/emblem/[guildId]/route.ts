@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 
-import type { AppType as EmblemAppType } from '@repo/service-emblem';
+import type { ServiceEmblemAppType } from '@repo/service-emblem';
 import { hc } from 'hono/client';
 
 export async function GET(req: NextRequest, { params }: { params: { guildId: string } }) {
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: { guildId: str
 }
 
 async function fetchEmblem(guildId: string) {
-  const client = hc<EmblemAppType>('http://localhost:8787/');
+  const client = hc<ServiceEmblemAppType>('http://localhost:8787/');
   const getEmblem = client.emblem[':guildId']?.$get;
 
   if (!getEmblem) {
