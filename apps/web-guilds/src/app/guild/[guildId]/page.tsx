@@ -24,8 +24,9 @@ export const getGuildData = cache(async (guildId: string) => {
 });
 
 export async function generateMetadata({ params }: GuildPageProps): Promise<Metadata> {
+  const { guildId } = await params;
+
   try {
-    const { guildId } = await params;
     const guild = await getGuildData(guildId); // More specific cache key
 
     const canonical = `https://gw2w2w.com/guild/${guild.id}`;
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
       alternates: { canonical },
     };
   } catch (e) {
-    const { guildId } = await params;
+    console.error(e);
     return {
       title: `Guild ${guildId} - GW2W2W`,
       alternates: {
