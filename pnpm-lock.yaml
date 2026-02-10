@@ -33,9 +33,6 @@ importers:
       '@hono/zod-validator':
         specifier: ^0.7.6
         version: 0.7.6(hono@4.11.5)(zod@4.3.5)
-      guildwars2-ts:
-        specifier: ^1.6.0
-        version: 1.6.0
       hono:
         specifier: ^4.11.5
         version: 4.11.5
@@ -95,9 +92,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      guildwars2-ts:
-        specifier: ^1.6.0
-        version: 1.6.0
       hono:
         specifier: ^4.11.5
         version: 4.11.5
@@ -159,6 +153,9 @@ importers:
       '@cf-wasm/photon':
         specifier: ^0.3.4
         version: 0.3.4
+      '@repo/service-api':
+        specifier: workspace:*
+        version: link:../../apps/service-api
       guildwars2-ts:
         specifier: ^1.6.0
         version: 1.6.0

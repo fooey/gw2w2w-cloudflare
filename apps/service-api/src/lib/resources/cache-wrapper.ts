@@ -35,7 +35,7 @@ export async function withKvCache<T>(
   const { ttl = STORE_KV_TTL, notFoundTtl = NOT_FOUND_CACHE_EXPIRATION, enableLogging = enableCacheLogging } = config;
 
   // 1. Check cache
-  const cached = await kvStore.get(key, 'text');
+  const cached = null; // await kvStore.get(key, 'text');
 
   if (cached !== null) {
     if (enableLogging) {
@@ -58,9 +58,9 @@ export async function withKvCache<T>(
     const freshData = await apiCall();
 
     // 3. Store in cache
-    await kvStore.put(key, JSON.stringify(freshData), {
-      expirationTtl: ttl,
-    });
+    // await kvStore.put(key, JSON.stringify(freshData), {
+    //   expirationTtl: ttl,
+    // });
 
     return freshData;
   } catch (error) {
@@ -69,9 +69,9 @@ export async function withKvCache<T>(
       console.log(`Caching NOT_FOUND for [${key}]`);
     }
 
-    await kvStore.put(key, NOT_FOUND_CACHE_VALUE, {
-      expirationTtl: notFoundTtl,
-    });
+    // await kvStore.put(key, NOT_FOUND_CACHE_VALUE, {
+    //   expirationTtl: notFoundTtl,
+    // });
 
     return null;
   }
@@ -121,12 +121,12 @@ export async function withObjectCache<T>(
   if (cachedData === null) {
     cachedData = await apiCall();
 
-    // 3. Store with expiration metadata
-    await objectStore.put(objectKey, JSON.stringify(cachedData), {
-      customMetadata: {
-        expiresAt: new Date(Date.now() + ttl * 1000).toISOString(),
-      },
-    });
+    // // 3. Store with expiration metadata
+    // await objectStore.put(objectKey, JSON.stringify(cachedData), {
+    //   customMetadata: {
+    //     expiresAt: new Date(Date.now() + ttl * 1000).toISOString(),
+    //   },
+    // });
   }
 
   return cachedData;
@@ -145,11 +145,11 @@ export async function withObjectCache<T>(
 export async function withFilteredObjectCache<T extends { id: number }>(
   objectKey: string,
   ids: number | number[] | 'all',
-  apiCall: () => Promise<T[]>,
+  apiCall: () => Promise<T[] | null>,
   cacheProviders: CacheProviders,
   config: CacheConfig = {},
 ): Promise<T[]> {
-  const allItems = await withObjectCache(objectKey, apiCall, cacheProviders, config);
+  const allItems = (await withObjectCache(objectKey, apiCall, cacheProviders, config)) || [];
 
   if (ids === 'all') {
     return allItems;

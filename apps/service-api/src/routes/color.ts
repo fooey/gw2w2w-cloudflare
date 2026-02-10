@@ -11,7 +11,7 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
   async (c) => {
     const colorId = Number(c.req.param('colorId'));
 
-    return getColor(colorId, createCacheProviders(c.env)).then((color) => {
+    return getColor(colorId, c.env).then((color) => {
       if (!color) {
         return c.notFound();
       }

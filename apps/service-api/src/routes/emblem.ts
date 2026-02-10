@@ -1,5 +1,4 @@
 import type { CloudflareEnv } from '@/index';
-import { createCacheProviders } from '@/lib/cache-providers';
 import { getEmblemBackground, getEmblemForeground } from '@/lib/resources/emblem';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
@@ -14,7 +13,7 @@ export default new Hono<{ Bindings: CloudflareEnv }>()
   .get('/background/:emblemId', validateEmblemIdParam, async (c) => {
     const emblemId = Number(c.req.param('emblemId'));
 
-    return getEmblemBackground(emblemId, createCacheProviders(c.env)).then((result) => {
+    return getEmblemBackground(emblemId, c.env).then((result) => {
       if (!result) {
         return c.notFound();
       }
@@ -25,7 +24,7 @@ export default new Hono<{ Bindings: CloudflareEnv }>()
   .get('/foreground/:emblemId', validateEmblemIdParam, async (c) => {
     const emblemId = Number(c.req.param('emblemId'));
 
-    return getEmblemForeground(emblemId, createCacheProviders(c.env)).then((result) => {
+    return getEmblemForeground(emblemId, c.env).then((result) => {
       if (!result) {
         return c.notFound();
       }

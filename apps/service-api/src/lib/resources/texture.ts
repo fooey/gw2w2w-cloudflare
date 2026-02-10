@@ -22,11 +22,11 @@ export async function getTextureArrayBuffer(
     if (!r.ok) return null;
     buffer = await r.arrayBuffer();
 
-    await objectStore.put(OBJECT_KEY, buffer, {
-      customMetadata: {
-        expiresAt: new Date(Date.now() + STORE_OBJECT_TTL * 1000).toISOString(),
-      },
-    });
+    // await objectStore.put(OBJECT_KEY, buffer, {
+    //   customMetadata: {
+    //     expiresAt: new Date(Date.now() + STORE_OBJECT_TTL * 1000).toISOString(),
+    //   },
+    // });
   }
 
   return buffer;

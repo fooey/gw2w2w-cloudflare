@@ -1,29 +1,62 @@
+import type { CloudflareEnv } from '@/index';
+import { createCacheProviders } from '@/lib/cache-providers';
 import type { CacheProviders } from '@/lib/resources';
-import { getApi } from '@/lib/resources/api';
+import { apiFetch } from '@/lib/resources/api';
+import type { Emblem } from '@/lib/types';
 import { withFilteredObjectCache } from './cache-wrapper';
-import type { EmblemDTO } from 'guildwars2-ts';
-import { z } from 'zod';
 
-export type Emblem = z.infer<typeof EmblemDTO>[number];
-
-function getEmblemBackgroundFromApi(): Promise<Emblem[]> {
-  return getApi().emblem.get('backgrounds', 'all');
+function getEmblemBackgroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null> {
+  return apiFetch(env, '/emblem/backgrounds?ids=all').then((response) => {
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // Guild not found
+      } else {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+    }
+    return response.json();
+  });
 }
 
-function getEmblemForegroundFromApi(): Promise<Emblem[]> {
-  return getApi().emblem.get('foregrounds', 'all');
+function getEmblemForegroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null> {
+  return apiFetch(env, '/emblem/foregrounds?ids=all').then((response) => {
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // Guild not found
+      } else {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+    }
+    return response.json();
+  });
 }
 
 export async function getEmblemBackground(
   emblemId: number | number[] | 'all',
-  cacheProviders: CacheProviders,
-): Promise<Emblem[]> {
-  return withFilteredObjectCache('backgrounds.json', emblemId, getEmblemBackgroundFromApi, cacheProviders);
+  env: CloudflareEnv,
+): Promise<Emblem[] | null> {
+  const cacheProviders = createCacheProviders(env);
+  return withFilteredObjectCache(
+    'backgrounds.json',
+    emblemId,
+    async () => {
+      return getEmblemBackgroundFromApi(env);
+    },
+    cacheProviders,
+  );
 }
 
 export async function getEmblemForeground(
   emblemId: number | number[] | 'all',
-  cacheProviders: CacheProviders,
-): Promise<Emblem[]> {
-  return withFilteredObjectCache('foregrounds.json', emblemId, getEmblemForegroundFromApi, cacheProviders);
+  env: CloudflareEnv,
+): Promise<Emblem[] | null> {
+  const cacheProviders = createCacheProviders(env);
+  return withFilteredObjectCache(
+    'foregrounds.json',
+    emblemId,
+    async () => {
+      return getEmblemForegroundFromApi(env);
+    },
+    cacheProviders,
+  );
 }

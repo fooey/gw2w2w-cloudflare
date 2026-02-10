@@ -3,7 +3,8 @@ import { zValidator } from '@hono/zod-validator';
 import { renderEmblem } from '@repo//emblem-renderer/src';
 import type { ServiceApiAppType } from '@repo/service-api';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
-import { getTextureArrayBuffer, type Color, type Emblem, type Guild } from '@repo/service-api/lib/resources';
+import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
+import { type Color, type Emblem, type Guild } from '@repo/service-api/lib/types';
 import { Hono, type Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
 import { validate as uuidValidate } from 'uuid';
@@ -100,14 +101,14 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
       }
     }
 
-    await objectStore.put(cacheKey, bytes, {
-      customMetadata: {
-        expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
-      },
-      httpMetadata: {
-        contentType: 'image/webp',
-      },
-    });
+    // await objectStore.put(cacheKey, bytes, {
+    //   customMetadata: {
+    //     expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
+    //   },
+    //   httpMetadata: {
+    //     contentType: 'image/webp',
+    //   },
+    // });
 
     return new Response(bytes, {
       headers: { 'Content-Type': 'image/webp' },

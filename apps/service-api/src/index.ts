@@ -14,6 +14,8 @@ export interface ErrorPayload {
 export interface CloudflareEnv {
   EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;
   EMBLEM_ASSETS: R2Bucket;
+  GW2_API_BASE: string;
+  GW2_API_KEY?: string;
 }
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()

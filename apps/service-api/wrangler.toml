@@ -17,3 +17,4 @@ bucket_name = "emblem-assets-dev"
 
 [vars]
 GW2_API_BASE = "https://api.guildwars2.com/v2"
+GW2_API_KEY = "EC40388C-01A7-1045-A143-F36FC2B60664D7F6A3BC-D758-4B0C-8DE1-A3AAB5D660DF"

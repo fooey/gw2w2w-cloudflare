@@ -17,7 +17,6 @@
     "@repo/service-emblem": "workspace:*",
     "@repo/service-api": "workspace:*",
     "clsx": "^2.1.1",
-    "guildwars2-ts": "^1.6.0",
     "hono": "^4.11.5",
     "next": "^16.1.2",
     "react": "^19.2.3",

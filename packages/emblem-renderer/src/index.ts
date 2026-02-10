@@ -1,10 +1,5 @@
 import { fliph, flipv, PhotonImage } from '@cf-wasm/photon';
-import { type ColorsDTO, type EmblemDTO, type GuildDTO } from 'guildwars2-ts';
-import { z } from 'zod';
-
-export type Guild = z.infer<typeof GuildDTO>;
-export type Emblem = z.infer<typeof EmblemDTO>[number];
-export type Color = z.infer<typeof ColorsDTO>[number];
+import { type Color, type Emblem, type Guild } from '@repo/service-api/lib/types';
 
 const IMAGE_DIMENSION = 256;
 type ColorRGB = [number, number, number];

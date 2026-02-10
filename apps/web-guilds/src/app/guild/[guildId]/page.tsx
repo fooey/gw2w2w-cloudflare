@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/api/client';
-import type { Guild } from '@repo/service-api/lib/resources';
+import type { Guild } from '@repo/service-api/lib/types';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { cache } from 'react';
@@ -10,14 +10,20 @@ interface GuildPageProps {
 }
 
 function getGuild(guildId: string): Promise<Response> {
+  console.log(`🚀 ~ page.tsx ~ getGuild ~ guildId:`, guildId);
+
   return apiFetch(`/guild/${guildId}`);
 }
 
 function searchGuild(name: string): Promise<Response> {
-  return apiFetch(`/guild/search/${name.toLocaleLowerCase()}`);
+  console.log(`🚀 ~ page.tsx ~ searchGuild ~ name:`, name);
+
+  return apiFetch(`/guild/search?name=${name.toLocaleLowerCase()}`);
 }
 
 export const getGuildData = cache(async (guildId: string) => {
+  console.log(`🚀 ~ page.tsx ~ guildId:`, guildId);
+
   const isUuid = uuidValidate(guildId);
   const fn = isUuid ? getGuild : searchGuild;
   return fn(guildId).then((response) => response.json()) as Promise<Guild>;
@@ -47,7 +53,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
   }
 }
 
-export default async function Guild({ params }: GuildPageProps) {
+export default async function GuildPage({ params }: GuildPageProps) {
   const { guildId } = await params;
   const guild = await getGuildData(guildId);
 

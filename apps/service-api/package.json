@@ -15,11 +15,11 @@
   "exports": {
     ".": "./src/index.ts",
     "./lib/cache-providers": "./src/lib/cache-providers/index.ts",
-    "./lib/resources": "./src/lib/resources/index.ts"
+    "./lib/resources": "./src/lib/resources/index.ts",
+    "./lib/types": "./src/lib/types/index.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
-    "guildwars2-ts": "^1.6.0",
     "hono": "^4.11.5",
     "uuid": "^13.0.0",
     "zod": "^4.0.0"
