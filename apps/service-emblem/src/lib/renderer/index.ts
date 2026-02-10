@@ -6,6 +6,7 @@ import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { getTextureArrayBuffer, type Color, type Emblem, type Guild } from '@repo/service-api/lib/resources';
 import { Hono, type Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
+import { validate as uuidValidate } from 'uuid';
 import z from 'zod';
 
 const R2_TTL = 86400; // 24 hours
@@ -17,6 +18,12 @@ function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
   const guildApi = apiClient.api.guild[':guildId'];
   if (!guildApi) throw new Error('Guild API not available');
   return parseResponse(guildApi.$get({ param: { guildId } }));
+}
+
+function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
+  const guildApi = apiClient.api.guild['search/:name'];
+  if (!guildApi) throw new Error('Guild API not available');
+  return parseResponse(guildApi.$get({ param: { name } }));
 }
 
 function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
@@ -46,18 +53,32 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
   zValidator('param', z.object({ guildId: z.string() })),
   async (c) => {
     const cacheProviders = createCacheProviders(c.env);
-    const guildId = c.req.param('guildId');
+    let guildId = c.req.param('guildId');
     const { objectStore } = cacheProviders;
-    const R2_KEY = `emblems:${guildId}`;
+
+    if (!uuidValidate(guildId)) {
+      try {
+        const guild = await searchGuild(getApiClient(c), guildId);
+        guildId = guild.id;
+      } catch (error) {
+        return c.notFound();
+      }
+    }
+
+    if (guildId == null) {
+      return c.notFound();
+    }
+
+    const cacheKey = `emblems:${guildId}`;
 
     let bytes: Uint8Array<ArrayBufferLike> | null = null;
 
-    const object = await objectStore.get(R2_KEY);
+    const object = await objectStore.get(cacheKey);
     if (object !== null) {
-      if (enableCacheLogging) console.log(`r2 HIT for ${R2_KEY}`);
+      if (enableCacheLogging) console.log(`r2 HIT for ${cacheKey}`);
       bytes = new Uint8Array(await object.arrayBuffer());
     } else {
-      if (enableCacheLogging) console.log(`r2 MISS for ${R2_KEY}`);
+      if (enableCacheLogging) console.log(`r2 MISS for ${cacheKey}`);
       try {
         const apiClient = getApiClient(c);
         bytes = await getEmblemBytes(apiClient, guildId, cacheProviders);
@@ -79,7 +100,7 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
       }
     }
 
-    await objectStore.put(R2_KEY, bytes, {
+    await objectStore.put(cacheKey, bytes, {
       customMetadata: {
         expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
       },
