@@ -13,6 +13,9 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
+    "ts:clean": {
+      "dependsOn": ["^ts:clean"]
+    },
     "dev": {
       "cache": false,
       "persistent": true

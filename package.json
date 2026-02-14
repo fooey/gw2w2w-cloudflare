@@ -8,6 +8,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "devtools": "turbo devtools",
+    "ts:clean": "turbo run ts:clean",
     "check-types": "turbo run check-types",
     "check-deps": "pnpm knip --max-show-issues 5",
     "clean:wrangler": "pnpm -r exec npx rimraf .wrangler/state"
