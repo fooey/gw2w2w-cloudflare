@@ -2,7 +2,6 @@ import type { CloudflareEnv } from '@/index';
 import { createCacheProviders } from '@/lib/cache-providers';
 import { apiFetch } from '@/lib/resources/api';
 import type { Guild } from '@/lib/types/Guild';
-import { validate } from 'uuid';
 import { withKvCache, withObjectCache } from './cache-wrapper';
 import { STORE_KV_TTL } from './constants';
 
@@ -20,7 +19,7 @@ export function getGuildFromApi(guildId: string, env: CloudflareEnv): Promise<Gu
 }
 
 export function searchGuildFromApi(name: string, env: CloudflareEnv): Promise<Guild['id'] | null> {
-  return apiFetch(env, `/guild/search?name=${encodeURIComponent(name)}`)
+  return apiFetch(env, `/guild/search?name=${name}`)
     .then((response) => {
       if (!response.ok) {
         if (response.status === 404) {
@@ -29,18 +28,26 @@ export function searchGuildFromApi(name: string, env: CloudflareEnv): Promise<Gu
           throw new Error(`API error: ${response.status} ${response.statusText}`);
         }
       }
+
       return response.json();
     })
-    .then((result: unknown) => {
-      console.log(`🚀 ~ guild.ts ~ searchGuildFromApi ~ result:`, result);
-
-      if (Array.isArray(result) && result.length === 1 && validate(result[0])) {
-        console.log(`🚀 ~ guild.ts ~ searchGuildFromApi ~ result[0]:`, result[0]);
-        return result[0];
+    .then((result) => {
+      if (Array.isArray(result)) {
+        const guildId = result[0];
+        if (typeof guildId !== 'string' || !validateArenaNetUuid(guildId)) {
+          return null;
+        }
+        return guildId;
       }
 
       return null;
     });
+}
+
+function validateArenaNetUuid(uuid: string): boolean {
+  // Basic UUID format: 8-4-4-4-12 hex characters
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
 }
 
 function normalizeGuildName(name: string): string {
