@@ -4,12 +4,14 @@ import Link from 'next/link';
 
 const guildIds = [
   '4bbb52aa-d768-4fc6-8ede-c299f2822f0f',
+  'ArenaNet',
   '0560f931-40de-e811-81a8-a25fc8b1a2fe',
   // '4b9a0dd5-79e4-e811-81a8-e8b6963692b8',
   '97c007dc-87d5-e311-9621-ac162dae8acd',
   '41db3c08-78c3-e611-80d4-e4115beba648',
   'ffffffff-ffff-ffff-ffff-ffffffffffff',
   '48cdb90b-75be-e811-81aa-bef9b8c3e82e',
+  'Äffchen Mit Käffchen',
 ];
 
 const backgroundClasses = [
