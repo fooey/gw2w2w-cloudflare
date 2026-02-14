@@ -16,7 +16,7 @@
     "@types/node": "^25.0.9",
     "knip": "^5.81.0",
     "prettier": "^3.7.4",
-    "turbo": "^2.7.5",
+    "turbo": "^2.8.8",
     "typescript": "5.9.2"
   },
   "engines": {
