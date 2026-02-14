@@ -13,7 +13,7 @@
   },
   "files": [
     "base.json",
-    "nextjs.json", 
+    "nextjs.json",
     "react-library.json"
   ],
   "dependencies": {
