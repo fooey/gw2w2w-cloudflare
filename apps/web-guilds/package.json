@@ -16,6 +16,7 @@
     "@repo/emblem-renderer": "workspace:*",
     "@repo/service-emblem": "workspace:*",
     "@repo/service-api": "workspace:*",
+    "@repo/utils": "workspace:*",
     "clsx": "^2.1.1",
     "hono": "^4.11.5",
     "next": "^16.1.2",

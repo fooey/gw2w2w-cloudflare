@@ -1,9 +1,9 @@
 import { apiFetch } from '@/lib/api/client';
 import type { Guild } from '@repo/service-api/lib/types';
+import { validateArenaNetUuid } from '@repo/utils';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { cache } from 'react';
-import { validate as uuidValidate } from 'uuid';
 
 interface GuildPageProps {
   params: { guildId: string };
@@ -24,7 +24,7 @@ function searchGuild(name: string): Promise<Response> {
 export const getGuildData = cache(async (guildId: string) => {
   console.log(`🚀 ~ page.tsx ~ guildId:`, guildId);
 
-  const isUuid = uuidValidate(guildId);
+  const isUuid = validateArenaNetUuid(guildId);
   const fn = isUuid ? getGuild : searchGuild;
   return fn(guildId).then((response) => response.json()) as Promise<Guild>;
 });
