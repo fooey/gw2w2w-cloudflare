@@ -11,6 +11,7 @@ zone_name = "guilds.gw2w2w.com"
 [[rules]]
 globs = ["**/*.wasm"]
 type = "CompiledWasm"
+fallthrough = false
 
 [[services]]
 binding = "SERVICE_API" # The variable name available in env
