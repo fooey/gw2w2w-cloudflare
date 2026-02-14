@@ -1,4 +1,4 @@
-import emblemRoute from '@/lib/renderer';
+import emblemRoute from '@/routes/emblem';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
