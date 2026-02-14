@@ -17,7 +17,15 @@ export default new Hono<{ Bindings: CloudflareEnv }>()
         return c.notFound();
       }
 
-      return c.redirect(`./${guildId}`, 308);
+      return getGuild(guildId, c.env).then((guild) => {
+        if (!guild) {
+          return c.notFound();
+        }
+
+        // Set canonical location header to the direct guild endpoint
+        c.header('Content-Location', `/guild/${guildId}`);
+        return c.json(guild);
+      });
     });
   })
   .get('/:guildId', zValidator('param', z.object({ guildId: z.string() })), async (c) => {
