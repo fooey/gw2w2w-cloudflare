@@ -1,5 +1,5 @@
-import type { CloudflareEnv } from '@/index';
-import { getApiClient, getEmblemBytes, searchGuild } from '@/lib/api';
+import type { CloudflareEnv } from '@service-emblem/index';
+import { getApiClient, getEmblemBytes, searchGuild } from '@service-emblem/lib/api';
 import { zValidator } from '@hono/zod-validator';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
