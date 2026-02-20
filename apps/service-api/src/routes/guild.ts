@@ -1,6 +1,6 @@
+import { zValidator } from '@hono/zod-validator';
 import type { CloudflareEnv } from '@service-api/index';
 import { getGuild, searchGuild } from '@service-api/lib/resources/guild';
-import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -30,8 +30,6 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
   })
   .get('/:guildId', zValidator('param', z.object({ guildId: z.string() })), async (c) => {
     const guildId = c.req.param('guildId');
-
-    console.log(`🚀 ~ guild.ts ~ guildId:`, guildId);
 
     return getGuild(guildId, c.env).then((guild) => {
       if (!guild) {

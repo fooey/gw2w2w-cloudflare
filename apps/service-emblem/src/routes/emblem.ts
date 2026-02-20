@@ -1,8 +1,8 @@
-import type { CloudflareEnv } from '@service-emblem/index';
-import { getApiClient, getEmblemBytes, searchGuild } from '@service-emblem/lib/api';
 import { zValidator } from '@hono/zod-validator';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
+import type { CloudflareEnv } from '@service-emblem/index';
+import { getApiClient, getEmblemBytes, searchGuild } from '@service-emblem/lib/api';
 import { Hono } from 'hono';
 import z from 'zod';
 
@@ -23,7 +23,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
         const guild = await searchGuild(apiClient, guildId);
 
         guildId = guild.id;
-      } catch (error) {
+      } catch (_error) {
         return c.json({ error: { message: 'Guild not found', status: 404 } }, 404);
       }
     }
@@ -62,14 +62,14 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
       }
     }
 
-    // await objectStore.put(cacheKey, bytes, {
-    //   customMetadata: {
-    //     expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
-    //   },
-    //   httpMetadata: {
-    //     contentType: 'image/webp',
-    //   },
-    // });
+    await objectStore.put(cacheKey, bytes, {
+      customMetadata: {
+        expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
+      },
+      httpMetadata: {
+        contentType: 'image/webp',
+      },
+    });
 
     return new Response(bytes, {
       headers: { 'Content-Type': 'image/webp' },

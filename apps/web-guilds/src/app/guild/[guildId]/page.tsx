@@ -25,6 +25,9 @@ export const getGuildData = cache(async (guildId: string) => {
   console.log(`🚀 ~ page.tsx ~ guildId:`, guildId);
 
   const isUuid = validateArenaNetUuid(guildId);
+
+  console.log(`🚀 ~ page.tsx ~ isUuid:`, isUuid);
+
   const fn = isUuid ? getGuild : searchGuild;
   return fn(guildId).then((response) => response.json()) as Promise<Guild>;
 });

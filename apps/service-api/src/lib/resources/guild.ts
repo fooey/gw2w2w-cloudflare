@@ -1,8 +1,8 @@
+import { normalizeGuildName, validateArenaNetUuid } from '@repo/utils';
 import type { CloudflareEnv } from '@service-api/index';
 import { createCacheProviders } from '@service-api/lib/cache-providers';
 import { apiFetch } from '@service-api/lib/resources/api';
 import type { Guild } from '@service-api/lib/types/Guild';
-import { normalizeGuildName, validateArenaNetUuid } from '@repo/utils';
 import { withKvCache, withObjectCache } from './cache-wrapper';
 import { STORE_KV_TTL } from './constants';
 
@@ -35,6 +35,7 @@ export function searchGuildFromApi(name: string, env: CloudflareEnv): Promise<Gu
     .then((result) => {
       if (Array.isArray(result)) {
         const guildId = result[0];
+
         if (typeof guildId !== 'string' || !validateArenaNetUuid(guildId)) {
           return null;
         }
@@ -64,11 +65,10 @@ export async function getGuild(guildId: string, env: CloudflareEnv): Promise<Gui
 
       // After fetching, create reverse index by name for searchability
       const { kvStore } = cacheProviders;
-      const jsonString = JSON.stringify(freshGuild);
       const kvOptions = { expirationTtl: STORE_KV_TTL };
 
       // Store reverse index: guild name -> guild data
-      await kvStore.put(getGuildNameKey(freshGuild.name), jsonString, kvOptions);
+      await kvStore.put(getGuildNameKey(freshGuild.name), freshGuild.id, kvOptions);
 
       return freshGuild;
     },

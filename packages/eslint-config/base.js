@@ -19,7 +19,15 @@ export const config = [
     },
     rules: {
       'turbo/no-undeclared-env-vars': 'warn',
-      'no-console': ['warn', { disallow: ['log'] }],
+      'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
   {

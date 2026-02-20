@@ -2,8 +2,10 @@ import { apiColorRoute } from '@service-api/routes/color';
 import { apiEmblemRoute } from '@service-api/routes/emblem';
 import { apiGuildRoute } from '@service-api/routes/guild';
 import { Hono } from 'hono';
+import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
+import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 
 export interface ErrorPayload {
@@ -21,15 +23,15 @@ export interface CloudflareEnv {
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', cors())
-  // .use('*', etag())
+  .use('*', etag())
   .use(csrf())
-  // .get(
-  //   '*',
-  //   cache({
-  //     cacheName: 'service-api',
-  //     cacheControl: 'max-age=86400',
-  //   }),
-  // )
+  .get(
+    '*',
+    cache({
+      cacheName: 'service-api',
+      cacheControl: 'max-age=86400',
+    }),
+  )
   .route('/emblem', apiEmblemRoute)
   .route('/guild', apiGuildRoute)
   .route('/color', apiColorRoute)

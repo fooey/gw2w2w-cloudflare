@@ -1,7 +1,9 @@
 import { serviceEmblemRoute } from '@service-emblem/routes/emblem';
 import { Hono } from 'hono';
+import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
+import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 
 export interface ErrorPayload {
@@ -18,15 +20,15 @@ export interface CloudflareEnv {
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', cors())
-  // .use('*', etag())
+  .use('*', etag())
   .use(csrf())
-  // .get(
-  //   '*',
-  //   cache({
-  //     cacheName: 'service-emblem',
-  //     cacheControl: 'max-age=86400',
-  //   }),
-  // )
+  .get(
+    '*',
+    cache({
+      cacheName: 'service-emblem',
+      cacheControl: 'max-age=86400',
+    }),
+  )
   .route('/', serviceEmblemRoute)
   .get('*', (c) => {
     c.status(404);
