@@ -1,8 +1,8 @@
-import { apiFetch } from '@web-guilds/lib/api/client';
 import type { Guild } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
+import { apiFetch } from '@web-guilds/lib/api/client';
+import { getEmblemSrc } from '@web-guilds/lib/emblems';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { cache } from 'react';
 
 interface GuildPageProps {
@@ -66,7 +66,7 @@ export default async function GuildPage({ params }: GuildPageProps) {
           {guild ? (
             <>
               <p>Guild ID: {guild.id}</p>
-              <Image src={`/emblem/${guild.id}`} alt="Guild Emblem" width={128} height={128} className="rounded-xl" />
+              <img src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} className="rounded-xl" />
               <pre>{JSON.stringify({ guild }, null, 2)}</pre>
             </>
           ) : (

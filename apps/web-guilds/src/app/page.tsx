@@ -1,5 +1,5 @@
+import { getEmblemSrc } from '@web-guilds/lib/emblems';
 import clsx from 'clsx';
-import Image from 'next/image';
 import Link from 'next/link';
 
 const guildIds = [
@@ -31,10 +31,10 @@ export default function Home() {
               <li key={guildId} className="my-4">
                 <div className="flex gap-4">
                   {backgroundClasses.map((backgroundClass) => (
-                    <Image
+                    <img
                       key={backgroundClass}
                       className={clsx(backgroundClass, 'rounded-xl')}
-                      src={`/emblem/${guildId}`}
+                      src={getEmblemSrc(guildId)}
                       alt="Emblem"
                       width={128}
                       height={128}
