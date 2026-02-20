@@ -10,7 +10,7 @@ function getEmblemBackgroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null
       if (response.status === 404) {
         return null; // Guild not found
       } else {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+        throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
       }
     }
     return response.json();
@@ -23,7 +23,7 @@ function getEmblemForegroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null
       if (response.status === 404) {
         return null; // Guild not found
       } else {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+        throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
       }
     }
     return response.json();

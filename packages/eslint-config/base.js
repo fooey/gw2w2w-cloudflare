@@ -12,7 +12,15 @@ import tseslint from 'typescript-eslint';
 export const config = [
   js.configs.recommended,
   eslintConfigPrettier,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.strictTypeChecked,
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
   {
     plugins: {
       turbo: turboPlugin,
@@ -20,6 +28,8 @@ export const config = [
     rules: {
       'turbo/no-undeclared-env-vars': 'warn',
       'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
+      'prefer-promise-reject-errors': 'off',
+      '@typescript-eslint/prefer-promise-reject-errors': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

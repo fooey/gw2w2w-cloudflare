@@ -1,6 +1,6 @@
+import { zValidator } from '@hono/zod-validator';
 import type { CloudflareEnv } from '@service-api/index';
 import { getColor } from '@service-api/lib/resources/color';
-import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -11,7 +11,7 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     const colorId = Number(c.req.param('colorId'));
 
     return getColor(colorId, c.env).then((color) => {
-      if (!color) {
+      if (!Array.isArray(color) || color.length !== 1) {
         return c.json({ error: { message: 'Color not found', status: 404 }, colorId }, 404);
       }
 

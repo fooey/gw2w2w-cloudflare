@@ -1,5 +1,5 @@
 import type { CacheProviders } from '@service-api/lib/resources';
-import { enableCacheLogging, STORE_OBJECT_TTL } from '@service-api/lib/resources/constants';
+import { getEnableCacheLogging, STORE_OBJECT_TTL } from '@service-api/lib/resources/constants';
 
 export async function getTextureArrayBuffer(
   url: string | null,
@@ -13,10 +13,10 @@ export async function getTextureArrayBuffer(
   const object = await objectStore.get(OBJECT_KEY);
 
   if (object !== null) {
-    if (enableCacheLogging) console.info(`object HIT for ${OBJECT_KEY}`);
+    if (getEnableCacheLogging()) console.info(`object HIT for ${OBJECT_KEY}`);
     buffer = await object.arrayBuffer();
   } else {
-    if (enableCacheLogging) console.info(`object MISS for ${OBJECT_KEY}`);
+    if (getEnableCacheLogging()) console.info(`object MISS for ${OBJECT_KEY}`);
 
     const r = await fetch(url);
     if (!r.ok) return null;

@@ -12,7 +12,7 @@ export function getGuildFromApi(guildId: string, env: CloudflareEnv): Promise<Gu
       if (response.status === 404) {
         return null; // Guild not found
       } else {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+        throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
       }
     }
     return response.json();
@@ -26,14 +26,14 @@ export function searchGuildFromApi(name: string, env: CloudflareEnv): Promise<Gu
         if (response.status === 404) {
           return null; // Guild not found
         } else {
-          throw new Error(`API error: ${response.status} ${response.statusText}`);
+          throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
         }
       }
 
       return response.json();
     })
     .then((result) => {
-      if (Array.isArray(result)) {
+      if (Array.isArray(result) && result.length > 0 && typeof result[0] === 'string') {
         const guildId = result[0];
 
         if (typeof guildId !== 'string' || !validateArenaNetUuid(guildId)) {

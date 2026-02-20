@@ -7,7 +7,7 @@ import { Hono } from 'hono';
 import z from 'zod';
 
 const R2_TTL = 86400; // 24 hours
-const enableCacheLogging = true;
+const getEnableCacheLogging = () => true;
 
 export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   '/:guildId',
@@ -28,20 +28,16 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
       }
     }
 
-    if (guildId == null) {
-      return c.json({ error: { message: 'Guild not found', status: 404 } }, 404);
-    }
-
     const cacheKey = `emblems:${guildId}`;
 
-    let bytes: Uint8Array<ArrayBufferLike> | null = null;
+    let bytes: Uint8Array | null = null;
 
     const object = await objectStore.get(cacheKey);
     if (object !== null) {
-      if (enableCacheLogging) console.info(`r2 HIT for ${cacheKey}`);
+      if (getEnableCacheLogging()) console.info(`r2 HIT for ${cacheKey}`);
       bytes = new Uint8Array(await object.arrayBuffer());
     } else {
-      if (enableCacheLogging) console.info(`r2 MISS for ${cacheKey}`);
+      if (getEnableCacheLogging()) console.info(`r2 MISS for ${cacheKey}`);
       try {
         bytes = await getEmblemBytes(apiClient, guildId, cacheProviders);
       } catch (error: unknown) {

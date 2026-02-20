@@ -1,6 +1,6 @@
 import type { CacheProviders } from '@service-api/lib/resources';
 import {
-  enableCacheLogging,
+  getEnableCacheLogging,
   NOT_FOUND_CACHE_EXPIRATION,
   NOT_FOUND_CACHE_VALUE,
   STORE_KV_TTL,
@@ -32,7 +32,11 @@ export async function withKvCache<T>(
   config: CacheConfig = {},
 ): Promise<T | null> {
   const { kvStore } = cacheProviders;
-  const { ttl = STORE_KV_TTL, notFoundTtl = NOT_FOUND_CACHE_EXPIRATION, enableLogging = enableCacheLogging } = config;
+  const {
+    ttl = STORE_KV_TTL,
+    notFoundTtl = NOT_FOUND_CACHE_EXPIRATION,
+    enableLogging = getEnableCacheLogging,
+  } = config;
 
   // 1. Check cache
   const cached = await kvStore.get(key, 'text');
@@ -93,7 +97,7 @@ export async function withObjectCache<T>(
   config: CacheConfig = {},
 ): Promise<T> {
   const { objectStore } = cacheProviders;
-  const { ttl = STORE_OBJECT_TTL, enableLogging = enableCacheLogging } = config;
+  const { ttl = STORE_OBJECT_TTL, enableLogging = getEnableCacheLogging } = config;
 
   // 1. Check cache with expiration
   let cachedData: T | null = null;

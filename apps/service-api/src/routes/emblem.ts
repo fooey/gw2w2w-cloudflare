@@ -18,7 +18,6 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   ),
   async (c) => {
     const { layer, emblemId } = c.req.param();
-    console.log(`🚀 ~ emblem.ts:`, { layer, emblemId });
 
     const getEmblemLayer = layer === 'background' ? getEmblemBackground : getEmblemForeground;
 

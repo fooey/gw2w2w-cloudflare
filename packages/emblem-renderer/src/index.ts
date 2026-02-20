@@ -4,20 +4,18 @@ import { type Color, type Guild } from '@repo/service-api/lib/types';
 const IMAGE_DIMENSION = 256;
 type ColorRGB = [number, number, number];
 
-export async function renderEmblem(
+export function renderEmblem(
   emblem: Guild['emblem'],
   colors: Color[],
   bgBuf: ArrayBuffer | null,
   fgBuf1: ArrayBuffer | null,
   fgBuf2: ArrayBuffer | null,
-): Promise<PhotonImage> {
+): PhotonImage {
   if (!emblem) {
     throw new Error('NoEmblemData');
   }
 
-  const colorMap = new Map<number, ColorRGB>(
-    colors ? colors.map((c) => [c.id, c.cloth.rgb] as [number, ColorRGB]) : [],
-  );
+  const colorMap = new Map<number, ColorRGB>(colors.map((c) => [c.id, c.cloth.rgb] as [number, ColorRGB]));
 
   const bgRGB = colorMap.get(emblem.background.colors[0] ?? -1) ?? [255, 0, 0];
   const fg1RGB = colorMap.get(emblem.foreground.colors[0] ?? -1) ?? [255, 0, 0];
@@ -91,7 +89,9 @@ export function renderEmblemLayers(
   const len = bg.u32.length;
   for (let i = 0; i < len; i++) {
     // 1. Background (Red channel as Alpha)
-    const bgPixel = bg.u32[i]!;
+    const bgPixel = bg.u32[i];
+    if (bgPixel === undefined) continue;
+
     let a = bgPixel & 0xff;
     let r = bgR;
     let g = bgG;
@@ -105,7 +105,9 @@ export function renderEmblemLayers(
 
     // 2. Foreground 1 (Alpha channel)
     if (fg1) {
-      const fg1Pixel = fg1.u32[i]!;
+      const fg1Pixel = fg1.u32[i];
+      if (fg1Pixel === undefined) continue;
+
       const fg1A = fg1Pixel >>> 24;
       if (fg1A > 0) {
         // Blend FG1 over BG
@@ -122,7 +124,9 @@ export function renderEmblemLayers(
 
     // 3. Foreground 2 (Alpha channel)
     if (fg2) {
-      const fg2Pixel = fg2.u32[i]!;
+      const fg2Pixel = fg2.u32[i];
+      if (fg2Pixel === undefined) continue;
+
       const fg2A = fg2Pixel >>> 24;
       if (fg2A > 0) {
         const invA = 255 - fg2A;

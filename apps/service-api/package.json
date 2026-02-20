@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "wrangler dev --port 8788 --local",
     "deploy": "wrangler deploy",
-    "ts:clean": "npx tsc --build --clean",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint ./src",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ts:clean": "npx tsc --build --clean"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260124.0",
+    "@types/node": "^25.3.0",
     "wrangler": "^4.60.0"
   }
 }

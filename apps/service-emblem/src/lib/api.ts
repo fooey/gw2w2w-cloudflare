@@ -3,12 +3,17 @@ import type { ServiceApiAppType } from '@repo/service-api';
 import type { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
 import { type Color, type Emblem, type Guild } from '@repo/service-api/lib/types';
+import type { CloudflareEnv } from '@service-emblem/index';
 import { type Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
 
 export type ApiClient = ReturnType<typeof hc<ServiceApiAppType>>;
 
-export function getApiClient(context: Context): ApiClient {
+export function getApiClient(
+  context: Context<{
+    Bindings: CloudflareEnv;
+  }>,
+): ApiClient {
   return hc<ServiceApiAppType>('http://127.0.0.1:8788', {
     fetch: context.env.SERVICE_API.fetch.bind(context.env.SERVICE_API),
   });
@@ -43,7 +48,7 @@ export function getEmblemLayer(
 ): Promise<Emblem> {
   const emblemLayerApi = apiClient.emblem[':layer/:emblemId'];
   if (!emblemLayerApi) throw new Error(`Emblem API not available`);
-  return parseResponse(emblemLayerApi.$get({ param: { layer, emblemId } })).then(([result]) => result);
+  return parseResponse(emblemLayerApi.$get({ param: { layer, emblemId } })).then(([result]) => result as Emblem);
 }
 
 export async function getEmblemBytes(
@@ -51,7 +56,7 @@ export async function getEmblemBytes(
   guildId: string,
   cacheProviders: ReturnType<typeof createCacheProviders>,
 ): Promise<Uint8Array> {
-  let guild;
+  let guild: Guild | null = null;
 
   try {
     guild = await getGuild(apiClient, guildId);
@@ -60,10 +65,6 @@ export async function getEmblemBytes(
       return Promise.reject({ message: 'Guild not found', status: 404 });
     }
     throw err;
-  }
-
-  if (!guild) {
-    return Promise.reject({ message: 'Guild not found', status: 404 });
   }
 
   if (!guild.emblem) {
@@ -79,11 +80,11 @@ export async function getEmblemBytes(
   const [bgDefs, fgDefs, colors] = await Promise.all([
     backgroundId ? getEmblemLayer(apiClient, 'background', backgroundId) : null,
     foregroundId ? getEmblemLayer(apiClient, 'foreground', foregroundId) : null,
-    uniqueColorIds.length > 0 ? await getColors(apiClient, uniqueColorIds) : null,
+    uniqueColorIds.length > 0 ? getColors(apiClient, uniqueColorIds) : null,
   ]);
 
   if (!colors) {
-    throw { message: 'Colors not found', status: 500 };
+    return Promise.reject({ message: 'Colors not found', status: 500 });
   }
 
   const bgDef = bgDefs ?? null;
