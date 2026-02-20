@@ -7,6 +7,6 @@
     "lib": ["esnext"],
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["src/**/*.ts", "eslint.config.mjs"],
+  "include": ["src/**/*.ts", "eslint.config.ts"],
   "exclude": ["node_modules"]
 }

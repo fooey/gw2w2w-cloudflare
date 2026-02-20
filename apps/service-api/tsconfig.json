@@ -11,6 +11,6 @@
       "@service-api/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "eslint.config.mjs"],
+  "include": ["src/**/*.ts", "eslint.config.ts"],
   "exclude": ["node_modules"]
 }

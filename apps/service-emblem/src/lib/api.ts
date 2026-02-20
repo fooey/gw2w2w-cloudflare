@@ -100,7 +100,7 @@ export async function getEmblemBytes(
     getTextureArrayBuffer(fgLayer2, cacheProviders.objectStore),
   ]);
 
-  const emblem = await renderEmblem(guild.emblem, colors, bgBuf, fgBuf1, fgBuf2);
+  const emblem = renderEmblem(guild.emblem, colors, bgBuf, fgBuf1, fgBuf2);
 
   return emblem.get_bytes_webp();
 }

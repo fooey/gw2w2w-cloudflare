@@ -11,6 +11,6 @@
       "@service-emblem/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "*.mjs"],
+  "include": ["src/**/*.ts", "eslint.config.ts"],
   "exclude": ["node_modules"]
 }
