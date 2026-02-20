@@ -1,8 +1,7 @@
-import type { CloudflareEnv } from '@/index';
-import { createCacheProviders } from '@/lib/cache-providers';
-import type { CacheProviders } from '@/lib/resources';
-import { apiFetch } from '@/lib/resources/api';
-import type { Emblem } from '@/lib/types';
+import type { CloudflareEnv } from '@api/index';
+import { createCacheProviders } from '@api/lib/cache-providers';
+import { apiFetch } from '@api/lib/resources/api';
+import type { Emblem } from '@api/lib/types';
 import { withFilteredObjectCache } from './cache-wrapper';
 
 function getEmblemBackgroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null> {

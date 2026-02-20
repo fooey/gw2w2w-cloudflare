@@ -2,8 +2,8 @@
   "extends": "../../packages/typescript-config/base.json",
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "lib": ["esnext"],
     "types": ["@cloudflare/workers-types"]
   },

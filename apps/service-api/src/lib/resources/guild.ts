@@ -1,7 +1,7 @@
-import type { CloudflareEnv } from '@/index';
-import { createCacheProviders } from '@/lib/cache-providers';
-import { apiFetch } from '@/lib/resources/api';
-import type { Guild } from '@/lib/types/Guild';
+import type { CloudflareEnv } from '@api/index';
+import { createCacheProviders } from '@api/lib/cache-providers';
+import { apiFetch } from '@api/lib/resources/api';
+import type { Guild } from '@api/lib/types/Guild';
 import { normalizeGuildName, validateArenaNetUuid } from '@repo/utils';
 import { withKvCache, withObjectCache } from './cache-wrapper';
 import { STORE_KV_TTL } from './constants';

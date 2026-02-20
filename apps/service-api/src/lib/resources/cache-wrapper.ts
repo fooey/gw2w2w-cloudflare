@@ -1,4 +1,4 @@
-import type { CacheProviders } from '@/lib/resources';
+import type { CacheProviders } from '@api/lib/resources';
 import {
   enableCacheLogging,
   NOT_FOUND_CACHE_EXPIRATION,

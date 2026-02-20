@@ -1,4 +1,4 @@
-import type { CloudflareEnv } from '@/index';
+import type { CloudflareEnv } from '@api/index';
 
 export function createCacheProviders(env: CloudflareEnv) {
   return {

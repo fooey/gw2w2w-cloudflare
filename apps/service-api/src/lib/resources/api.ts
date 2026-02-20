@@ -1,4 +1,4 @@
-import type { CloudflareEnv } from '@/index';
+import type { CloudflareEnv } from '@api/index';
 
 export function apiFetch(env: CloudflareEnv, path: string, init?: RequestInit) {
   if (!env.GW2_API_BASE || !env.GW2_API_KEY) {

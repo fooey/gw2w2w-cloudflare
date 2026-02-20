@@ -1,7 +1,7 @@
-import type { CloudflareEnv } from '@/index';
-import { createCacheProviders } from '@/lib/cache-providers';
-import { apiFetch } from '@/lib/resources/api';
-import type { Color } from '@/lib/types';
+import type { CloudflareEnv } from '@api/index';
+import { createCacheProviders } from '@api/lib/cache-providers';
+import { apiFetch } from '@api/lib/resources/api';
+import type { Color } from '@api/lib/types';
 import { withFilteredObjectCache } from './cache-wrapper';
 
 function getColorFromApi(env: CloudflareEnv): Promise<Color[] | null> {

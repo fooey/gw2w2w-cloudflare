@@ -1,6 +1,6 @@
-import { apiColorRoute } from '@/routes/color';
-import { apiEmblemRoute } from '@/routes/emblem';
-import { apiGuildRoute } from '@/routes/guild';
+import { apiColorRoute } from '@api/routes/color';
+import { apiEmblemRoute } from '@api/routes/emblem';
+import { apiGuildRoute } from '@api/routes/guild';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
