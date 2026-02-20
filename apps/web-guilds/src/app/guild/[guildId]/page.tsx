@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api/client';
+import { apiFetch } from '@web-guilds/lib/api/client';
 import type { Guild } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import type { Metadata } from 'next';
