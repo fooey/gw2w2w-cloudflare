@@ -15,19 +15,19 @@ export function getApiClient(context: Context): ApiClient {
 }
 
 export function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
-  const guildApi = apiClient.api.guild[':guildId'];
+  const guildApi = apiClient.guild[':guildId'];
   if (!guildApi) throw new Error('Guild API not available');
   return parseResponse(guildApi.$get({ param: { guildId } }));
 }
 
 export function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
-  const guildApi = apiClient.api.guild['search'];
+  const guildApi = apiClient.guild['search'];
   if (!guildApi) throw new Error('Guild API not available');
   return parseResponse(guildApi.$get({ query: { name } }));
 }
 
 export function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
-  const colorApi = apiClient.api.color[':colorId'];
+  const colorApi = apiClient.color[':colorId'];
   if (!colorApi) throw new Error('Color API not available');
   return parseResponse(colorApi.$get({ param: { colorId } }));
 }
@@ -41,7 +41,7 @@ export function getEmblemLayer(
   layer: 'background' | 'foreground',
   emblemId: number,
 ): Promise<Emblem> {
-  const emblemLayerApi = apiClient.api.emblem[':layer/:emblemId'];
+  const emblemLayerApi = apiClient.emblem[':layer/:emblemId'];
   if (!emblemLayerApi) throw new Error(`Emblem API not available`);
   return parseResponse(emblemLayerApi.$get({ param: { layer, emblemId } })).then(([result]) => result);
 }

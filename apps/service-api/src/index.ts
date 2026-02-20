@@ -30,10 +30,9 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   //     cacheControl: 'max-age=86400',
   //   }),
   // )
-  .route('/api/emblem', apiEmblemRoute)
-  .route('/api/guild', apiGuildRoute)
-  .route('/api/color', apiColorRoute)
-  .get('/api', (c) => c.json({ message: 'API Root', status: 200 }))
+  .route('/emblem', apiEmblemRoute)
+  .route('/guild', apiGuildRoute)
+  .route('/color', apiColorRoute)
   .get('*', (c) => {
     c.status(404);
     return c.json({

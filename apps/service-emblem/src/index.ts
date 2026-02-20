@@ -27,7 +27,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   //     cacheControl: 'max-age=86400',
   //   }),
   // )
-  .route('/emblem', serviceEmblemRoute)
+  .route('/', serviceEmblemRoute)
   .get('*', (c) => {
     c.status(404);
     return c.json({

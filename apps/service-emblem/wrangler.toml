@@ -4,8 +4,8 @@ compatibility_date = "2026-01-01"
 
 # Map the worker to a specific path on your main domain
 [[routes]]
-pattern = "guilds.gw2w2w.com/emblem/*"
-zone_name = "guilds.gw2w2w.com"
+pattern = "emblem.gw2w2w.com/*"
+zone_name = "emblem.gw2w2w.com"
 
 # Crucial for Photon/Wasm on Cloudflare
 [[rules]]
