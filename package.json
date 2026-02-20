@@ -5,7 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo dev --parallel",
     "preinstall": "npx only-allow pnpm",
-    "lint": "turbo run lint",
+    "lint": "turbo watch lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "devtools": "turbo devtools",
     "ts:clean": "turbo run ts:clean",

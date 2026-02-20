@@ -6,30 +6,30 @@ import type { Metadata } from 'next';
 import { cache } from 'react';
 
 interface GuildPageProps {
-  params: { guildId: string };
+  params: Promise<{ guildId: string }>;
 }
 
 function getGuild(guildId: string): Promise<Response> {
-  console.log(`🚀 ~ page.tsx ~ getGuild ~ guildId:`, guildId);
-
   return apiFetch(`/guild/${guildId}`);
 }
 
 function searchGuild(name: string): Promise<Response> {
-  console.log(`🚀 ~ page.tsx ~ searchGuild ~ name:`, name);
-
   return apiFetch(`/guild/search?name=${name.toLocaleLowerCase()}`);
 }
 
-export const getGuildData = cache(async (guildId: string) => {
-  console.log(`🚀 ~ page.tsx ~ guildId:`, guildId);
-
+export const getGuildData = cache(async (guildId: string): Promise<Guild | null> => {
   const isUuid = validateArenaNetUuid(guildId);
 
-  console.log(`🚀 ~ page.tsx ~ isUuid:`, isUuid);
-
   const fn = isUuid ? getGuild : searchGuild;
-  return fn(guildId).then((response) => response.json()) as Promise<Guild>;
+  return fn(guildId).then((response) => {
+    if (response.status === 404) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch guild data: ${response.status.toString()} ${response.statusText}`);
+    }
+    return response.json();
+  });
 });
 
 export async function generateMetadata({ params }: GuildPageProps): Promise<Metadata> {
@@ -37,6 +37,12 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
 
   try {
     const guild = await getGuildData(guildId);
+
+    if (!guild) {
+      return {
+        title: `Not Found - GW2W2W`,
+      };
+    }
 
     const canonical = `https://gw2w2w.com/guild/${guild.id}`;
 
