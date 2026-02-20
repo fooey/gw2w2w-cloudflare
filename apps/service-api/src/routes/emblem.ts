@@ -1,5 +1,5 @@
-import type { CloudflareEnv } from '@api/index';
-import { getEmblemBackground, getEmblemForeground } from '@api/lib/resources/emblem';
+import type { CloudflareEnv } from '@service-api/index';
+import { getEmblemBackground, getEmblemForeground } from '@service-api/lib/resources/emblem';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';

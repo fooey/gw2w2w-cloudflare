@@ -8,7 +8,7 @@
     "types": ["@cloudflare/workers-types"],
     "incremental": true,
     "paths": {
-      "@api/*": ["./src/*"]
+      "@service-api/*": ["./src/*"]
     }
   },
   "include": ["src/**/*.ts"],

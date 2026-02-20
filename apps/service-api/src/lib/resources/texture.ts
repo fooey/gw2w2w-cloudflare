@@ -1,5 +1,5 @@
-import type { CacheProviders } from '@api/lib/resources';
-import { enableCacheLogging, STORE_OBJECT_TTL } from '@api/lib/resources/constants';
+import type { CacheProviders } from '@service-api/lib/resources';
+import { enableCacheLogging, STORE_OBJECT_TTL } from '@service-api/lib/resources/constants';
 
 export async function getTextureArrayBuffer(
   url: string | null,

@@ -1,5 +1,5 @@
-import type { CloudflareEnv } from '@api/index';
-import { getGuild, searchGuild } from '@api/lib/resources/guild';
+import type { CloudflareEnv } from '@service-api/index';
+import { getGuild, searchGuild } from '@service-api/lib/resources/guild';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';

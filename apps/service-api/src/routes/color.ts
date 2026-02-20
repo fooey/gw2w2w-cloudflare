@@ -1,5 +1,5 @@
-import type { CloudflareEnv } from '@api/index';
-import { getColor } from '@api/lib/resources/color';
+import type { CloudflareEnv } from '@service-api/index';
+import { getColor } from '@service-api/lib/resources/color';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
