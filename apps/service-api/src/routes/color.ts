@@ -1,11 +1,10 @@
 import type { CloudflareEnv } from '@/index';
-import { createCacheProviders } from '@/lib/cache-providers';
 import { getColor } from '@/lib/resources/color';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-export default new Hono<{ Bindings: CloudflareEnv }>().get(
+export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   '/:colorId',
   zValidator('param', z.object({ colorId: z.coerce.number().nonnegative().max(999).nonoptional() })),
   async (c) => {
@@ -13,7 +12,7 @@ export default new Hono<{ Bindings: CloudflareEnv }>().get(
 
     return getColor(colorId, c.env).then((color) => {
       if (!color) {
-        return c.notFound();
+        return c.json({ error: { message: 'Color not found', status: 404 }, colorId }, 404);
       }
 
       return c.json(color);

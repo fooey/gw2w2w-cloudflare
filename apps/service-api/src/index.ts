@@ -1,6 +1,6 @@
-import colorRoute from '@/routes/color';
-import emblemRoute from '@/routes/emblem';
-import guildRoute from '@/routes/guild';
+import { apiColorRoute } from '@/routes/color';
+import { apiEmblemRoute } from '@/routes/emblem';
+import { apiGuildRoute } from '@/routes/guild';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
@@ -30,9 +30,9 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   //     cacheControl: 'max-age=86400',
   //   }),
   // )
-  .route('/api/guild', guildRoute)
-  .route('/api/color', colorRoute)
-  .route('/api/emblem', emblemRoute)
+  .route('/api/emblem', apiEmblemRoute)
+  .route('/api/guild', apiGuildRoute)
+  .route('/api/color', apiColorRoute)
   .get('/api', (c) => c.json({ message: 'API Root', status: 200 }))
   .get('*', (c) => {
     c.status(404);

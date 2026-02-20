@@ -1,4 +1,4 @@
-import emblemRoute from '@/routes/emblem';
+import { serviceEmblemRoute } from '@/routes/emblem';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
@@ -27,7 +27,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   //     cacheControl: 'max-age=86400',
   //   }),
   // )
-  .route('/emblem', emblemRoute)
+  .route('/emblem', serviceEmblemRoute)
   .get('*', (c) => {
     c.status(404);
     return c.json({

@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
   const { guildId } = await params;
 
   try {
-    const guild = await getGuildData(guildId); // More specific cache key
+    const guild = await getGuildData(guildId);
 
     const canonical = `https://gw2w2w.com/guild/${guild.id}`;
 

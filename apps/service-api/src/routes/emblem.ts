@@ -4,31 +4,30 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-const validateEmblemIdParam = zValidator(
-  'param',
-  z.object({ emblemId: z.coerce.number().nonnegative().max(999).nonoptional() }),
+const layerSlugs = ['background', 'foreground'] as const;
+const layerSlugSchema = z.enum(layerSlugs);
+
+export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
+  '/:layer/:emblemId',
+  zValidator(
+    'param',
+    z.object({
+      layer: layerSlugSchema,
+      emblemId: z.coerce.number().nonnegative().max(999).nonoptional(),
+    }),
+  ),
+  async (c) => {
+    const { layer, emblemId } = c.req.param();
+    console.log(`🚀 ~ emblem.ts:`, { layer, emblemId });
+
+    const getEmblemLayer = layer === 'background' ? getEmblemBackground : getEmblemForeground;
+
+    return getEmblemLayer(Number(emblemId), c.env).then((result) => {
+      if (!result) {
+        return c.json({ error: { message: 'Emblem not found', status: 404 }, layer, emblemId }, 404);
+      }
+
+      return c.json(result);
+    });
+  },
 );
-
-export default new Hono<{ Bindings: CloudflareEnv }>()
-  .get('/background/:emblemId', validateEmblemIdParam, async (c) => {
-    const emblemId = Number(c.req.param('emblemId'));
-
-    return getEmblemBackground(emblemId, c.env).then((result) => {
-      if (!result) {
-        return c.notFound();
-      }
-
-      return c.json(result);
-    });
-  })
-  .get('/foreground/:emblemId', validateEmblemIdParam, async (c) => {
-    const emblemId = Number(c.req.param('emblemId'));
-
-    return getEmblemForeground(emblemId, c.env).then((result) => {
-      if (!result) {
-        return c.notFound();
-      }
-
-      return c.json(result);
-    });
-  });
