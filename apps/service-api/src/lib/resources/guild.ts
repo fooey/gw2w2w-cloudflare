@@ -68,7 +68,7 @@ export async function getGuild(guildId: string, env: CloudflareEnv): Promise<Gui
       const kvOptions = { expirationTtl: STORE_KV_TTL };
 
       // Store reverse index: guild name -> guild data
-      await kvStore.put(getGuildNameKey(freshGuild.name), freshGuild.id, kvOptions);
+      await kvStore.put(getGuildNameKey(freshGuild.name), JSON.stringify(freshGuild.id), kvOptions);
 
       return freshGuild;
     },
@@ -78,6 +78,7 @@ export async function getGuild(guildId: string, env: CloudflareEnv): Promise<Gui
 
 export async function searchGuild(name: string, env: CloudflareEnv): Promise<Guild['id'] | null> {
   const kvKey = getGuildNameKey(name);
+
   const cacheProviders = createCacheProviders(env);
 
   return withKvCache(kvKey, async () => searchGuildFromApi(name, env), cacheProviders);
