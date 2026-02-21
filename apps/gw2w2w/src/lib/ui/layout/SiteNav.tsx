@@ -19,15 +19,16 @@ const repoUrl = 'https://github.com/fooey/gw2w2w-cloudflare';
 
 const contactNavigation = [
   { name: 'Source Code', href: repoUrl },
-  { name: 'Open issues', href: `${repoUrl}/issues` },
   {
     name: 'Report an issue',
-    href: `${repoUrl}/issues/new?assignees=fooey&labels=bug&template=bug_report.md&title=Bug Report`,
+    href: `${repoUrl}/issues/new?template=bug_report.md`,
   },
   {
     name: 'Suggest a feature',
-    href: `${repoUrl}/issues/new?assignees=fooey&labels=enhancement&template=enhancement.md&title=Feature Request`,
+    href: `${repoUrl}/issues/new?template=feature_request.md`,
   },
+  { name: 'Discussions', href: `${repoUrl}/discussions` },
+  { name: 'Open issues', href: `${repoUrl}/issues` },
   { name: 'fooey.5824' },
 ];
 
