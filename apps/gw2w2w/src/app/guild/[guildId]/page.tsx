@@ -1,6 +1,6 @@
-import Layout from '@gw2w2w/app/layout';
 import { apiFetch } from '@gw2w2w/lib/api/client';
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
+import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import type { Guild } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import type { Metadata } from 'next';
@@ -85,25 +85,24 @@ export default async function GuildPage({ params }: GuildPageProps) {
   const { guildId } = await params;
   const guild = await getGuildData(guildId);
 
-  return (
-    <Layout>
-      <div className="flex items-center justify-center bg-zinc-50 font-sans text-zinc-900">
-        <main className="flex max-w-3xl flex-col items-center justify-between bg-white p-16 sm:items-start sm:text-left">
-          <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-            <h1 className="text-4xl font-bold">Guild Page</h1>
+  if (!guild) {
+    return {
+      notFound: true,
+    };
+  }
 
-            {guild ? (
-              <>
-                <p>Guild ID: {guild.id}</p>
-                <img src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} className="rounded-xl" />
-                <pre>{JSON.stringify({ guild }, null, 2)}</pre>
-              </>
-            ) : (
-              <p className="text-red-500">Guild not found or api unavailable.</p>
-            )}
-          </div>
-        </main>
+  return (
+    <SiteLayout pageHeader={'Guild Emblems'}>
+      <div className="bg-white">
+        <header>
+          <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900">
+            {guild.name} [{guild.tag}]
+          </h2>
+        </header>
+        <p className="mb-4 text-gray-700">Guild ID: {guild.id}</p>
+        <img src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} className="rounded-xl" />
+        <pre>{JSON.stringify({ guild }, null, 2)}</pre>
       </div>
-    </Layout>
+    </SiteLayout>
   );
 }
