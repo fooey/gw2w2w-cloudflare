@@ -22,9 +22,9 @@ export const metadata: Metadata = {
 };
 
 const navigation = [
-  { name: 'Guild Emblems', href: 'https://guilds.gw2w2w.com', current: true },
-  { name: 'Emblem Builder', href: 'https://designer.gw2w2w.com', current: false },
-  { name: 'WvW Matchups', href: 'https://gw2w2w.com', current: false },
+  { name: 'Guild Emblems', href: 'https://gw2w2w.com/emblems', current: true },
+  { name: 'Emblem Builder', href: 'https://gw2w2w.com/designer', current: false },
+  { name: 'WvW Matchups', href: 'https://gw2w2w.com/wvw', current: false },
 ];
 const userNavigation = [
   { name: 'Source Code', href: 'https://github.com/fooey/gw2w2w-cloudflare' },

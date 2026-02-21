@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
       };
     }
 
-    const canonical = `https://guilds.gw2w2w.com/guild/${guild.id}`;
+    const canonical = `https://gw2w2w.com/guild/${guild.id}`;
     const emblemUrl = getEmblemSrc(guild.id);
     const title = `${guild.name} [${guild.tag}] - GW2W2W`;
     const description = `${guild.name} [${guild.tag}] guild emblem`;
