@@ -1,5 +1,6 @@
-/** @type {import('prettier').Config} */
-const prettierConfig = {
+import type { Config } from 'prettier';
+
+const prettierConfig: Config = {
   printWidth: 120,
   semi: true,
   trailingComma: 'all',
@@ -8,8 +9,9 @@ const prettierConfig = {
   jsxSingleQuote: false,
 };
 
-const config = {
+const config: Config = {
   ...prettierConfig,
+  plugins: ['prettier-plugin-tailwindcss'],
 };
 
 module.exports = config;
