@@ -10,6 +10,7 @@ import {
   MenuItem,
   MenuItems,
 } from '@headlessui/react';
+import { AtSymbolIcon } from '@heroicons/react/20/solid';
 import { Bars3Icon, CodeBracketIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import Link from 'next/link';
@@ -18,18 +19,32 @@ import { usePathname } from 'next/navigation';
 const repoUrl = 'https://github.com/fooey/gw2w2w-cloudflare';
 
 const contactNavigation = [
-  { name: 'Source Code', href: repoUrl },
+  {
+    name: 'Source Code',
+    href: repoUrl,
+    icon: <img src="/images/github.svg" alt="GitHub" className="size-5" />,
+  },
   {
     name: 'Report an issue',
     href: `${repoUrl}/issues/new?template=bug_report.md`,
+    icon: <img src="/images/github.svg" alt="GitHub" className="size-5" />,
   },
   {
     name: 'Suggest a feature',
     href: `${repoUrl}/issues/new?template=feature_request.md`,
+    icon: <img src="/images/github.svg" alt="GitHub" className="size-5" />,
   },
-  { name: 'Discussions', href: `${repoUrl}/discussions` },
-  { name: 'Open issues', href: `${repoUrl}/issues` },
-  { name: 'fooey.5824' },
+  {
+    name: 'Discussions',
+    href: `${repoUrl}/discussions`,
+    icon: <img src="/images/github.svg" alt="GitHub" className="size-5" />,
+  },
+  {
+    name: 'Open issues',
+    href: `${repoUrl}/issues`,
+    icon: <img src="/images/github.svg" alt="GitHub" className="size-5" />,
+  },
+  { name: 'fooey.5824', icon: <AtSymbolIcon className="size-5" /> },
 ];
 
 export function SiteNav() {
@@ -76,12 +91,16 @@ export function SiteNav() {
                         target="_blank"
                         rel="noopener noreferrer"
                         href={item.href}
-                        className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
+                        className="flex gap-2 px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                       >
+                        {item.icon}
                         {item.name}
                       </Link>
                     ) : (
-                      <span className="block px-4 py-2 text-sm text-gray-700">{item.name}</span>
+                      <span className="flex gap-2 px-4 py-2 text-sm text-gray-700">
+                        {item.icon}
+                        {item.name}
+                      </span>
                     )}
                   </MenuItem>
                 ))}
@@ -112,30 +131,24 @@ export function SiteNav() {
                 item.isCurrent(pathname)
                   ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
                   : 'border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800',
-                'block border-l-4 py-2 pr-4 pl-3 text-base font-medium',
+                'flex gap-2 border-l-4 py-2 pr-4 pl-3 text-base font-medium',
               )}
             >
+              <item.icon aria-hidden="true" className="size-5 flex-none text-rose-900" />
               {item.name}
             </DisclosureButton>
           ))}
         </div>
         <div className="border-t border-gray-200 pt-4 pb-3">
-          <div className="flex items-center px-4">
-            <div className="shrink-0">
-              <CodeBracketIcon aria-hidden="true" className="size-6" />
-            </div>
-            <div className="ml-3">
-              <div className="text-base font-medium text-gray-800">GitHub</div>
-            </div>
-          </div>
           <div className="mt-3 space-y-1">
             {contactNavigation.map((item) => (
               <DisclosureButton
                 key={item.name}
                 as="a"
                 href={item.href}
-                className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                className="flex gap-2 px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
               >
+                {item.icon}
                 {item.name}
               </DisclosureButton>
             ))}
