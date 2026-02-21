@@ -1,7 +1,8 @@
+import Layout from '@gw2w2w/app/layout';
+import { apiFetch } from '@gw2w2w/lib/api/client';
+import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import type { Guild } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
-import { apiFetch } from '@web-guilds/lib/api/client';
-import { getEmblemSrc } from '@web-guilds/lib/emblems';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 
@@ -85,22 +86,24 @@ export default async function GuildPage({ params }: GuildPageProps) {
   const guild = await getGuildData(guildId);
 
   return (
-    <div className="flex items-center justify-center bg-zinc-50 font-sans text-zinc-900">
-      <main className="flex max-w-3xl flex-col items-center justify-between bg-white p-16 sm:items-start sm:text-left">
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="text-4xl font-bold">Guild Page</h1>
+    <Layout>
+      <div className="flex items-center justify-center bg-zinc-50 font-sans text-zinc-900">
+        <main className="flex max-w-3xl flex-col items-center justify-between bg-white p-16 sm:items-start sm:text-left">
+          <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
+            <h1 className="text-4xl font-bold">Guild Page</h1>
 
-          {guild ? (
-            <>
-              <p>Guild ID: {guild.id}</p>
-              <img src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} className="rounded-xl" />
-              <pre>{JSON.stringify({ guild }, null, 2)}</pre>
-            </>
-          ) : (
-            <p className="text-red-500">Guild not found or api unavailable.</p>
-          )}
-        </div>
-      </main>
-    </div>
+            {guild ? (
+              <>
+                <p>Guild ID: {guild.id}</p>
+                <img src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} className="rounded-xl" />
+                <pre>{JSON.stringify({ guild }, null, 2)}</pre>
+              </>
+            ) : (
+              <p className="text-red-500">Guild not found or api unavailable.</p>
+            )}
+          </div>
+        </main>
+      </div>
+    </Layout>
   );
 }

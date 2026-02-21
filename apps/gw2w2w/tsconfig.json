@@ -6,7 +6,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "paths": {
-      "@web-guilds/*": ["./src/*"]
+      "@gw2w2w/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts"],
