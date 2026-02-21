@@ -14,9 +14,11 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
+    "@heroicons/react": "^2.2.0",
     "@repo/emblem-renderer": "workspace:*",
-    "@repo/service-emblem": "workspace:*",
     "@repo/service-api": "workspace:*",
+    "@repo/service-emblem": "workspace:*",
     "@repo/utils": "workspace:*",
     "clsx": "^2.1.1",
     "hono": "^4.11.5",

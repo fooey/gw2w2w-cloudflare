@@ -44,20 +44,38 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
       };
     }
 
-    const canonical = `https://gw2w2w.com/guild/${guild.id}`;
+    const canonical = `https://guilds.gw2w2w.com/guild/${guild.id}`;
+    const emblemUrl = getEmblemSrc(guild.id);
+    const title = `${guild.name} [${guild.tag}] - GW2W2W`;
+    const description = `${guild.name} [${guild.tag}] guild emblem`;
 
     return {
-      title: `${guild.name} [${guild.tag}] - GW2W2W`,
-      description: `Guild Wars 2 guild: ${guild.name} [${guild.tag}]`,
+      title,
+      description,
+      keywords: `Guild Wars 2, GW2, guild, ${guild.name}, ${guild.tag}, gaming, MMORPG`,
       alternates: { canonical },
+      icons: { icon: emblemUrl, shortcut: emblemUrl, apple: emblemUrl },
+      openGraph: {
+        title,
+        description,
+        url: canonical,
+        siteName: 'GW2W2W',
+        type: 'website',
+        images: [{ url: emblemUrl, width: 128, height: 128, alt: `${guild.name} [${guild.tag}] Guild Emblem` }],
+      },
+      twitter: {
+        card: 'summary',
+        title,
+        description,
+        images: [emblemUrl],
+      },
     };
   } catch (e) {
     console.error(e);
     return {
-      title: `Guild ${guildId} - GW2W2W`,
-      alternates: {
-        canonical: `https://gw2w2w.com/guild/${guildId}`,
-      },
+      title: `Error Loading Guild - GW2W2W`,
+      description: `Unable to load guild information for ${guildId}. The guild may not exist or there may be a temporary service issue.`,
+      robots: { index: false, follow: false },
     };
   }
 }
@@ -68,7 +86,7 @@ export default async function GuildPage({ params }: GuildPageProps) {
 
   return (
     <div className="flex items-center justify-center bg-zinc-50 font-sans text-zinc-900">
-      <main className="flex max-w-3xl flex-col items-center justify-between p-16 bg-white sm:items-start sm:text-left">
+      <main className="flex max-w-3xl flex-col items-center justify-between bg-white p-16 sm:items-start sm:text-left">
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="text-4xl font-bold">Guild Page</h1>
 
