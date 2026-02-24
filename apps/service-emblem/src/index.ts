@@ -1,3 +1,4 @@
+import { allowedCsrf, allowedOrigin } from '@repo/utils/routing/security';
 import { serviceEmblemRoute } from '@service-emblem/routes/emblem';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
@@ -19,16 +20,33 @@ export interface CloudflareEnv {
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
-  .use('*', cors())
   .use('*', etag())
-  .use(csrf())
-  .get(
+  .use(
     '*',
-    cache({
-      cacheName: 'service-emblem',
-      cacheControl: 'max-age=86400',
+    cors({
+      origin: (origin, c) => allowedOrigin(origin, c.req.header('host')),
     }),
   )
+  .use(
+    csrf({
+      origin: (origin, c) => allowedCsrf(origin, c.req.header('host')),
+    }),
+  )
+  .get('*', cache({ cacheName: 'service-emblem', cacheControl: 'max-age=86400' }))
+  .get('*', async (c, next) => {
+    const host = c.req.header('host');
+
+    if (host === 'guilds.gw2w2w.com') {
+      return c.redirect('https://gw2w2w.com', 302);
+    }
+
+    return next();
+  })
+  .get('/guilds/*', (c) => {
+    const rest = c.req.path.replace(/^\/guilds/, '') || '/';
+
+    return c.redirect(rest, 308);
+  })
   .route('/', serviceEmblemRoute)
   .get('*', (c) => {
     c.status(404);

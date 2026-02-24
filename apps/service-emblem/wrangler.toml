@@ -7,6 +7,10 @@ compatibility_date = "2026-01-01"
 pattern = "emblem.gw2w2w.com/*"
 zone_name = "emblem.gw2w2w.com"
 
+[[routes]]
+pattern = "guilds.gw2w2w.com/*"
+zone_name = "guilds.gw2w2w.com"
+
 # Crucial for Photon/Wasm on Cloudflare
 [[rules]]
 globs = ["**/*.wasm"]

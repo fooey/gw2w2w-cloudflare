@@ -1,3 +1,4 @@
+import { allowedCsrf, allowedOrigin } from '@repo/utils';
 import { apiColorRoute } from '@service-api/routes/color';
 import { apiEmblemRoute } from '@service-api/routes/emblem';
 import { apiGuildRoute } from '@service-api/routes/guild';
@@ -22,9 +23,18 @@ export interface CloudflareEnv {
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
-  .use('*', cors())
   .use('*', etag())
-  .use(csrf())
+  .use(
+    '*',
+    cors({
+      origin: (origin, c) => allowedOrigin(origin, c.req.header('host')),
+    }),
+  )
+  .use(
+    csrf({
+      origin: (origin, c) => allowedCsrf(origin, c.req.header('host')),
+    }),
+  )
   .get(
     '*',
     cache({
