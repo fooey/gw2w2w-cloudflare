@@ -43,11 +43,12 @@ export default function EmblemsPage() {
               })}
             </div>
             <div>
-              <Link href={`/guild/${guildId}`}>{guildId}</Link>
+              <Link href={`/guilds/${guildId}`}>{guildId}</Link>
             </div>
           </li>
         ))}
       </ul>
+      10, 14, 17, 21 (upgrading 22)
     </SiteLayout>
   );
 }

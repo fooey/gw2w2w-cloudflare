@@ -23,7 +23,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
         }
 
         // Set canonical location header to the direct guild endpoint
-        c.header('Content-Location', `/guild/${guildId}`);
+        c.header('Content-Location', `/guilds/${guildId}`);
         return c.json(guild);
       });
     });
