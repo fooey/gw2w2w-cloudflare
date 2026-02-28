@@ -1,9 +1,14 @@
 import { apiFetch } from '@gw2w2w/lib/api/client';
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
+import { Card } from '@gw2w2w/lib/ui/Card';
+import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
+import { FormField } from '@gw2w2w/lib/ui/FormField';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import type { Guild } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
+import { clsx } from 'clsx';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
 interface GuildPageProps {
@@ -81,27 +86,73 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
   }
 }
 
+const backgroundClasses = [
+  'bg-white',
+  'bg-black',
+  'bg-linear-to-br from-white to-red-900',
+  'bg-linear-to-br from-red-400 to-black',
+];
+
 export default async function GuildPage({ params }: GuildPageProps) {
   const { guildId } = await params;
   const guild = await getGuildData(guildId);
 
   if (!guild) {
-    return {
-      notFound: true,
-    };
+    return notFound();
   }
 
   return (
     <SiteLayout pageHeader={'Guild Emblems'}>
-      <div className="bg-white">
+      <div className="flex flex-col gap-8">
         <header>
           <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900">
             {guild.name} [{guild.tag}]
           </h2>
+          <p className="mb-4 text-sm text-gray-700">Guild ID: {guild.id}</p>
         </header>
-        <p className="mb-4 text-gray-700">Guild ID: {guild.id}</p>
-        <img src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} className="rounded-xl" />
-        <pre>{JSON.stringify({ guild }, null, 2)}</pre>
+
+        <Card title="Example Guild Emblems">
+          <ul className="flex flex-wrap gap-8">
+            {backgroundClasses.map((backgroundClass) => {
+              return (
+                <li key={backgroundClass} className="mb-4">
+                  <img
+                    src={getEmblemSrc(guild.id)}
+                    alt="Guild Emblem"
+                    width={128}
+                    height={128}
+                    className={clsx(backgroundClass, 'rounded-xl')}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+
+        <Card title="How to Use Guild Emblems">
+          <p>
+            You can use the guild emblem in your forum signatures, social media profiles, or anywhere you want to show
+            off your guild&apos;s identity. Emblems are 128x128 webp image format.
+          </p>
+          <p>Below are some common formats for using the guild emblem:</p>
+          <FormField label="Guild Emblem URL" value={getEmblemSrc(guild.id)} />
+          <FormField
+            label="Guild Emblem HTML"
+            value={`<img src="${getEmblemSrc(guild.id)}" width="128" height="128" />`}
+          />
+          <FormField label="Guild Emblem BBCODE" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
+
+          <FormField label="Guild Emblem URL (Alternative)" value={getEmblemSrc(guild.name)} />
+          <FormField
+            label="Guild Emblem HTML (Alternative"
+            value={`<img src="${getEmblemSrc(guild.name)}" width="128" height="128" />`}
+          />
+          <FormField label="Guild Emblem BBCODE (alternative)" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
+        </Card>
+
+        <Card title="Guild Data (Debug)">
+          <CodePreview code={JSON.stringify({ guild }, null, 2)} />
+        </Card>
       </div>
     </SiteLayout>
   );

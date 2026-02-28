@@ -1,4 +1,4 @@
-import { HomeIcon, MapPinIcon, PaintBrushIcon, PencilSquareIcon } from '@heroicons/react/20/solid';
+import { HomeIcon, MapPinIcon, PencilSquareIcon, PhotoIcon } from '@heroicons/react/20/solid';
 import filter from 'lodash-es/filter';
 
 export interface SiteSections {
@@ -20,15 +20,13 @@ export const homePageAttributes: SiteSections = {
 } as const;
 
 export const emblemPageAttributes: SiteSections = {
-  name: 'Emblem Rendering',
-  href: '/emblems',
-  icon: PaintBrushIcon,
+  name: 'Guild Emblems',
+  href: '/guilds',
+  icon: PhotoIcon,
   isFeature: true,
   description:
     'High-quality rendering of Guild Wars 2 guild emblems with customizable backgrounds, foregrounds, and colors. Perfect for websites, forums, and applications.',
-  isCurrent: (pathname: string) => {
-    return pathname.startsWith('/emblems') || pathname.startsWith('/guild');
-  },
+  isCurrent: (pathname: string) => pathname.startsWith('/guilds'),
 } as const;
 
 export const designerPageAttributes: SiteSections = {
