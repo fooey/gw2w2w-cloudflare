@@ -42,6 +42,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
 
     return next();
   })
+  .get('/favicon.ico', (c) => c.redirect('/97C007DC-87D5-E311-9621-AC162DAE8ACD', 302))
   .get('/guilds/*', (c) => {
     const rest = c.req.path.replace(/^\/guilds/, '') || '/';
 
