@@ -131,23 +131,42 @@ export default async function GuildPage({ params }: GuildPageProps) {
 
         <Card title="How to Use Guild Emblems">
           <p>
-            You can use the guild emblem in your forum signatures, social media profiles, or anywhere you want to show
-            off your guild&apos;s identity. Emblems are 128x128 webp image format.
+            Your guild emblem is a <strong>128×128 image</strong> hosted on our servers. You can use it anywhere that
+            accepts image URLs — forum signatures, Discord, social media profiles, and more.
           </p>
-          <p>Below are some common formats for using the guild emblem:</p>
-          <FormField label="Guild Emblem URL" value={getEmblemSrc(guild.id)} />
-          <FormField
-            label="Guild Emblem HTML"
-            value={`<img src="${getEmblemSrc(guild.id)}" width="128" height="128" />`}
-          />
-          <FormField label="Guild Emblem BBCODE" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
 
-          <FormField label="Guild Emblem URL (Alternative)" value={getEmblemSrc(guild.name)} />
-          <FormField
-            label="Guild Emblem HTML (Alternative"
-            value={`<img src="${getEmblemSrc(guild.name)}" width="128" height="128" />`}
-          />
-          <FormField label="Guild Emblem BBCODE (alternative)" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
+          <div className="mt-4 flex flex-col gap-6">
+            <section>
+              <h3 className="mb-1 text-sm font-semibold text-gray-700">Direct Image Link</h3>
+              <p className="mb-2 text-sm text-gray-500">
+                Use this URL anywhere that accepts a direct link to an image.
+              </p>
+              <FormField label="By Guild ID" value={getEmblemSrc(guild.id)} />
+              <FormField label="By Guild Name" value={getEmblemSrc(guild.name)} />
+            </section>
+
+            <section>
+              <h3 className="mb-1 text-sm font-semibold text-gray-700">HTML</h3>
+              <p className="mb-2 text-sm text-gray-500">Paste this into any website or blog that allows custom HTML.</p>
+              <FormField
+                label="By Guild ID"
+                value={`<img src="${getEmblemSrc(guild.id)}" width="128" height="128" />`}
+              />
+              <FormField
+                label="By Guild Name"
+                value={`<img src="${getEmblemSrc(guild.name)}" width="128" height="128" />`}
+              />
+            </section>
+
+            <section>
+              <h3 className="mb-1 text-sm font-semibold text-gray-700">BBCode</h3>
+              <p className="mb-2 text-sm text-gray-500">
+                Use this in forums that support BBCode, such as Reddit or older game forums.
+              </p>
+              <FormField label="By Guild ID" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
+              <FormField label="By Guild Name" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
+            </section>
+          </div>
         </Card>
 
         <Card title="Guild Data (Debug)">
