@@ -9,12 +9,21 @@ import z from 'zod';
 const R2_TTL = 86400; // 24 hours
 const getEnableCacheLogging = () => true;
 
+const redirectFileExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
+const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|')})$`);
+
 export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   '/:guildId',
   zValidator('param', z.object({ guildId: z.string() })),
   async (c) => {
     const cacheProviders = createCacheProviders(c.env);
     let guildId = c.req.param('guildId');
+
+    if (redirectFileExtensions.some((ext) => guildId.endsWith(ext))) {
+      // pop the file extension off the end of the guildId
+      guildId = guildId.replace(replaceFileExtensionRegex, '');
+    }
+
     const { objectStore } = cacheProviders;
     const apiClient = getApiClient(c);
 
