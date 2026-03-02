@@ -10,6 +10,7 @@ const guildIds = [
   // '4b9a0dd5-79e4-e811-81a8-e8b6963692b8',
   'Undefined Guild Name',
   'Dobby is Free',
+  'Fellowship and Murder',
   // 'ffffffff-ffff-ffff-ffff-ffffffffffff',
   // 'Äffchen Mit Käffchen',
 ];
