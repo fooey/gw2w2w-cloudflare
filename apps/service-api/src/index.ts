@@ -2,6 +2,7 @@ import { allowedCsrf, allowedOrigin } from '@repo/utils';
 import { apiColorRoute } from '@service-api/routes/color';
 import { apiEmblemRoute } from '@service-api/routes/emblem';
 import { apiGuildRoute } from '@service-api/routes/guild';
+import { apiWvwRoute } from '@service-api/routes/wvw';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
@@ -45,6 +46,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .route('/emblem', apiEmblemRoute)
   .route('/guild', apiGuildRoute)
   .route('/color', apiColorRoute)
+  .route('/wvw', apiWvwRoute)
   .get('*', (c) => {
     c.status(404);
     return c.json({
