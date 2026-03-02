@@ -4,7 +4,7 @@ import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
 import { FormField } from '@gw2w2w/lib/ui/FormField';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import type { Guild } from '@repo/service-api/lib/types';
+import type { Guild, WvwGuild, WvwTeam } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
@@ -23,32 +23,75 @@ function searchGuild(name: string): Promise<Response> {
   return apiFetch(`/guild/search?name=${name.toLocaleLowerCase()}`);
 }
 
-export const getGuildData = cache(async (guildId: string): Promise<Guild | null> => {
-  const isUuid = validateArenaNetUuid(guildId);
+function requestWvwGuild(guildId: string): Promise<Response> {
+  return apiFetch(`/wvw/guilds/guild/${guildId}`);
+}
 
-  const fn = isUuid ? getGuild : searchGuild;
-  return fn(guildId).then((response) => {
+function getWvwGuild(guildId: string): Promise<WvwGuild | null> {
+  return requestWvwGuild(guildId).then((response) => {
     if (response.status === 404) {
       return null;
     }
     if (!response.ok) {
-      throw new Error(`Failed to fetch guild data: ${response.status.toString()} ${response.statusText}`);
+      throw new Error(`Failed to fetch WvW guild data: ${response.status.toString()} ${response.statusText}`);
     }
     return response.json();
   });
+}
+
+function requestWvwTeam(teamId: string): Promise<Response> {
+  return apiFetch(`/wvw/teams/team/${teamId}`);
+}
+
+function getWvwTeam(teamId: string): Promise<WvwTeam> {
+  return requestWvwTeam(teamId).then((response) => response.json());
+}
+
+function getGuildTeam(guildId: string): Promise<WvwTeam | null> {
+  return getWvwGuild(guildId).then((data) => {
+    if (!data) {
+      return null;
+    }
+    return getWvwTeam(data.teamId);
+  });
+}
+
+export const getGuildData = cache(async (guildId: string): Promise<{ guild: Guild; team: WvwTeam | null } | null> => {
+  const isUuid = validateArenaNetUuid(guildId);
+
+  const fn = isUuid ? getGuild : searchGuild;
+  return fn(guildId)
+    .then((response) => {
+      if (response.status === 404) {
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error(`Failed to fetch guild data: ${response.status.toString()} ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then(async (guild: unknown) => {
+      const team = await getGuildTeam((guild as Guild).id);
+      return {
+        guild: guild as Guild,
+        team,
+      };
+    });
 });
 
 export async function generateMetadata({ params }: GuildPageProps): Promise<Metadata> {
   const { guildId } = await params;
 
   try {
-    const guild = await getGuildData(guildId);
+    const guildData = await getGuildData(guildId);
 
-    if (!guild) {
+    if (!guildData) {
       return {
         title: `Not Found - GW2W2W`,
       };
     }
+
+    const { guild } = guildData;
 
     const canonical = `https://gw2w2w.com/guild/${guild.id}`;
     const emblemUrl = getEmblemSrc(guild.id);
@@ -95,11 +138,13 @@ const backgroundClasses = [
 
 export default async function GuildPage({ params }: GuildPageProps) {
   const { guildId } = await params;
-  const guild = await getGuildData(guildId);
+  const guildData = await getGuildData(guildId);
 
-  if (!guild) {
+  if (!guildData) {
     return notFound();
   }
+
+  const { guild, team } = guildData;
 
   return (
     <SiteLayout pageHeader={'Guild Emblems'}>
@@ -109,6 +154,7 @@ export default async function GuildPage({ params }: GuildPageProps) {
             {guild.name} [{guild.tag}]
           </h2>
           <p className="mb-4 text-sm text-gray-700">Guild ID: {guild.id}</p>
+          <p className="mb-4 text-sm text-gray-700">WvW Team: {team?.en ?? 'N/A'}</p>
         </header>
 
         <Card title="Example Guild Emblems">
@@ -171,6 +217,7 @@ export default async function GuildPage({ params }: GuildPageProps) {
 
         <Card title="Guild Data (Debug)">
           <CodePreview code={JSON.stringify({ guild }, null, 2)} />
+          <CodePreview code={JSON.stringify({ team }, null, 2)} />
         </Card>
       </div>
     </SiteLayout>
