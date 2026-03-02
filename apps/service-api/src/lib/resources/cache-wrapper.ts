@@ -146,9 +146,9 @@ export async function withObjectCache<T>(
  * @param config - Cache configuration
  * @returns Filtered array based on requested IDs
  */
-export async function withFilteredObjectCache<T extends { id: number }>(
+export async function withFilteredObjectCache<T extends { id: number | string }>(
   objectKey: string,
-  ids: number | number[] | 'all',
+  ids: number | number[] | string | string[],
   apiCall: () => Promise<T[] | null>,
   cacheProviders: CacheProviders,
   config: CacheConfig = {},
