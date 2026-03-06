@@ -1,4 +1,7 @@
-import { apiFetch } from '@gw2w2w/lib/api/client';
+import { getGuildRequest, searchGuildRequest } from '@gw2w2w/lib/api/gw2/guild';
+import { getWvwGuildRequest } from '@gw2w2w/lib/api/gw2/wvw/guilds';
+import { getWvwTeamRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
+import { parseResponse } from '@gw2w2w/lib/api/utils';
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
@@ -15,67 +18,30 @@ interface GuildPageProps {
   params: Promise<{ guildId: string }>;
 }
 
-function getGuild(guildId: string): Promise<Response> {
-  return apiFetch(`/gw2/guild/${guildId}`);
-}
-
-function searchGuild(name: string): Promise<Response> {
-  return apiFetch(`/gw2/guild/search?name=${name.toLocaleLowerCase()}`);
-}
-
-function requestWvwGuild(guildId: string): Promise<Response> {
-  return apiFetch(`/gw2/wvw/guilds/guild/${guildId}`);
-}
-
-function getWvwGuild(guildId: string): Promise<WvwGuild | null> {
-  return requestWvwGuild(guildId).then((response) => {
-    if (response.status === 404) {
-      return null;
-    }
-    if (!response.ok) {
-      throw new Error(`Failed to fetch WvW guild data: ${response.status.toString()} ${response.statusText}`);
-    }
-    return response.json();
-  });
-}
-
-function requestWvwTeam(teamId: string): Promise<Response> {
-  return apiFetch(`/gw2/wvw/teams/team/${teamId}`);
-}
-
-function getWvwTeam(teamId: string): Promise<WvwTeam> {
-  return requestWvwTeam(teamId).then((response) => response.json());
-}
-
 function getGuildTeam(guildId: string): Promise<WvwTeam | null> {
-  return getWvwGuild(guildId).then((data) => {
-    if (!data) {
-      return null;
-    }
-    return getWvwTeam(data.teamId);
-  });
+  return getWvwGuildRequest(guildId)
+    .then(parseResponse<WvwGuild>)
+    .then((data) => {
+      if (!data) {
+        return null;
+      }
+      return getWvwTeamRequest(data.teamId).then(parseResponse<WvwTeam>);
+    });
 }
 
 export const getGuildData = cache(async (guildId: string): Promise<{ guild: Guild; team: WvwTeam | null } | null> => {
   const isUuid = validateArenaNetUuid(guildId);
 
-  const fn = isUuid ? getGuild : searchGuild;
+  const fn = isUuid ? getGuildRequest : searchGuildRequest;
+
   return fn(guildId)
-    .then((response) => {
-      if (response.status === 404) {
+    .then(parseResponse<Guild>)
+    .then(async (guild) => {
+      if (!guild) {
         return null;
       }
-      if (!response.ok) {
-        throw new Error(`Failed to fetch guild data: ${response.status.toString()} ${response.statusText}`);
-      }
-      return response.json();
-    })
-    .then(async (guild: unknown) => {
-      const team = await getGuildTeam((guild as Guild).id);
-      return {
-        guild: guild as Guild,
-        team,
-      };
+
+      return getGuildTeam(guild.id).then((team) => ({ guild, team }));
     });
 });
 
