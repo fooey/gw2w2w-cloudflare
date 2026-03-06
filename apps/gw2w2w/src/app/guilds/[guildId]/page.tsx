@@ -7,7 +7,7 @@ import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
 import { FormField } from '@gw2w2w/lib/ui/FormField';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import type { Guild, WvwGuild, WvwTeam } from '@repo/service-api/lib/types';
+import type { Guild, WvwGuild, WvWTeam } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
@@ -18,18 +18,18 @@ interface GuildPageProps {
   params: Promise<{ guildId: string }>;
 }
 
-function getGuildTeam(guildId: string): Promise<WvwTeam | null> {
+function getGuildTeam(guildId: string): Promise<WvWTeam | null> {
   return getWvwGuildRequest(guildId)
     .then(parseResponse<WvwGuild>)
     .then((data) => {
       if (!data) {
         return null;
       }
-      return getWvwTeamRequest(data.teamId).then(parseResponse<WvwTeam>);
+      return getWvwTeamRequest(data.teamId).then(parseResponse<WvWTeam>);
     });
 }
 
-export const getGuildData = cache(async (guildId: string): Promise<{ guild: Guild; team: WvwTeam | null } | null> => {
+export const getGuildData = cache(async (guildId: string): Promise<{ guild: Guild; team: WvWTeam | null } | null> => {
   const isUuid = validateArenaNetUuid(guildId);
 
   const fn = isUuid ? getGuildRequest : searchGuildRequest;
