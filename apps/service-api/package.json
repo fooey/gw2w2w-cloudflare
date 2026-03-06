@@ -13,12 +13,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "exports": {
     ".": "./src/index.ts",
     "./lib/cache-providers": "./src/lib/cache-providers/index.ts",
     "./lib/resources": "./src/lib/resources/index.ts",
-    "./lib/types": "./src/lib/types/index.ts"
+    "./lib/types": "./src/lib/types/index.ts",
+    "./src/definitions": "./src/definitions/index.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
