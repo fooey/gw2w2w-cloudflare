@@ -1,7 +1,7 @@
 import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
-import { apiWvwGuildsRoute } from '@service-api/routes/wvw/guilds';
-import { apiWvwTeamsRoute } from '@service-api/routes/wvw/teams';
 import { Hono } from 'hono';
+import { apiWvwGuildsRoute } from './guilds';
+import { apiWvwTeamsRoute } from './teams';
 
 export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .route('/guilds', apiWvwGuildsRoute)

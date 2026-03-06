@@ -10,17 +10,35 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     const name = c.req.query('name');
 
     if (!name) {
-      return c.json({ error: { message: 'Guild not found', status: 404 }, name }, 404);
+      const payload: ErrorPayload = {
+        message: 'Guild Not Found',
+        statusCode: 404,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api/guild',
+      };
+      return c.json(payload, payload.statusCode);
     }
 
     return searchGuild(name, c.env).then((guildId) => {
       if (!guildId) {
-        return c.json({ error: { message: 'Guild not found', status: 404 }, name }, 404);
+        const payload: ErrorPayload = {
+          message: 'Guild Not Found',
+          statusCode: 404,
+          url: new URL(c.req.url).pathname,
+          service: 'service-api/guild',
+        };
+        return c.json(payload, payload.statusCode);
       }
 
       return getGuild(guildId, c.env).then((guild) => {
         if (!guild) {
-          return c.json({ error: { message: 'Guild not found', status: 404 }, name }, 404);
+          const payload: ErrorPayload = {
+            message: 'Guild Not Found',
+            statusCode: 404,
+            url: new URL(c.req.url).pathname,
+            service: 'service-api/guild',
+          };
+          return c.json(payload, payload.statusCode);
         }
 
         // Set canonical location header to the direct guild endpoint
@@ -34,7 +52,13 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
     return getGuild(guildId, c.env).then((guild) => {
       if (!guild) {
-        return c.json({ error: { message: 'Guild not found', status: 404 }, guildId }, 404);
+        const payload: ErrorPayload = {
+          message: 'Guild Not Found',
+          statusCode: 404,
+          url: new URL(c.req.url).pathname,
+          service: 'service-api/guild',
+        };
+        return c.json(payload, payload.statusCode);
       }
 
       return c.json<Guild>(guild);

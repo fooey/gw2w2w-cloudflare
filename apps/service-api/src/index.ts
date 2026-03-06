@@ -1,8 +1,4 @@
 import { allowedCsrf, allowedOrigin } from '@repo/utils';
-import { apiColorRoute } from '@service-api/routes/color';
-import { apiEmblemRoute } from '@service-api/routes/emblem';
-import { apiGuildRoute } from '@service-api/routes/guild';
-import { apiWvwRoute } from '@service-api/routes/wvw';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
@@ -10,6 +6,7 @@ import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import { apiGw2Route } from './routes/gw2';
 
 export interface ErrorPayload {
   message: string;
@@ -31,10 +28,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
   .use(csrf({ origin: (origin, c) => allowedCsrf(origin, c.req.header('host')) }))
   .get('*', cache({ cacheName: 'service-api', cacheControl: 'max-age=86400' }))
-  .route('/emblem', apiEmblemRoute)
-  .route('/guild', apiGuildRoute)
-  .route('/color', apiColorRoute)
-  .route('/wvw', apiWvwRoute)
+  .route('/gw2', apiGw2Route)
   .get('*', (c) => {
     const payload: ErrorPayload = {
       message: 'Not Found',

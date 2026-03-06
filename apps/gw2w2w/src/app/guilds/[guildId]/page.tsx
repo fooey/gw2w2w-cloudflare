@@ -16,15 +16,15 @@ interface GuildPageProps {
 }
 
 function getGuild(guildId: string): Promise<Response> {
-  return apiFetch(`/guild/${guildId}`);
+  return apiFetch(`/gw2/guild/${guildId}`);
 }
 
 function searchGuild(name: string): Promise<Response> {
-  return apiFetch(`/guild/search?name=${name.toLocaleLowerCase()}`);
+  return apiFetch(`/gw2/guild/search?name=${name.toLocaleLowerCase()}`);
 }
 
 function requestWvwGuild(guildId: string): Promise<Response> {
-  return apiFetch(`/wvw/guilds/guild/${guildId}`);
+  return apiFetch(`/gw2/wvw/guilds/guild/${guildId}`);
 }
 
 function getWvwGuild(guildId: string): Promise<WvwGuild | null> {
