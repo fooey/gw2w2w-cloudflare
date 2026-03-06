@@ -39,20 +39,30 @@ export const designerPageAttributes: SiteSections = {
   isCurrent: (pathname: string) => pathname === '/designer',
 } as const;
 
-export const wvwPageAttributes: SiteSections = {
+export const wvwMatchupPageAttributes: SiteSections = {
   name: 'WvW Objective Status',
-  href: '/wvw',
+  href: '/wvw/matchups',
   icon: MapPinIcon,
   isFeature: true,
   description: 'Real-time World vs World objective tracking across all matchups.',
-  isCurrent: (pathname: string) => pathname.startsWith('/wvw'),
+  isCurrent: (pathname: string) => pathname.startsWith('/wvw/matchups'),
+} as const;
+
+export const wvwTeamsPageAttributes: SiteSections = {
+  name: 'WvW Teams',
+  href: '/wvw/teams',
+  icon: MapPinIcon,
+  isFeature: true,
+  description: 'Directory of which guilds belong to each WvW team.',
+  isCurrent: (pathname: string) => pathname.startsWith('/wvw/teams'),
 } as const;
 
 export const pageAttributes: readonly SiteSections[] = [
   homePageAttributes,
   emblemPageAttributes,
   designerPageAttributes,
-  wvwPageAttributes,
+  wvwMatchupPageAttributes,
+  wvwTeamsPageAttributes,
 ] as const;
 
 export const siteFeatures: readonly SiteSections[] = filter(pageAttributes, 'isFeature') as readonly SiteSections[];
