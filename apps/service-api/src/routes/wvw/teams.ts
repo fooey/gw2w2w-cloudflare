@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv } from '@service-api/index';
+import type { WvwTeam } from '@service-api/definitions/wvw-teams';
+import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
 import { getWvwTeam } from '@service-api/lib/resources/wvw/teams';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -7,38 +8,42 @@ import { z } from 'zod';
 export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('', async (c) => {
     return getWvwTeam('all', c.env).then((wvwTeams) => {
-      return c.json(wvwTeams);
+      if (!Array.isArray(wvwTeams) || wvwTeams.length !== 1) {
+        const payload: ErrorPayload = {
+          message: 'WvW Team Not Found',
+          statusCode: 404,
+          url: new URL(c.req.url).pathname,
+          service: 'service-api/wvw/teams',
+        };
+        return c.json(payload, payload.statusCode);
+      }
+      return c.json<WvwTeam[]>(wvwTeams);
     });
   })
   .get('/team/:teamId', zValidator('param', z.object({ teamId: z.string() })), async (c) => {
     const teamId = c.req.param('teamId');
 
     return getWvwTeam(teamId, c.env).then((wvwTeams) => {
-      if (!wvwTeams || (Array.isArray(wvwTeams) && wvwTeams.length !== 1)) {
-        c.status(404);
-        return c.json(
-          {
-            error: {
-              message: 'Team not found',
-              status: 404,
-              url: new URL(c.req.url).pathname,
-              service: 'service-api/wvw/teams/team/:teamId',
-            },
-            teamId,
-          },
-          404,
-        );
+      const [wvwTeam] = wvwTeams || [];
+      if (!wvwTeam) {
+        const payload: ErrorPayload = {
+          message: 'WvW Team Not Found',
+          statusCode: 404,
+          url: new URL(c.req.url).pathname,
+          service: 'service-api/wvw/teams',
+        };
+        return c.json(payload, 404);
       }
 
-      return c.json(wvwTeams[0]);
+      return c.json<WvwTeam>(wvwTeam);
     });
   })
   .get('*', (c) => {
-    c.status(404);
-    return c.json({
+    const payload: ErrorPayload = {
       message: 'Not Found',
-      status: 404,
+      statusCode: 404,
       url: new URL(c.req.url).pathname,
       service: 'service-api/wvw/teams',
-    });
+    };
+    return c.json(payload, payload.statusCode);
   });

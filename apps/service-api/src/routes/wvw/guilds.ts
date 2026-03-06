@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv } from '@service-api/index';
+import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
 import { getWvwGuild } from '@service-api/lib/resources/wvw/guilds';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -9,31 +9,26 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     const guildId = c.req.param('guildId');
 
     return getWvwGuild(guildId, c.env).then((wvwGuilds) => {
-      if (!wvwGuilds || (Array.isArray(wvwGuilds) && wvwGuilds.length !== 1)) {
-        c.status(404);
-        return c.json(
-          {
-            error: {
-              message: 'Guild not found',
-              status: 404,
-              url: new URL(c.req.url).pathname,
-              service: 'service-api/wvw/guilds/guild/:guildId',
-            },
-            guildId,
-          },
-          404,
-        );
+      const [wvwGuild] = wvwGuilds || [];
+      if (!wvwGuild) {
+        const payload: ErrorPayload = {
+          message: 'WvW Guild Not Found',
+          statusCode: 404,
+          url: new URL(c.req.url).pathname,
+          service: 'service-api/wvw/guilds',
+        };
+        return c.json(payload, 404);
       }
 
-      return c.json(wvwGuilds[0]);
+      return c.json(wvwGuild);
     });
   })
   .get('*', (c) => {
-    c.status(404);
-    return c.json({
+    const payload: ErrorPayload = {
       message: 'Not Found',
-      status: 404,
+      statusCode: 404,
       url: new URL(c.req.url).pathname,
       service: 'service-api/wvw/guilds',
-    });
+    };
+    return c.json(payload, 404);
   });

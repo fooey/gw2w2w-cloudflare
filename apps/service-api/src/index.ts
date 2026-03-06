@@ -9,10 +9,13 @@ import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 export interface ErrorPayload {
   message: string;
-  status: number;
+  statusCode: ContentfulStatusCode;
+  url: string;
+  service: string;
 }
 
 export interface CloudflareEnv {
@@ -25,36 +28,21 @@ export interface CloudflareEnv {
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', etag())
-  .use(
-    '*',
-    cors({
-      origin: (origin, c) => allowedOrigin(origin, c.req.header('host')),
-    }),
-  )
-  .use(
-    csrf({
-      origin: (origin, c) => allowedCsrf(origin, c.req.header('host')),
-    }),
-  )
-  .get(
-    '*',
-    cache({
-      cacheName: 'service-api',
-      cacheControl: 'max-age=86400',
-    }),
-  )
+  .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
+  .use(csrf({ origin: (origin, c) => allowedCsrf(origin, c.req.header('host')) }))
+  .get('*', cache({ cacheName: 'service-api', cacheControl: 'max-age=86400' }))
   .route('/emblem', apiEmblemRoute)
   .route('/guild', apiGuildRoute)
   .route('/color', apiColorRoute)
   .route('/wvw', apiWvwRoute)
   .get('*', (c) => {
-    c.status(404);
-    return c.json({
+    const payload: ErrorPayload = {
       message: 'Not Found',
-      status: 404,
+      statusCode: 404,
       url: new URL(c.req.url).pathname,
       service: 'service-api',
-    });
+    };
+    return c.json(payload, payload.statusCode);
   });
 
 // EXPORT THE APP TYPE (Crucial for RPC)

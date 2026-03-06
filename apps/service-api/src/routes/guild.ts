@@ -1,6 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv } from '@service-api/index';
+import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
 import { getGuild, searchGuild } from '@service-api/lib/resources/guild';
+import type { Guild } from '@service-api/lib/types';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -24,7 +25,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
         // Set canonical location header to the direct guild endpoint
         c.header('Content-Location', `/guilds/${guildId}`);
-        return c.json(guild);
+        return c.json<Guild>(guild);
       });
     });
   })
@@ -36,6 +37,15 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
         return c.json({ error: { message: 'Guild not found', status: 404 }, guildId }, 404);
       }
 
-      return c.json(guild);
+      return c.json<Guild>(guild);
     });
+  })
+  .get('*', (c) => {
+    const payload: ErrorPayload = {
+      message: 'Not Found',
+      statusCode: 404,
+      url: new URL(c.req.url).pathname,
+      service: 'service-api/guild',
+    };
+    return c.json(payload, payload.statusCode);
   });
