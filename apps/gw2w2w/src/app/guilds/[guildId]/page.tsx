@@ -40,7 +40,7 @@ function getWvwGuild(guildId: string): Promise<WvwGuild | null> {
 }
 
 function requestWvwTeam(teamId: string): Promise<Response> {
-  return apiFetch(`/wvw/teams/team/${teamId}`);
+  return apiFetch(`/gw2/wvw/teams/team/${teamId}`);
 }
 
 function getWvwTeam(teamId: string): Promise<WvwTeam> {
