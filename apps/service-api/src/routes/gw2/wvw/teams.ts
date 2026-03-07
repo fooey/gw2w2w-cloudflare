@@ -1,14 +1,14 @@
 import { zValidator } from '@hono/zod-validator';
-import type { WvwTeam } from '@service-api/definitions/wvw-teams';
+import type { WvWTeam } from '@service-api/definitions/wvw-teams';
 import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
 import { getWvwTeam } from '@service-api/lib/resources/wvw/teams';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
 export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
-  .get('', async (c) => {
+  .get('/', async (c) => {
     return getWvwTeam('all', c.env).then((wvwTeams) => {
-      if (!Array.isArray(wvwTeams) || wvwTeams.length !== 1) {
+      if (!Array.isArray(wvwTeams)) {
         const payload: ErrorPayload = {
           message: 'WvW Team Not Found',
           statusCode: 404,
@@ -17,7 +17,7 @@ export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
         };
         return c.json(payload, payload.statusCode);
       }
-      return c.json<WvwTeam[]>(wvwTeams);
+      return c.json<WvWTeam[]>(wvwTeams);
     });
   })
   .get('/team/:teamId', zValidator('param', z.object({ teamId: z.string() })), async (c) => {
@@ -35,7 +35,7 @@ export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
         return c.json(payload, 404);
       }
 
-      return c.json<WvwTeam>(wvwTeam);
+      return c.json<WvWTeam>(wvwTeam);
     });
   })
   .get('*', (c) => {
