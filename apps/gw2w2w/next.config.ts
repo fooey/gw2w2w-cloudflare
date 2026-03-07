@@ -8,16 +8,6 @@ const emblemUrl = new URL(process.env.NEXT_PUBLIC_SERVICE_EMBLEM_HOST!);
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  images: {
-    remotePatterns: [
-      {
-        protocol: emblemUrl.protocol.replace(':', '') as 'http' | 'https',
-        hostname: emblemUrl.hostname,
-        port: emblemUrl.port,
-        pathname: '/**',
-      },
-    ],
-  },
   redirects() {
     return [
       {
