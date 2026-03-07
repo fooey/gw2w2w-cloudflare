@@ -2,6 +2,7 @@
 // import nextTs from 'eslint-config-next/typescript';
 // import { defineConfig, globalIgnores } from 'eslint/config';
 import { nextJsConfig } from '@repo/eslint-config/next-js';
+import type { Linter } from 'eslint';
 
 // const eslintConfig = defineConfig([
 //   ...nextVitals,
@@ -22,4 +23,6 @@ import { nextJsConfig } from '@repo/eslint-config/next-js';
 //   },
 // ]);
 
-export default nextJsConfig;
+const config: Linter.Config[] = [...nextJsConfig] as Linter.Config[];
+
+export default config;
