@@ -1,7 +1,7 @@
 import type { Config } from 'prettier';
 
 const prettierConfig: Config = {
-  printWidth: 160,
+  printWidth: 120,
   semi: true,
   trailingComma: 'all',
   singleQuote: true,
