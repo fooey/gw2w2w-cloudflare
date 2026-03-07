@@ -3,15 +3,15 @@ import { createCacheProviders } from '@service-api/lib/cache-providers';
 import { apiFetch } from '@service-api/lib/resources/api';
 import { withFilteredObjectCache } from '@service-api/lib/resources/cache-wrapper';
 
-export type WvwTeamId = string;
-export type WvwGuildApiResponse = Record<string, WvwTeamId>;
-export interface WvwGuild {
+export type WvWTeamId = string;
+export type WvWGuildApiResponse = Record<string, WvWTeamId>;
+export interface WvWGuild {
   id: string;
-  teamId: WvwTeamId;
+  teamId: WvWTeamId;
   region: 'na' | 'eu';
 }
 
-function getWvwGuildFromApi(env: CloudflareEnv): Promise<WvwGuild[] | null> {
+function getWvWGuildFromApi(env: CloudflareEnv): Promise<WvWGuild[] | null> {
   return Promise.all([apiFetch(env, '/wvw/guilds/na'), apiFetch(env, '/wvw/guilds/eu')]).then(
     ([naResponse, euResponse]) => {
       if (!naResponse.ok || !euResponse.ok) {
@@ -27,12 +27,12 @@ function getWvwGuildFromApi(env: CloudflareEnv): Promise<WvwGuild[] | null> {
         }
       }
 
-      const naDataPromise = naResponse.json<WvwGuildApiResponse>();
-      const euDataPromise = euResponse.json<WvwGuildApiResponse>();
+      const naDataPromise = naResponse.json<WvWGuildApiResponse>();
+      const euDataPromise = euResponse.json<WvWGuildApiResponse>();
 
       return Promise.all([naDataPromise, euDataPromise]).then(
-        ([naGuilds, euGuilds]: [WvwGuildApiResponse, WvwGuildApiResponse]) => {
-          const allGuilds: WvwGuild[] = [];
+        ([naGuilds, euGuilds]: [WvWGuildApiResponse, WvWGuildApiResponse]) => {
+          const allGuilds: WvWGuild[] = [];
 
           for (const [guildId, teamId] of Object.entries(naGuilds)) {
             allGuilds.push({ id: guildId, teamId, region: 'na' });
@@ -49,6 +49,6 @@ function getWvwGuildFromApi(env: CloudflareEnv): Promise<WvwGuild[] | null> {
   );
 }
 
-export async function getWvwGuild(id: string | string[], env: CloudflareEnv): Promise<WvwGuild[] | null> {
-  return withFilteredObjectCache('wvw-guilds', id, () => getWvwGuildFromApi(env), createCacheProviders(env));
+export async function getWvwGuild(id: string | string[], env: CloudflareEnv): Promise<WvWGuild[] | null> {
+  return withFilteredObjectCache('wvw-guilds', id, () => getWvWGuildFromApi(env), createCacheProviders(env));
 }
