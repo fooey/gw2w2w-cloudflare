@@ -7,10 +7,11 @@ import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
 import { FormField } from '@gw2w2w/lib/ui/FormField';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import type { Guild, WvwGuild, WvWTeam } from '@repo/service-api/lib/types';
+import type { Guild, WvWGuild, WvWTeam } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
@@ -20,7 +21,7 @@ interface GuildPageProps {
 
 function getGuildTeam(guildId: string): Promise<WvWTeam | null> {
   return getWvwGuildRequest(guildId)
-    .then(parseResponse<WvwGuild>)
+    .then(parseResponse<WvWGuild>)
     .then((data) => {
       if (!data) {
         return null;
@@ -95,12 +96,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
   }
 }
 
-const backgroundClasses = [
-  'bg-white',
-  'bg-black',
-  'bg-linear-to-br from-white to-red-900',
-  'bg-linear-to-br from-red-400 to-black',
-];
+const backgroundClasses = ['bg-white', 'bg-black', 'bg-checkered', 'bg-linear-to-br from-white to-red-900', 'bg-linear-to-br from-red-400 to-black'];
 
 export default async function GuildPage({ params }: GuildPageProps) {
   const { guildId } = await params;
@@ -115,26 +111,26 @@ export default async function GuildPage({ params }: GuildPageProps) {
   return (
     <SiteLayout pageHeader={'Guild Emblems'}>
       <div className="flex flex-col gap-8">
-        <header>
-          <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900">
-            {guild.name} [{guild.tag}]
+        <header className="flex flex-col gap-2">
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+            <Link href={`/guilds/${guild.id}`}>
+              {guild.name} [{guild.tag}]
+            </Link>
           </h2>
-          <p className="mb-4 text-sm text-gray-700">Guild ID: {guild.id}</p>
-          <p className="mb-4 text-sm text-gray-700">WvW Team: {team?.en ?? 'N/A'}</p>
+          <h3 className="flex flex-col">
+            <GuildId guildId={guild.id} />
+            <GuildWvWTeam guildId={guild.id} />
+          </h3>
         </header>
 
         <Card title="Example Guild Emblems">
-          <ul className="flex flex-wrap gap-8">
+          <ul className="grid grid-cols-5 gap-4">
             {backgroundClasses.map((backgroundClass) => {
               return (
-                <li key={backgroundClass} className="mb-4">
-                  <img
-                    src={getEmblemSrc(guild.id)}
-                    alt="Guild Emblem"
-                    width={128}
-                    height={128}
-                    className={clsx(backgroundClass, 'rounded-xl')}
-                  />
+                <li key={backgroundClass}>
+                  <Link href={getEmblemSrc(guild.id)} className={clsx(backgroundClass, 'inline-flex rounded-xl p-4')}>
+                    <img loading="lazy" src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} />
+                  </Link>
                 </li>
               );
             })}
@@ -143,16 +139,14 @@ export default async function GuildPage({ params }: GuildPageProps) {
 
         <Card title="How to Use Guild Emblems">
           <p>
-            Your guild emblem is a <strong>128×128 image</strong> hosted on our servers. You can use it anywhere that
-            accepts image URLs — forum signatures, Discord, social media profiles, and more.
+            Your guild emblem is a <strong>128×128 image</strong> hosted on our servers. You can use it anywhere that accepts image URLs — forum signatures,
+            Discord, social media profiles, and more.
           </p>
 
           <div className="mt-4 flex flex-col gap-6">
             <section>
               <h3 className="mb-1 text-sm font-semibold text-gray-700">Direct Image Link</h3>
-              <p className="mb-2 text-sm text-gray-500">
-                Use this URL anywhere that accepts a direct link to an image.
-              </p>
+              <p className="mb-2 text-sm text-gray-500">Use this URL anywhere that accepts a direct link to an image.</p>
               <FormField label="By Guild ID" value={getEmblemSrc(guild.id)} />
               <FormField label="By Guild Name" value={getEmblemSrc(guild.name)} />
             </section>
@@ -160,21 +154,13 @@ export default async function GuildPage({ params }: GuildPageProps) {
             <section>
               <h3 className="mb-1 text-sm font-semibold text-gray-700">HTML</h3>
               <p className="mb-2 text-sm text-gray-500">Paste this into any website or blog that allows custom HTML.</p>
-              <FormField
-                label="By Guild ID"
-                value={`<img src="${getEmblemSrc(guild.id)}" width="128" height="128" />`}
-              />
-              <FormField
-                label="By Guild Name"
-                value={`<img src="${getEmblemSrc(guild.name)}" width="128" height="128" />`}
-              />
+              <FormField label="By Guild ID" value={`<img src="${getEmblemSrc(guild.id)}" width="128" height="128" />`} />
+              <FormField label="By Guild Name" value={`<img src="${getEmblemSrc(guild.name)}" width="128" height="128" />`} />
             </section>
 
             <section>
               <h3 className="mb-1 text-sm font-semibold text-gray-700">BBCode</h3>
-              <p className="mb-2 text-sm text-gray-500">
-                Use this in forums that support BBCode, such as Reddit or older game forums.
-              </p>
+              <p className="mb-2 text-sm text-gray-500">Use this in forums that support BBCode, such as Reddit or older game forums.</p>
               <FormField label="By Guild ID" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
               <FormField label="By Guild Name" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
             </section>
@@ -187,5 +173,34 @@ export default async function GuildPage({ params }: GuildPageProps) {
         </Card>
       </div>
     </SiteLayout>
+  );
+}
+
+function GuildId({ guildId }: { guildId: string }) {
+  return (
+    <p className="text-sm text-gray-700">
+      <span>Guild ID: </span>
+      <Link href={`/guilds/${guildId}`} className="text-rose-900">
+        {guildId}
+      </Link>
+    </p>
+  );
+}
+
+function GuildWvWTeam({ guildId }: { guildId: string }) {
+  return (
+    <p className="text-sm text-gray-700">
+      <span>WvW Team: </span>
+      {getGuildTeam(guildId).then((team) => {
+        if (!team) {
+          return 'N/A';
+        }
+        return (
+          <Link href={`/wvw/teams/${team.en}`} className="text-rose-900">
+            {team.en}
+          </Link>
+        );
+      })}
+    </p>
   );
 }
