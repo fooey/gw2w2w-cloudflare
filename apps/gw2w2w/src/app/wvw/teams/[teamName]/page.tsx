@@ -43,7 +43,7 @@ export default async function WvWTeamPage({ params }: WvWTeamPageProps) {
   }
 
   return (
-    <SiteLayout pageHeader={teamName}>
+    <SiteLayout pageHeader={`${team.en} [${team.id}]`}>
       <header>
         <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900">Guilds</h2>
 
