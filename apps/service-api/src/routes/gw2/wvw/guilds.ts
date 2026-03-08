@@ -63,13 +63,13 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
       return c.json<WvWGuild[]>(teamGuilds);
     });
-  })
-  .get('*', (c) => {
-    const payload: ErrorPayload = {
-      message: 'Not Found',
-      statusCode: 404,
-      url: new URL(c.req.url).pathname,
-      service: 'service-api/wvw/guilds',
-    };
-    return c.json(payload, 404);
   });
+// .get('*', (c) => {
+//   const payload: ErrorPayload = {
+//     message: 'Not Found',
+//     statusCode: 404,
+//     url: new URL(c.req.url).pathname,
+//     service: 'service-api/wvw/guilds',
+//   };
+//   return c.json(payload, 404);
+// });

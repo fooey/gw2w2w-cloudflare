@@ -8,7 +8,8 @@
     "types": ["@cloudflare/workers-types"],
     "incremental": true,
     "paths": {
-      "@service-emblem/*": ["./src/*"]
+      "@service-emblem/*": ["./src/*"],
+      "@service-api/*": ["../service-api/src/*"]
     }
   },
   "include": ["src/**/*.ts", "eslint.config.ts"],

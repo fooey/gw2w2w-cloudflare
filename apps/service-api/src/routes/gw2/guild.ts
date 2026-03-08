@@ -16,60 +16,57 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
         url: new URL(c.req.url).pathname,
         service: 'service-api/guild',
       };
-      return c.json(payload, payload.statusCode);
+      return c.json(payload, 404);
     }
 
-    return searchGuild(name, c.env).then((guildId) => {
-      if (!guildId) {
-        const payload: ErrorPayload = {
-          message: 'Guild Not Found',
-          statusCode: 404,
-          url: new URL(c.req.url).pathname,
-          service: 'service-api/guild',
-        };
-        return c.json(payload, payload.statusCode);
-      }
+    const guildId = await searchGuild(name, c.env);
+    if (!guildId) {
+      const payload: ErrorPayload = {
+        message: 'Guild Not Found',
+        statusCode: 404,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api/guild',
+      };
+      return c.json(payload, 404);
+    }
 
-      return getGuild(guildId, c.env).then((guild) => {
-        if (!guild) {
-          const payload: ErrorPayload = {
-            message: 'Guild Not Found',
-            statusCode: 404,
-            url: new URL(c.req.url).pathname,
-            service: 'service-api/guild',
-          };
-          return c.json(payload, payload.statusCode);
-        }
+    const guild = await getGuild(guildId, c.env);
+    if (!guild) {
+      const payload: ErrorPayload = {
+        message: 'Guild Not Found',
+        statusCode: 404,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api/guild',
+      };
+      return c.json(payload, 404);
+    }
 
-        // Set canonical location header to the direct guild endpoint
-        c.header('Content-Location', `/guilds/${guildId}`);
-        return c.json<Guild>(guild);
-      });
-    });
+    // Set canonical location header to the direct guild endpoint
+    c.header('Content-Location', `/guilds/${guildId}`);
+    return c.json<Guild>(guild, 200);
   })
   .get('/:guildId', zValidator('param', z.object({ guildId: z.string() })), async (c) => {
     const guildId = c.req.param('guildId');
 
-    return getGuild(guildId, c.env).then((guild) => {
-      if (!guild) {
-        const payload: ErrorPayload = {
-          message: 'Guild Not Found',
-          statusCode: 404,
-          url: new URL(c.req.url).pathname,
-          service: 'service-api/guild',
-        };
-        return c.json(payload, payload.statusCode);
-      }
+    const guild = await getGuild(guildId, c.env);
+    if (!guild) {
+      const payload: ErrorPayload = {
+        message: 'Guild Not Found',
+        statusCode: 404,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api/guild',
+      };
+      return c.json(payload, 404);
+    }
 
-      return c.json<Guild>(guild);
-    });
-  })
-  .get('*', (c) => {
-    const payload: ErrorPayload = {
-      message: 'Not Found',
-      statusCode: 404,
-      url: new URL(c.req.url).pathname,
-      service: 'service-api/guild',
-    };
-    return c.json(payload, payload.statusCode);
+    return c.json<Guild>(guild, 200);
   });
+// .get('*', (c) => {
+//   const payload: ErrorPayload = {
+//     message: 'Not Found',
+//     statusCode: 404,
+//     url: new URL(c.req.url).pathname,
+//     service: 'service-api/guild',
+//   };
+//   return c.json(payload, payload.statusCode);
+// });

@@ -7,18 +7,17 @@ import { z } from 'zod';
 
 export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/', async (c) => {
-    return getWvwTeam('all', c.env).then((wvwTeams) => {
-      if (!Array.isArray(wvwTeams)) {
-        const payload: ErrorPayload = {
-          message: 'WvW Team Not Found',
-          statusCode: 404,
-          url: new URL(c.req.url).pathname,
-          service: 'service-api/wvw/teams',
-        };
-        return c.json(payload, payload.statusCode);
-      }
-      return c.json<WvWTeam[]>(wvwTeams);
-    });
+    const wvwTeams = await getWvwTeam('all', c.env);
+    if (!Array.isArray(wvwTeams)) {
+      const payload: ErrorPayload = {
+        message: 'WvW Team Not Found',
+        statusCode: 404,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api/wvw/teams',
+      };
+      return c.json(payload, 404);
+    }
+    return c.json<WvWTeam[]>(wvwTeams, 200);
   })
   .get('/team/:teamId', zValidator('param', z.object({ teamId: z.string() })), async (c) => {
     const teamId = c.req.param('teamId');
@@ -37,13 +36,13 @@ export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
       return c.json<WvWTeam>(wvwTeam);
     });
-  })
-  .get('*', (c) => {
-    const payload: ErrorPayload = {
-      message: 'Not Found',
-      statusCode: 404,
-      url: new URL(c.req.url).pathname,
-      service: 'service-api/wvw/teams',
-    };
-    return c.json(payload, payload.statusCode);
   });
+// .get('*', (c) => {
+//   const payload: ErrorPayload = {
+//     message: 'Not Found',
+//     statusCode: 404,
+//     url: new URL(c.req.url).pathname,
+//     service: 'service-api/wvw/teams',
+//   };
+//   return c.json(payload, payload.statusCode);
+// });

@@ -20,21 +20,18 @@ export function getApiClient(
 }
 
 export function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
-  const guildApi = apiClient.guild[':guildId'];
-  if (!guildApi) throw new Error('Guild API not available');
+  const guildApi = apiClient.gw2.guild[':guildId'];
   return parseResponse(guildApi.$get({ param: { guildId } }));
 }
 
 export function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
-  const guildApi = apiClient.guild['search'];
-  if (!guildApi) throw new Error('Guild API not available');
+  const guildApi = apiClient.gw2.guild['search'];
   return parseResponse(guildApi.$get({ query: { name } }));
 }
 
-export function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
-  const colorApi = apiClient.color[':colorId'];
-  if (!colorApi) throw new Error('Color API not available');
-  return parseResponse(colorApi.$get({ param: { colorId } }));
+export function getColor(apiClient: ApiClient, colorId: number): Promise<Color[]> {
+  const colorApi = apiClient.gw2.color[':colorId'];
+  return parseResponse(colorApi.$get({ param: { colorId: colorId.toString() } }));
 }
 
 export function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
@@ -46,9 +43,10 @@ export function getEmblemLayer(
   layer: 'background' | 'foreground',
   emblemId: number,
 ): Promise<Emblem> {
-  const emblemLayerApi = apiClient.emblem[':layer/:emblemId'];
-  if (!emblemLayerApi) throw new Error(`Emblem API not available`);
-  return parseResponse(emblemLayerApi.$get({ param: { layer, emblemId } })).then(([result]) => result as Emblem);
+  const emblemLayerApi = apiClient.gw2.emblem[':layer'][':emblemId'];
+  return parseResponse(emblemLayerApi.$get({ param: { layer, emblemId: emblemId.toString() } })).then(
+    ([result]) => result as unknown as Emblem,
+  );
 }
 
 export async function getEmblemBytes(

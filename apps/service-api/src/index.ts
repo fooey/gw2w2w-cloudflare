@@ -22,25 +22,19 @@ export interface CloudflareEnv {
   GW2_API_KEY?: string;
 }
 
+// Pure routes chain — only for the RPC type export (no middleware contamination)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const routes = new Hono<{ Bindings: CloudflareEnv }>().route('/gw2', apiGw2Route);
+
+export type ServiceApiAppType = typeof routes;
+
+// Full runtime app — has middleware + same routes
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', etag())
   .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
   .use(csrf({ origin: (origin, c) => allowedCsrf(origin, c.req.header('host')) }))
   .get('*', cache({ cacheName: 'service-api', cacheControl: 'max-age=86400' }))
-  .route('/gw2', apiGw2Route)
-  .get('*', (c) => {
-    const payload: ErrorPayload = {
-      message: 'Not Found',
-      statusCode: 404,
-      url: new URL(c.req.url).pathname,
-      service: 'service-api',
-    };
-    return c.json(payload, payload.statusCode);
-  });
+  .route('/gw2', apiGw2Route);
 
-// EXPORT THE APP TYPE (Crucial for RPC)
-export type ServiceApiAppType = typeof app;
-
-// Default Export for Cloudflare
 export default app;

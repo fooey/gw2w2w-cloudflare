@@ -48,16 +48,16 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
 
     return c.redirect(rest, 308);
   })
-  .route('/', serviceEmblemRoute)
-  .get('*', (c) => {
-    c.status(404);
-    return c.json({
-      message: 'Not Found!',
-      status: 404,
-      url: new URL(c.req.url).pathname,
-      service: 'service-emblem',
-    });
-  });
+  .route('/', serviceEmblemRoute);
+// .get('*', (c) => {
+//   c.status(404);
+//   return c.json({
+//     message: 'Not Found!',
+//     status: 404,
+//     url: new URL(c.req.url).pathname,
+//     service: 'service-emblem',
+//   });
+// });
 
 // EXPORT THE APP TYPE (Crucial for RPC)
 export type ServiceEmblemAppType = typeof app;
