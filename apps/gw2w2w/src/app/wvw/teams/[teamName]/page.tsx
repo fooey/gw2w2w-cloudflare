@@ -1,11 +1,10 @@
-import { WvWTeamGuild } from '@gw2w2w/app/wvw/teams/[teamName]/WvWTeamGuild';
+import { WvWTeamGuildFilter } from '@gw2w2w/app/wvw/teams/[teamName]/WvWTeamGuildFilter';
 import { getGuildRequest } from '@gw2w2w/lib/api/gw2/guild';
 import { getWvwTeamGuildsRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import { parseResponse } from '@gw2w2w/lib/api/utils';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import type { Guild, WvWGuild } from '@repo/service-api/lib/types';
 import { WVW_TEAMS } from '@repo/service-api/src/definitions';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import pLimit from 'p-limit';
 import { Suspense } from 'react';
@@ -25,31 +24,10 @@ async function fetchWvWTeamGuilds(teamId: string): Promise<Guild[]> {
 
 async function WvWTeamGuildList({ teamId }: { teamId: string }) {
   const guilds = await fetchWvWTeamGuilds(teamId);
+  const sortKey = (name: string) => name.replace(/^(the|an?)\s+/i, '');
+  const sortedGuilds = guilds.sort((a, b) => sortKey(a.name).localeCompare(sortKey(b.name)));
 
-  const sortedGuilds = guilds.sort((a, b) => a.name.localeCompare(b.name));
-  const guildsWithEmblems = sortedGuilds.filter((guild) => guild.emblem);
-  const guildsWithoutEmblems = sortedGuilds.filter((guild) => !guild.emblem);
-
-  return (
-    <div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4">
-        {guildsWithEmblems.map((guild) => (
-          <WvWTeamGuild key={guild.id} guild={guild} />
-        ))}
-      </div>
-      <ul>
-        {guildsWithoutEmblems.map((guild) => (
-          <li key={guild.id}>
-            <div className="text-center">
-              <Link href={`/guilds/${guild.id}`}>
-                {guild.name} [{guild.tag}]
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  return <WvWTeamGuildFilter guilds={sortedGuilds} />;
 }
 
 export default async function WvWTeamPage({ params }: WvWTeamPageProps) {
