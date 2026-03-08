@@ -23,7 +23,6 @@ export interface CloudflareEnv {
   GW2_API_KEY?: string;
 }
 
-// Full runtime app — has middleware + same routes
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', etag())
@@ -33,5 +32,4 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .route('/gw2', apiGw2Route);
 
 export type ServiceApiAppType = typeof app;
-
 export default app;
