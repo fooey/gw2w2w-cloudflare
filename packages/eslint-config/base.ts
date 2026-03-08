@@ -27,6 +27,7 @@ export const config = [
       '@typescript-eslint/prefer-promise-reject-errors': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true, allowBoolean: true }],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
