@@ -5,6 +5,7 @@ import {
   NOT_FOUND_CACHE_VALUE,
   STORE_KV_TTL,
   STORE_OBJECT_TTL,
+  withJitter,
 } from './constants';
 
 export interface CacheConfig {
@@ -63,7 +64,7 @@ export async function withKvCache<T>(
 
     // 3. Store in cache
     await kvStore.put(key, JSON.stringify(freshData), {
-      expirationTtl: ttl,
+      expirationTtl: withJitter(ttl),
     });
 
     return freshData;
@@ -74,7 +75,7 @@ export async function withKvCache<T>(
     }
 
     await kvStore.put(key, NOT_FOUND_CACHE_VALUE, {
-      expirationTtl: notFoundTtl,
+      expirationTtl: withJitter(notFoundTtl),
     });
 
     return null;
@@ -128,7 +129,7 @@ export async function withObjectCache<T>(
     // 3. Store with expiration metadata
     await objectStore.put(objectKey, JSON.stringify(cachedData), {
       customMetadata: {
-        expiresAt: new Date(Date.now() + ttl * 1000).toISOString(),
+        expiresAt: new Date(Date.now() + withJitter(ttl) * 1000).toISOString(),
       },
     });
   }
