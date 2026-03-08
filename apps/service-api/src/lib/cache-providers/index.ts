@@ -1,6 +1,8 @@
 import type { CloudflareEnv } from '@service-api/index';
 
-export function createCacheProviders(env: CloudflareEnv): {
+type CacheEnv = Pick<CloudflareEnv, 'EMBLEM_ASSETS' | 'EMBLEM_ENGINE_GUILD_LOOKUP'>;
+
+export function createCacheProviders(env: CacheEnv): {
   objectStore: R2Bucket;
   kvStore: KVNamespace;
 } {
