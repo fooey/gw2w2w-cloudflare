@@ -1,40 +1,90 @@
 import { WvWTeamGuild } from '@gw2w2w/app/wvw/teams/[teamName]/WvWTeamGuild';
+import { getGuildRequest } from '@gw2w2w/lib/api/gw2/guild';
 import { getWvwTeamGuildsRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import { parseResponse } from '@gw2w2w/lib/api/utils';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import type { WvWGuild } from '@repo/service-api/lib/types';
+import type { Guild, WvWGuild } from '@repo/service-api/lib/types';
 import { WVW_TEAMS } from '@repo/service-api/src/definitions';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import pLimit from 'p-limit';
 import { Suspense } from 'react';
 
 interface WvWTeamPageProps {
   params: Promise<{ teamName: string }>;
 }
 
+const fetchLimit = pLimit(10);
+
+async function fetchWvWTeamGuilds(teamId: string): Promise<Guild[]> {
+  const wvwGuilds = (await getWvwTeamGuildsRequest(teamId).then(parseResponse<WvWGuild[]>)) ?? [];
+  const fetchGuild = (wvwGuild: WvWGuild) => fetchLimit(() => getGuildRequest(wvwGuild.id).then(parseResponse<Guild>));
+  const results = await Promise.all(wvwGuilds.map(fetchGuild));
+  return results.filter((g): g is Guild => g != null);
+}
+
+async function WvWTeamGuildList({ teamId }: { teamId: string }) {
+  const guilds = await fetchWvWTeamGuilds(teamId);
+
+  const sortedGuilds = guilds.sort((a, b) => a.name.localeCompare(b.name));
+  const guildsWithEmblems = sortedGuilds.filter((guild) => guild.emblem);
+  const guildsWithoutEmblems = sortedGuilds.filter((guild) => !guild.emblem);
+
+  return (
+    <div>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4">
+        {guildsWithEmblems.map((guild) => (
+          <WvWTeamGuild key={guild.id} guild={guild} />
+        ))}
+      </div>
+      <ul>
+        {guildsWithoutEmblems.map((guild) => (
+          <li key={guild.id}>
+            <div className="text-center">
+              <Link href={`/guilds/${guild.id}`}>
+                {guild.name} [{guild.tag}]
+              </Link>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default async function WvWTeamPage({ params }: WvWTeamPageProps) {
   const { teamName: encodedTeamName } = await params;
   const teamName = decodeURIComponent(encodedTeamName);
 
-  const team = Object.values(WVW_TEAMS).find((t) => t.en === teamName || t.de === teamName || t.es === teamName || t.fr === teamName);
+  const team = Object.values(WVW_TEAMS).find(
+    (t) => t.en === teamName || t.de === teamName || t.es === teamName || t.fr === teamName,
+  );
 
   if (!team) {
     return notFound();
   }
-
-  const teamGuilds = (await getWvwTeamGuildsRequest(team.id).then(parseResponse<WvWGuild[]>)) ?? [];
 
   return (
     <SiteLayout pageHeader={teamName}>
       <header>
         <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900">Guilds</h2>
 
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4">
-          {teamGuilds.map((wvwGuild) => (
-            <Suspense key={wvwGuild.id} fallback={<div className="h-32 w-32 animate-pulse bg-gray-100" />}>
-              <WvWTeamGuild guildId={wvwGuild.id} />
-            </Suspense>
-          ))}
-        </div>
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4">
+              {Array.from({ length: 64 }).map((_, i) => (
+                <div key={i} className="w-32">
+                  <div className="flex h-32 w-32 items-center justify-center rounded bg-gray-50">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-400" />
+                  </div>
+                  <div className="mx-auto mt-1 h-3 w-20 animate-pulse rounded bg-gray-100" />
+                </div>
+              ))}
+            </div>
+          }
+        >
+          <WvWTeamGuildList teamId={team.id} />
+        </Suspense>
       </header>
     </SiteLayout>
   );
