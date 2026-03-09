@@ -34,5 +34,10 @@ function getWvWAbilitiesFromApi(env: CloudflareEnv): Promise<WvWAbility[] | null
 }
 
 export async function getWvWAbility(id: number | number[] | 'all', env: CloudflareEnv): Promise<WvWAbility[]> {
-  return withFilteredObjectCache('wvw-abilities.json', id, () => getWvWAbilitiesFromApi(env), createCacheProviders(env));
+  return withFilteredObjectCache(
+    'wvw-abilities.json',
+    id,
+    () => getWvWAbilitiesFromApi(env),
+    createCacheProviders(env),
+  );
 }

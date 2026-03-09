@@ -38,9 +38,7 @@ function getNextResetDate(region: WvWRegion, now: Date): Date {
   if (daysUntil === 0 && now.getUTCHours() >= hour) {
     daysUntil = 7;
   }
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysUntil, hour, 0, 0, 0),
-  );
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysUntil, hour, 0, 0, 0));
 }
 
 function getPreviousResetDate(region: WvWRegion, now: Date): Date {
