@@ -46,9 +46,10 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   })
   .get('/favicon.ico', (c) => c.redirect('/97C007DC-87D5-E311-9621-AC162DAE8ACD', 302))
   .get('/guilds/*', (c) => {
-    const rest = c.req.path.replace(/^\/guilds/, '') || '/';
-
-    return c.redirect(rest, 308);
+    const url = new URL(c.req.url);
+    url.host = 'gw2w2w.com';
+    url.protocol = 'https:';
+    return c.redirect(url.toString(), 308);
   })
   .get('/short/:guildId', (c) => {
     const { guildId } = c.req.param();
