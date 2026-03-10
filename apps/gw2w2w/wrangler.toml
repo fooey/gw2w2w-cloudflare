@@ -1,4 +1,4 @@
-name = "gw2w2w"
+name = 'gw2w2w-cloudflare'
 main = ".open-next/worker.js"
 compatibility_date = "2026-01-01"
 
