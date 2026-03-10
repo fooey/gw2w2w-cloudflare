@@ -46,3 +46,18 @@ bucket_name = "emblem-assets-dev"
 
 [vars]
 GW2_API_BASE = "https://api.guildwars2.com/v2"
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
