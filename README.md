@@ -34,6 +34,8 @@ This is a [Turborepo](https://turbo.build/) monorepo with three deployed Cloudfl
 
 ArenaNet's API provides emblem layers as grayscale textures. Each layer is colorized by treating its texture channel as an opacity mask for a flat GW2 palette color, then alpha-composited together in layer order using a Porter-Duff "over" operation implemented via direct pixel manipulation. The [Photon](https://github.com/silvia-odwyer/photon) WASM library (via the Cloudflare-compatible [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon) build) is used for image decoding and flip transforms.
 
+The renderer is designed to operate within Cloudflare Workers' **50ms CPU time limit**, so performance was paramount: the compositing loop runs over raw `Uint32Array` pixel buffers in a single pass, avoiding any intermediate allocations or redundant traversals.
+
 The same `emblem-renderer` package is used by both `service-emblem` (server-side WebP generation) and the browser-based Designer (client-side preview), guaranteeing pixel-perfect parity between the designer preview and the final rendered image.
 
 ### Caching Strategy
@@ -45,12 +47,33 @@ The same `emblem-renderer` package is used by both `service-emblem` (server-side
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15 + React 19, deployed via [@opennextjs/cloudflare](https://github.com/opennextjs/opennextjs-cloudflare)
-- **API / Workers**: [Hono](https://hono.dev/) on Cloudflare Workers
-- **Image Processing**: WASM / [Photon](https://github.com/silvia-odwyer/photon) (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon))
-- **Storage**: Cloudflare KV + R2
-- **Monorepo**: [Turborepo](https://turbo.build/)
-- **Package Manager**: pnpm
+### Platform
+
+- **[Cloudflare Workers](https://workers.cloudflare.com/)** — Serverless edge runtime. All three services run as Workers, executing at the data center closest to the user with no cold-start penalty and no servers to manage.
+- **Cloudflare KV + R2** — KV provides fast globally-replicated key-value storage for API response caching; R2 provides S3-compatible object storage for raw textures and rendered emblems with no egress fees.
+
+### Frontend
+
+- **[Next.js 15](https://nextjs.org/) + [React 19](https://react.dev/)** — Frontend framework. Deployed to Cloudflare Workers via [@opennextjs/cloudflare](https://github.com/opennextjs/opennextjs-cloudflare), which adapts Next.js to run without Node.js.
+- **[Tailwind CSS v4](https://tailwindcss.com/)** — Utility-first CSS framework.
+- **[Headless UI](https://headlessui.com/) + [Heroicons](https://heroicons.com/)** — Accessible UI components and icons.
+
+### Backend / Workers
+
+- **[Hono](https://hono.dev/)** — HTTP framework for the two API Workers. Chosen for its tiny footprint (~14kb), zero dependencies, and first-class Cloudflare Workers support — critical when every byte counts in a Worker bundle.
+- **WASM / [Photon](https://github.com/silvia-odwyer/photon)** (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon)) — Image processing. Photon is a lightweight Rust/WASM library used for image decoding and pixel transforms. The `@cf-wasm/photon` build is pre-optimized for the Cloudflare Workers runtime.
+
+### Shared / Utilities
+
+- **[Zod](https://zod.dev/)** — Runtime schema validation used across the stack: API request parameters in Workers and form/data validation in the frontend.
+- **[lodash-es](https://lodash.com/)** — ES module build of Lodash for tree-shakeable utility functions.
+
+### Tooling
+
+- **[Turborepo](https://turbo.build/)** — Monorepo build system with intelligent task caching. Ensures only affected packages rebuild on change.
+- **[pnpm](https://pnpm.io/)** — Package manager. Uses a content-addressable store and hard links to avoid duplicating packages on disk, making installs significantly faster and lighter than npm or yarn, especially in a monorepo.
+- **[TypeScript](https://www.typescriptlang.org/)** — Used across all apps and packages with strict shared configs via `packages/typescript-config`.
+- **[ESLint](https://eslint.org/) + [Prettier](https://prettier.io/)** — Linting and formatting enforced across the monorepo via shared configs in `packages/eslint-config`.
 
 ## Local Development
 
