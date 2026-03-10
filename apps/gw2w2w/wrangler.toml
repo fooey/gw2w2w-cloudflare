@@ -44,6 +44,10 @@ id = "24797f12df1d4f8197edadc01d10535c"
 binding = "EMBLEM_ASSETS"
 bucket_name = "emblem-assets-dev"
 
+[[r2_buckets]]
+binding = "NEXT_INC_CACHE_R2_BUCKET"
+bucket_name = "gw2w2w-next-cache"
+
 [vars]
 GW2_API_BASE = "https://api.guildwars2.com/v2"
 
