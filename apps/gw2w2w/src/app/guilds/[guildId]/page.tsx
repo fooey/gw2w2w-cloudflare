@@ -6,7 +6,7 @@ import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
 import { FormField } from '@gw2w2w/lib/ui/FormField';
-import { GuildSearch } from '@gw2w2w/lib/ui/guilds/GuildSearch';
+import { GuildSearch } from '@gw2w2w/lib/ui/guilds/guild-search/GuildSearch';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import type { Guild, WvWGuild, WvWTeam } from '@repo/service-api/lib/types';

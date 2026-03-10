@@ -2,7 +2,7 @@ import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { GuildSearch } from '@gw2w2w/lib/ui/guilds/GuildSearch';
+import { GuildSearch } from '@gw2w2w/lib/ui/guilds/guild-search/GuildSearch';
 
 const guildIds = [
   // '4bbb52aa-d768-4fc6-8ede-c299f2822f0f',
