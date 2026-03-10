@@ -82,7 +82,7 @@ The same `emblem-renderer` package is used by both `service-emblem` (server-side
 - [Node.js](https://nodejs.org/) 20+
 - [pnpm](https://pnpm.io/) (via `corepack enable`)
 - A [Cloudflare account](https://dash.cloudflare.com/sign-up) with `wrangler` authenticated (`pnpm wrangler:login`)
-- A [GW2 API key](https://account.arena.net/applications) — set as `GW2_API_KEY` in `apps/service-api/wrangler.toml`
+- A [GW2 API key](https://account.arena.net/applications) — add as `GW2_API_KEY=<your-key>` in `apps/service-api/.dev.vars`
 
 ### Steps
 
