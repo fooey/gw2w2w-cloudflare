@@ -21,7 +21,7 @@ custom_domain = true
 
 [[services]]
 binding = "WORKER_SELF_REFERENCE"
-service = "gw2w2w"
+service = "gw2w2w-cloudflare"
 
 [[services]]
 binding = "SERVICE_EMBLEM"
