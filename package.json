@@ -2,6 +2,7 @@
   "name": "gw2w2w-cloudflare",
   "private": true,
   "scripts": {
+    "version:all": "pnpm -r version",
     "deploy": "pnpm run deploy:api && pnpm run deploy:emblem && pnpm run deploy:app",
     "deploy:api": "pnpm --filter service-api run deploy",
     "deploy:emblem": "pnpm --filter service-emblem run deploy",
