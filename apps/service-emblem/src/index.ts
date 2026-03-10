@@ -37,7 +37,9 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     const host = c.req.header('host');
 
     if (host === 'guilds.gw2w2w.com') {
-      return c.redirect('https://gw2w2w.com', 302);
+      const url = new URL(c.req.url);
+      url.host = 'emblem.gw2w2w.com';
+      return c.redirect(url.toString(), 302);
     }
 
     return next();
@@ -47,6 +49,10 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     const rest = c.req.path.replace(/^\/guilds/, '') || '/';
 
     return c.redirect(rest, 308);
+  })
+  .get('/short/:guildId', (c) => {
+    const { guildId } = c.req.param();
+    return c.redirect(`/${guildId}`, 308);
   })
   .route('/', serviceEmblemRoute);
 // .get('*', (c) => {

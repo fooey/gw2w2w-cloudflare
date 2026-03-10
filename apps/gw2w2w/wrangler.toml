@@ -11,6 +11,14 @@ compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 [site]
 bucket = ".open-next/assets"
 
+[[routes]]
+pattern = "gw2w2w.com"
+custom_domain = true
+
+[[routes]]
+pattern = "www.gw2w2w.com"
+custom_domain = true
+
 [[services]]
 binding = "WORKER_SELF_REFERENCE"
 service = "gw2w2w"
