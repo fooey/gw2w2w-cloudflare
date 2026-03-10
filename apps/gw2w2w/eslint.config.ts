@@ -23,6 +23,14 @@ import type { Linter } from 'eslint';
 //   },
 // ]);
 
-const config: Linter.Config[] = [...nextJsConfig] as Linter.Config[];
+const config: Linter.Config[] = [
+  ...nextJsConfig,
+  {
+    files: ['**/actions.ts', '**/actions/**/*.ts'],
+    rules: {
+      '@typescript-eslint/require-await': 'off',
+    },
+  },
+] as Linter.Config[];
 
 export default config;
