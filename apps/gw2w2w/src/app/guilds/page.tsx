@@ -2,6 +2,7 @@ import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import clsx from 'clsx';
 import Link from 'next/link';
+import { GuildSearch } from '@gw2w2w/lib/ui/guilds/GuildSearch';
 
 const guildIds = [
   // '4bbb52aa-d768-4fc6-8ede-c299f2822f0f',
@@ -24,7 +25,7 @@ const backgroundClasses = [
 
 export default function EmblemsPage() {
   return (
-    <SiteLayout pageHeader={'Guild Emblems'}>
+    <SiteLayout pageHeader={'Guild Emblems'} headerActions={<GuildSearch />}>
       <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900">Examples</h2>
       <ul>
         {guildIds.map((guildId) => (
