@@ -55,10 +55,6 @@ export default async function WvWTeamPage({ params }: WvWTeamPageProps) {
       <header>
         <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900">Guilds</h2>
 
-        <p className="mb-4 rounded border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm text-yellow-800">
-          ⚠️ This page is a work in progress. Only the first 32 guilds are shown.
-        </p>
-
         <Suspense
           fallback={
             <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4">
