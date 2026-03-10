@@ -15,9 +15,10 @@ interface WvWTeamPageProps {
 
 const fetchLimit = pLimit(10);
 
-// Cloudflare free accounts are limited to 50 subrequests per invocation.
+// Cloudflare subrequests per invocation are limited
 // Each guild detail fetch is one subrequest, plus one for the team guild list itself.
-const GUILD_FETCH_LIMIT = 32;
+// This should match the configured subrequests limit in wrangler.toml, with some headroom for other potential subrequests.
+const GUILD_FETCH_LIMIT = 1000;
 
 async function fetchWvWTeamGuilds(teamId: string): Promise<Guild[]> {
   const wvwGuilds = ((await getWvwTeamGuildsRequest(teamId).then(parseResponse<WvWGuild[]>)) ?? []).slice(

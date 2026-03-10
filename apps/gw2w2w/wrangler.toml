@@ -29,6 +29,10 @@ service = "service-emblem"
 binding = "SERVICE_API"
 service = "service-api"
 
+[limits]
+cpu_ms = 100
+subrequests = 1000
+
 [images]
 # Enable image optimization
 # see https://opennext.js.org/cloudflare/howtos/image
