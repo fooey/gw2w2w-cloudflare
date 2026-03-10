@@ -15,8 +15,15 @@ interface WvWTeamPageProps {
 
 const fetchLimit = pLimit(10);
 
+// Cloudflare free accounts are limited to 50 subrequests per invocation.
+// Each guild detail fetch is one subrequest, plus one for the team guild list itself.
+const GUILD_FETCH_LIMIT = 32;
+
 async function fetchWvWTeamGuilds(teamId: string): Promise<Guild[]> {
-  const wvwGuilds = ((await getWvwTeamGuildsRequest(teamId).then(parseResponse<WvWGuild[]>)) ?? []).slice(0, 32);
+  const wvwGuilds = ((await getWvwTeamGuildsRequest(teamId).then(parseResponse<WvWGuild[]>)) ?? []).slice(
+    0,
+    GUILD_FETCH_LIMIT,
+  );
   const fetchGuild = (wvwGuild: WvWGuild) => fetchLimit(() => getGuildRequest(wvwGuild.id).then(parseResponse<Guild>));
   const results = await Promise.all(wvwGuilds.map(fetchGuild));
   return results.filter((g): g is Guild => g != null);
