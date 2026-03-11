@@ -1,12 +1,12 @@
 import { allowedCsrf, allowedOrigin } from '@repo/utils';
-import { Hono } from 'hono';
+import { Hono, type MiddlewareHandler } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
-import { withJitter } from './lib/resources/constants';
+import { STORE_OBJECT_TTL, STORE_STATIC_OBJECT_TTL, withJitter } from './lib/resources/constants';
 import { apiGw2Route } from './routes/gw2';
 
 export interface ErrorPayload {
@@ -23,12 +23,18 @@ export interface CloudflareEnv {
   GW2_API_KEY?: string;
 }
 
+const staticCache = cache({ cacheName: 'service-api', cacheControl: `max-age=${STORE_STATIC_OBJECT_TTL}` });
+const defaultCache: MiddlewareHandler = (c, next) =>
+  cache({ cacheName: 'service-api', cacheControl: `max-age=${withJitter(STORE_OBJECT_TTL)}` })(c, next);
+
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', etag())
   .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
   .use(csrf({ origin: (origin, c) => allowedCsrf(origin, c.req.header('host')) }))
-  .get('*', cache({ cacheName: 'service-api', cacheControl: `max-age=${withJitter(86400)}` }))
+  .get('/gw2/color/*', staticCache)
+  .get('/gw2/emblem/*', staticCache)
+  .get('*', defaultCache)
   .route('/gw2', apiGw2Route);
 
 export type ServiceApiAppType = typeof app;
