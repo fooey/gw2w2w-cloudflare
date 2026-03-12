@@ -5,7 +5,7 @@ import { parseResponse } from '@gw2w2w/lib/api/utils';
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
-import { FormField } from '@gw2w2w/lib/ui/FormField';
+import { CopyToClipboardInput } from '@gw2w2w/lib/ui/controls/CopyToClipboardInput';
 import { GuildSearch } from '@gw2w2w/lib/ui/guilds/guild-search/GuildSearch';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
@@ -173,18 +173,18 @@ export default async function GuildPage({ params }: GuildPageProps) {
               <p className="mb-2 text-sm text-gray-500">
                 Use this URL anywhere that accepts a direct link to an image.
               </p>
-              <FormField label="By Guild ID" value={getEmblemSrc(guild.id)} />
-              <FormField label="By Guild Name" value={getEmblemSrc(guild.name)} />
+              <CopyToClipboardInput label="By Guild ID" value={getEmblemSrc(guild.id)} />
+              <CopyToClipboardInput label="By Guild Name" value={getEmblemSrc(guild.name)} />
             </section>
 
             <section>
               <h3 className="mb-1 text-sm font-semibold text-gray-700">HTML</h3>
               <p className="mb-2 text-sm text-gray-500">Paste this into any website or blog that allows custom HTML.</p>
-              <FormField
+              <CopyToClipboardInput
                 label="By Guild ID"
                 value={`<img src="${getEmblemSrc(guild.id)}" width="128" height="128" />`}
               />
-              <FormField
+              <CopyToClipboardInput
                 label="By Guild Name"
                 value={`<img src="${getEmblemSrc(guild.name)}" width="128" height="128" />`}
               />
@@ -195,8 +195,8 @@ export default async function GuildPage({ params }: GuildPageProps) {
               <p className="mb-2 text-sm text-gray-500">
                 Use this in forums that support BBCode, such as Reddit or older game forums.
               </p>
-              <FormField label="By Guild ID" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
-              <FormField label="By Guild Name" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
+              <CopyToClipboardInput label="By Guild ID" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
+              <CopyToClipboardInput label="By Guild Name" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
             </section>
           </div>
         </Card>
