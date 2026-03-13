@@ -12,9 +12,7 @@
   },
   "dependencies": {
     "@repo/service-api": "workspace:*",
-    "@cf-wasm/photon": "^0.3.4",
-    "guildwars2-ts": "^1.6.0",
-    "zod": "^4.0.0"
+    "@cf-wasm/photon": "^0.3.4"
   },
   "devDependencies": {
     "eslint": "^9",

@@ -16,20 +16,17 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
-    "@repo/emblem-renderer": "workspace:*",
     "@repo/service-api": "workspace:*",
     "@repo/service-emblem": "workspace:*",
     "@repo/utils": "workspace:*",
     "@types/lodash-es": "^4.17.12",
     "clsx": "^2.1.1",
-    "hono": "^4.11.5",
     "lodash-es": "^4.17.23",
     "match-sorter": "^8.2.0",
     "next": "^16.1.2",
     "p-limit": "^7.3.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "uuid": "^13.0.0"
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260124.0",
