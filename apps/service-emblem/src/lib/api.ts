@@ -54,7 +54,7 @@ export async function getEmblemBytes(
   guildId: string,
   cacheProviders: ReturnType<typeof createCacheProviders>,
 ): Promise<Uint8Array> {
-  let guild: Guild | null = null;
+  let guild: Guild | null;
 
   try {
     guild = await getGuild(apiClient, guildId);

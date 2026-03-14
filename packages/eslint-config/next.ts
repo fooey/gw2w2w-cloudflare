@@ -1,14 +1,14 @@
 import js from '@eslint/js';
 import pluginNext from '@next/eslint-plugin-next';
+import pluginReact from '@eslint-react/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import { globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import { config as baseConfig } from './base.js';
 
-export const nextJsConfig = [
+export const nextJsConfig = tseslint.config(
   ...baseConfig,
   js.configs.recommended,
   eslintConfigPrettier,
@@ -21,9 +21,8 @@ export const nextJsConfig = [
     'next-env.d.ts',
   ]),
   {
-    ...pluginReact.configs.flat.recommended,
+    ...pluginReact.configs['recommended-type-checked'],
     languageOptions: {
-      ...pluginReact.configs.flat.recommended!.languageOptions,
       globals: {
         ...globals.serviceworker,
       },
@@ -42,12 +41,9 @@ export const nextJsConfig = [
     plugins: {
       'react-hooks': pluginReactHooks,
     },
-    settings: { react: { version: 'detect' } },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
-      // React scope no longer necessary with new JSX transform.
-      'react/react-in-jsx-scope': 'off',
       '@next/next/no-img-element': 'off',
     },
   },
-];
+);

@@ -4,7 +4,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import turboPlugin from 'eslint-plugin-turbo';
 import tseslint from 'typescript-eslint';
 
-export const config = [
+export const config = tseslint.config(
   js.configs.recommended,
   eslintConfigPrettier,
   ...tseslint.configs.strictTypeChecked,
@@ -46,4 +46,4 @@ export const config = [
   {
     ignores: ['dist/**'],
   },
-];
+);

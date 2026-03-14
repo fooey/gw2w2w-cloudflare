@@ -39,7 +39,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
 
     const cacheKey = `emblems:${guildId}`;
 
-    let bytes: Uint8Array | null = null;
+    let bytes: Uint8Array | null;
 
     const object = await objectStore.get(cacheKey);
     if (object !== null) {
