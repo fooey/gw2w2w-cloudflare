@@ -23,13 +23,13 @@
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
     "@repo/utils": "workspace:*",
-    "hono": "^4.11.5",
-    "zod": "^4.0.0"
+    "hono": "^4.12.8",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260312.1",
-    "@types/node": "^24",
-    "eslint": "^9",
+    "@cloudflare/workers-types": "^4.20260313.1",
+    "@types/node": "^24.12.0",
+    "eslint": "^10",
     "jiti": "^2.6.1",
     "wrangler": "^4.73.0"
   }

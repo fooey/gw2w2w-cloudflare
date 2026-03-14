@@ -17,7 +17,7 @@
     "react-library.json"
   ],
   "dependencies": {
-    "eslint-config-next": "^16",
-    "next": "^16.1.2"
+    "eslint-config-next": "^16.1.6",
+    "next": "^16.1.6"
   }
 }

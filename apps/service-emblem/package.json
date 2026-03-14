@@ -20,12 +20,12 @@
     "@repo/emblem-renderer": "workspace:*",
     "@repo/service-api": "workspace:*",
     "@repo/utils": "workspace:*",
-    "hono": "^4.11.5",
-    "zod": "^4.0.0"
+    "hono": "^4.12.8",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260312.1",
-    "eslint": "^9",
+    "@cloudflare/workers-types": "^4.20260313.1",
+    "eslint": "^10",
     "wrangler": "^4.73.0"
   }
 }
