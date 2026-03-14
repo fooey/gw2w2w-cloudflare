@@ -2,9 +2,10 @@ import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 // @ts-ignore
 import turboPlugin from 'eslint-plugin-turbo';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
-export const config = tseslint.config(
+export const config = defineConfig(
   js.configs.recommended,
   eslintConfigPrettier,
   ...tseslint.configs.strictTypeChecked,

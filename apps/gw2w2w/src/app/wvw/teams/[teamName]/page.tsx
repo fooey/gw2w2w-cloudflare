@@ -59,6 +59,7 @@ export default async function WvWTeamPage({ params }: WvWTeamPageProps) {
           fallback={
             <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4">
               {Array.from({ length: 64 }).map((_, i) => (
+                // eslint-disable-next-line @eslint-react/no-array-index-key
                 <div key={i} className="w-32">
                   <div className="flex h-32 w-32 items-center justify-center rounded bg-gray-50">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-400" />

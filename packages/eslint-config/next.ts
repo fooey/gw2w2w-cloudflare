@@ -2,13 +2,13 @@ import js from '@eslint/js';
 import pluginNext from '@next/eslint-plugin-next';
 import pluginReact from '@eslint-react/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
-import { globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import { config as baseConfig } from './base.js';
 
-export const nextJsConfig = tseslint.config(
+export const nextJsConfig = defineConfig(
   ...baseConfig,
   js.configs.recommended,
   eslintConfigPrettier,
@@ -39,7 +39,7 @@ export const nextJsConfig = tseslint.config(
   },
   {
     plugins: {
-      'react-hooks': pluginReactHooks,
+      'react-hooks': pluginReactHooks as any,
     },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
