@@ -27,10 +27,10 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260124.0",
-    "@types/node": "^25.3.0",
+    "@cloudflare/workers-types": "^4.20260312.1",
+    "@types/node": "^24",
     "eslint": "^9",
     "jiti": "^2.6.1",
-    "wrangler": "^4.60.0"
+    "wrangler": "^4.73.0"
   }
 }

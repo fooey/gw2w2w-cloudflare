@@ -20,7 +20,7 @@
     "wrangler:clean": "pnpm -r exec pnpm dlx rimraf .wrangler/state"
   },
   "devDependencies": {
-    "@types/node": "^25.0.9",
+    "@types/node": "^24",
     "knip": "^5.81.0",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
@@ -28,8 +28,9 @@
     "typescript": "5.9.2"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=24",
+    "pnpm": ">=10"
   },
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
   "version": "1.0.4"
 }
