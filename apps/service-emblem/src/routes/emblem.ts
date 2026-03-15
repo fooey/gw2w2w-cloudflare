@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
 import type { CloudflareEnv } from '@service-emblem/index';
-import { getApiClient, getEmblemBytes, HttpError, searchGuild } from '@service-emblem/lib/api';
+import { getApiClient, getEmblemBytesByGuildId, HttpError, searchGuild } from '@service-emblem/lib/api';
 import { Hono } from 'hono';
 import z from 'zod';
 
@@ -48,7 +48,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     } else {
       if (getEnableCacheLogging()) console.info(`r2 MISS for ${cacheKey}`);
       try {
-        bytes = await getEmblemBytes(apiClient, guildId, cacheProviders);
+        bytes = await getEmblemBytesByGuildId(apiClient, guildId, cacheProviders);
       } catch (error: unknown) {
         if (error instanceof HttpError) {
           return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {

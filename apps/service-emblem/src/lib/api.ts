@@ -59,12 +59,12 @@ export function getEmblemLayer(
   );
 }
 
-export async function getEmblemBytes(
+export async function getEmblemBytesByGuildId(
   apiClient: ApiClient,
   guildId: string,
   cacheProviders: ReturnType<typeof createCacheProviders>,
 ): Promise<Uint8Array> {
-  let guild: Guild | null;
+  let guild: Guild;
 
   try {
     guild = await getGuild(apiClient, guildId);
@@ -79,15 +79,34 @@ export async function getEmblemBytes(
     throw new HttpError(404, 'Guild emblem not found');
   }
 
-  // Prepare IDs
-  const backgroundId = guild.emblem.background.id;
-  const foregroundId = guild.emblem.foreground.id;
-  const uniqueColorIds = Array.from(new Set([...guild.emblem.background.colors, ...guild.emblem.foreground.colors])); // Remove duplicates
+  return getEmblemBytes(apiClient, guild.emblem, cacheProviders);
+}
 
-  // Fetch Definitions & Colors
-  const [bgDefs, fgDefs, colors] = await Promise.all([
-    backgroundId ? getEmblemLayer(apiClient, 'background', backgroundId) : null,
-    foregroundId ? getEmblemLayer(apiClient, 'foreground', foregroundId) : null,
+function fetchLayerTextures(
+  apiClient: ApiClient,
+  layer: 'background' | 'foreground',
+  emblemId: number,
+  indices: number[],
+  objectStore: ReturnType<typeof createCacheProviders>['objectStore'],
+): Promise<(ArrayBuffer | null)[]> {
+  return getEmblemLayer(apiClient, layer, emblemId).then((def) =>
+    Promise.all(indices.map((i) => getTextureArrayBuffer(def.layers[i] ?? null, objectStore))),
+  );
+}
+
+export async function getEmblemBytes(
+  apiClient: ApiClient,
+  guildEmblem: NonNullable<Guild['emblem']>,
+  cacheProviders: ReturnType<typeof createCacheProviders>,
+): Promise<Uint8Array> {
+  const { objectStore } = cacheProviders;
+  const backgroundId = guildEmblem.background.id;
+  const foregroundId = guildEmblem.foreground.id;
+  const uniqueColorIds = Array.from(new Set([...guildEmblem.background.colors, ...guildEmblem.foreground.colors]));
+
+  const [bgBufs, fgBufs, colors] = await Promise.all([
+    backgroundId ? fetchLayerTextures(apiClient, 'background', backgroundId, [0], objectStore) : null,
+    foregroundId ? fetchLayerTextures(apiClient, 'foreground', foregroundId, [1, 2], objectStore) : null,
     uniqueColorIds.length > 0 ? getColors(apiClient, uniqueColorIds) : null,
   ]);
 
@@ -95,20 +114,11 @@ export async function getEmblemBytes(
     throw new HttpError(500, 'Colors not found');
   }
 
-  const bgDef = bgDefs ?? null;
-  const fgDef = fgDefs ?? null;
+  const bgBuf = bgBufs?.[0] ?? null;
+  const fgBuf1 = fgBufs?.[0] ?? null;
+  const fgBuf2 = fgBufs?.[1] ?? null;
 
-  const bgLayer = bgDef?.layers[0] ?? null;
-  const fgLayer1 = fgDef?.layers[1] ?? null;
-  const fgLayer2 = fgDef?.layers[2] ?? null;
-
-  const [bgBuf, fgBuf1, fgBuf2] = await Promise.all([
-    getTextureArrayBuffer(bgLayer, cacheProviders.objectStore),
-    getTextureArrayBuffer(fgLayer1, cacheProviders.objectStore),
-    getTextureArrayBuffer(fgLayer2, cacheProviders.objectStore),
-  ]);
-
-  const emblem = renderEmblem(guild.emblem, colors, bgBuf, fgBuf1, fgBuf2);
+  const emblem = renderEmblem(guildEmblem, colors, bgBuf, fgBuf1, fgBuf2);
 
   return emblem.get_bytes_webp();
 }
