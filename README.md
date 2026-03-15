@@ -13,6 +13,30 @@ An open-source suite of utilities for [Guild Wars 2](https://www.guildwars2.com/
 
 This is a [Turborepo](https://turbo.build/) monorepo with three deployed Cloudflare Workers and a shared internal package library.
 
+```mermaid
+graph TD
+    User["Browser / Client"]
+
+    subgraph CF["Cloudflare Edge"]
+        GW2W2W["gw2w2w.com\nNext.js · OpenNext"]
+        Emblem["emblem.gw2w2w.com\nservice-emblem · Hono"]
+        API["api.gw2w2w.com\nservice-api · Hono"]
+        KV[("KV\nname → id\nguild JSON")]
+        R2[("R2\ntextures\nrendered emblems\nwvw data")]
+    end
+
+    GW2API["api.guildwars2.com"]
+
+    User -->|page request| GW2W2W
+    User -->|emblem hotlink| Emblem
+    GW2W2W -->|fetch| API
+    Emblem -->|Service Binding| API
+    API -->|read / write| KV
+    API -->|read / write| R2
+    Emblem -->|read / write| R2
+    API -->|cache miss| GW2API
+```
+
 ### Applications
 
 | App                   | Domain              | Description                                                                                                        |
@@ -94,6 +118,26 @@ From the layer definitions, `service-emblem` resolves the actual grayscale textu
 
 **8. Cache and respond**
 The rendered WebP bytes are written to R2 under `emblems:4BBB52AA-…` (24h TTL) and returned as `Content-Type: image/webp`. Future requests for the same guild skip steps 2–7 entirely.
+
+## Key Design Decisions
+
+**Three Workers instead of one**
+`service-emblem` and `service-api` are split into separate Workers rather than merged. They have different scaling profiles (emblem requests are CPU-heavy due to WASM; API requests are I/O-bound), different cache TTL strategies, and different placement requirements (`service-api` is placement-hinted near `api.guildwars2.com` for low-latency upstream calls). Keeping them separate also means a WASM crash in `service-emblem` cannot take down the API.
+
+**Service Bindings for Worker-to-Worker communication**
+`service-emblem` calls `service-api` via a [Cloudflare Service Binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/) rather than an HTTP fetch. This bypasses the network stack entirely — the call is dispatched in the same Cloudflare data center with no round-trip latency. Combined with [Hono RPC](https://hono.dev/docs/guides/rpc), the call site is fully type-safe end-to-end with no generated client code or OpenAPI spec required.
+
+**R2 for blobs, KV for lookups**
+KV is optimised for small, frequently-read key-value pairs (≤25MB, globally replicated). R2 is used for everything binary: grayscale textures, rendered WebP emblems, and large JSON collections (WvW match data, guild lists). This keeps KV fast and cheap while R2 handles bulk storage with no egress fees.
+
+**TTL jitter on every cache write**
+Every R2 and KV write adds ±10% random jitter to its expiry time. Without this, a burst of traffic that fills the cache simultaneously would expire simultaneously, causing a thundering herd of upstream API calls 24 hours later. Jitter spreads expirations across a window, smoothing the refresh load.
+
+**Single-pass `Uint32Array` compositing**
+Cloudflare Workers enforce a **50ms CPU time limit**. The WASM-based pixel compositing loop processes all layers in a single pass over a `Uint32Array` buffer — no intermediate `ImageData` allocations, no per-pixel branch on layer count. On a three-layer emblem at 256×256px this fits well within the budget even in a cold isolate.
+
+**Placement hints near the upstream API**
+`service-api` sets `placement.hostname = "api.guildwars2.com"` in its `wrangler.toml`. Cloudflare uses HTTP HEAD probes to locate the GW2 API and routes all Worker invocations to the nearest PoP. For the cold-cache path (500-guild fan-out), this cuts per-round-trip latency from ~200ms (cross-continent) to ~5–10ms, reducing total cold fill time by over 10×.
 
 ## Tech Stack
 
