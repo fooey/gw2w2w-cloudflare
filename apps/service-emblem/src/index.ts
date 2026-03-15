@@ -6,6 +6,7 @@ import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
+import { secureHeaders } from 'hono/secure-headers';
 
 export interface ErrorPayload {
   message: string;
@@ -23,6 +24,12 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use('*', etag())
   .use(
     '*',
+    secureHeaders({
+      crossOriginResourcePolicy: 'cross-origin', // Required for serving images to other origins
+    }),
+  )
+  .use(
+    '*',
     cors({
       origin: (origin, c) => allowedOrigin(origin, c.req.header('host')),
     }),
@@ -32,6 +39,10 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
       origin: (origin, c) => allowedCsrf(origin, c.req.header('host')),
     }),
   )
+  .use('*', (c, next) => {
+    c.header('X-Robots-Tag', 'noindex, nofollow');
+    return next();
+  })
   .get('*', cache({ cacheName: 'service-emblem', cacheControl: 'max-age=86400' }))
   .get('*', async (c, next) => {
     const host = c.req.header('host');
@@ -44,6 +55,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
 
     return next();
   })
+  .get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'))
   .get('/favicon.ico', (c) => c.redirect('/97C007DC-87D5-E311-9621-AC162DAE8ACD', 302))
   .get('/guilds/*', (c) => {
     const url = new URL(c.req.url);
@@ -56,15 +68,13 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     return c.redirect(`/${guildId}`, 308);
   })
   .route('/', serviceEmblemRoute);
-// .get('*', (c) => {
-//   c.status(404);
-//   return c.json({
-//     message: 'Not Found!',
-//     status: 404,
-//     url: new URL(c.req.url).pathname,
-//     service: 'service-emblem',
-//   });
-// });
+
+app.notFound((c) => c.json({ error: { message: 'Not Found', status: 404 } }, 404));
+
+app.onError((err, c) => {
+  console.error(err);
+  return c.json({ error: { message: 'Internal Server Error', status: 500 } }, 500);
+});
 
 // EXPORT THE APP TYPE (Crucial for RPC)
 export type ServiceEmblemAppType = typeof app;
