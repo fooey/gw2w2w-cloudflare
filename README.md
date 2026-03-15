@@ -18,11 +18,11 @@ graph TD
     User["Browser / Client"]
 
     subgraph CF["Cloudflare Edge"]
-        GW2W2W["gw2w2w.com\nNext.js · OpenNext"]
-        Emblem["emblem.gw2w2w.com\nservice-emblem · Hono"]
-        API["api.gw2w2w.com\nservice-api · Hono"]
-        KV[("KV\nname → id\nguild JSON")]
-        R2[("R2\ntextures\nrendered emblems\nwvw data")]
+        GW2W2W["gw2w2w.com<br/>Next.js · OpenNext"]
+        Emblem["emblem.gw2w2w.com<br/>service-emblem · Hono"]
+        API["api.gw2w2w.com<br/>service-api · Hono"]
+        KV[("KV<br/>name → id<br/>guild JSON")]
+        R2[("R2<br/>textures<br/>rendered emblems<br/>wvw data")]
     end
 
     GW2API["api.guildwars2.com"]
