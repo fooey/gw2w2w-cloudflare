@@ -6,9 +6,8 @@ import { newQueue } from '@henrygd/queue/rl';
 import { withObjectCache } from '../cache-wrapper';
 import { getWvwGuild } from './guilds';
 
-// 25 concurrent, max 10 new requests starting per second — stays well within
-// Cloudflare's 1000 subrequest limit and the GW2 API's undocumented rate limit.
-const guildQueue = newQueue(25, 10, 1000);
+// 50 concurrent, 100 starts/sec, back off to 10/sec if needed
+const guildQueue = newQueue(50, 100, 1000);
 
 export async function getWvwTeamGuilds(teamId: string, env: CloudflareEnv): Promise<Guild[]> {
   return withObjectCache<Guild[]>(
