@@ -2,6 +2,10 @@ name = "service-api"
 main = "src/index.ts"
 compatibility_date = "2026-01-01"
 
+# see https://developers.cloudflare.com/workers/configuration/placement/#specify-a-host-endpoint
+[placement]
+hostname = "api.guildwars2.com"
+
 # Map the worker to a specific path on your main domain
 [[routes]]
 pattern = "api.gw2w2w.com"
