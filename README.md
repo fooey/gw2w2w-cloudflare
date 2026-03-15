@@ -45,6 +45,56 @@ The same `emblem-renderer` package is used by both `service-emblem` (server-side
 1. **Cloudflare KV** — Fast, globally-replicated cache for API responses.
 2. **Cloudflare R2** — Persistent object storage for raw textures and rendered emblem images, so each unique emblem is rendered only once.
 
+### Emblem Rendering Workflow
+
+End-to-end walkthrough of a request to `emblem.gw2w2w.com/arenanet`:
+
+**1. `service-emblem` receives `GET /arenanet`**
+The Hono router in `apps/service-emblem` matches `/:guildId`. `arenanet` is not a valid ArenaNet UUID, so it is treated as a guild name search.
+
+**2. Name → Guild ID resolution (via `service-api` Service Binding)**
+`service-emblem` calls `service-api` directly over a [Service Binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/) (zero-latency Worker-to-Worker RPC, no HTTP round-trip):
+
+- `GET /gw2/guild/search?name=arenanet`
+- `service-api` checks KV for a cached `guild-name:arenanet` → guild ID mapping
+- On miss, calls `api.guildwars2.com/v2/guild/search?name=arenanet`, caches the result in KV (24h TTL)
+- Returns the resolved guild ID, e.g. `4BBB52AA-D768-4FC6-8EDE-C299F2822F0F`
+
+**3. R2 check for a pre-rendered emblem**
+`service-emblem` looks up `emblems:4BBB52AA-…` in R2.
+
+- **Hit** → return the cached WebP bytes directly. Pipeline ends here on warm requests.
+- **Miss** → continue to step 4.
+
+**4. Guild detail fetch (via `service-api`)**
+`GET /gw2/guild/4BBB52AA-…` → `service-api` checks R2 for `guild:4BBB52AA-…`:
+
+- **Hit** → returns cached `Guild` JSON (background id, foreground id, color ids, flags)
+- **Miss** → calls `api.guildwars2.com/v2/guild/4BBB52AA-…`, stores result in R2 (24h TTL), returns JSON
+
+**5. Parallel asset fetch (via `service-api`)**
+With the emblem spec in hand, `service-emblem` fires three parallel requests through the Service Binding:
+
+- `GET /gw2/emblem/background/{id}` — fetches the emblem background layer definition (layer file URLs + indices), R2-cached
+- `GET /gw2/emblem/foreground/{id}` — fetches the foreground layer definition (two layers: primary + secondary), R2-cached
+- `GET /gw2/color/{id}` × N — fetches each unique color definition (RGB + material info), R2-cached with a year-long TTL (color data never changes)
+
+Each of these checks R2 first; only on a miss does `service-api` call `api.guildwars2.com`.
+
+**6. Texture fetch**
+From the layer definitions, `service-emblem` resolves the actual grayscale texture URLs (ArenaNet render URLs) and fetches the image buffers — again R2-cached (static, year-long TTL). Background uses index `[0]`; foreground uses indices `[1, 2]` (primary and secondary fill layers).
+
+**7. Render**
+`renderEmblem()` from `packages/emblem-renderer` composites the layers in memory:
+
+- Each grayscale texture channel is used as an opacity mask for its corresponding GW2 palette color
+- Layers are alpha-composited in order (background → foreground primary → foreground secondary) using Porter-Duff "over" via a single-pass `Uint32Array` loop
+- Flip flags (`FlipForegroundHorizontal`, etc.) are applied via Photon WASM transforms
+- Result is encoded to WebP via `get_bytes_webp()`
+
+**8. Cache and respond**
+The rendered WebP bytes are written to R2 under `emblems:4BBB52AA-…` (24h TTL) and returned as `Content-Type: image/webp`. Future requests for the same guild skip steps 2–7 entirely.
+
 ## Tech Stack
 
 ### Platform
