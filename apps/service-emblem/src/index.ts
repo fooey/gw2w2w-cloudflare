@@ -67,6 +67,11 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     const { guildId } = c.req.param();
     return c.redirect(`/${guildId}`, 308);
   })
+  .get('/api/emblem', (c) => {
+    const url = new URL(c.req.url);
+    url.pathname = '/custom';
+    return c.redirect(url.toString(), 308);
+  })
   .route('/', serviceEmblemRoute);
 
 app.notFound((c) => c.json({ error: { message: 'Not Found', status: 404 } }, 404));

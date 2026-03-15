@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
 import type { CloudflareEnv } from '@service-emblem/index';
-import { getApiClient, getEmblemBytesByGuildId, HttpError, searchGuild } from '@service-emblem/lib/api';
+import { getApiClient, getEmblemBytes, getEmblemBytesByGuildId, HttpError, searchGuild } from '@service-emblem/lib/api';
 import { Hono } from 'hono';
 import z from 'zod';
 
@@ -12,10 +12,70 @@ const getEnableCacheLogging = () => true;
 const redirectFileExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
 const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|')})$`);
 
-export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
-  '/:guildId',
-  zValidator('param', z.object({ guildId: z.string() })),
-  async (c) => {
+export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
+  .get(
+    '/custom',
+    zValidator(
+      'query',
+      z.object({
+        background_id: z.coerce.number().int().positive().optional(),
+        background_color_id: z.coerce.number().int().positive().optional(),
+        foreground_id: z.coerce.number().int().positive().optional(),
+        foreground_primary_color_id: z.coerce.number().int().positive().optional(),
+        foreground_secondary_color_id: z.coerce.number().int().positive().optional(),
+        flags_flip_bg_horizontal: z.string().optional(),
+        flags_flip_bg_vertical: z.string().optional(),
+        flags_flip_fg_horizontal: z.string().optional(),
+        flags_flip_fg_vertical: z.string().optional(),
+      }),
+    ),
+    async (c) => {
+      const query = c.req.valid('query');
+      const cacheProviders = createCacheProviders(c.env);
+      const apiClient = getApiClient(c);
+
+      const flags: (
+        | 'FlipBackgroundHorizontal'
+        | 'FlipBackgroundVertical'
+        | 'FlipForegroundHorizontal'
+        | 'FlipForegroundVertical'
+      )[] = [];
+      if (query.flags_flip_bg_horizontal !== undefined) flags.push('FlipBackgroundHorizontal');
+      if (query.flags_flip_bg_vertical !== undefined) flags.push('FlipBackgroundVertical');
+      if (query.flags_flip_fg_horizontal !== undefined) flags.push('FlipForegroundHorizontal');
+      if (query.flags_flip_fg_vertical !== undefined) flags.push('FlipForegroundVertical');
+
+      const emblem = {
+        background: {
+          id: query.background_id ?? 1,
+          colors: [query.background_color_id].filter((c): c is number => c !== undefined),
+        },
+        foreground: {
+          id: query.foreground_id ?? 1,
+          colors: [query.foreground_primary_color_id, query.foreground_secondary_color_id].filter(
+            (c): c is number => c !== undefined,
+          ),
+        },
+        flags,
+      };
+
+      try {
+        const bytes = await getEmblemBytes(apiClient, emblem, cacheProviders);
+        return new Response(bytes, {
+          headers: { 'Content-Type': 'image/webp' },
+        });
+      } catch (error: unknown) {
+        if (error instanceof HttpError) {
+          return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
+            status: error.status,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+        throw error;
+      }
+    },
+  )
+  .get('/:guildId', zValidator('param', z.object({ guildId: z.string() })), async (c) => {
     const cacheProviders = createCacheProviders(c.env);
     let guildId = c.req.param('guildId');
 
@@ -73,5 +133,4 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     return new Response(bytes, {
       headers: { 'Content-Type': 'image/webp' },
     });
-  },
-);
+  });
