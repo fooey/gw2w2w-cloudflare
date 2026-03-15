@@ -9,6 +9,16 @@ import { DetailedError, hc, parseResponse } from 'hono/client';
 
 export type ApiClient = ReturnType<typeof hc<ServiceApiAppType>>;
 
+export class HttpError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'HttpError';
+  }
+}
+
 export function getApiClient(
   context: Context<{
     Bindings: CloudflareEnv;
@@ -60,13 +70,13 @@ export async function getEmblemBytes(
     guild = await getGuild(apiClient, guildId);
   } catch (err) {
     if (err instanceof DetailedError && err.statusCode === 404) {
-      return Promise.reject({ message: 'Guild not found', status: 404 });
+      throw new HttpError(404, 'Guild not found');
     }
     throw err;
   }
 
   if (!guild.emblem) {
-    return Promise.reject({ message: 'Guild emblem not found', status: 404 });
+    throw new HttpError(404, 'Guild emblem not found');
   }
 
   // Prepare IDs
@@ -82,7 +92,7 @@ export async function getEmblemBytes(
   ]);
 
   if (!colors) {
-    return Promise.reject({ message: 'Colors not found', status: 500 });
+    throw new HttpError(500, 'Colors not found');
   }
 
   const bgDef = bgDefs ?? null;

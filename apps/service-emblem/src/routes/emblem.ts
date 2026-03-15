@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
 import type { CloudflareEnv } from '@service-emblem/index';
-import { getApiClient, getEmblemBytes, searchGuild } from '@service-emblem/lib/api';
+import { getApiClient, getEmblemBytes, HttpError, searchGuild } from '@service-emblem/lib/api';
 import { Hono } from 'hono';
 import z from 'zod';
 
@@ -50,14 +50,8 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
       try {
         bytes = await getEmblemBytes(apiClient, guildId, cacheProviders);
       } catch (error: unknown) {
-        if (
-          error instanceof Object &&
-          'status' in error &&
-          'message' in error &&
-          typeof error.status === 'number' &&
-          typeof error.message === 'string'
-        ) {
-          return new Response(JSON.stringify({ error }), {
+        if (error instanceof HttpError) {
+          return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
             status: error.status,
             headers: { 'Content-Type': 'application/json' },
           });
