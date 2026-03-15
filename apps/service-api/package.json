@@ -24,6 +24,7 @@
     "@hono/zod-validator": "^0.7.6",
     "@repo/utils": "workspace:*",
     "hono": "^4.12.8",
+    "p-limit": "^7.3.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

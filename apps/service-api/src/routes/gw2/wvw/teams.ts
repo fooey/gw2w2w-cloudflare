@@ -1,6 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
 import type { WvWTeam } from '@service-api/definitions/wvw-teams';
 import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
+import type { Guild } from '@service-api/lib/types';
+import { getWvwTeamGuilds } from '@service-api/lib/resources/wvw/team-guilds';
 import { getWvwTeam } from '@service-api/lib/resources/wvw/teams';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -36,6 +38,11 @@ export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
       return c.json<WvWTeam>(wvwTeam);
     });
+  })
+  .get('/team/:teamId/guilds', zValidator('param', z.object({ teamId: z.string() })), async (c) => {
+    const teamId = c.req.param('teamId');
+    const guilds = await getWvwTeamGuilds(teamId, c.env);
+    return c.json<Guild[]>(guilds, 200);
   });
 // .get('*', (c) => {
 //   const payload: ErrorPayload = {
