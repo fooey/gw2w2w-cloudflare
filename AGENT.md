@@ -1,5 +1,14 @@
 # Project Context: gw2w2w-cloudflare
 
+## Code Formatting
+
+**Always run `pnpm format` after making code changes.** This repo uses Prettier with `prettier-plugin-tailwindcss` for consistent formatting across all `.ts`, `.tsx`, `.md`, `.json`, and other source files.
+
+- **Format all files**: `pnpm format`
+- **Check without writing**: `pnpm format:check`
+
+Run `pnpm format` on every file you create or modify before considering a task complete. Never leave formatting as a manual follow-up step.
+
 ## Documentation Maintenance
 
 **Always keep `README.md` up to date.** When you add, remove, or significantly change a feature, architecture decision, or package, update the relevant sections of `README.md` in the same change. This includes:
