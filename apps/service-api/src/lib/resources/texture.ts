@@ -9,7 +9,7 @@ export async function getTextureArrayBuffer(
 
   const OBJECT_KEY = 'textures:' + encodeURIComponent(url);
 
-  let buffer: ArrayBuffer | null = null;
+  let buffer: ArrayBuffer | null;
   const object = await objectStore.get(OBJECT_KEY);
 
   if (object !== null) {

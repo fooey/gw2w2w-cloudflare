@@ -7,3 +7,7 @@ export function getWvwTeamRequest(teamId: string): Promise<Response> {
 export function getWvwTeamGuildsRequest(teamId: string): Promise<Response> {
   return apiFetch(`/gw2/wvw/guilds/team/${teamId}`);
 }
+
+export function getTeamGuildDetailsRequest(teamId: string): Promise<Response> {
+  return apiFetch(`/gw2/wvw/teams/team/${teamId}/guilds`);
+}

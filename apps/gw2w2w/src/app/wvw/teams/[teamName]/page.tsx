@@ -1,33 +1,20 @@
 import { WvWTeamGuildFilter } from '@gw2w2w/app/wvw/teams/[teamName]/WvWTeamGuildFilter';
-import { getGuildRequest } from '@gw2w2w/lib/api/gw2/guild';
-import { getWvwTeamGuildsRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
+import { getTeamGuildDetailsRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import { parseResponse } from '@gw2w2w/lib/api/utils';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import type { Guild, WvWGuild } from '@repo/service-api/lib/types';
+import type { Guild } from '@repo/service-api/lib/types';
 import { WVW_TEAMS } from '@repo/service-api/src/definitions';
 import { notFound } from 'next/navigation';
-import pLimit from 'p-limit';
 import { Suspense } from 'react';
 
 interface WvWTeamPageProps {
   params: Promise<{ teamName: string }>;
 }
 
-const fetchLimit = pLimit(10);
-
-// Cloudflare subrequests per invocation are limited
-// Each guild detail fetch is one subrequest, plus one for the team guild list itself.
-// This should match the configured subrequests limit in wrangler.toml, with some headroom for other potential subrequests.
-const GUILD_FETCH_LIMIT = 1000;
-
 async function fetchWvWTeamGuilds(teamId: string): Promise<Guild[]> {
-  const wvwGuilds = ((await getWvwTeamGuildsRequest(teamId).then(parseResponse<WvWGuild[]>)) ?? []).slice(
-    0,
-    GUILD_FETCH_LIMIT,
-  );
-  const fetchGuild = (wvwGuild: WvWGuild) => fetchLimit(() => getGuildRequest(wvwGuild.id).then(parseResponse<Guild>));
-  const results = await Promise.all(wvwGuilds.map(fetchGuild));
-  return results.filter((g): g is Guild => g != null);
+  return getTeamGuildDetailsRequest(teamId)
+    .then(parseResponse<Guild[]>)
+    .then((guilds) => guilds ?? []);
 }
 
 async function WvWTeamGuildList({ teamId }: { teamId: string }) {
@@ -59,6 +46,7 @@ export default async function WvWTeamPage({ params }: WvWTeamPageProps) {
           fallback={
             <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4">
               {Array.from({ length: 64 }).map((_, i) => (
+                // eslint-disable-next-line @eslint-react/no-array-index-key
                 <div key={i} className="w-32">
                   <div className="flex h-32 w-32 items-center justify-center rounded bg-gray-50">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-400" />

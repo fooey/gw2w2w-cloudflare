@@ -1,3 +1,4 @@
 {
-  "google.gemini.allowedShellCommands": ["pnpm", "git", "npx"]
+  "google.gemini.allowedShellCommands": ["pnpm", "git", "npx"],
+  "eslint.workingDirectories": [{ "pattern": "apps/*/" }, { "pattern": "packages/*/" }]
 }

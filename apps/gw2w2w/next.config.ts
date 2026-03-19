@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         destination: faviconSrc,
         permanent: false,
       },
+      {
+        source: '/guilds/:guildId/:size.svg',
+        destination: getEmblemSrc(':guildId'),
+        permanent: false,
+      },
     ];
   },
 };

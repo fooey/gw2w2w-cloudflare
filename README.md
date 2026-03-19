@@ -13,6 +13,30 @@ An open-source suite of utilities for [Guild Wars 2](https://www.guildwars2.com/
 
 This is a [Turborepo](https://turbo.build/) monorepo with three deployed Cloudflare Workers and a shared internal package library.
 
+```mermaid
+graph TD
+    User["Browser / Client"]
+
+    subgraph CF["Cloudflare Edge"]
+        GW2W2W["gw2w2w.com<br/>Next.js · OpenNext"]
+        Emblem["emblem.gw2w2w.com<br/>service-emblem · Hono"]
+        API["api.gw2w2w.com<br/>service-api · Hono"]
+        KV[("KV<br/>name → id<br/>guild JSON")]
+        R2[("R2<br/>textures<br/>rendered emblems<br/>wvw data")]
+    end
+
+    GW2API["api.guildwars2.com"]
+
+    User -->|page request| GW2W2W
+    User -->|emblem hotlink| Emblem
+    GW2W2W -->|fetch| API
+    Emblem -->|Service Binding| API
+    API -->|read / write| KV
+    API -->|read / write| R2
+    Emblem -->|read / write| R2
+    API -->|cache miss| GW2API
+```
+
 ### Applications
 
 | App                   | Domain              | Description                                                                                                        |
@@ -44,6 +68,76 @@ The same `emblem-renderer` package is used by both `service-emblem` (server-side
 
 1. **Cloudflare KV** — Fast, globally-replicated cache for API responses.
 2. **Cloudflare R2** — Persistent object storage for raw textures and rendered emblem images, so each unique emblem is rendered only once.
+
+### Emblem Rendering Workflow
+
+End-to-end walkthrough of a request to `emblem.gw2w2w.com/arenanet`:
+
+**1. `service-emblem` receives `GET /arenanet`**
+The Hono router in `apps/service-emblem` matches `/:guildId`. `arenanet` is not a valid ArenaNet UUID, so it is treated as a guild name search.
+
+**2. Name → Guild ID resolution (via `service-api` Service Binding)**
+`service-emblem` calls `service-api` directly over a [Service Binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/) (zero-latency Worker-to-Worker RPC, no HTTP round-trip):
+
+- `GET /gw2/guild/search?name=arenanet`
+- `service-api` checks KV for a cached `guild-name:arenanet` → guild ID mapping
+- On miss, calls `api.guildwars2.com/v2/guild/search?name=arenanet`, caches the result in KV (24h TTL)
+- Returns the resolved guild ID, e.g. `4BBB52AA-D768-4FC6-8EDE-C299F2822F0F`
+
+**3. R2 check for a pre-rendered emblem**
+`service-emblem` looks up `emblems:4BBB52AA-…` in R2.
+
+- **Hit** → return the cached WebP bytes directly. Pipeline ends here on warm requests.
+- **Miss** → continue to step 4.
+
+**4. Guild detail fetch (via `service-api`)**
+`GET /gw2/guild/4BBB52AA-…` → `service-api` checks R2 for `guild:4BBB52AA-…`:
+
+- **Hit** → returns cached `Guild` JSON (background id, foreground id, color ids, flags)
+- **Miss** → calls `api.guildwars2.com/v2/guild/4BBB52AA-…`, stores result in R2 (24h TTL), returns JSON
+
+**5. Parallel asset fetch (via `service-api`)**
+With the emblem spec in hand, `service-emblem` fires three parallel requests through the Service Binding:
+
+- `GET /gw2/emblem/background/{id}` — fetches the emblem background layer definition (layer file URLs + indices), R2-cached
+- `GET /gw2/emblem/foreground/{id}` — fetches the foreground layer definition (two layers: primary + secondary), R2-cached
+- `GET /gw2/color/{id}` × N — fetches each unique color definition (RGB + material info), R2-cached with a year-long TTL (color data never changes)
+
+Each of these checks R2 first; only on a miss does `service-api` call `api.guildwars2.com`.
+
+**6. Texture fetch**
+From the layer definitions, `service-emblem` resolves the actual grayscale texture URLs (ArenaNet render URLs) and fetches the image buffers — again R2-cached (static, year-long TTL). Background uses index `[0]`; foreground uses indices `[1, 2]` (primary and secondary fill layers).
+
+**7. Render**
+`renderEmblem()` from `packages/emblem-renderer` composites the layers in memory:
+
+- Each grayscale texture channel is used as an opacity mask for its corresponding GW2 palette color
+- Layers are alpha-composited in order (background → foreground primary → foreground secondary) using Porter-Duff "over" via a single-pass `Uint32Array` loop
+- Flip flags (`FlipForegroundHorizontal`, etc.) are applied via Photon WASM transforms
+- Result is encoded to WebP via `get_bytes_webp()`
+
+**8. Cache and respond**
+The rendered WebP bytes are written to R2 under `emblems:4BBB52AA-…` (24h TTL) and returned as `Content-Type: image/webp`. Future requests for the same guild skip steps 2–7 entirely.
+
+## Key Design Decisions
+
+**Three Workers instead of one**
+`service-emblem` and `service-api` are split into separate Workers rather than merged. They have different scaling profiles (emblem requests are CPU-heavy due to WASM; API requests are I/O-bound), different cache TTL strategies, and different placement requirements (`service-api` is placement-hinted near `api.guildwars2.com` for low-latency upstream calls). Keeping them separate also means a WASM crash in `service-emblem` cannot take down the API.
+
+**Service Bindings for Worker-to-Worker communication**
+`service-emblem` calls `service-api` via a [Cloudflare Service Binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/) rather than an HTTP fetch. This bypasses the network stack entirely — the call is dispatched in the same Cloudflare data center with no round-trip latency. Combined with [Hono RPC](https://hono.dev/docs/guides/rpc), the call site is fully type-safe end-to-end with no generated client code or OpenAPI spec required.
+
+**R2 for blobs, KV for lookups**
+KV is optimised for small, frequently-read key-value pairs (≤25MB, globally replicated). R2 is used for everything binary: grayscale textures, rendered WebP emblems, and large JSON collections (WvW match data, guild lists). This keeps KV fast and cheap while R2 handles bulk storage with no egress fees.
+
+**TTL jitter on every cache write**
+Every R2 and KV write adds ±10% random jitter to its expiry time. Without this, a burst of traffic that fills the cache simultaneously would expire simultaneously, causing a thundering herd of upstream API calls 24 hours later. Jitter spreads expirations across a window, smoothing the refresh load.
+
+**Single-pass `Uint32Array` compositing**
+Cloudflare Workers enforce a **50ms CPU time limit**. The WASM-based pixel compositing loop processes all layers in a single pass over a `Uint32Array` buffer — no intermediate `ImageData` allocations, no per-pixel branch on layer count. On a three-layer emblem at 256×256px this fits well within the budget even in a cold isolate.
+
+**Placement hints near the upstream API**
+`service-api` sets `placement.hostname = "api.guildwars2.com"` in its `wrangler.toml`. Cloudflare uses HTTP HEAD probes to locate the GW2 API and routes all Worker invocations to the nearest PoP. For the cold-cache path (500-guild fan-out), this cuts per-round-trip latency from ~200ms (cross-continent) to ~5–10ms, reducing total cold fill time by over 10×.
 
 ## Tech Stack
 
