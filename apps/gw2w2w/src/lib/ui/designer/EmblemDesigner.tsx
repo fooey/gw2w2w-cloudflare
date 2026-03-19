@@ -15,21 +15,19 @@ interface EmblemDesignerProps {
 }
 
 const P = {
-  BG: 'background',
-  BGC: 'background_color',
-  FG: 'foreground',
-  FGC1: 'foreground_color_1',
-  FGC2: 'foreground_color_2',
-  FLAGS: 'flags',
+  BG: 'background_id',
+  BGC: 'background_color_id',
+  FG: 'foreground_id',
+  FGC1: 'foreground_primary_color_id',
+  FGC2: 'foreground_secondary_color_id',
 } as const;
 
 const FLAG_PARAM: Record<EmblemFlag, string> = {
-  FlipBackgroundHorizontal: 'flip_background_horizontal',
-  FlipBackgroundVertical: 'flip_background_vertical',
-  FlipForegroundHorizontal: 'flip_foreground_horizontal',
-  FlipForegroundVertical: 'flip_foreground_vertical',
+  FlipBackgroundHorizontal: 'flags_flip_bg_horizontal',
+  FlipBackgroundVertical: 'flags_flip_bg_vertical',
+  FlipForegroundHorizontal: 'flags_flip_fg_horizontal',
+  FlipForegroundVertical: 'flags_flip_fg_vertical',
 };
-const PARAM_FLAG = Object.fromEntries(Object.entries(FLAG_PARAM).map(([k, v]) => [v, k])) as Record<string, EmblemFlag>;
 
 function parseNum(s: string | null): number | null {
   if (!s) return null;
@@ -47,13 +45,9 @@ function stateFromParams(params: URLSearchParams): EmblemState {
   const s = params.get('s');
   if (s) return decodeShortlink(s) ?? emptyState;
 
-  const flagStr = params.get(P.FLAGS);
-  const flags = flagStr
-    ? flagStr
-        .split(',')
-        .map((a) => PARAM_FLAG[a])
-        .filter((f): f is EmblemFlag => !!f)
-    : [];
+  const flags = (Object.entries(FLAG_PARAM) as [EmblemFlag, string][])
+    .filter(([, param]) => params.has(param))
+    .map(([flag]) => flag);
   return {
     background: { id: parseNum(params.get(P.BG)), colors: [parseNum(params.get(P.BGC))] },
     foreground: {
@@ -71,7 +65,7 @@ function stateToParams(state: EmblemState): URLSearchParams {
   if (state.foreground.id != null) params.set(P.FG, String(state.foreground.id));
   if (state.foreground.colors[0] != null) params.set(P.FGC1, String(state.foreground.colors[0]));
   if (state.foreground.colors[1] != null) params.set(P.FGC2, String(state.foreground.colors[1]));
-  if (state.flags.length > 0) params.set(P.FLAGS, state.flags.map((f) => FLAG_PARAM[f]).join(','));
+  for (const flag of state.flags) params.set(FLAG_PARAM[flag], '');
   return params;
 }
 
