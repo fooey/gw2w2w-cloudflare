@@ -14,7 +14,6 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "devtools": "turbo devtools",
     "ts:clean": "turbo run ts:clean",
-    "check-types": "turbo run check-types",
     "check-deps": "pnpm knip --max-show-issues 5",
     "wrangler:login": "pnpm dlx wrangler login",
     "wrangler:clean": "pnpm -r exec pnpm dlx rimraf .wrangler/state"
