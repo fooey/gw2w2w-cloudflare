@@ -2,11 +2,11 @@
 
 import type { Color, Emblem } from '@service-api/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
 import { ColorPicker } from './ColorPicker';
 import { EmblemPreview } from './EmblemPreview';
 import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
 import { decodeShortlink, encodeShortlink } from './shortlink';
+import { TextureCacheManager } from './TextureCacheManager';
 import type { EmblemFlag, EmblemState } from './types';
 
 interface EmblemDesignerProps {
@@ -81,14 +81,11 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
 
   const emblem = stateFromParams(searchParams);
 
-  const setEmblem = useCallback(
-    (updater: (prev: EmblemState) => EmblemState) => {
-      const next = updater(stateFromParams(searchParams));
-      const qs = stateToParams(next).toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [router, pathname, searchParams],
-  );
+  const setEmblem = (updater: (prev: EmblemState) => EmblemState) => {
+    const next = updater(stateFromParams(searchParams));
+    const qs = stateToParams(next).toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
 
   const qs = stateToParams(emblem).toString();
   const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${pathname}${qs ? `?${qs}` : ''}` : '';
@@ -96,7 +93,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
     typeof window !== 'undefined' ? `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}` : '';
 
   return (
-    <div className="flex flex-col gap-6">
+    <TextureCacheManager backgrounds={backgrounds} foregrounds={foregrounds}>
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Preview */}
         <EmblemPreview emblem={emblem} colors={colors} backgrounds={backgrounds} foregrounds={foregrounds} />
@@ -232,6 +229,6 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
         {/* Short link */}
         <CopyToClipboardInput label="Short link" value={shortUrl} />
       </section>
-    </div>
+    </TextureCacheManager>
   );
 }
