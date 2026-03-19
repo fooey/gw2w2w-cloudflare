@@ -13,11 +13,7 @@ function isAllowedTextureUrl(raw: string): boolean {
   } catch {
     return false;
   }
-  return (
-    url.protocol === 'https:' &&
-    url.hostname === ALLOWED_HOSTNAME &&
-    url.pathname.startsWith(ALLOWED_PATH_PREFIX)
-  );
+  return url.protocol === 'https:' && url.hostname === ALLOWED_HOSTNAME && url.pathname.startsWith(ALLOWED_PATH_PREFIX);
 }
 
 export async function GET(request: NextRequest) {
