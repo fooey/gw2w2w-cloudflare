@@ -2,9 +2,9 @@
 
 import type { Color, Emblem } from '@service-api/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
 import { ColorPicker } from './ColorPicker';
 import { EmblemPreview } from './EmblemPreview';
-import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
 import { decodeShortlink, encodeShortlink } from './shortlink';
 import { TextureCacheManager } from './TextureCacheManager';
 import type { EmblemFlag, EmblemState } from './types';
@@ -94,9 +94,12 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
 
   return (
     <TextureCacheManager backgrounds={backgrounds} foregrounds={foregrounds}>
-      <div className="flex flex-col gap-6 lg:flex-row">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
         {/* Preview */}
-        <EmblemPreview emblem={emblem} colors={colors} backgrounds={backgrounds} foregrounds={foregrounds} />
+        <div className="flex flex-col gap-4">
+          <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
+          <EmblemPreview emblem={emblem} colors={colors} backgrounds={backgrounds} foregrounds={foregrounds} />
+        </div>
 
         {/* Controls */}
         <div className="flex flex-col gap-6">
@@ -228,6 +231,37 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
 
         {/* Short link */}
         <CopyToClipboardInput label="Short link" value={shortUrl} />
+      </section>
+
+      {/* Other sizes */}
+      <section className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Other sizes</h3>
+        <div className="flex items-end gap-3">
+          <EmblemPreview
+            emblem={emblem}
+            colors={colors}
+            backgrounds={backgrounds}
+            foregrounds={foregrounds}
+            size={32}
+            compact
+          />
+          <EmblemPreview
+            emblem={emblem}
+            colors={colors}
+            backgrounds={backgrounds}
+            foregrounds={foregrounds}
+            size={64}
+            compact
+          />
+          <EmblemPreview
+            emblem={emblem}
+            colors={colors}
+            backgrounds={backgrounds}
+            foregrounds={foregrounds}
+            size={256}
+            compact
+          />
+        </div>
       </section>
     </TextureCacheManager>
   );

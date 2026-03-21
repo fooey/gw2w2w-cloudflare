@@ -1,4 +1,4 @@
-export const IMAGE_DIMENSION = 256;
+export const IMAGE_DIMENSION = 128;
 export type ColorRGB = [number, number, number];
 
 export interface DecodedLayer {

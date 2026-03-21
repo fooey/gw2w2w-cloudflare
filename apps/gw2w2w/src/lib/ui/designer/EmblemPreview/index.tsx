@@ -1,6 +1,6 @@
 'use client';
 
-import { getFlipsFromFlags, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
+import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
 import type { Color, Emblem } from '@service-api/lib/types';
 import { useEffect, useRef } from 'react';
 import { decodeLayer } from '../decodeLayer';
@@ -12,9 +12,18 @@ interface EmblemPreviewProps {
   colors: Color[];
   backgrounds: Emblem[];
   foregrounds: Emblem[];
+  size?: number;
+  compact?: boolean;
 }
 
-export function EmblemPreview({ emblem, colors, backgrounds, foregrounds }: EmblemPreviewProps) {
+export function EmblemPreview({
+  emblem,
+  colors,
+  backgrounds,
+  foregrounds,
+  size = 128,
+  compact = false,
+}: EmblemPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const bgDef = backgrounds.find((b) => b.id === emblem.background.id);
@@ -82,14 +91,49 @@ export function EmblemPreview({ emblem, colors, backgrounds, foregrounds }: Embl
   }, [bgDef, fgDef, emblem.background.colors, emblem.foreground.colors, emblem.flags, colors]);
 
   const hasSelection = bgDef ?? fgDef;
+  const scale = size / IMAGE_DIMENSION;
+  const scaleLabel = scale === 1 ? 'native' : `×${scale}`;
+
+  if (compact) {
+    return (
+      <div className="flex flex-col items-center gap-1">
+        <div className="bg-checkered rounded" style={{ width: size, height: size }}>
+          <canvas
+            ref={canvasRef}
+            width={IMAGE_DIMENSION}
+            height={IMAGE_DIMENSION}
+            className={hasSelection ? 'rounded' : 'hidden'}
+            style={{ width: size, height: size }}
+          />
+        </div>
+        <p className="text-center text-xs text-gray-400">
+          {size}px
+          <br />
+          <span className={scale === 1 ? 'font-medium text-indigo-400' : 'text-gray-300'}>{scaleLabel}</span>
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-2">
-      <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
-      <div className="relative flex size-64 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400">
+    <div className="flex flex-col gap-1.5">
+      <div
+        className="relative flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400"
+        style={{ width: size, height: size }}
+      >
         {!hasSelection && <span>Select layers to preview</span>}
-        <canvas ref={canvasRef} width={256} height={256} className={hasSelection ? 'size-full rounded-md' : 'hidden'} />
+        <canvas
+          ref={canvasRef}
+          width={IMAGE_DIMENSION}
+          height={IMAGE_DIMENSION}
+          className={hasSelection ? 'rounded-md' : 'hidden'}
+          style={hasSelection ? { width: size, height: size } : undefined}
+        />
       </div>
+      <p className="text-xs text-gray-400">
+        {size}×{size}px{' '}
+        <span className={scale === 1 ? 'font-medium text-indigo-400' : 'text-gray-300'}>{scaleLabel}</span>
+      </p>
     </div>
   );
 }
