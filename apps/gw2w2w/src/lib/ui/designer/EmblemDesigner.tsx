@@ -1,12 +1,13 @@
 'use client';
 
+import { getCustomEmblemSrc } from '@gw2w2w/lib/emblems';
 import type { Color, Emblem } from '@service-api/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
 import { ColorPicker } from './ColorPicker';
+import { DesignerInit } from './DesignerInit';
 import { EmblemPreview } from './EmblemPreview';
 import { decodeShortlink, encodeShortlink } from './shortlink';
-import { TextureCacheManager } from './TextureCacheManager';
 import type { EmblemFlag, EmblemState } from './types';
 
 interface EmblemDesignerProps {
@@ -91,14 +92,18 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${pathname}${qs ? `?${qs}` : ''}` : '';
   const shortUrl =
     typeof window !== 'undefined' ? `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}` : '';
+  const emblemSrc = getCustomEmblemSrc(emblem);
 
   return (
-    <TextureCacheManager backgrounds={backgrounds} foregrounds={foregrounds}>
+    <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
         {/* Preview */}
         <div className="flex flex-col gap-4">
           <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
           <EmblemPreview emblem={emblem} colors={colors} backgrounds={backgrounds} foregrounds={foregrounds} />
+          <div>
+            <img src={emblemSrc} alt="Emblem preview" width={128} height={128} className="rounded border" />
+          </div>
         </div>
 
         {/* Controls */}
@@ -231,6 +236,9 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
 
         {/* Short link */}
         <CopyToClipboardInput label="Short link" value={shortUrl} />
+
+        {/* Emblem image URL */}
+        <CopyToClipboardInput label="Emblem image" value={emblemSrc} />
       </section>
 
       {/* Other sizes */}
@@ -263,6 +271,6 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
           />
         </div>
       </section>
-    </TextureCacheManager>
+    </DesignerInit>
   );
 }

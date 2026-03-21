@@ -3,7 +3,7 @@
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
 import type { Color, Emblem } from '@service-api/lib/types';
 import { useEffect, useRef } from 'react';
-import { decodeLayer } from '../decodeLayer';
+import { decodeLayer } from './decodeLayer';
 import { fetchTexture } from '../TextureCacheManager/textureCache';
 import type { EmblemState } from '../types';
 
@@ -25,6 +25,7 @@ export function EmblemPreview({
   compact = false,
 }: EmblemPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderIdRef = useRef(0);
 
   const bgDef = backgrounds.find((b) => b.id === emblem.background.id);
   const fgDef = foregrounds.find((f) => f.id === emblem.foreground.id);
@@ -35,11 +36,7 @@ export function EmblemPreview({
     // Capture in a const so the async closure has a stable non-null reference
     const canvasEl = canvas;
 
-    if (!bgDef && !fgDef) {
-      const ctx = canvasEl.getContext('2d');
-      ctx?.clearRect(0, 0, canvasEl.width, canvasEl.height);
-      return;
-    }
+    const myId = ++renderIdRef.current;
 
     const colorMap = new Map<number, ColorRGB>(colors.map((c) => [c.id, c.cloth.rgb as ColorRGB]));
     const bgRGB = colorMap.get(emblem.background.colors[0] ?? -1) ?? [0, 0, 0];
@@ -47,9 +44,13 @@ export function EmblemPreview({
     const fg2RGB = colorMap.get(emblem.foreground.colors[1] ?? -1) ?? [0, 0, 0];
     const { flipBgH, flipBgV, flipFgH, flipFgV } = getFlipsFromFlags(emblem.flags);
 
-    const cancelToken = { cancelled: false };
-
     async function render() {
+      if (!bgDef && !fgDef) {
+        const ctx = canvasEl.getContext('2d');
+        ctx?.clearRect(0, 0, canvasEl.width, canvasEl.height);
+        return;
+      }
+
       const bgUrl = bgDef?.layers[0] ?? null;
       const fg1Url = fgDef?.layers[1] ?? null;
       const fg2Url = fgDef?.layers[2] ?? null;
@@ -60,7 +61,7 @@ export function EmblemPreview({
         fg2Url ? fetchTexture(fg2Url) : Promise.resolve(null),
       ]);
 
-      if (cancelToken.cancelled) return;
+      if (renderIdRef.current !== myId) return;
 
       const [bgLayer, fg1Layer, fg2Layer] = await Promise.all([
         decodeLayer(bgBuf, flipBgH, flipBgV),
@@ -68,8 +69,7 @@ export function EmblemPreview({
         decodeLayer(fg2Buf, flipFgH, flipFgV),
       ]);
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- can be set true by cleanup between awaits
-      if (cancelToken.cancelled) return;
+      if (renderIdRef.current !== myId) return;
 
       const result = renderEmblemPixels(bgLayer, fg1Layer, fg2Layer, { bgRGB, fg1RGB, fg2RGB, flags: emblem.flags });
 
@@ -85,8 +85,9 @@ export function EmblemPreview({
 
     render().catch(console.error);
 
+    const idRef = renderIdRef;
     return () => {
-      cancelToken.cancelled = true;
+      idRef.current++;
     };
   }, [bgDef, fgDef, emblem.background.colors, emblem.foreground.colors, emblem.flags, colors]);
 
@@ -97,7 +98,7 @@ export function EmblemPreview({
   if (compact) {
     return (
       <div className="flex flex-col items-center gap-1">
-        <div className="bg-checkered rounded" style={{ width: size, height: size }}>
+        <div className="relative rounded bg-gray-100" style={{ width: size, height: size }}>
           <canvas
             ref={canvasRef}
             width={IMAGE_DIMENSION}
@@ -122,6 +123,7 @@ export function EmblemPreview({
         style={{ width: size, height: size }}
       >
         {!hasSelection && <span>Select layers to preview</span>}
+
         <canvas
           ref={canvasRef}
           width={IMAGE_DIMENSION}

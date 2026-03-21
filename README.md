@@ -51,7 +51,7 @@ graph TD
 
 | Package                      | Description                                                                                                                                                                                                                      |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/emblem-renderer`   | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. `browser.ts` — browser-side Canvas API decoder. |
+| `packages/emblem-renderer`   | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
 | `packages/utils`             | Shared routing, validation, and string utilities                                                                                                                                                                                 |
 | `packages/eslint-config`     | Shared ESLint configuration                                                                                                                                                                                                      |
 | `packages/typescript-config` | Shared TypeScript configuration                                                                                                                                                                                                  |
@@ -64,11 +64,11 @@ The rendering pipeline is split across three files in `packages/emblem-renderer`
 
 - **`pixels.ts`** — Pure, platform-independent compositing loop. Operates entirely on `Uint32Array` pixel buffers. Used by both server and browser. Accepts pre-decoded `DecodedLayer` objects and `ColorRGB` options. Supports rendering individual layers in isolation (e.g. bg-only or fg-only previews).
 - **`index.ts`** (server-only) — Wraps `pixels.ts` with [Photon](https://github.com/silvia-odwyer/photon) WASM (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon)) for PNG decoding and flip transforms. Returns a `PhotonImage` ready for WebP encoding via `get_bytes_webp()`. Used exclusively by `service-emblem`.
-- **`browser.ts`** (browser-only) — Wraps `pixels.ts` with the browser Canvas API (`createImageBitmap`, `OffscreenCanvas`, `getImageData`) for PNG decoding and flip transforms. Used by the Emblem Designer preview in `apps/gw2w2w`. No WASM required on the client.
+- **`decodeLayer.ts`** (browser, in `apps/gw2w2w`) — Wraps `pixels.ts` with [`@silvia-odwyer/photon`](https://www.npmjs.com/package/@silvia-odwyer/photon) WASM for PNG decoding and flip transforms in the browser. The WASM module is lazy-loaded once when the user initiates the texture download and reused for all subsequent renders.
 
 **Server path** (`service-emblem`): Photon decodes PNGs → `pixels.ts` composites → Photon encodes WebP → cached in R2.
 
-**Browser path** (designer preview): textures fetched via `/api/texture` Next.js route (reads from the shared R2 cache) → Canvas API decodes PNGs → `pixels.ts` composites → `ImageData` painted to `<canvas>`. Colors re-composite instantly without re-fetching or re-decoding.
+**Browser path** (designer preview): textures fetched via `/api/texture` Next.js route (reads from the shared R2 cache) → `@silvia-odwyer/photon` WASM decodes PNGs and applies flip transforms → `pixels.ts` composites → `ImageData` painted to `<canvas>`. Colors re-composite instantly without re-fetching or re-decoding. The Photon WASM module (~1.8 MB) is loaded once in the browser when the user initiates the texture download.
 
 ### Caching Strategy
 
@@ -151,11 +151,7 @@ Cloudflare Workers enforce a **50ms CPU time limit**. The WASM-based pixel compo
 `GET /api/texture?url=<encoded-gw2-render-url>` serves texture PNGs for the browser designer. It reads from the same `EMBLEM_ASSETS` R2 bucket bound to the Next.js worker, so the cache is shared with `service-emblem` — any texture pre-warmed by a guild emblem render is instantly available to the designer. The route validates that the `url` parameter is strictly a `render.guildwars2.com` path before fetching, preventing open-proxy abuse.
 
 **One-time browser texture download**
-The Emblem Designer requires textures to be downloaded to the browser's Cache API before it can render previews. The designer blocks on first visit until the user explicitly triggers the download (~650 textures, ~30 MB). Completion is recorded in `localStorage` so subsequent visits skip the gate. A "Re-download / verify" option is provided for cache invalidation.
-`GET /api/texture?url=<encoded-gw2-render-url>` serves texture PNGs for the browser designer. It reads from the same `EMBLEM_ASSETS` R2 bucket bound to the Next.js worker, so the cache is shared with `service-emblem` — any texture pre-warmed by a guild emblem render is instantly available to the designer. The route validates that the `url` parameter is strictly a `render.guildwars2.com` path before fetching, preventing open-proxy abuse.
-
-**One-time browser texture download**
-The Emblem Designer requires textures to be downloaded to the browser's Cache API before it can render previews. The designer blocks on first visit until the user explicitly triggers the download (~650 textures, ~30 MB). Completion is recorded in `localStorage` so subsequent visits skip the gate. A "Re-download / verify" option is provided for cache invalidation.
+The Emblem Designer requires textures to be downloaded to the browser's Cache API before it can render previews. The designer blocks on first visit until the user explicitly triggers the download (~650 textures, ~30 MB). Completion is recorded in `localStorage` so subsequent visits skip the gate. A "Re-download / verify" option is provided for cache invalidation. The Photon WASM module is also loaded in parallel during this download phase so it is ready by the time the user starts designing.
 
 ## Tech Stack
 
@@ -173,7 +169,7 @@ The Emblem Designer requires textures to be downloaded to the browser's Cache AP
 ### Backend / Workers
 
 - **[Hono](https://hono.dev/)** — HTTP framework for the two API Workers. Chosen for its tiny footprint (~14kb), zero dependencies, and first-class Cloudflare Workers support — critical when every byte counts in a Worker bundle.
-- **WASM / [Photon](https://github.com/silvia-odwyer/photon)** (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon)) — Image processing on the server. Photon is a lightweight Rust/WASM library used for PNG decoding, flip transforms, and WebP encoding in the `service-emblem` Worker. The browser designer uses the native Canvas API instead — no WASM is shipped to the client.
+- **WASM / [Photon](https://github.com/silvia-odwyer/photon)** — Image processing on both server and browser. On the server, [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon) handles PNG decoding, flip transforms, and WebP encoding in the `service-emblem` Worker. In the browser, [`@silvia-odwyer/photon`](https://www.npmjs.com/package/@silvia-odwyer/photon) (the upstream browser-targeted WASM build) handles PNG decoding and flip transforms for the Emblem Designer preview — loaded once on demand via dynamic `import()` and reused for all subsequent renders.
 
 ### Shared / Utilities
 
