@@ -12,7 +12,7 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
   })
   .get(
     '/:colorId',
-    zValidator('param', z.object({ colorId: z.coerce.number().nonnegative().max(999).nonoptional() })),
+    zValidator('param', z.object({ colorId: z.coerce.number().nonnegative().nonoptional() })),
     async (c) => {
       const colorId = Number(c.req.param('colorId'));
 
