@@ -49,12 +49,12 @@ graph TD
 
 ### Packages
 
-| Package                      | Description                                                                                                                                                                                                                      |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package                      | Description                                                                                                                                                                      |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `packages/emblem-renderer`   | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
-| `packages/utils`             | Shared routing, validation, and string utilities                                                                                                                                                                                 |
-| `packages/eslint-config`     | Shared ESLint configuration                                                                                                                                                                                                      |
-| `packages/typescript-config` | Shared TypeScript configuration                                                                                                                                                                                                  |
+| `packages/utils`             | Shared routing, validation, and string utilities                                                                                                                                 |
+| `packages/eslint-config`     | Shared ESLint configuration                                                                                                                                                      |
+| `packages/typescript-config` | Shared TypeScript configuration                                                                                                                                                  |
 
 ### Rendering Engine
 
