@@ -101,9 +101,6 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
         <div className="flex flex-col gap-4">
           <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
           <EmblemPreview emblem={emblem} colors={colors} backgrounds={backgrounds} foregrounds={foregrounds} />
-          <div>
-            <img src={emblemSrc} alt="Emblem preview" width={128} height={128} className="rounded border" />
-          </div>
         </div>
 
         {/* Controls */}
