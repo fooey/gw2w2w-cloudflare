@@ -104,7 +104,7 @@ export function LayerPicker({
           committedRef.current = value;
           setOpen((v) => !v);
         }}
-        className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        className="flex w-full items-center gap-2 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       >
         {value != null ? (
           <>
@@ -122,7 +122,7 @@ export function LayerPicker({
         ) : (
           <span className="px-1 py-0.5 text-gray-400">Pick a layer…</span>
         )}
-        <ChevronDownIcon className="ml-1 size-4 shrink-0 text-gray-400" />
+        <ChevronDownIcon className="ml-auto size-4 shrink-0 text-gray-400" />
       </button>
 
       {/* Drawer */}

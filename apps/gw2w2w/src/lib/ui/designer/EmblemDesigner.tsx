@@ -143,7 +143,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             }}
           />
 
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {(['FlipBackgroundHorizontal', 'FlipBackgroundVertical'] as const).map((flag) => {
               const active = emblem.flags.includes(flag);
               const isH = flag === 'FlipBackgroundHorizontal';
@@ -154,7 +154,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
                   onClick={() => {
                     setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
                   }}
-                  className={`flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+                  className={`flex w-full items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
                     active
                       ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
                       : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
@@ -208,7 +208,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             }}
           />
 
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {(['FlipForegroundHorizontal', 'FlipForegroundVertical'] as const).map((flag) => {
               const active = emblem.flags.includes(flag);
               const isH = flag === 'FlipForegroundHorizontal';
@@ -219,7 +219,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
                   onClick={() => {
                     setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
                   }}
-                  className={`flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+                  className={`flex w-full items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
                     active
                       ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
                       : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'

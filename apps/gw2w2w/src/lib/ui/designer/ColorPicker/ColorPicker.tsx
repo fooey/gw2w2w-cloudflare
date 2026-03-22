@@ -74,7 +74,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
           committedRef.current = value;
           setOpen((v) => !v);
         }}
-        className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        className="flex w-full items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       >
         {selected ? (
           <>
@@ -87,7 +87,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
         ) : (
           <span className="text-gray-400">Pick a color…</span>
         )}
-        <ChevronDownIcon className="ml-1 size-4 text-gray-400" />
+        <ChevronDownIcon className="ml-auto size-4 text-gray-400" />
       </button>
 
       {/* Drawer */}
