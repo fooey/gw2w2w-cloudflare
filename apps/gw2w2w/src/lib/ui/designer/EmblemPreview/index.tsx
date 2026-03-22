@@ -102,7 +102,10 @@ export function EmblemPreview({
     const bgClass = tileClassName ?? 'bg-gray-100';
     return (
       <div className={clsx('flex flex-col items-center gap-1', tileClassName && 'rounded-xl')}>
-        <div className={clsx('relative rounded-xl', bgClass)} style={{ width: size, height: size }}>
+        <div
+          className={clsx('relative rounded-xl', bgClass, tileClassName && 'p-2')}
+          style={{ width: tileClassName ? undefined : size, height: tileClassName ? undefined : size }}
+        >
           <canvas
             ref={canvasRef}
             width={IMAGE_DIMENSION}

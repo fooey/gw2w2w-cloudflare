@@ -97,26 +97,25 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
 
   return (
     <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>
-      {/* Preview grid */}
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
-        <div className="grid grid-cols-3 gap-2 md:grid-cols-5">
-          {emblemBackgroundClasses.map((bgClass) => (
-            <EmblemPreview
-              key={bgClass}
-              emblem={emblem}
-              colors={colors}
-              backgrounds={backgrounds}
-              foregrounds={foregrounds}
-              compact
-              tileClassName={bgClass}
-            />
-          ))}
-        </div>
-      </section>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr_1fr]">
+        {/* Preview */}
+        <section className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
+          <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
+          <div className="grid grid-cols-3 gap-3">
+            {emblemBackgroundClasses.map((bgClass) => (
+              <EmblemPreview
+                key={bgClass}
+                emblem={emblem}
+                colors={colors}
+                backgrounds={backgrounds}
+                foregrounds={foregrounds}
+                compact
+                tileClassName={bgClass}
+              />
+            ))}
+          </div>
+        </section>
 
-      {/* Controls */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:justify-items-center">
         {/* Background */}
         <section className="flex flex-col gap-3">
           <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Background</h3>
