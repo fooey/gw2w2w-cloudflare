@@ -2,6 +2,7 @@
 
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
 import type { Color, Emblem } from '@service-api/lib/types';
+import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { decodeLayer } from './decodeLayer';
 import { fetchTexture } from '../TextureCacheManager/textureCache';
@@ -14,6 +15,7 @@ interface EmblemPreviewProps {
   foregrounds: Emblem[];
   size?: number;
   compact?: boolean;
+  tileClassName?: string;
 }
 
 export function EmblemPreview({
@@ -23,6 +25,7 @@ export function EmblemPreview({
   foregrounds,
   size = 128,
   compact = false,
+  tileClassName,
 }: EmblemPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderIdRef = useRef(0);
@@ -96,22 +99,25 @@ export function EmblemPreview({
   const scaleLabel = scale === 1 ? 'native' : `×${scale}`;
 
   if (compact) {
+    const bgClass = tileClassName ?? 'bg-gray-100';
     return (
-      <div className="flex flex-col items-center gap-1">
-        <div className="relative rounded bg-gray-100" style={{ width: size, height: size }}>
+      <div className={clsx('flex flex-col items-center gap-1', tileClassName && 'rounded-xl')}>
+        <div className={clsx('relative rounded-xl', bgClass)} style={{ width: size, height: size }}>
           <canvas
             ref={canvasRef}
             width={IMAGE_DIMENSION}
             height={IMAGE_DIMENSION}
-            className={hasSelection ? 'rounded' : 'hidden'}
+            className={hasSelection ? 'rounded-xl' : 'hidden'}
             style={{ width: size, height: size }}
           />
         </div>
-        <p className="text-center text-xs text-gray-400">
-          {size}px
-          <br />
-          <span className={scale === 1 ? 'font-medium text-indigo-400' : 'text-gray-300'}>{scaleLabel}</span>
-        </p>
+        {!tileClassName && (
+          <p className="text-center text-xs text-gray-400">
+            {size}px
+            <br />
+            <span className={scale === 1 ? 'font-medium text-indigo-400' : 'text-gray-300'}>{scaleLabel}</span>
+          </p>
+        )}
       </div>
     );
   }

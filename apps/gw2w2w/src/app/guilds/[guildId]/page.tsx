@@ -3,6 +3,7 @@ import { getWvwGuildRequest } from '@gw2w2w/lib/api/gw2/wvw/guilds';
 import { getWvwTeamRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import { parseResponse } from '@gw2w2w/lib/api/utils';
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
+import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
 import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
 import { CopyToClipboardInput } from '@gw2w2w/lib/ui/controls/CopyToClipboardInput';
@@ -97,14 +98,6 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
   }
 }
 
-const backgroundClasses = [
-  'bg-white',
-  'bg-black',
-  'bg-checkered',
-  'bg-linear-to-br from-white to-red-900',
-  'bg-linear-to-br from-red-400 to-black',
-];
-
 function GuildNotFound({ guildId }: { guildId: string }) {
   return (
     <SiteLayout pageHeader={'Guild Not Found'} headerActions={<GuildSearch />}>
@@ -137,7 +130,7 @@ export default async function GuildPage({ params }: GuildPageProps) {
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-            <Link href={`/guilds/${guild.id}`}>
+            <Link href={`/guilds/${guild.name}`}>
               {guild.name} [{guild.tag}]
             </Link>
           </h2>
@@ -148,8 +141,8 @@ export default async function GuildPage({ params }: GuildPageProps) {
         </header>
 
         <Card title="Example Guild Emblems">
-          <ul className="grid grid-cols-5 gap-4">
-            {backgroundClasses.map((backgroundClass) => {
+          <ul className="grid grid-cols-3 gap-3 md:grid-cols-5">
+            {emblemBackgroundClasses.map((backgroundClass) => {
               return (
                 <li key={backgroundClass}>
                   <Link href={getEmblemSrc(guild.id)} className={clsx(backgroundClass, 'inline-flex rounded-xl p-4')}>

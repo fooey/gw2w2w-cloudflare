@@ -1,6 +1,7 @@
 'use client';
 
 import { getCustomEmblemSrc } from '@gw2w2w/lib/emblems';
+import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
 import type { Color, Emblem } from '@service-api/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
@@ -96,177 +97,146 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
 
   return (
     <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        {/* Preview */}
-        <div className="flex flex-col gap-4">
-          <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
-          <EmblemPreview emblem={emblem} colors={colors} backgrounds={backgrounds} foregrounds={foregrounds} />
+      {/* Preview grid */}
+      <section className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
+        <div className="grid grid-cols-3 gap-2 md:grid-cols-5">
+          {emblemBackgroundClasses.map((bgClass) => (
+            <EmblemPreview
+              key={bgClass}
+              emblem={emblem}
+              colors={colors}
+              backgrounds={backgrounds}
+              foregrounds={foregrounds}
+              compact
+              tileClassName={bgClass}
+            />
+          ))}
         </div>
+      </section>
 
-        {/* Controls */}
-        <div className="flex flex-col gap-6">
-          {/* Background */}
-          <section className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Background</h3>
+      {/* Controls */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:justify-items-center">
+        {/* Background */}
+        <section className="flex flex-col gap-3">
+          <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Background</h3>
 
-            {/* Layer picker stub */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Layer</label>
-              <select
-                value={emblem.background.id ?? ''}
-                onChange={(e) => {
-                  const id = e.target.value === '' ? null : Number(e.target.value);
-                  setEmblem((prev) => ({ ...prev, background: { ...prev.background, id } }));
-                }}
-                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-              >
-                <option value="">Pick a background…</option>
-                {backgrounds.map((bg) => (
-                  <option key={bg.id} value={bg.id}>
-                    Background #{bg.id}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <ColorPicker
-              colors={colors}
-              label="Color"
-              value={emblem.background.colors[0]}
-              onChange={(colorId) => {
-                setEmblem((prev) => ({ ...prev, background: { ...prev.background, colors: [colorId] } }));
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Layer</label>
+            <select
+              value={emblem.background.id ?? ''}
+              onChange={(e) => {
+                const id = e.target.value === '' ? null : Number(e.target.value);
+                setEmblem((prev) => ({ ...prev, background: { ...prev.background, id } }));
               }}
-            />
-
-            {/* Flip flags */}
-            <div className="flex gap-4">
-              {(['FlipBackgroundHorizontal', 'FlipBackgroundVertical'] as const).map((flag) => (
-                <label key={flag} className="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    checked={emblem.flags.includes(flag)}
-                    onChange={() => {
-                      setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
-                    }}
-                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  {flag === 'FlipBackgroundHorizontal' ? 'Flip H' : 'Flip V'}
-                </label>
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+            >
+              <option value="">Pick a background…</option>
+              {backgrounds.map((bg) => (
+                <option key={bg.id} value={bg.id}>
+                  Background #{bg.id}
+                </option>
               ))}
-            </div>
-          </section>
+            </select>
+          </div>
 
-          {/* Foreground */}
-          <section className="flex flex-col gap-3">
-            <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Foreground</h3>
+          <ColorPicker
+            colors={colors}
+            label="Color"
+            value={emblem.background.colors[0]}
+            onChange={(colorId) => {
+              setEmblem((prev) => ({ ...prev, background: { ...prev.background, colors: [colorId] } }));
+            }}
+          />
 
-            {/* Layer picker stub */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Layer</label>
-              <select
-                value={emblem.foreground.id ?? ''}
-                onChange={(e) => {
-                  const id = e.target.value === '' ? null : Number(e.target.value);
-                  setEmblem((prev) => ({ ...prev, foreground: { ...prev.foreground, id } }));
-                }}
-                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-              >
-                <option value="">Pick a foreground…</option>
-                {foregrounds.map((fg) => (
-                  <option key={fg.id} value={fg.id}>
-                    Foreground #{fg.id}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="flex gap-4">
+            {(['FlipBackgroundHorizontal', 'FlipBackgroundVertical'] as const).map((flag) => (
+              <label key={flag} className="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={emblem.flags.includes(flag)}
+                  onChange={() => {
+                    setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
+                  }}
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                {flag === 'FlipBackgroundHorizontal' ? 'Flip H' : 'Flip V'}
+              </label>
+            ))}
+          </div>
+        </section>
 
-            <ColorPicker
-              colors={colors}
-              label="Primary Color"
-              value={emblem.foreground.colors[0]}
-              onChange={(colorId) => {
-                setEmblem((prev) => ({
-                  ...prev,
-                  foreground: { ...prev.foreground, colors: [colorId, prev.foreground.colors[1]] },
-                }));
+        {/* Foreground */}
+        <section className="flex flex-col gap-3">
+          <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Foreground</h3>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Layer</label>
+            <select
+              value={emblem.foreground.id ?? ''}
+              onChange={(e) => {
+                const id = e.target.value === '' ? null : Number(e.target.value);
+                setEmblem((prev) => ({ ...prev, foreground: { ...prev.foreground, id } }));
               }}
-            />
-
-            <ColorPicker
-              colors={colors}
-              label="Secondary Color"
-              value={emblem.foreground.colors[1]}
-              onChange={(colorId) => {
-                setEmblem((prev) => ({
-                  ...prev,
-                  foreground: { ...prev.foreground, colors: [prev.foreground.colors[0], colorId] },
-                }));
-              }}
-            />
-
-            {/* Flip flags */}
-            <div className="flex gap-4">
-              {(['FlipForegroundHorizontal', 'FlipForegroundVertical'] as const).map((flag) => (
-                <label key={flag} className="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    checked={emblem.flags.includes(flag)}
-                    onChange={() => {
-                      setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
-                    }}
-                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  {flag === 'FlipForegroundHorizontal' ? 'Flip H' : 'Flip V'}
-                </label>
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+            >
+              <option value="">Pick a foreground…</option>
+              {foregrounds.map((fg) => (
+                <option key={fg.id} value={fg.id}>
+                  Foreground #{fg.id}
+                </option>
               ))}
-            </div>
-          </section>
-        </div>
+            </select>
+          </div>
+
+          <ColorPicker
+            colors={colors}
+            label="Primary Color"
+            value={emblem.foreground.colors[0]}
+            onChange={(colorId) => {
+              setEmblem((prev) => ({
+                ...prev,
+                foreground: { ...prev.foreground, colors: [colorId, prev.foreground.colors[1]] },
+              }));
+            }}
+          />
+
+          <ColorPicker
+            colors={colors}
+            label="Secondary Color"
+            value={emblem.foreground.colors[1]}
+            onChange={(colorId) => {
+              setEmblem((prev) => ({
+                ...prev,
+                foreground: { ...prev.foreground, colors: [prev.foreground.colors[0], colorId] },
+              }));
+            }}
+          />
+
+          <div className="flex gap-4">
+            {(['FlipForegroundHorizontal', 'FlipForegroundVertical'] as const).map((flag) => (
+              <label key={flag} className="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={emblem.flags.includes(flag)}
+                  onChange={() => {
+                    setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
+                  }}
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                {flag === 'FlipForegroundHorizontal' ? 'Flip H' : 'Flip V'}
+              </label>
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* Share */}
       <section className="flex flex-col gap-3">
         <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Share</h3>
-
-        {/* Full URL */}
         <CopyToClipboardInput label="Full URL" value={fullUrl} />
-
-        {/* Short link */}
         <CopyToClipboardInput label="Short link" value={shortUrl} />
-
-        {/* Emblem image URL */}
         <CopyToClipboardInput label="Emblem image" value={emblemSrc} />
-      </section>
-
-      {/* Other sizes */}
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Other sizes</h3>
-        <div className="flex items-end gap-3">
-          <EmblemPreview
-            emblem={emblem}
-            colors={colors}
-            backgrounds={backgrounds}
-            foregrounds={foregrounds}
-            size={32}
-            compact
-          />
-          <EmblemPreview
-            emblem={emblem}
-            colors={colors}
-            backgrounds={backgrounds}
-            foregrounds={foregrounds}
-            size={64}
-            compact
-          />
-          <EmblemPreview
-            emblem={emblem}
-            colors={colors}
-            backgrounds={backgrounds}
-            foregrounds={foregrounds}
-            size={256}
-            compact
-          />
-        </div>
       </section>
     </DesignerInit>
   );
