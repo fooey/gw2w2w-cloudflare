@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowsRightLeftIcon, ArrowsUpDownIcon } from '@heroicons/react/20/solid';
 import { getCustomEmblemSrc } from '@gw2w2w/lib/emblems';
 import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
 import type { Color, Emblem } from '@service-api/lib/types';
@@ -7,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
 import { ColorPicker } from './ColorPicker';
 import { DesignerInit } from './DesignerInit';
+import { LayerPicker } from './LayerPicker';
 import { EmblemPreview } from './EmblemPreview';
 import { decodeShortlink, encodeShortlink } from './shortlink';
 import type { EmblemFlag, EmblemState } from './types';
@@ -120,24 +122,17 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
         <section className="flex flex-col gap-3">
           <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Background</h3>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Layer</label>
-            <select
-              value={emblem.background.id ?? ''}
-              onChange={(e) => {
-                const id = e.target.value === '' ? null : Number(e.target.value);
-                setEmblem((prev) => ({ ...prev, background: { ...prev.background, id } }));
-              }}
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-            >
-              <option value="">Pick a background…</option>
-              {backgrounds.map((bg) => (
-                <option key={bg.id} value={bg.id}>
-                  Background #{bg.id}
-                </option>
-              ))}
-            </select>
-          </div>
+          <LayerPicker
+            layers={backgrounds}
+            layerType="background"
+            value={emblem.background.id}
+            onChange={(id) => {
+              setEmblem((prev) => ({ ...prev, background: { ...prev.background, id } }));
+            }}
+            colors={colors}
+            colorIds={emblem.background.colors}
+            label="Layer"
+          />
 
           <ColorPicker
             colors={colors}
@@ -148,20 +143,28 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             }}
           />
 
-          <div className="flex gap-4">
-            {(['FlipBackgroundHorizontal', 'FlipBackgroundVertical'] as const).map((flag) => (
-              <label key={flag} className="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
-                <input
-                  type="checkbox"
-                  checked={emblem.flags.includes(flag)}
-                  onChange={() => {
+          <div className="flex gap-2">
+            {(['FlipBackgroundHorizontal', 'FlipBackgroundVertical'] as const).map((flag) => {
+              const active = emblem.flags.includes(flag);
+              const isH = flag === 'FlipBackgroundHorizontal';
+              return (
+                <button
+                  key={flag}
+                  type="button"
+                  onClick={() => {
                     setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
                   }}
-                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                {flag === 'FlipBackgroundHorizontal' ? 'Flip H' : 'Flip V'}
-              </label>
-            ))}
+                  className={`flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+                    active
+                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {isH ? <ArrowsRightLeftIcon className="size-4" /> : <ArrowsUpDownIcon className="size-4" />}
+                  {isH ? 'Flip H' : 'Flip V'}
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -169,24 +172,17 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
         <section className="flex flex-col gap-3">
           <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Foreground</h3>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Layer</label>
-            <select
-              value={emblem.foreground.id ?? ''}
-              onChange={(e) => {
-                const id = e.target.value === '' ? null : Number(e.target.value);
-                setEmblem((prev) => ({ ...prev, foreground: { ...prev.foreground, id } }));
-              }}
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-            >
-              <option value="">Pick a foreground…</option>
-              {foregrounds.map((fg) => (
-                <option key={fg.id} value={fg.id}>
-                  Foreground #{fg.id}
-                </option>
-              ))}
-            </select>
-          </div>
+          <LayerPicker
+            layers={foregrounds}
+            layerType="foreground"
+            value={emblem.foreground.id}
+            onChange={(id) => {
+              setEmblem((prev) => ({ ...prev, foreground: { ...prev.foreground, id } }));
+            }}
+            colors={colors}
+            colorIds={emblem.foreground.colors}
+            label="Layer"
+          />
 
           <ColorPicker
             colors={colors}
@@ -212,20 +208,28 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             }}
           />
 
-          <div className="flex gap-4">
-            {(['FlipForegroundHorizontal', 'FlipForegroundVertical'] as const).map((flag) => (
-              <label key={flag} className="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600">
-                <input
-                  type="checkbox"
-                  checked={emblem.flags.includes(flag)}
-                  onChange={() => {
+          <div className="flex gap-2">
+            {(['FlipForegroundHorizontal', 'FlipForegroundVertical'] as const).map((flag) => {
+              const active = emblem.flags.includes(flag);
+              const isH = flag === 'FlipForegroundHorizontal';
+              return (
+                <button
+                  key={flag}
+                  type="button"
+                  onClick={() => {
                     setEmblem((prev) => ({ ...prev, flags: toggleFlag(prev.flags, flag) }));
                   }}
-                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                {flag === 'FlipForegroundHorizontal' ? 'Flip H' : 'Flip V'}
-              </label>
-            ))}
+                  className={`flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+                    active
+                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {isH ? <ArrowsRightLeftIcon className="size-4" /> : <ArrowsUpDownIcon className="size-4" />}
+                  {isH ? 'Flip H' : 'Flip V'}
+                </button>
+              );
+            })}
           </div>
         </section>
       </div>

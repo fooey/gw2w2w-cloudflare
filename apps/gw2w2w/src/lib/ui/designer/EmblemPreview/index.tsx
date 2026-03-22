@@ -16,6 +16,7 @@ interface EmblemPreviewProps {
   size?: number;
   compact?: boolean;
   tileClassName?: string;
+  showSizeLabel?: boolean;
 }
 
 export function EmblemPreview({
@@ -26,6 +27,7 @@ export function EmblemPreview({
   size = 128,
   compact = false,
   tileClassName,
+  showSizeLabel = true,
 }: EmblemPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderIdRef = useRef(0);
@@ -114,7 +116,7 @@ export function EmblemPreview({
             style={{ width: size, height: size }}
           />
         </div>
-        {!tileClassName && (
+        {!tileClassName && showSizeLabel && (
           <p className="text-center text-xs text-gray-400">
             {size}px
             <br />
