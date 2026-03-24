@@ -1,6 +1,14 @@
 'use client';
 
-import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import {
+  ArrowUturnLeftIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SparklesIcon,
+  XMarkIcon,
+} from '@heroicons/react/20/solid';
 import type { Color, Emblem } from '@service-api/lib/types';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { EmblemPreview } from '../EmblemPreview';
@@ -134,8 +142,40 @@ export function LayerPicker({
     setSearch('');
   }
 
+  function applyAndClose() {
+    committedRef.current = value;
+    setOpen(false);
+    setSearch('');
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') revertAndClose();
+    if (e.key === 'Enter') applyAndClose();
+    if (e.key === 'ArrowLeft') handlePrev();
+    if (e.key === 'ArrowRight') handleNext();
+  }
+
+  function handlePrev() {
+    const idx = layers.findIndex((l) => l.id === value);
+    const newIdx = idx <= 0 ? layers.length - 1 : idx - 1;
+    const layer = layers[newIdx];
+    if (layer) onChange(layer.id);
+  }
+
+  function handleNext() {
+    const idx = layers.findIndex((l) => l.id === value);
+    const newIdx = idx === -1 || idx >= layers.length - 1 ? 0 : idx + 1;
+    const layer = layers[newIdx];
+    if (layer) onChange(layer.id);
+  }
+
+  function handleUndo() {
+    onChange(committedRef.current ?? null);
+  }
+
+  function handleRandom() {
+    const layer = layers[Math.floor(Math.random() * layers.length)];
+    if (layer) onChange(layer.id);
   }
 
   return (
@@ -176,6 +216,9 @@ export function LayerPicker({
         className={`fixed inset-y-0 right-0 z-30 flex w-full flex-col bg-white shadow-xl transition-transform duration-200 ease-out sm:w-1/2 ${
           open ? 'translate-x-0' : 'pointer-events-none translate-x-full'
         }`}
+        onMouseLeave={() => {
+          onChange(committedRef.current ?? null);
+        }}
       >
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3">
@@ -189,8 +232,8 @@ export function LayerPicker({
           </button>
         </div>
 
-        {/* Search */}
-        <div className="shrink-0 border-b border-gray-100 px-4 py-3">
+        {/* Search + nav controls */}
+        <div className="shrink-0 space-y-2 border-b border-gray-100 px-4 py-3">
           <input
             ref={searchRef}
             type="search"
@@ -201,15 +244,48 @@ export function LayerPicker({
             }}
             className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
           />
+          <div className="flex gap-1">
+            <button
+              type="button"
+              title="Previous layer"
+              onClick={handlePrev}
+              className="flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              <ChevronLeftIcon className="size-4" />
+              Prev
+            </button>
+            <button
+              type="button"
+              title="Next layer"
+              onClick={handleNext}
+              className="flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              Next
+              <ChevronRightIcon className="size-4" />
+            </button>
+            <button
+              type="button"
+              title="Undo — revert to opened value"
+              onClick={handleUndo}
+              className="flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              <ArrowUturnLeftIcon className="size-4" />
+              Undo
+            </button>
+            <button
+              type="button"
+              title="Random layer"
+              onClick={handleRandom}
+              className="ml-auto flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              <SparklesIcon className="size-4" />
+              Random
+            </button>
+          </div>
         </div>
 
         {/* Layer grid */}
-        <div
-          className="flex-1 overflow-y-auto p-3"
-          onMouseLeave={() => {
-            onChange(committedRef.current ?? null);
-          }}
-        >
+        <div className="flex-1 overflow-y-auto p-3">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
             {open &&
               filtered.map((layer) => {
@@ -236,9 +312,19 @@ export function LayerPicker({
           </div>
         </div>
 
-        <p className="shrink-0 border-t border-gray-100 px-4 py-2 text-right text-xs text-gray-400">
-          {filtered.length < layers.length ? `${filtered.length} of ${layers.length}` : `${layers.length} layers`}
-        </p>
+        <div className="flex shrink-0 items-center justify-between border-t border-gray-100 px-4 py-2">
+          <p className="text-xs text-gray-400">
+            {filtered.length < layers.length ? `${filtered.length} of ${layers.length}` : `${layers.length} layers`}
+          </p>
+          <button
+            type="button"
+            onClick={applyAndClose}
+            className="flex items-center gap-1 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 focus:outline-none"
+          >
+            <CheckIcon className="size-4" />
+            Apply
+          </button>
+        </div>
       </div>
     </div>
   );

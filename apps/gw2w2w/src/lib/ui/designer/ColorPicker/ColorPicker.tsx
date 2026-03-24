@@ -1,6 +1,14 @@
 'use client';
 
-import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import {
+  ArrowUturnLeftIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SparklesIcon,
+  XMarkIcon,
+} from '@heroicons/react/20/solid';
 import type { Color } from '@service-api/lib/types';
 import { matchSorter } from 'match-sorter';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -59,8 +67,40 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
     setSearch('');
   }
 
+  function applyAndClose() {
+    committedRef.current = value;
+    setOpen(false);
+    setSearch('');
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') revertAndClose();
+    if (e.key === 'Enter') applyAndClose();
+    if (e.key === 'ArrowLeft') handlePrev();
+    if (e.key === 'ArrowRight') handleNext();
+  }
+
+  function handlePrev() {
+    const idx = filtered.findIndex((c) => c.id === value);
+    const newIdx = idx <= 0 ? filtered.length - 1 : idx - 1;
+    const color = filtered[newIdx];
+    if (color) onChange?.(color.id);
+  }
+
+  function handleNext() {
+    const idx = filtered.findIndex((c) => c.id === value);
+    const newIdx = idx === -1 || idx >= filtered.length - 1 ? 0 : idx + 1;
+    const color = filtered[newIdx];
+    if (color) onChange?.(color.id);
+  }
+
+  function handleUndo() {
+    onChange?.(committedRef.current ?? null);
+  }
+
+  function handleRandom() {
+    const color = filtered[Math.floor(Math.random() * filtered.length)];
+    if (color) onChange?.(color.id);
   }
 
   return (
@@ -98,6 +138,9 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
         className={`fixed inset-y-0 right-0 z-30 flex w-full flex-col bg-white shadow-xl transition-transform duration-200 ease-out sm:w-1/2 ${
           open ? 'translate-x-0' : 'pointer-events-none translate-x-full'
         }`}
+        onMouseLeave={() => {
+          onChange?.(committedRef.current ?? null);
+        }}
       >
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3">
@@ -137,6 +180,46 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
                 <XMarkIcon className="size-3.5" />
               </button>
             )}
+          </div>
+
+          {/* Nav controls */}
+          <div className="flex gap-1 border-b border-gray-200 pt-1 pb-2">
+            <button
+              type="button"
+              title="Previous color"
+              onClick={handlePrev}
+              className="flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              <ChevronLeftIcon className="size-4" />
+              Prev
+            </button>
+            <button
+              type="button"
+              title="Next color"
+              onClick={handleNext}
+              className="flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              Next
+              <ChevronRightIcon className="size-4" />
+            </button>
+            <button
+              type="button"
+              title="Undo — revert to opened value"
+              onClick={handleUndo}
+              className="flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              <ArrowUturnLeftIcon className="size-4" />
+              Undo
+            </button>
+            <button
+              type="button"
+              title="Random color"
+              onClick={handleRandom}
+              className="ml-auto flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 focus:outline-none"
+            >
+              <SparklesIcon className="size-4" />
+              Random
+            </button>
           </div>
 
           {/* Hue filter */}
@@ -221,12 +304,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
         </div>
 
         {/* Swatch grid */}
-        <div
-          className="flex-1 overflow-y-auto p-4 pr-3"
-          onMouseLeave={() => {
-            onChange?.(committedRef.current ?? null);
-          }}
-        >
+        <div className="flex-1 overflow-y-auto p-4 pr-3">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(1.5rem,1fr))] gap-1">
             {filtered.map((color) => {
               const isSelected = color.id === value;
@@ -253,9 +331,17 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
           </div>
         </div>
 
-        <p className="shrink-0 border-t border-gray-100 px-4 py-2 text-right text-xs text-gray-400">
-          {filtered.length} colors
-        </p>
+        <div className="flex shrink-0 items-center justify-between border-t border-gray-100 px-4 py-2">
+          <p className="text-xs text-gray-400">{filtered.length} colors</p>
+          <button
+            type="button"
+            onClick={applyAndClose}
+            className="flex items-center gap-1 rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 focus:outline-none"
+          >
+            <CheckIcon className="size-4" />
+            Apply
+          </button>
+        </div>
       </div>
     </div>
   );
