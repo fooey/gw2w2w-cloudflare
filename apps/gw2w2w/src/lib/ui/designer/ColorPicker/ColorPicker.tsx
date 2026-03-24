@@ -90,6 +90,9 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
         <ChevronDownIcon className="ml-auto size-4 text-gray-400" />
       </button>
 
+      {/* Backdrop */}
+      {open && <div className="fixed inset-0 z-20" aria-hidden="true" onClick={revertAndClose} />}
+
       {/* Drawer */}
       <div
         className={`fixed inset-y-0 right-0 z-30 flex w-full flex-col bg-white shadow-xl transition-transform duration-200 ease-out sm:w-1/2 ${
