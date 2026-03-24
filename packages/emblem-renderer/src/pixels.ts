@@ -52,8 +52,10 @@ export function renderEmblemPixels(
   let height: number;
 
   if (bg) {
-    // Copy so we don't mutate the decoded cache
-    outData = new Uint8Array(bg.data.buffer.slice(0) as ArrayBuffer);
+    // Copy only the pixel bytes so we don't mutate the decoded cache.
+    // bg.data.buffer may be the entire WASM linear memory (much larger than
+    // the pixel data), so we copy bg.data itself rather than the full buffer.
+    outData = new Uint8Array(bg.data);
     width = bg.width;
     height = bg.height;
   } else {
