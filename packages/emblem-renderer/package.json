@@ -4,7 +4,8 @@
   "private": true,
   "entry": "src/index.ts",
   "exports": {
-    "./*": "./src/*.ts"
+    ".": "./src/index.ts",
+    "./pixels": "./src/pixels.ts"
   },
   "scripts": {
     "lint": "eslint ./src",
