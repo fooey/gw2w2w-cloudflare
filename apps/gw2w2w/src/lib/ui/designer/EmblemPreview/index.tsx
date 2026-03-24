@@ -4,9 +4,9 @@ import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB }
 import type { Color, Emblem } from '@service-api/lib/types';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
-import { decodeLayer } from './decodeLayer';
 import { fetchTexture } from '../TextureCacheManager/textureCache';
 import type { EmblemState } from '../types';
+import { decodeLayer } from './decodeLayer';
 
 interface EmblemPreviewProps {
   emblem: EmblemState;
@@ -95,7 +95,7 @@ export function EmblemPreview({
     return () => {
       idRef.current++;
     };
-  }, [bgDef, fgDef, bgColorId, fg1ColorId, fg2ColorId, flagKey, flipBgH, flipBgV, flipFgH, flipFgV, colors]); 
+  }, [bgDef, fgDef, bgColorId, fg1ColorId, fg2ColorId, flagKey, flipBgH, flipBgV, flipFgH, flipFgV, colors]);
 
   const hasSelection = bgDef ?? fgDef;
 
