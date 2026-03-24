@@ -2,7 +2,7 @@
 
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import type { Color, Emblem } from '@service-api/lib/types';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { EmblemPreview } from '../EmblemPreview';
 import type { EmblemState } from '../types';
 
@@ -17,6 +17,51 @@ interface LayerPickerProps {
 }
 
 const MAX_VISIBLE = 512;
+
+interface LayerThumbProps {
+  thumbEmblem: EmblemState;
+  layer: Emblem;
+  isSelected: boolean;
+  colors: Color[];
+  backgrounds: Emblem[];
+  foregrounds: Emblem[];
+  onMouseEnter: () => void;
+  onClick: () => void;
+}
+
+const LayerThumb = memo(function LayerThumb({
+  thumbEmblem,
+  layer,
+  isSelected,
+  colors,
+  backgrounds,
+  foregrounds,
+  onMouseEnter,
+  onClick,
+}: LayerThumbProps) {
+  return (
+    <button
+      type="button"
+      title={`#${layer.id}`}
+      onMouseEnter={onMouseEnter}
+      onClick={onClick}
+      className={`flex flex-col items-center gap-0.5 rounded-lg border-2 px-0.5 pt-0.5 transition-transform hover:scale-105 focus:outline-none ${
+        isSelected
+          ? 'border-indigo-500 ring-1 ring-indigo-400 ring-offset-1'
+          : 'border-transparent hover:border-gray-300'
+      }`}
+    >
+      <EmblemPreview
+        emblem={thumbEmblem}
+        colors={colors}
+        backgrounds={backgrounds}
+        foregrounds={foregrounds}
+        size={48}
+      />
+      <span className="pb-0.5 text-[10px] text-gray-400">#{layer.id}</span>
+    </button>
+  );
+});
 
 function makeEmblemState(
   layerType: 'background' | 'foreground',
@@ -114,8 +159,6 @@ export function LayerPicker({
               backgrounds={backgrounds}
               foregrounds={foregrounds}
               size={64}
-              compact
-              showSizeLabel={false}
             />
             <span className="text-gray-700">#{value}</span>
           </>
@@ -165,39 +208,28 @@ export function LayerPicker({
           }}
         >
           <div className="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-2">
-            {filtered.map((layer) => {
-              const isSelected = layer.id === value;
-              const thumbEmblem = makeEmblemState(layerType, layer.id, colorIds);
-              return (
-                <button
-                  key={layer.id}
-                  type="button"
-                  title={`#${layer.id}`}
-                  onMouseEnter={() => {
-                    onChange(layer.id);
-                  }}
-                  onClick={() => {
-                    handleSelect(layer.id);
-                  }}
-                  className={`flex flex-col items-center gap-0.5 rounded-lg border-2 px-0.5 pt-0.5 transition-transform hover:scale-105 focus:outline-none ${
-                    isSelected
-                      ? 'border-indigo-500 ring-1 ring-indigo-400 ring-offset-1'
-                      : 'border-transparent hover:border-gray-300'
-                  }`}
-                >
-                  <EmblemPreview
-                    emblem={thumbEmblem}
+            {open &&
+              filtered.map((layer) => {
+                const isSelected = layer.id === value;
+                const thumbEmblem = makeEmblemState(layerType, layer.id, colorIds);
+                return (
+                  <LayerThumb
+                    key={layer.id}
+                    layer={layer}
+                    thumbEmblem={thumbEmblem}
+                    isSelected={isSelected}
                     colors={colors}
                     backgrounds={backgrounds}
                     foregrounds={foregrounds}
-                    size={48}
-                    compact
-                    showSizeLabel={false}
+                    onMouseEnter={() => {
+                      onChange(layer.id);
+                    }}
+                    onClick={() => {
+                      handleSelect(layer.id);
+                    }}
                   />
-                  <span className="pb-0.5 text-[10px] text-gray-400">#{layer.id}</span>
-                </button>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
 

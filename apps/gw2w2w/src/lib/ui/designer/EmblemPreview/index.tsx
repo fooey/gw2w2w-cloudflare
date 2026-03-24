@@ -14,9 +14,7 @@ interface EmblemPreviewProps {
   backgrounds: Emblem[];
   foregrounds: Emblem[];
   size?: number;
-  compact?: boolean;
   tileClassName?: string;
-  showSizeLabel?: boolean;
 }
 
 export function EmblemPreview({
@@ -25,15 +23,19 @@ export function EmblemPreview({
   backgrounds,
   foregrounds,
   size = 128,
-  compact = false,
   tileClassName,
-  showSizeLabel = true,
 }: EmblemPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderIdRef = useRef(0);
 
   const bgDef = backgrounds.find((b) => b.id === emblem.background.id);
   const fgDef = foregrounds.find((f) => f.id === emblem.foreground.id);
+
+  const bgColorId = emblem.background.colors[0] ?? null;
+  const fg1ColorId = emblem.foreground.colors[0] ?? null;
+  const fg2ColorId = emblem.foreground.colors[1] ?? null;
+  const flagKey = emblem.flags.join(',');
+  const { flipBgH, flipBgV, flipFgH, flipFgV } = getFlipsFromFlags(emblem.flags);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -44,10 +46,9 @@ export function EmblemPreview({
     const myId = ++renderIdRef.current;
 
     const colorMap = new Map<number, ColorRGB>(colors.map((c) => [c.id, c.cloth.rgb as ColorRGB]));
-    const bgRGB = colorMap.get(emblem.background.colors[0] ?? -1) ?? [0, 0, 0];
-    const fg1RGB = colorMap.get(emblem.foreground.colors[0] ?? -1) ?? [0, 0, 0];
-    const fg2RGB = colorMap.get(emblem.foreground.colors[1] ?? -1) ?? [0, 0, 0];
-    const { flipBgH, flipBgV, flipFgH, flipFgV } = getFlipsFromFlags(emblem.flags);
+    const bgRGB = colorMap.get(bgColorId ?? -1) ?? [0, 0, 0];
+    const fg1RGB = colorMap.get(fg1ColorId ?? -1) ?? [0, 0, 0];
+    const fg2RGB = colorMap.get(fg2ColorId ?? -1) ?? [0, 0, 0];
 
     async function render() {
       if (!bgDef && !fgDef) {
@@ -76,7 +77,7 @@ export function EmblemPreview({
 
       if (renderIdRef.current !== myId) return;
 
-      const result = renderEmblemPixels(bgLayer, fg1Layer, fg2Layer, { bgRGB, fg1RGB, fg2RGB, flags: emblem.flags });
+      const result = renderEmblemPixels(bgLayer, fg1Layer, fg2Layer, { bgRGB, fg1RGB, fg2RGB });
 
       const ctx = canvasEl.getContext('2d');
       if (!ctx) return;
@@ -94,59 +95,25 @@ export function EmblemPreview({
     return () => {
       idRef.current++;
     };
-  }, [bgDef, fgDef, emblem.background.colors, emblem.foreground.colors, emblem.flags, colors]);
+  }, [bgDef, fgDef, bgColorId, fg1ColorId, fg2ColorId, flagKey, flipBgH, flipBgV, flipFgH, flipFgV, colors]); 
 
   const hasSelection = bgDef ?? fgDef;
-  const scale = size / IMAGE_DIMENSION;
-  const scaleLabel = scale === 1 ? 'native' : `×${scale}`;
 
-  if (compact) {
-    const bgClass = tileClassName ?? 'bg-gray-100';
-    return (
-      <div className={clsx('flex flex-col items-center gap-1', tileClassName && 'rounded-xl')}>
-        <div
-          className={clsx('relative rounded-xl', bgClass, tileClassName && 'p-2')}
-          style={{ width: tileClassName ? undefined : size, height: tileClassName ? undefined : size }}
-        >
-          <canvas
-            ref={canvasRef}
-            width={IMAGE_DIMENSION}
-            height={IMAGE_DIMENSION}
-            className={hasSelection ? 'rounded-xl' : 'hidden'}
-            style={{ width: size, height: size }}
-          />
-        </div>
-        {!tileClassName && showSizeLabel && (
-          <p className="text-center text-xs text-gray-400">
-            {size}px
-            <br />
-            <span className={scale === 1 ? 'font-medium text-indigo-400' : 'text-gray-300'}>{scaleLabel}</span>
-          </p>
-        )}
-      </div>
-    );
-  }
-
+  const bgClass = tileClassName ?? 'bg-gray-100';
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={clsx('flex flex-col items-center gap-1', tileClassName && 'rounded-xl')}>
       <div
-        className="relative flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-sm text-gray-400"
-        style={{ width: size, height: size }}
+        className={clsx('relative rounded-xl', bgClass, tileClassName && 'p-2')}
+        style={{ width: tileClassName ? undefined : size, height: tileClassName ? undefined : size }}
       >
-        {!hasSelection && <span>Select layers to preview</span>}
-
         <canvas
           ref={canvasRef}
           width={IMAGE_DIMENSION}
           height={IMAGE_DIMENSION}
-          className={hasSelection ? 'rounded-md' : 'hidden'}
-          style={hasSelection ? { width: size, height: size } : undefined}
+          className={hasSelection ? 'rounded-xl' : 'hidden'}
+          style={{ width: size, height: size }}
         />
       </div>
-      <p className="text-xs text-gray-400">
-        {size}×{size}px{' '}
-        <span className={scale === 1 ? 'font-medium text-indigo-400' : 'text-gray-300'}>{scaleLabel}</span>
-      </p>
     </div>
   );
 }
