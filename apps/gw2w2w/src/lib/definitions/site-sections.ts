@@ -15,7 +15,7 @@ export const homePageAttributes: SiteSections = {
   href: '/',
   icon: HomeIcon,
   isFeature: false,
-  description: 'Guild Wars 2 Utilities. Guild emblem rendering, emblem designer, and WvW objective status.',
+  description: 'Guild Wars 2 tools for players. Look up guild emblems, design your own, and track WvW activity.',
   isCurrent: (pathname: string) => pathname === '/',
 } as const;
 
@@ -25,7 +25,7 @@ export const emblemPageAttributes: SiteSections = {
   icon: PhotoIcon,
   isFeature: true,
   description:
-    'High-quality rendering of Guild Wars 2 guild emblems with customizable backgrounds, foregrounds, and colors. Perfect for websites, forums, and applications.',
+    'Pixel-perfect rendering of Guild Wars 2 guild emblems, served as WebP from the cloud. Hotlink any emblem directly by guild name or ID — no API key required. Perfect for websites, forums, Discord profile pictures, and applications.',
   isCurrent: (pathname: string) => pathname.startsWith('/guilds'),
 } as const;
 
@@ -35,7 +35,7 @@ export const designerPageAttributes: SiteSections = {
   icon: PencilSquareIcon,
   isFeature: true,
   description:
-    'Create and customize your own guild emblems with our intuitive designer. Preview combinations and export your designs for use in-game.',
+    'Build and preview custom Guild Wars 2 emblems in your browser. Explore backgrounds, foregrounds, and colors — then save a shareable link to your design.',
   isCurrent: (pathname: string) => pathname === '/designer',
 } as const;
 
@@ -44,7 +44,7 @@ export const wvwMatchupPageAttributes: SiteSections = {
   href: '/wvw/matchups',
   icon: MapPinIcon,
   isFeature: true,
-  description: 'Real-time World vs World objective tracking across all matchups.',
+  description: 'Track World vs World objective ownership across all matchups in real time.',
   isCurrent: (pathname: string) => pathname.startsWith('/wvw/matchups'),
 } as const;
 
@@ -53,7 +53,7 @@ export const wvwTeamsPageAttributes: SiteSections = {
   href: '/wvw/teams',
   icon: MapPinIcon,
   isFeature: true,
-  description: 'Directory of which guilds belong to each WvW team.',
+  description: 'Browse which guilds are registered to each World vs World team across all worlds.',
   isCurrent: (pathname: string) => pathname.startsWith('/wvw/teams'),
 } as const;
 
