@@ -27,10 +27,12 @@ function b62Encode(n: number, width: number): string {
   return s;
 }
 
-function b62Decode(s: string): number {
+function b62Decode(s: string): number | null {
   let n = 0;
   for (const c of s) {
-    n = n * BASE + CHARS.indexOf(c);
+    const idx = CHARS.indexOf(c);
+    if (idx === -1) return null;
+    n = n * BASE + idx;
   }
   return n;
 }
@@ -66,6 +68,8 @@ export function decodeShortlink(s: string): EmblemState | null {
   const fgc1 = b62Decode(s.slice(6, 8));
   const fgc2 = b62Decode(s.slice(8, 10));
   const flagBits = b62Decode(s.slice(10, 11));
+  if (bgId === null || bgc === null || fgId === null || fgc1 === null || fgc2 === null || flagBits === null)
+    return null;
   const flags = ALL_FLAGS.filter((f) => (flagBits & FLAG_BITS[f]) !== 0);
   return {
     background: { id: bgId || null, colors: [bgc || null] },
