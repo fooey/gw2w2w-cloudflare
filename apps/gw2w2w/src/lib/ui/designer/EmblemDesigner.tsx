@@ -5,6 +5,7 @@ import { getCustomEmblemSrc } from '@gw2w2w/lib/emblems';
 import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
 import type { Color, Emblem } from '@service-api/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
 import { ColorPicker } from './ColorPicker';
 import { DesignerInit } from './DesignerInit';
@@ -40,15 +41,17 @@ function parseNum(s: string | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-const emptyState: EmblemState = {
-  background: { id: null, colors: [null] },
-  foreground: { id: null, colors: [null, null] },
-  flags: [],
+const defaultState: EmblemState = {
+  background: { id: 2, colors: [473] },
+  foreground: { id: 40, colors: [673, 71] },
+  flags: ['FlipBackgroundHorizontal', 'FlipBackgroundVertical'],
 };
 
 function stateFromParams(params: URLSearchParams): EmblemState {
   const s = params.get('s');
-  if (s) return decodeShortlink(s) ?? emptyState;
+  if (s) return decodeShortlink(s) ?? defaultState;
+
+  if (params.size === 0) return defaultState;
 
   const flags = (Object.entries(FLAG_PARAM) as [EmblemFlag, string][])
     .filter(([, param]) => params.has(param))
@@ -63,17 +66,6 @@ function stateFromParams(params: URLSearchParams): EmblemState {
   };
 }
 
-function stateToParams(state: EmblemState): URLSearchParams {
-  const params = new URLSearchParams();
-  if (state.background.id != null) params.set(P.BG, String(state.background.id));
-  if (state.background.colors[0] != null) params.set(P.BGC, String(state.background.colors[0]));
-  if (state.foreground.id != null) params.set(P.FG, String(state.foreground.id));
-  if (state.foreground.colors[0] != null) params.set(P.FGC1, String(state.foreground.colors[0]));
-  if (state.foreground.colors[1] != null) params.set(P.FGC2, String(state.foreground.colors[1]));
-  for (const flag of state.flags) params.set(FLAG_PARAM[flag], '');
-  return params;
-}
-
 function toggleFlag(flags: EmblemFlag[], flag: EmblemFlag): EmblemFlag[] {
   return flags.includes(flag) ? flags.filter((f) => f !== flag) : [...flags, flag];
 }
@@ -83,22 +75,34 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const emblem = stateFromParams(searchParams);
+  const [emblem, setEmblem] = useState<EmblemState>(() => stateFromParams(searchParams));
 
-  const setEmblem = (updater: (prev: EmblemState) => EmblemState) => {
-    const next = updater(stateFromParams(searchParams));
-    const qs = stateToParams(next).toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  };
+  // Clear URL params after reading initial state once
+  useEffect(() => {
+    if (searchParams.size > 0) {
+      router.replace(pathname, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const qs = stateToParams(emblem).toString();
-  const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${pathname}${qs ? `?${qs}` : ''}` : '';
   const shortUrl =
     typeof window !== 'undefined' ? `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}` : '';
+  const fullUrl = (() => {
+    if (typeof window === 'undefined') return '';
+    const params = new URLSearchParams();
+    if (emblem.background.id != null) params.set(P.BG, String(emblem.background.id));
+    if (emblem.background.colors[0] != null) params.set(P.BGC, String(emblem.background.colors[0]));
+    if (emblem.foreground.id != null) params.set(P.FG, String(emblem.foreground.id));
+    if (emblem.foreground.colors[0] != null) params.set(P.FGC1, String(emblem.foreground.colors[0]));
+    if (emblem.foreground.colors[1] != null) params.set(P.FGC2, String(emblem.foreground.colors[1]));
+    for (const flag of emblem.flags) params.set(FLAG_PARAM[flag], '');
+    const qs = params.toString();
+    return `${window.location.origin}${pathname}${qs ? `?${qs}` : ''}`;
+  })();
   const emblemSrc = getCustomEmblemSrc(emblem);
 
   const isEmpty = emblem.background.id == null && emblem.foreground.id == null;
-  const previewEmblem = isEmpty ? { ...emblem, background: { ...emblem.background, id: 1 } } : emblem;
+  const previewEmblem = isEmpty ? defaultState : emblem;
 
   return (
     <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>
@@ -114,7 +118,6 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
                 colors={colors}
                 backgrounds={backgrounds}
                 foregrounds={foregrounds}
-                compact
                 tileClassName={bgClass}
               />
             ))}
@@ -237,12 +240,17 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
         </section>
       </div>
 
-      {/* Share */}
+      {/* Share Image */}
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Share</h3>
-        <CopyToClipboardInput label="Full URL" value={fullUrl} />
+        <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Share Image</h3>
+        <CopyToClipboardInput label="Emblem image URL" value={emblemSrc} />
+      </section>
+
+      {/* Share Design */}
+      <section className="flex flex-col gap-3">
+        <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Share Design</h3>
         <CopyToClipboardInput label="Short link" value={shortUrl} />
-        <CopyToClipboardInput label="Emblem image" value={emblemSrc} />
+        <CopyToClipboardInput label="Full URL" value={fullUrl} />
       </section>
     </DesignerInit>
   );
