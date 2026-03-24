@@ -53,7 +53,7 @@ An open-source suite of utilities for Guild Wars 2 players, built as a Turborepo
 - **Backend**: Hono (two Workers: `service-emblem`, `service-api`)
 - **Storage**: Cloudflare R2 (`EMBLEM_ASSETS` bucket — textures, rendered emblems), Cloudflare KV (`EMBLEM_ENGINE_GUILD_LOOKUP` — guild name→id mappings)
 - **Server rendering**: `@cf-wasm/photon` (Cloudflare Workers-only) for PNG decode, flip transforms, WebP encode
-- **Browser rendering**: Native Canvas API (`createImageBitmap`, `OffscreenCanvas`) — no WASM on the client
+- **Browser rendering**: `@silvia-odwyer/photon` WASM for PNG decode and flip transforms in the designer
 - **Worker-to-Worker**: Cloudflare Service Bindings + Hono RPC (type-safe, zero network hop)
 
 ## Core Rendering Logic
@@ -62,7 +62,7 @@ The compositing pipeline is split by platform:
 
 - **`packages/emblem-renderer/pixels.ts`** — Platform-independent. Takes pre-decoded `DecodedLayer` objects (`Uint32Array` pixel buffers) and `ColorRGB` options. Single-pass Porter-Duff "over" compositing loop. Supports isolated layer rendering (bg-only, fg-only, etc.).
 - **`packages/emblem-renderer/index.ts`** — Server only. Uses Photon WASM to decode PNGs and apply flip transforms, calls `pixels.ts` to composite, returns a `PhotonImage` for WebP encoding.
-- **`apps/gw2w2w/src/lib/ui/designer/decodeLayer.ts`** — Browser only. Uses `createImageBitmap` + `OffscreenCanvas` to decode PNGs and apply flips, returns a `DecodedLayer` for `pixels.ts`.
+- **`apps/gw2w2w/src/lib/ui/designer/EmblemPreview/decodeLayer.ts`** — Browser only. Uses `@silvia-odwyer/photon` WASM (via `TextureCacheManager/photon.ts`) to decode PNGs and apply flip transforms, returns a `DecodedLayer` for `pixels.ts`.
 
 **Layer indices** (from the GW2 API emblem layer arrays):
 
