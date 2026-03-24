@@ -1,64 +1,110 @@
-# Project Context: GW2 Emblem Service
+# Project Context: gw2w2w-cloudflare
+
+## Code Formatting
+
+**Always run `pnpm format` after making code changes.** This repo uses Prettier with `prettier-plugin-tailwindcss` for consistent formatting across all `.ts`, `.tsx`, `.md`, `.json`, and other source files.
+
+- **Format all files**: `pnpm format`
+- **Check without writing**: `pnpm format:check`
+
+Run `pnpm format` on every file you create or modify before considering a task complete. Never leave formatting as a manual follow-up step.
+
+## Documentation Maintenance
+
+**Always keep `README.md` up to date.** When you add, remove, or significantly change a feature, architecture decision, or package, update the relevant sections of `README.md` in the same change. This includes:
+
+- The **Features** list
+- The **Architecture** diagram and tables
+- The **Rendering Engine** section
+- The **Key Design Decisions** section
+- The **Tech Stack** section
 
 ## Overview
 
-A high-performance Guild Wars 2 emblem rendering service and interactive designer.
+An open-source suite of utilities for Guild Wars 2 players, built as a Turborepo monorepo on the Cloudflare edge.
 
-- **Hotlink Service**: Serves dynamic PNGs via `domain.com/emblem/{guildId}.png`.
-- **Designer**: A React-based UI for real-time emblem creation.
+- **Guild Emblem Hotlinks** — Render any guild's emblem as a WebP image by name or ID. `emblem.gw2w2w.com/<guildId>`
+- **Emblem Designer** — Interactive client-side editor to build and preview custom emblems.
+- **WvW tools** — WIP: objective tracking and team/guild directory.
+
+## Monorepo Structure
+
+### Apps
+
+| App                   | Domain              | Runtime                                       | Port |
+| --------------------- | ------------------- | --------------------------------------------- | ---- |
+| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 15 via OpenNext on Cloudflare Workers | 3000 |
+| `apps/service-emblem` | `emblem.gw2w2w.com` | Hono on Cloudflare Workers                    | 8787 |
+| `apps/service-api`    | `api.gw2w2w.com`    | Hono on Cloudflare Workers                    | 8788 |
+
+### Packages
+
+| Package                      | Description                                                                                                                      |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/emblem-renderer`   | Emblem rendering logic. `pixels.ts` — shared pure compositing loop. `index.ts` — server-side Photon WASM wrapper (Workers only). |
+| `packages/utils`             | Shared routing, validation, string utilities                                                                                     |
+| `packages/eslint-config`     | Shared ESLint config                                                                                                             |
+| `packages/typescript-config` | Shared TypeScript config                                                                                                         |
 
 ## Tech Stack
 
-- **Monorepo**: Turborepo + pnpm.
-- **Frontend**: Next.js (deployed to Cloudflare Pages).
-- **Backend**: Cloudflare Workers (Image Hotlinking).
-- **Storage**: Cloudflare R2 (Static assets & rendered results).
-- **Cache**: Cloudflare Cache API (Tier 1) and R2 (Tier 2).
-- **Rendering Engine**: Shared WASM module using `@cf-wasm/photon`.
+- **Monorepo**: Turborepo + pnpm workspaces
+- **Frontend**: Next.js 15 + React 19, Tailwind CSS v4, deployed via `@opennextjs/cloudflare`
+- **Backend**: Hono (two Workers: `service-emblem`, `service-api`)
+- **Storage**: Cloudflare R2 (`EMBLEM_ASSETS` bucket — textures, rendered emblems), Cloudflare KV (`EMBLEM_ENGINE_GUILD_LOOKUP` — guild name→id mappings)
+- **Server rendering**: `@cf-wasm/photon` (Cloudflare Workers-only) for PNG decode, flip transforms, WebP encode
+- **Browser rendering**: Native Canvas API (`createImageBitmap`, `OffscreenCanvas`) — no WASM on the client
+- **Worker-to-Worker**: Cloudflare Service Bindings + Hono RPC (type-safe, zero network hop)
 
 ## Core Rendering Logic
 
-- **Shared WASM Strategy**: The project utilizes `@cf-wasm/photon` to share rendering logic between the client (Next.js Designer) and the edge (Cloudflare Workers). This ensures 100% visual consistency between the preview and the final generated asset.
-- **Multiply Blend**: Colors from the `/v2/colors` API are applied to grayscale textures using the "multiply" blend mode.
-- **Layer Stacking**:
-  - Background: Index 0.
-  - Foreground: Skip Index 0 (composite); Use Index 1 (Primary) and Index 2 (Secondary).
-- **Transformations**: Handle `FlipBackgroundHorizontal`, `FlipForegroundHorizontal`, etc., using Photon's `fliph` and `flipv`.
+The compositing pipeline is split by platform:
 
-## Caching Strategy (Pull-Through)
+- **`packages/emblem-renderer/pixels.ts`** — Platform-independent. Takes pre-decoded `DecodedLayer` objects (`Uint32Array` pixel buffers) and `ColorRGB` options. Single-pass Porter-Duff "over" compositing loop. Supports isolated layer rendering (bg-only, fg-only, etc.).
+- **`packages/emblem-renderer/index.ts`** — Server only. Uses Photon WASM to decode PNGs and apply flip transforms, calls `pixels.ts` to composite, returns a `PhotonImage` for WebP encoding.
+- **`apps/gw2w2w/src/lib/ui/designer/decodeLayer.ts`** — Browser only. Uses `createImageBitmap` + `OffscreenCanvas` to decode PNGs and apply flips, returns a `DecodedLayer` for `pixels.ts`.
 
-1. **Cache API**: Local data center check (0ms CPU).
-2. **R2 Storage**: Global persistent check. If found, stream to user and back-fill Cache API.
-3. **WASM Render**: If R2 is empty, fetch metadata/textures, render via Photon, and save to R2 via `ctx.waitUntil`.
+**Layer indices** (from the GW2 API emblem layer arrays):
 
-## Invalidation
+- Background: index `[0]`
+- Foreground primary fill: index `[1]`
+- Foreground secondary fill: index `[2]`
 
-- **Global Purge**: Uses Cloudflare API to invalidate specific URLs globally across all data centers for the "Refresh" button.
+**Flip flags**: `FlipBackgroundHorizontal`, `FlipBackgroundVertical`, `FlipForegroundHorizontal`, `FlipForegroundVertical`
 
-## API Endpoints
+**Color blending**: GW2 texture red channel acts as an opacity mask for a flat RGB color (not a standard multiply blend). Foreground layers use the alpha channel normally.
 
-### Resources
+## Caching Strategy
 
-- **Foregrounds**
-  - Docs: https://wiki.guildwars2.com/wiki/API:2/emblem/foregrounds
-  - Endpoint: `https://api.guildwars2.com/v2/emblem/foregrounds?ids=all`
-- **Backgrounds**
-  - Docs: https://wiki.guildwars2.com/wiki/API:2/emblem/backgrounds
-  - Endpoint: `https://api.guildwars2.com/v2/emblem/backgrounds?ids=all`
-- **Colors**
-  - Docs: https://wiki.guildwars2.com/wiki/API:2/colors
-  - Endpoint: `https://api.guildwars2.com/v2/colors?ids=all`
+### Server-side (R2 key format)
 
-### Guilds
+- `textures:<encodeURIComponent(gw2RenderUrl)>` — raw PNG ArrayBuffers, 1-year TTL
+- `emblems:<guildId>` — rendered WebP bytes, 24h TTL
+- `guild:<guildId>` — Guild JSON, 24h TTL
+- `backgrounds.json` / `foregrounds.json` — emblem layer definitions, 24h TTL
+- KV: `guild-name:<name>` → guild ID, 24h TTL
 
-- **Search**
-  - Docs: https://wiki.guildwars2.com/wiki/API:2/guild/search
-  - Endpoint: `https://api.guildwars2.com/v2/guild/search?name=[name]`
-- **Details**
-  - Docs: https://wiki.guildwars2.com/wiki/API:2/guild/:id
-  - Endpoint: `https://api.guildwars2.com/v2/guild/[id]`
+All TTLs use ±10% random jitter to prevent thundering herd on mass expiry.
 
-### General Documentation
+### Browser-side (designer)
 
-- Main API: https://wiki.guildwars2.com/wiki/API:Main
-- Emblem Overview: https://wiki.guildwars2.com/wiki/API:2/emblem
+- **Cache API** (`caches.open('gw2-textures-v1')`) — stores raw PNG responses from `/api/texture`
+- **`localStorage` key** `gw2-textures-cached` — marks when the full texture set has been downloaded, gates designer access
+
+## Texture Proxy Route
+
+`GET /api/texture?url=<encoded-url>` in `apps/gw2w2w` serves texture PNGs for the browser designer.
+
+- Validates `url` is strictly `https://render.guildwars2.com/file/...` (SSRF prevention)
+- Reads from `EMBLEM_ASSETS` R2 (shared with `service-emblem` — cache is pre-warmed by hotlink renders)
+- Falls back to GW2 CDN on miss and writes to R2
+
+## GW2 API Endpoints Used
+
+- `GET /v2/emblem/backgrounds?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/emblem/backgrounds)
+- `GET /v2/emblem/foregrounds?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/emblem/foregrounds)
+- `GET /v2/colors?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/colors)
+- `GET /v2/guild/search?name=<name>` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/search)
+- `GET /v2/guild/<id>` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/:id)
+
+General API reference: https://wiki.guildwars2.com/wiki/API:Main

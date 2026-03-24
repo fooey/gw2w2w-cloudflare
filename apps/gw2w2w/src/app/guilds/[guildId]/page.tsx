@@ -2,13 +2,14 @@ import { getGuildRequest, searchGuildRequest } from '@gw2w2w/lib/api/gw2/guild';
 import { getWvwGuildRequest } from '@gw2w2w/lib/api/gw2/wvw/guilds';
 import { getWvwTeamRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import { parseResponse } from '@gw2w2w/lib/api/utils';
-import { getEmblemSrc } from '@gw2w2w/lib/emblems';
+import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
+import { getDesignerSrc, getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { Card } from '@gw2w2w/lib/ui/Card';
 import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
-import { FormField } from '@gw2w2w/lib/ui/FormField';
+import { CopyToClipboardInput } from '@gw2w2w/lib/ui/controls/CopyToClipboardInput';
 import { GuildSearch } from '@gw2w2w/lib/ui/guilds/guild-search/GuildSearch';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import type { Guild, WvWGuild, WvWTeam } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import { clsx } from 'clsx';
@@ -62,7 +63,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
     const { guild } = guildData;
 
     const canonical = `https://gw2w2w.com/guild/${guild.id}`;
-    const emblemUrl = getEmblemSrc(guild.id);
+    const emblemUrl = guild.emblem ? getEmblemSrc(guild.id) : undefined;
     const title = `${guild.name} [${guild.tag}] - GW2W2W`;
     const description = `${guild.name} [${guild.tag}] guild emblem`;
 
@@ -71,20 +72,22 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
       description,
       keywords: `Guild Wars 2, GW2, guild, ${guild.name}, ${guild.tag}, gaming, MMORPG`,
       alternates: { canonical },
-      icons: { icon: emblemUrl, shortcut: emblemUrl, apple: emblemUrl },
+      icons: emblemUrl ? { icon: emblemUrl, shortcut: emblemUrl, apple: emblemUrl } : undefined,
       openGraph: {
         title,
         description,
         url: canonical,
         siteName: 'GW2W2W',
         type: 'website',
-        images: [{ url: emblemUrl, width: 128, height: 128, alt: `${guild.name} [${guild.tag}] Guild Emblem` }],
+        images: emblemUrl
+          ? [{ url: emblemUrl, width: 128, height: 128, alt: `${guild.name} [${guild.tag}] Guild Emblem` }]
+          : undefined,
       },
       twitter: {
         card: 'summary',
         title,
         description,
-        images: [emblemUrl],
+        images: emblemUrl ? [emblemUrl] : undefined,
       },
     };
   } catch (e) {
@@ -96,14 +99,6 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
     };
   }
 }
-
-const backgroundClasses = [
-  'bg-white',
-  'bg-black',
-  'bg-checkered',
-  'bg-linear-to-br from-white to-red-900',
-  'bg-linear-to-br from-red-400 to-black',
-];
 
 function GuildNotFound({ guildId }: { guildId: string }) {
   return (
@@ -137,7 +132,7 @@ export default async function GuildPage({ params }: GuildPageProps) {
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-            <Link href={`/guilds/${guild.id}`}>
+            <Link href={`/guilds/${guild.name}`}>
               {guild.name} [{guild.tag}]
             </Link>
           </h2>
@@ -147,19 +142,41 @@ export default async function GuildPage({ params }: GuildPageProps) {
           </h3>
         </header>
 
-        <Card title="Example Guild Emblems">
-          <ul className="grid grid-cols-5 gap-4">
-            {backgroundClasses.map((backgroundClass) => {
-              return (
-                <li key={backgroundClass}>
-                  <Link href={getEmblemSrc(guild.id)} className={clsx(backgroundClass, 'inline-flex rounded-xl p-4')}>
-                    <img loading="lazy" src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </Card>
+        {guild.emblem ? (
+          <Card title="Example Guild Emblems">
+            <ul className="grid grid-cols-3 gap-3 md:grid-cols-5">
+              {emblemBackgroundClasses.map((backgroundClass) => {
+                return (
+                  <li key={backgroundClass}>
+                    <Link href={getEmblemSrc(guild.id)} className={clsx(backgroundClass, 'inline-flex rounded-xl p-4')}>
+                      <img loading="lazy" src={getEmblemSrc(guild.id)} alt="Guild Emblem" width={128} height={128} />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
+        ) : (
+          <Card title="No Emblem">
+            <p className="text-sm text-gray-500">This guild has not set a custom emblem.</p>
+          </Card>
+        )}
+
+        {guild.emblem && (
+          <Card title="Open in Emblem Designer">
+            <p className="mb-4 text-sm text-gray-600">
+              Load this guild&apos;s emblem into the designer to customize colors, flip layers, or use it as a starting
+              point for your own design.
+            </p>
+            <Link
+              href={getDesignerSrc(guild.emblem)}
+              className="inline-flex items-center gap-3 rounded-lg bg-rose-900 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:outline-none"
+            >
+              <PencilSquareIcon className="size-5" />
+              Open in Designer
+            </Link>
+          </Card>
+        )}
 
         <Card title="How to Use Guild Emblems">
           <p>
@@ -173,18 +190,18 @@ export default async function GuildPage({ params }: GuildPageProps) {
               <p className="mb-2 text-sm text-gray-500">
                 Use this URL anywhere that accepts a direct link to an image.
               </p>
-              <FormField label="By Guild ID" value={getEmblemSrc(guild.id)} />
-              <FormField label="By Guild Name" value={getEmblemSrc(guild.name)} />
+              <CopyToClipboardInput label="By Guild ID" value={getEmblemSrc(guild.id)} />
+              <CopyToClipboardInput label="By Guild Name" value={getEmblemSrc(guild.name)} />
             </section>
 
             <section>
               <h3 className="mb-1 text-sm font-semibold text-gray-700">HTML</h3>
               <p className="mb-2 text-sm text-gray-500">Paste this into any website or blog that allows custom HTML.</p>
-              <FormField
+              <CopyToClipboardInput
                 label="By Guild ID"
                 value={`<img src="${getEmblemSrc(guild.id)}" width="128" height="128" />`}
               />
-              <FormField
+              <CopyToClipboardInput
                 label="By Guild Name"
                 value={`<img src="${getEmblemSrc(guild.name)}" width="128" height="128" />`}
               />
@@ -195,8 +212,8 @@ export default async function GuildPage({ params }: GuildPageProps) {
               <p className="mb-2 text-sm text-gray-500">
                 Use this in forums that support BBCode, such as Reddit or older game forums.
               </p>
-              <FormField label="By Guild ID" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
-              <FormField label="By Guild Name" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
+              <CopyToClipboardInput label="By Guild ID" value={`[img]${getEmblemSrc(guild.id)}[/img]`} />
+              <CopyToClipboardInput label="By Guild Name" value={`[img]${getEmblemSrc(guild.name)}[/img]`} />
             </section>
           </div>
         </Card>

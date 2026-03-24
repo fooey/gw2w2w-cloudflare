@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+.wrangler/
+
+# Turbo cache
+.turbo/
+
+# Next.js auto-generated
+next-env.d.ts
+
+# pnpm
+pnpm-lock.yaml

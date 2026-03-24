@@ -62,7 +62,10 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       try {
         const bytes = await getEmblemBytes(apiClient, emblem, cacheProviders);
         return new Response(bytes, {
-          headers: { 'Content-Type': 'image/webp' },
+          headers: {
+            'Content-Type': 'image/webp',
+            'Cache-Control': 'public, max-age=31536000, immutable',
+          },
         });
       } catch (error: unknown) {
         if (error instanceof HttpError) {

@@ -48,6 +48,10 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     const host = c.req.header('host');
 
     if (host === 'guilds.gw2w2w.com') {
+      const guildsPathMatch = c.req.path.match(/^\/guilds\/([^/]+)/);
+      if (guildsPathMatch) {
+        return c.redirect(`https://emblem.gw2w2w.com/${guildsPathMatch[1]}`, 302);
+      }
       const url = new URL(c.req.url);
       url.host = 'emblem.gw2w2w.com';
       return c.redirect(url.toString(), 302);
@@ -58,10 +62,8 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'))
   .get('/favicon.ico', (c) => c.redirect('/97C007DC-87D5-E311-9621-AC162DAE8ACD', 302))
   .get('/guilds/*', (c) => {
-    const url = new URL(c.req.url);
-    url.host = 'gw2w2w.com';
-    url.protocol = 'https:';
-    return c.redirect(url.toString(), 308);
+    const guildId = c.req.path.replace(/^\/guilds\//, '').split('/')[0];
+    return c.redirect(`https://emblem.gw2w2w.com/${guildId}`, 308);
   })
   .get('/short/:guildId', (c) => {
     const { guildId } = c.req.param();

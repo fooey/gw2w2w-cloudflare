@@ -10,6 +10,7 @@ export function apiFetch(env: CloudflareEnv, path: string, init?: RequestInit) {
   // attach api key to headers
   const headers = new Headers(init?.headers);
   headers.set('Authorization', `Bearer ${env.GW2_API_KEY}`);
+  headers.set('User-Agent', 'gw2w2w.com');
   init = { ...init, headers };
 
   return fetch(requestUrl, init);

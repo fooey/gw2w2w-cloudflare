@@ -1,3 +1,5 @@
+> **Note:** This README should be kept up to date as features change. If you add, remove, or significantly alter a feature, update the relevant sections here before merging.
+
 # gw2w2w.com
 
 An open-source suite of utilities for [Guild Wars 2](https://www.guildwars2.com/) players, built on the Cloudflare edge. The name is a play on the game's WvW mode — **World vs. World** (WvW) is GW2's large-scale, three-faction PvP mode where servers compete to capture objectives across a persistent map.
@@ -47,20 +49,26 @@ graph TD
 
 ### Packages
 
-| Package                      | Description                                      |
-| ---------------------------- | ------------------------------------------------ |
-| `packages/emblem-renderer`   | Shared emblem rendering logic (WASM / Photon)    |
-| `packages/utils`             | Shared routing, validation, and string utilities |
-| `packages/eslint-config`     | Shared ESLint configuration                      |
-| `packages/typescript-config` | Shared TypeScript configuration                  |
+| Package                      | Description                                                                                                                                                                      |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/emblem-renderer`   | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
+| `packages/utils`             | Shared routing, validation, and string utilities                                                                                                                                 |
+| `packages/eslint-config`     | Shared ESLint configuration                                                                                                                                                      |
+| `packages/typescript-config` | Shared TypeScript configuration                                                                                                                                                  |
 
 ### Rendering Engine
 
-ArenaNet's API provides emblem layers as grayscale textures. Each layer is colorized by treating its texture channel as an opacity mask for a flat GW2 palette color, then alpha-composited together in layer order using a Porter-Duff "over" operation implemented via direct pixel manipulation. The [Photon](https://github.com/silvia-odwyer/photon) WASM library (via the Cloudflare-compatible [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon) build) is used for image decoding and flip transforms.
+ArenaNet's API provides emblem layers as grayscale textures. Each layer is colorized by treating its texture channel as an opacity mask for a flat GW2 palette color, then alpha-composited together in layer order using a Porter-Duff "over" operation.
 
-The renderer is designed to operate within Cloudflare Workers' **50ms CPU time limit**, so performance was paramount: the compositing loop runs over raw `Uint32Array` pixel buffers in a single pass, avoiding any intermediate allocations or redundant traversals.
+The rendering pipeline is split across three files in `packages/emblem-renderer`:
 
-The same `emblem-renderer` package is used by both `service-emblem` (server-side WebP generation) and the browser-based Designer (client-side preview), guaranteeing pixel-perfect parity between the designer preview and the final rendered image.
+- **`pixels.ts`** — Pure, platform-independent compositing loop. Operates entirely on `Uint32Array` pixel buffers. Used by both server and browser. Accepts pre-decoded `DecodedLayer` objects and `ColorRGB` options. Supports rendering individual layers in isolation (e.g. bg-only or fg-only previews).
+- **`index.ts`** (server-only) — Wraps `pixels.ts` with [Photon](https://github.com/silvia-odwyer/photon) WASM (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon)) for PNG decoding and flip transforms. Returns a `PhotonImage` ready for WebP encoding via `get_bytes_webp()`. Used exclusively by `service-emblem`.
+- **`decodeLayer.ts`** (browser, in `apps/gw2w2w`) — Wraps `pixels.ts` with [`@silvia-odwyer/photon`](https://www.npmjs.com/package/@silvia-odwyer/photon) WASM for PNG decoding and flip transforms in the browser. The WASM module is lazy-loaded once when the user initiates the texture download and reused for all subsequent renders.
+
+**Server path** (`service-emblem`): Photon decodes PNGs → `pixels.ts` composites → Photon encodes WebP → cached in R2.
+
+**Browser path** (designer preview): textures fetched via `/api/texture` Next.js route (reads from the shared R2 cache) → `@silvia-odwyer/photon` WASM decodes PNGs and applies flip transforms → `pixels.ts` composites → `ImageData` painted to `<canvas>`. Colors re-composite instantly without re-fetching or re-decoding. The Photon WASM module (~1.8 MB) is loaded once in the browser when the user initiates the texture download.
 
 ### Caching Strategy
 
@@ -139,6 +147,12 @@ Cloudflare Workers enforce a **50ms CPU time limit**. The WASM-based pixel compo
 **Placement hints near the upstream API**
 `service-api` sets `placement.hostname = "api.guildwars2.com"` in its `wrangler.toml`. Cloudflare uses HTTP HEAD probes to locate the GW2 API and routes all Worker invocations to the nearest PoP. For the cold-cache path (500-guild fan-out), this cuts per-round-trip latency from ~200ms (cross-continent) to ~5–10ms, reducing total cold fill time by over 10×.
 
+**Texture proxy route in the Next.js app**
+`GET /api/texture?url=<encoded-gw2-render-url>` serves texture PNGs for the browser designer. It reads from the same `EMBLEM_ASSETS` R2 bucket bound to the Next.js worker, so the cache is shared with `service-emblem` — any texture pre-warmed by a guild emblem render is instantly available to the designer. The route validates that the `url` parameter is strictly a `render.guildwars2.com` path before fetching, preventing open-proxy abuse.
+
+**One-time browser texture download**
+The Emblem Designer requires textures to be downloaded to the browser's Cache API before it can render previews. The designer blocks on first visit until the user explicitly triggers the download (~650 textures, ~30 MB). Completion is recorded in `localStorage` so subsequent visits skip the gate. A "Re-download / verify" option is provided for cache invalidation. The Photon WASM module is also loaded in parallel during this download phase so it is ready by the time the user starts designing.
+
 ## Tech Stack
 
 ### Platform
@@ -155,7 +169,7 @@ Cloudflare Workers enforce a **50ms CPU time limit**. The WASM-based pixel compo
 ### Backend / Workers
 
 - **[Hono](https://hono.dev/)** — HTTP framework for the two API Workers. Chosen for its tiny footprint (~14kb), zero dependencies, and first-class Cloudflare Workers support — critical when every byte counts in a Worker bundle.
-- **WASM / [Photon](https://github.com/silvia-odwyer/photon)** (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon)) — Image processing. Photon is a lightweight Rust/WASM library used for image decoding and pixel transforms. The `@cf-wasm/photon` build is pre-optimized for the Cloudflare Workers runtime.
+- **WASM / [Photon](https://github.com/silvia-odwyer/photon)** — Image processing on both server and browser. On the server, [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon) handles PNG decoding, flip transforms, and WebP encoding in the `service-emblem` Worker. In the browser, [`@silvia-odwyer/photon`](https://www.npmjs.com/package/@silvia-odwyer/photon) (the upstream browser-targeted WASM build) handles PNG decoding and flip transforms for the Emblem Designer preview — loaded once on demand via dynamic `import()` and reused for all subsequent renders.
 
 ### Shared / Utilities
 

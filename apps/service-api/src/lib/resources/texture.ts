@@ -18,7 +18,7 @@ export async function getTextureArrayBuffer(
   } else {
     if (getEnableCacheLogging()) console.info(`object MISS for ${OBJECT_KEY}`);
 
-    const r = await fetch(url);
+    const r = await fetch(url, { headers: { 'User-Agent': 'gw2w2w.com' } });
     if (!r.ok) return null;
     buffer = await r.arrayBuffer();
 
