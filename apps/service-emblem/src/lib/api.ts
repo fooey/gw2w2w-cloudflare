@@ -1,4 +1,4 @@
-import { renderEmblem } from '@repo/emblem-renderer/index';
+import { renderEmblem } from '@repo/emblem-renderer';
 import type { ServiceApiAppType } from '@repo/service-api';
 import type { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';

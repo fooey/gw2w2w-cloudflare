@@ -29,7 +29,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     return c.json<Guild[]>(guilds, 200);
   })
   .get('/search', zValidator('query', z.object({ name: z.string() })), async (c) => {
-    const name = c.req.query('name');
+    const name = c.req.query('name')?.replace(/-/g, ' ');
 
     if (!name) {
       const payload: ErrorPayload = {
