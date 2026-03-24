@@ -16,6 +16,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
+    "@repo/emblem-renderer": "workspace:*",
     "@repo/service-api": "workspace:*",
     "@repo/service-emblem": "workspace:*",
     "@repo/utils": "workspace:*",
