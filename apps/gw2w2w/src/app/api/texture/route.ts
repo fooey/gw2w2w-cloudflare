@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
   }
 
   // R2 miss — fetch from GW2 CDN and populate cache
-  const upstream = await fetch(textureUrl);
+  const upstream = await fetch(textureUrl, { headers: { 'User-Agent': 'gw2w2w.com' } });
   if (!upstream.ok) {
     return NextResponse.json({ error: 'Texture not found' }, { status: 404 });
   }
