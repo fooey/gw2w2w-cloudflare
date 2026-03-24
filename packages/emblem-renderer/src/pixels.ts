@@ -46,7 +46,6 @@ export function renderEmblemPixels(
   const [fg1R, fg1G, fg1B] = fg1RGB;
   const [fg2R, fg2G, fg2B] = fg2RGB;
 
-  // If no background provided, create a transparent 256×256 canvas
   let outData: Uint8Array<ArrayBuffer>;
   let width: number;
   let height: number;
