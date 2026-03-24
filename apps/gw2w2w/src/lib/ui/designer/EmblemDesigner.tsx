@@ -97,6 +97,9 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
     typeof window !== 'undefined' ? `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}` : '';
   const emblemSrc = getCustomEmblemSrc(emblem);
 
+  const isEmpty = emblem.background.id == null && emblem.foreground.id == null;
+  const previewEmblem = isEmpty ? { ...emblem, background: { ...emblem.background, id: 1 } } : emblem;
+
   return (
     <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr_1fr]">
@@ -107,7 +110,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             {emblemBackgroundClasses.map((bgClass) => (
               <EmblemPreview
                 key={bgClass}
-                emblem={emblem}
+                emblem={previewEmblem}
                 colors={colors}
                 backgrounds={backgrounds}
                 foregrounds={foregrounds}
