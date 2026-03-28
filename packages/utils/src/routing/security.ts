@@ -1,7 +1,12 @@
-export function allowedOrigin(origin: string | undefined, host: string | undefined): string | undefined {
-  if (!origin || !host) return undefined;
-  if (origin.startsWith('http://localhost') && host.startsWith('localhost')) return origin;
+export function allowedOrigin(origin: string | undefined, _host: string | undefined): string | undefined {
+  if (!origin) return undefined; // Host is less reliable in dev, focus on Origin
+
+  // Allow localhost origins regardless of what the 'host' header says
+  if (origin.startsWith('http://localhost:')) return origin;
+
+  // Production check
   if (origin === 'https://gw2w2w.com' || origin.endsWith('.gw2w2w.com')) return origin;
+
   return undefined;
 }
 
