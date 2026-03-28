@@ -30,6 +30,10 @@ const defaultCache: MiddlewareHandler = (c, next) =>
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
+  .use('*', async (c, next) => {
+    await next();
+    c.header('Vary', 'Origin', { append: true });
+  })
   .use('*', etag())
   .use('*', secureHeaders())
   .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
@@ -43,28 +47,26 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/gw2/color/*', staticCache)
   .get('/gw2/emblem/*', staticCache)
   .get('*', defaultCache)
-  .route('/gw2', apiGw2Route);
-
-app.notFound((c) => {
-  const payload: ErrorPayload = {
-    message: 'Not Found',
-    statusCode: 404,
-    url: new URL(c.req.url).pathname,
-    service: 'service-api',
-  };
-  return c.json(payload, payload.statusCode);
-});
-
-app.onError((err, c) => {
-  console.error(err);
-  const payload: ErrorPayload = {
-    message: 'Internal Server Error',
-    statusCode: 500,
-    url: new URL(c.req.url).pathname,
-    service: 'service-api',
-  };
-  return c.json(payload, payload.statusCode);
-});
+  .route('/gw2', apiGw2Route)
+  .notFound((c) => {
+    const payload: ErrorPayload = {
+      message: 'Not Found',
+      statusCode: 404,
+      url: new URL(c.req.url).pathname,
+      service: 'service-api',
+    };
+    return c.json(payload, payload.statusCode);
+  })
+  .onError((err, c) => {
+    console.error(err);
+    const payload: ErrorPayload = {
+      message: 'Internal Server Error',
+      statusCode: 500,
+      url: new URL(c.req.url).pathname,
+      service: 'service-api',
+    };
+    return c.json(payload, payload.statusCode);
+  });
 
 export type ServiceApiAppType = typeof app;
 export default app;
