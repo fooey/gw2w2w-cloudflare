@@ -1,4 +1,4 @@
-import type { CloudflareEnv } from '@service-api/index';
+import { type CloudflareEnv } from '@service-api/index';
 import { createCacheProviders } from '@service-api/lib/cache-providers';
 import { apiFetch } from '@service-api/lib/resources/api';
 import { withFilteredObjectCache } from '@service-api/lib/resources/cache-wrapper';

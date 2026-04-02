@@ -1,7 +1,6 @@
-import { getGuildRequest, searchGuildRequest } from '@gw2w2w/lib/api/gw2/guild';
-import { getWvwGuildRequest } from '@gw2w2w/lib/api/gw2/wvw/guilds';
-import { getWvwTeamRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
-import { parseResponse } from '@gw2w2w/lib/api/utils';
+import { fetchGuild, fetchGuildByName } from '@gw2w2w/lib/api/gw2/guild';
+import { fetchWvwGuild } from '@gw2w2w/lib/api/gw2/wvw/guilds';
+import { fetchWvwTeam } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
 import { getDesignerSrc, getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { Card } from '@gw2w2w/lib/ui/Card';
@@ -10,10 +9,10 @@ import { CopyToClipboardInput } from '@gw2w2w/lib/ui/controls/CopyToClipboardInp
 import { GuildSearch } from '@gw2w2w/lib/ui/guilds/guild-search/GuildSearch';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
 import { MagnifyingGlassIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
-import type { Guild, WvWGuild, WvWTeam } from '@repo/service-api/lib/types';
+import { type Guild, type WvWTeam } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import { clsx } from 'clsx';
-import type { Metadata } from 'next';
+import { type Metadata } from 'next';
 import Link from 'next/link';
 import { cache } from 'react';
 
@@ -22,37 +21,33 @@ export interface GuildPageProps {
 }
 
 function getGuildTeam(guildId: string): Promise<WvWTeam | null> {
-  return getWvwGuildRequest(guildId)
-    .then(parseResponse<WvWGuild>)
-    .then((data) => {
-      if (!data) {
-        return null;
-      }
-      return getWvwTeamRequest(data.teamId).then(parseResponse<WvWTeam>);
-    });
+  return fetchWvwGuild(guildId).then((data) => {
+    if (!data) {
+      return null;
+    }
+    return fetchWvwTeam(data.teamId);
+  });
 }
 
-export const getGuildData = cache(async (guildId: string): Promise<{ guild: Guild; team: WvWTeam | null } | null> => {
+const getData = cache(async (guildId: string): Promise<{ guild: Guild; team: WvWTeam | null } | null> => {
   const isUuid = validateArenaNetUuid(guildId);
 
-  const fn = isUuid ? getGuildRequest : searchGuildRequest;
+  const fn = isUuid ? fetchGuild : fetchGuildByName;
 
-  return fn(guildId)
-    .then(parseResponse<Guild>)
-    .then(async (guild) => {
-      if (!guild) {
-        return null;
-      }
+  return fn(guildId).then(async (guild) => {
+    if (!guild) {
+      return null;
+    }
 
-      return getGuildTeam(guild.id).then((team) => ({ guild, team }));
-    });
+    return getGuildTeam(guild.id).then((team) => ({ guild, team }));
+  });
 });
 
 export async function generateMetadata({ params }: GuildPageProps): Promise<Metadata> {
   const { guildId } = await params;
 
   try {
-    const guildData = await getGuildData(guildId);
+    const guildData = await getData(guildId);
 
     if (!guildData) {
       return {
@@ -119,7 +114,7 @@ function GuildNotFound({ guildId }: { guildId: string }) {
 
 export default async function GuildPage({ params }: GuildPageProps) {
   const { guildId } = await params;
-  const guildData = await getGuildData(guildId);
+  const guildData = await getData(guildId);
 
   if (!guildData) {
     return <GuildNotFound guildId={guildId} />;

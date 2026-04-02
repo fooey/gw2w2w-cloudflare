@@ -1,6 +1,6 @@
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
-import type { NextConfig } from 'next';
+import { type NextConfig } from 'next';
 
 const faviconSrc = getEmblemSrc('97C007DC-87D5-E311-9621-AC162DAE8ACD');
 

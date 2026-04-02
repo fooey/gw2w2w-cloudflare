@@ -29,10 +29,11 @@
     "next": "^16.1.2",
     "p-limit": "^7.3.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260312.1",
+    "@cloudflare/workers-types": "^4.20260402.1",
     "@opennextjs/aws": "^3.9.16",
     "@opennextjs/cloudflare": "^1.17.1",
     "@tailwindcss/postcss": "^4",
@@ -43,7 +44,7 @@
     "eslint": "^10",
     "eslint-config-next": "^16.1.6",
     "tailwindcss": "^4.2.1",
-    "typescript": "^5",
-    "wrangler": "^4.73.0"
+    "typescript": "^6",
+    "wrangler": "^4.79.0"
   }
 }

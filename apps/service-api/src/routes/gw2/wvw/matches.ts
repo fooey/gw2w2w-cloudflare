@@ -1,6 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
-import { getWvWMatches, type WvWMatch } from '@service-api/lib/resources/wvw/matches';
+import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
+import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
+import { CACHE_TTL } from '@service-api/lib/resources/constants';
+import { getWvWMatchByWorld, getWvWMatches } from '@service-api/lib/resources/wvw/matches';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -9,7 +11,7 @@ const TEAM_COLORS = ['red', 'blue', 'green'] as const;
 export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/', async (c) => {
     const matches = await getWvWMatches('all', c.env);
-    return c.json<WvWMatch[]>(matches, 200);
+    return withCacheJson(c, CACHE_TTL.live.http, matches);
   })
   .get('/stats/teams', async (c) => {
     const matches = await getWvWMatches('all', c.env);
@@ -25,7 +27,7 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
         victoryPoints: match.victory_points[color],
       })),
     );
-    return c.json(teamStats, 200);
+    return withCacheJson(c, CACHE_TTL.live.http, teamStats);
   })
   .get('/:id', zValidator('param', z.object({ id: z.string() })), async (c) => {
     const id = c.req.param('id');
@@ -40,5 +42,19 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return c.json<WvWMatch>(match, 200);
+    return withCacheJson(c, CACHE_TTL.live.http, match);
+  })
+  .get('/world/:worldId', zValidator('param', z.object({ worldId: z.coerce.number().int().positive() })), async (c) => {
+    const { worldId } = c.req.valid('param');
+    const match = await getWvWMatchByWorld(worldId, c.env);
+    if (!match) {
+      const payload: ErrorPayload = {
+        message: 'WvW Match Not Found',
+        statusCode: 404,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api/wvw/matches',
+      };
+      return c.json(payload, 404);
+    }
+    return withCacheJson(c, CACHE_TTL.live.http, match);
   });

@@ -1,7 +1,7 @@
 // import nextVitals from 'eslint-config-next/core-web-vitals';
 // import nextTs from 'eslint-config-next/typescript';
 // import { defineConfig, globalIgnores } from 'eslint/config';
-import type { Linter } from 'eslint';
+import { type Linter } from 'eslint';
 import { nextJsConfig } from '../../packages/eslint-config/next';
 
 // const eslintConfig = defineConfig([

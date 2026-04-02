@@ -1,8 +1,7 @@
 import { WvWTeamGuildFilter } from '@gw2w2w/app/wvw/teams/[teamName]/WvWTeamGuildFilter';
-import { getTeamGuildDetailsRequest } from '@gw2w2w/lib/api/gw2/wvw/teams';
-import { parseResponse } from '@gw2w2w/lib/api/utils';
+import { fetchWvwTeamGuildDetails } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import type { Guild } from '@repo/service-api/lib/types';
+import { type Guild } from '@repo/service-api/lib/types';
 import { WVW_TEAMS } from '@repo/service-api/src/definitions';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -12,9 +11,7 @@ interface WvWTeamPageProps {
 }
 
 async function fetchWvWTeamGuilds(teamId: string): Promise<Guild[]> {
-  return getTeamGuildDetailsRequest(teamId)
-    .then(parseResponse<Guild[]>)
-    .then((guilds) => guilds ?? []);
+  return fetchWvwTeamGuildDetails(teamId).then((guilds) => guilds ?? []);
 }
 
 async function WvWTeamGuildList({ teamId }: { teamId: string }) {

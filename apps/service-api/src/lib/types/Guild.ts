@@ -1,5 +1,5 @@
-import type { Color } from './Color';
-import type { Emblem } from './Emblem';
+import { type Color } from './Color';
+import { type Emblem } from './Emblem';
 
 /**
  * Represents a Guild Wars 2 guild with core details.

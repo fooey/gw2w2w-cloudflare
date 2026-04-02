@@ -12,11 +12,11 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/service-api": "workspace:*",
-    "@cf-wasm/photon": "^0.3.4"
+    "@cf-wasm/photon": "^0.3.4",
+    "@repo/service-api": "workspace:*"
   },
   "devDependencies": {
-    "eslint": "^10",
-    "@cloudflare/workers-types": "^4.20260313.1"
+    "@cloudflare/workers-types": "^4.20260402.1",
+    "eslint": "^10"
   }
 }

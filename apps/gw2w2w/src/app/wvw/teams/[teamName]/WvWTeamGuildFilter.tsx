@@ -1,7 +1,7 @@
 'use client';
 
 import { Highlight, WvWTeamGuild } from '@gw2w2w/app/wvw/teams/[teamName]/WvWTeamGuild';
-import type { Guild } from '@repo/service-api/lib/types';
+import { type Guild } from '@repo/service-api/lib/types';
 import { matchSorter } from 'match-sorter';
 import Link from 'next/link';
 import { useState } from 'react';

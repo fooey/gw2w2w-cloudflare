@@ -6,6 +6,8 @@ export type WvWTeam = {
   fr: string;
 };
 
+export type WvWTeamId = keyof typeof WVW_TEAMS;
+
 export const WVW_TEAMS = {
   '11001': { id: '11001', en: 'Moogooloo', de: 'Muuguuluu', es: 'Mugulú', fr: 'Moogooloo' },
   '11002': { id: '11002', en: "Rall's Rest", de: 'Ralls Rast', es: 'Descanso de Rall', fr: 'Repos de Rall' },
@@ -126,4 +128,4 @@ export const WVW_TEAMS = {
   '12015': { id: '12015', en: 'Bava Nisos', de: 'Bava Nisos', es: 'Bava Nisos', fr: 'Bava Nisos' },
 } as const satisfies Record<string, WvWTeam>;
 
-export type WvWTeamId = keyof typeof WVW_TEAMS;
+export const WVW_TEAMS_IDS = Object.keys(WVW_TEAMS) as WvWTeamId[];

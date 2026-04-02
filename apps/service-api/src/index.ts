@@ -1,13 +1,11 @@
 import { allowedCsrf, allowedOrigin } from '@repo/utils';
-import { Hono, type MiddlewareHandler } from 'hono';
-import { cache } from 'hono/cache';
+import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
-import { STORE_OBJECT_TTL, STORE_STATIC_OBJECT_TTL, withJitter } from './lib/resources/constants';
+import { type ContentfulStatusCode } from 'hono/utils/http-status';
 import { apiGw2Route } from './routes/gw2';
 
 export interface ErrorPayload {
@@ -23,10 +21,6 @@ export interface CloudflareEnv {
   GW2_API_BASE: string;
   GW2_API_KEY?: string;
 }
-
-const staticCache = cache({ cacheName: 'service-api', cacheControl: `max-age=${STORE_STATIC_OBJECT_TTL}` });
-const defaultCache: MiddlewareHandler = (c, next) =>
-  cache({ cacheName: 'service-api', cacheControl: `max-age=${withJitter(STORE_OBJECT_TTL)}` })(c, next);
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
@@ -44,9 +38,14 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   })
   .get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'))
   .get('/favicon.ico', (c) => c.newResponse(null, 404))
-  .get('/gw2/color/*', staticCache)
-  .get('/gw2/emblem/*', staticCache)
-  .get('*', defaultCache)
+  // .get('/gw2/wvw/abilities/*', staticCache)
+  // .get('/gw2/wvw/objectives/*', staticCache)
+  // .get('/gw2/wvw/ranks/*', staticCache)
+  // .get('/gw2/wvw/ranks/*', staticCache)
+  // .get('/gw2/wvw/upgrades/*', staticCache)
+  // .get('/gw2/color/*', staticCache)
+  // .get('/gw2/emblem/*', staticCache)
+  // .get('*', defaultCache)
   .route('/gw2', apiGw2Route)
   .notFound((c) => {
     const payload: ErrorPayload = {

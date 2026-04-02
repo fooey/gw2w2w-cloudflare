@@ -1,10 +1,10 @@
 import { normalizeGuildName, validateArenaNetUuid } from '@repo/utils';
-import type { CloudflareEnv } from '@service-api/index';
+import { type CloudflareEnv } from '@service-api/index';
 import { createCacheProviders } from '@service-api/lib/cache-providers';
 import { apiFetch } from '@service-api/lib/resources/api';
-import type { Guild } from '@service-api/lib/types/Guild';
+import { type Guild } from '@service-api/lib/types/Guild';
 import { withKvCache, withObjectCache } from './cache-wrapper';
-import { STORE_KV_TTL } from './constants';
+import { CACHE_TTL } from './constants';
 
 export function getGuildFromApi(guildId: string, env: CloudflareEnv): Promise<Guild | null> {
   return apiFetch(env, `/guild/${guildId}`).then((response) => {
@@ -65,7 +65,7 @@ export async function getGuild(guildId: string, env: CloudflareEnv): Promise<Gui
 
       // After fetching, create reverse index by name for searchability
       const { kvStore } = cacheProviders;
-      const kvOptions = { expirationTtl: STORE_KV_TTL };
+      const kvOptions = { expirationTtl: CACHE_TTL.user.kv };
 
       // Store reverse index: guild name -> guild data
       await kvStore.put(getGuildNameKey(freshGuild.name), JSON.stringify(freshGuild.id), kvOptions);
@@ -81,5 +81,5 @@ export async function searchGuild(name: string, env: CloudflareEnv): Promise<Gui
 
   const cacheProviders = createCacheProviders(env);
 
-  return withKvCache(kvKey, async () => searchGuildFromApi(name, env), cacheProviders);
+  return withKvCache(kvKey, async () => searchGuildFromApi(name, env), cacheProviders, { ttl: CACHE_TTL.user.kv });
 }

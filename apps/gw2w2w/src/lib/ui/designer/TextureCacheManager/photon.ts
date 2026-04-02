@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 type PhotonModule = typeof import('@silvia-odwyer/photon');
 
 let photonReady: Promise<PhotonModule> | null = null;

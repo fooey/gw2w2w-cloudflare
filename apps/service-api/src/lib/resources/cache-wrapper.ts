@@ -1,10 +1,10 @@
-import type { CacheProviders } from '@service-api/lib/resources';
+import { Temporal } from '@js-temporal/polyfill';
+import { type CacheProviders } from '@service-api/lib/resources';
 import {
+  CACHE_TTL,
   getEnableCacheLogging,
   NOT_FOUND_CACHE_EXPIRATION,
   NOT_FOUND_CACHE_VALUE,
-  STORE_KV_TTL,
-  STORE_OBJECT_TTL,
   withJitter,
 } from './constants';
 
@@ -34,7 +34,7 @@ export async function withKvCache<T>(
 ): Promise<T | null> {
   const { kvStore } = cacheProviders;
   const {
-    ttl = STORE_KV_TTL,
+    ttl = CACHE_TTL.static.kv,
     notFoundTtl = NOT_FOUND_CACHE_EXPIRATION,
     enableLogging = getEnableCacheLogging,
   } = config;
@@ -98,7 +98,7 @@ export async function withObjectCache<T>(
   config: CacheConfig = {},
 ): Promise<T> {
   const { objectStore } = cacheProviders;
-  const { ttl = STORE_OBJECT_TTL, enableLogging = getEnableCacheLogging } = config;
+  const { ttl = CACHE_TTL.static.kv, enableLogging = getEnableCacheLogging } = config;
 
   // 1. Check cache with expiration
   let cachedData: T | null = null;
@@ -106,7 +106,7 @@ export async function withObjectCache<T>(
 
   if (object !== null) {
     const expiresAt = object.customMetadata?.expiresAt;
-    if (expiresAt && new Date(expiresAt) > new Date()) {
+    if (expiresAt && Temporal.Instant.compare(Temporal.Instant.from(expiresAt), Temporal.Now.instant()) > 0) {
       if (enableLogging) {
         console.info(`object HIT for ${objectKey}`);
       }
@@ -129,7 +129,9 @@ export async function withObjectCache<T>(
     // 3. Store with expiration metadata
     await objectStore.put(objectKey, JSON.stringify(cachedData), {
       customMetadata: {
-        expiresAt: new Date(Date.now() + withJitter(ttl) * 1000).toISOString(),
+        expiresAt: Temporal.Now.instant()
+          .add({ seconds: withJitter(ttl) })
+          .toString(),
       },
     });
   }

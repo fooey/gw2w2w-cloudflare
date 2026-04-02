@@ -1,6 +1,6 @@
 'use client';
 
-import type { Emblem } from '@service-api/lib/types';
+import { type Emblem } from '@service-api/lib/types';
 import { useCallback, useRef, useState } from 'react';
 
 import {

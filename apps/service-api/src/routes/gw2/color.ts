@@ -1,14 +1,15 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
+import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
+import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
 import { getColor } from '@service-api/lib/resources/color';
-import type { Color } from '@service-api/lib/types';
+import { CACHE_TTL } from '@service-api/lib/resources/constants';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
 export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/', async (c) => {
     const colors = await getColor('all', c.env);
-    return c.json<Color[]>(colors, 200);
+    return withCacheJson(c, CACHE_TTL.static.http, colors);
   })
   .get(
     '/:colorId',
@@ -27,6 +28,6 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
         return c.json(payload, 404);
       }
 
-      return c.json<Color[]>(color, 200);
+      return withCacheJson(c, CACHE_TTL.static.http, color);
     },
   );

@@ -3,7 +3,7 @@
 import { ArrowsRightLeftIcon, ArrowsUpDownIcon } from '@heroicons/react/20/solid';
 import { getCustomEmblemSrc } from '@gw2w2w/lib/emblems';
 import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
-import type { Color, Emblem } from '@service-api/lib/types';
+import { type Color, type Emblem } from '@service-api/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
@@ -12,7 +12,7 @@ import { DesignerInit } from './DesignerInit';
 import { LayerPicker } from './LayerPicker';
 import { EmblemPreview } from './EmblemPreview';
 import { decodeShortlink, encodeShortlink } from './shortlink';
-import type { EmblemFlag, EmblemState } from './types';
+import { type EmblemFlag, type EmblemState } from './types';
 
 interface EmblemDesignerProps {
   colors: Color[];

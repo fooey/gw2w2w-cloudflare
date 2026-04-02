@@ -1,4 +1,4 @@
-import type { EmblemFlag, EmblemState } from './types';
+import { type EmblemFlag, type EmblemState } from './types';
 
 /**
  * Compact base62 shortlink encoding for emblem state.

@@ -1,7 +1,9 @@
-import type { CloudflareEnv } from '@service-api/index';
+import { type CloudflareEnv } from '@service-api/index';
 import { createCacheProviders } from '@service-api/lib/cache-providers';
 import { apiFetch } from '@service-api/lib/resources/api';
 import { withFilteredObjectCache } from '@service-api/lib/resources/cache-wrapper';
+import { CACHE_TTL } from '@service-api/lib/resources/constants';
+import { type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
 
 export interface WvWMatchTeams<T> {
   red: T;
@@ -20,8 +22,8 @@ export interface WvWMatchSkirmish {
 
 export interface WvWMatchObjective {
   id: string;
-  type: string;
-  owner: 'Red' | 'Blue' | 'Green' | 'Neutral';
+  type: WvWObjective['type'];
+  owner: string;
   last_flipped: string;
   claimed_by?: string;
   claimed_at?: string;
@@ -55,8 +57,6 @@ export interface WvWMatch {
   maps: WvWMatchMap[];
 }
 
-const MATCHES_TTL = 60; // 1 minute — match data changes frequently
-
 function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
   return apiFetch(env, '/wvw/matches?ids=all').then((response) => {
     if (!response.ok) {
@@ -65,12 +65,30 @@ function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
       }
       throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
     }
-    return response.json();
+    return response.json<WvWMatch[]>();
   });
 }
 
 export async function getWvWMatches(id: string | string[], env: CloudflareEnv): Promise<WvWMatch[]> {
-  return withFilteredObjectCache('wvw-matches.json', id, () => getWvWMatchesFromApi(env), createCacheProviders(env), {
-    ttl: MATCHES_TTL,
-  });
+  return withFilteredObjectCache<WvWMatch>(
+    'wvw-matches.json',
+    id,
+    () => getWvWMatchesFromApi(env),
+    createCacheProviders(env),
+    {
+      ttl: CACHE_TTL.live.kv,
+    },
+  );
+}
+
+export async function getWvWMatchByWorld(worldId: number, env: CloudflareEnv): Promise<WvWMatch | null> {
+  const matches = await getWvWMatches('all', env);
+  return (
+    matches.find(
+      (m) =>
+        m.all_worlds.red.includes(worldId) ||
+        m.all_worlds.blue.includes(worldId) ||
+        m.all_worlds.green.includes(worldId),
+    ) ?? null
+  );
 }
