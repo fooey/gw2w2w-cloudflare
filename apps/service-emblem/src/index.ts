@@ -48,9 +48,10 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     const host = c.req.header('host');
 
     if (host === 'guilds.gw2w2w.com') {
-      const guildsPathMatch = c.req.path.match(/^\/guilds\/([^/]+)/);
-      if (guildsPathMatch) {
-        return c.redirect(`https://emblem.gw2w2w.com/${guildsPathMatch[1]}`, 302);
+      if (c.req.path.startsWith('/guilds/')) {
+        const url = new URL(c.req.url);
+        url.host = 'gw2w2w.com';
+        return c.redirect(url.toString(), 301);
       }
       const url = new URL(c.req.url);
       url.host = 'emblem.gw2w2w.com';
