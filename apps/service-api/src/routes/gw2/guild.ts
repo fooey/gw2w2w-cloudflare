@@ -1,7 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
+import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
+import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
+import { CACHE_TTL } from '@service-api/lib/resources/constants';
 import { getGuild, searchGuild } from '@service-api/lib/resources/guild';
-import type { Guild } from '@service-api/lib/types';
+import { type Guild } from '@service-api/lib/types';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -26,7 +28,8 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
     const results = await Promise.all(ids.map((id) => getGuild(id, c.env)));
     const guilds = results.filter((g): g is Guild => g != null);
-    return c.json<Guild[]>(guilds, 200);
+
+    return withCacheJson(c, CACHE_TTL.user.http, guilds);
   })
   .get('/search', zValidator('query', z.object({ name: z.string() })), async (c) => {
     const name = c.req.query('name')?.replace(/-/g, ' ');
@@ -65,7 +68,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
     // Set canonical location header to the direct guild endpoint
     c.header('Content-Location', `/guilds/${guildId}`);
-    return c.json<Guild>(guild, 200);
+    return withCacheJson(c, CACHE_TTL.user.http, guild);
   })
   .get('/:guildId', zValidator('param', z.object({ guildId: z.string() })), async (c) => {
     const guildId = c.req.param('guildId');
@@ -81,14 +84,5 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
       return c.json(payload, 404);
     }
 
-    return c.json<Guild>(guild, 200);
+    return withCacheJson(c, CACHE_TTL.user.http, guild);
   });
-// .get('*', (c) => {
-//   const payload: ErrorPayload = {
-//     message: 'Not Found',
-//     statusCode: 404,
-//     url: new URL(c.req.url).pathname,
-//     service: 'service-api/guild',
-//   };
-//   return c.json(payload, payload.statusCode);
-// });

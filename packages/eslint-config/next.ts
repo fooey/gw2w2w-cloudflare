@@ -10,6 +10,14 @@ import { config as baseConfig } from './base.js';
 
 export const nextJsConfig = defineConfig(
   ...baseConfig,
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
   js.configs.recommended,
   eslintConfigPrettier,
   ...tseslint.configs.recommended,
@@ -25,6 +33,10 @@ export const nextJsConfig = defineConfig(
     languageOptions: {
       globals: {
         ...globals.serviceworker,
+      },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
   },
@@ -44,6 +56,18 @@ export const nextJsConfig = defineConfig(
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
       '@next/next/no-img-element': 'off',
+    },
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx'], // Target TS files explicitly
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+          fixStyle: 'inline-type-imports',
+        },
+      ],
     },
   },
 );

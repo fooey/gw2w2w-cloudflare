@@ -1,7 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
+import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
+import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
+import { CACHE_TTL } from '@service-api/lib/resources/constants';
 import { getEmblemBackground, getEmblemForeground } from '@service-api/lib/resources/emblem';
-import { Emblem } from '@service-api/lib/types';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -20,7 +21,7 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return c.json<Emblem[]>(result, 200);
+    return withCacheJson(c, CACHE_TTL.static.http, result);
   })
   .get('/foreground', async (c) => {
     const result = await getEmblemForeground('all', c.env);
@@ -33,7 +34,7 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return c.json<Emblem[]>(result, 200);
+    return withCacheJson(c, CACHE_TTL.static.http, result);
   })
   .get(
     '/:layer/:emblemId',
@@ -60,6 +61,6 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
         return c.json(payload, 404);
       }
 
-      return c.json<Emblem[]>(result, 200);
+      return withCacheJson(c, CACHE_TTL.static.http, result);
     },
   );

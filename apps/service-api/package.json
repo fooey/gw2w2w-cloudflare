@@ -23,15 +23,16 @@
   "dependencies": {
     "@henrygd/queue": "^1.2.0",
     "@hono/zod-validator": "^0.7.6",
+    "@js-temporal/polyfill": "^0.5.1",
     "@repo/utils": "workspace:*",
     "hono": "^4.12.8",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260313.1",
+    "@cloudflare/workers-types": "^4.20260402.1",
     "@types/node": "^24.12.0",
     "eslint": "^10",
     "jiti": "^2.6.1",
-    "wrangler": "^4.73.0"
+    "wrangler": "^4.79.0"
   }
 }

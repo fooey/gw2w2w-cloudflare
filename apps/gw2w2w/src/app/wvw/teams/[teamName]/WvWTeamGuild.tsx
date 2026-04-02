@@ -1,5 +1,5 @@
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
-import type { Guild } from '@repo/service-api/lib/types';
+import { type Guild } from '@repo/service-api/lib/types';
 import Link from 'next/link';
 
 export function Highlight({ text, query }: { text: string; query: string }) {

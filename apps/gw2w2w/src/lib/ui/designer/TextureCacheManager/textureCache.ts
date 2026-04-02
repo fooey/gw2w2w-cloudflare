@@ -1,4 +1,4 @@
-import type { Emblem } from '@service-api/lib/types';
+import { type Emblem } from '@service-api/lib/types';
 
 const CACHE_NAME = 'gw2-textures-v1';
 const STORAGE_KEY = 'gw2-textures-cached';

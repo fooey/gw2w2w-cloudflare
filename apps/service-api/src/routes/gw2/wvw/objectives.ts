@@ -1,13 +1,16 @@
 import { zValidator } from '@hono/zod-validator';
-import type { CloudflareEnv, ErrorPayload } from '@service-api/index';
-import { getWvWObjective, type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
+import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
+import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
+import { CACHE_TTL } from '@service-api/lib/resources/constants';
+import { getWvWObjective } from '@service-api/lib/resources/wvw/objectives';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
 export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/', async (c) => {
     const objectives = await getWvWObjective('all', c.env);
-    return c.json<WvWObjective[]>(objectives, 200);
+
+    return withCacheJson(c, CACHE_TTL.static.http, objectives);
   })
   .get('/:id', zValidator('param', z.object({ id: z.string() })), async (c) => {
     const id = c.req.param('id');
@@ -22,5 +25,5 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return c.json<WvWObjective>(objective, 200);
+    return withCacheJson(c, CACHE_TTL.static.http, objective);
   });

@@ -1,5 +1,6 @@
-import type { CacheProviders } from '@service-api/lib/resources';
-import { getEnableCacheLogging, STORE_STATIC_OBJECT_TTL, withJitter } from '@service-api/lib/resources/constants';
+import { Temporal } from '@js-temporal/polyfill';
+import { type CacheProviders } from '@service-api/lib/resources';
+import { CACHE_TTL, getEnableCacheLogging, withJitter } from '@service-api/lib/resources/constants';
 
 export async function getTextureArrayBuffer(
   url: string | null,
@@ -24,7 +25,9 @@ export async function getTextureArrayBuffer(
 
     await objectStore.put(OBJECT_KEY, buffer, {
       customMetadata: {
-        expiresAt: new Date(Date.now() + withJitter(STORE_STATIC_OBJECT_TTL * 1000)).toISOString(),
+        expiresAt: Temporal.Now.instant()
+          .add({ seconds: withJitter(CACHE_TTL.immutable.kv) })
+          .toString(),
       },
     });
   }

@@ -1,4 +1,12 @@
 {
   "google.gemini.allowedShellCommands": ["pnpm", "git", "npx"],
-  "eslint.workingDirectories": [{ "pattern": "apps/*/" }, { "pattern": "packages/*/" }]
+  "eslint.workingDirectories": [
+    {
+      "pattern": "apps/*/"
+    },
+    {
+      "pattern": "packages/*/"
+    }
+  ],
+  "js/ts.tsdk.path": "node_modules\\typescript\\lib"
 }

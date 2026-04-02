@@ -1,13 +1,11 @@
 import { allowedCsrf, allowedOrigin } from '@repo/utils';
-import { Hono, type MiddlewareHandler } from 'hono';
-import { cache } from 'hono/cache';
+import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
-import { STORE_OBJECT_TTL, STORE_STATIC_OBJECT_TTL, withJitter } from './lib/resources/constants';
+import { type ContentfulStatusCode } from 'hono/utils/http-status';
 import { apiGw2Route } from './routes/gw2';
 
 export interface ErrorPayload {
@@ -24,12 +22,12 @@ export interface CloudflareEnv {
   GW2_API_KEY?: string;
 }
 
-const staticCache = cache({ cacheName: 'service-api', cacheControl: `max-age=${STORE_STATIC_OBJECT_TTL}` });
-const defaultCache: MiddlewareHandler = (c, next) =>
-  cache({ cacheName: 'service-api', cacheControl: `max-age=${withJitter(STORE_OBJECT_TTL)}` })(c, next);
-
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
+  .use('*', async (c, next) => {
+    await next();
+    c.header('Vary', 'Origin', { append: true });
+  })
   .use('*', etag())
   .use('*', secureHeaders())
   .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
@@ -40,31 +38,34 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   })
   .get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'))
   .get('/favicon.ico', (c) => c.newResponse(null, 404))
-  .get('/gw2/color/*', staticCache)
-  .get('/gw2/emblem/*', staticCache)
-  .get('*', defaultCache)
-  .route('/gw2', apiGw2Route);
-
-app.notFound((c) => {
-  const payload: ErrorPayload = {
-    message: 'Not Found',
-    statusCode: 404,
-    url: new URL(c.req.url).pathname,
-    service: 'service-api',
-  };
-  return c.json(payload, payload.statusCode);
-});
-
-app.onError((err, c) => {
-  console.error(err);
-  const payload: ErrorPayload = {
-    message: 'Internal Server Error',
-    statusCode: 500,
-    url: new URL(c.req.url).pathname,
-    service: 'service-api',
-  };
-  return c.json(payload, payload.statusCode);
-});
+  // .get('/gw2/wvw/abilities/*', staticCache)
+  // .get('/gw2/wvw/objectives/*', staticCache)
+  // .get('/gw2/wvw/ranks/*', staticCache)
+  // .get('/gw2/wvw/ranks/*', staticCache)
+  // .get('/gw2/wvw/upgrades/*', staticCache)
+  // .get('/gw2/color/*', staticCache)
+  // .get('/gw2/emblem/*', staticCache)
+  // .get('*', defaultCache)
+  .route('/gw2', apiGw2Route)
+  .notFound((c) => {
+    const payload: ErrorPayload = {
+      message: 'Not Found',
+      statusCode: 404,
+      url: new URL(c.req.url).pathname,
+      service: 'service-api',
+    };
+    return c.json(payload, payload.statusCode);
+  })
+  .onError((err, c) => {
+    console.error(err);
+    const payload: ErrorPayload = {
+      message: 'Internal Server Error',
+      statusCode: 500,
+      url: new URL(c.req.url).pathname,
+      service: 'service-api',
+    };
+    return c.json(payload, payload.statusCode);
+  });
 
 export type ServiceApiAppType = typeof app;
 export default app;

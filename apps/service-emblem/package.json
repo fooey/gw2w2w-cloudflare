@@ -24,8 +24,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260313.1",
+    "@cloudflare/workers-types": "^4.20260402.1",
     "eslint": "^10",
-    "wrangler": "^4.73.0"
+    "wrangler": "^4.79.0"
   }
 }

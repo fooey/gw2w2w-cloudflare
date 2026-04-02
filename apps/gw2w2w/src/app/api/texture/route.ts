@@ -1,10 +1,10 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { CACHE_TTL } from '@service-api/lib/resources/constants';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const ALLOWED_HOSTNAME = 'render.guildwars2.com';
 const ALLOWED_PATH_PREFIX = '/file/';
 const R2_KEY_PREFIX = 'textures:';
-const CACHE_TTL = 60 * 60 * 24 * 365; // 1 year — textures are immutable
 
 function isAllowedTextureUrl(raw: string): boolean {
   let url: URL;
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     return new Response(buf, {
       headers: {
         'Content-Type': 'image/png',
-        'Cache-Control': `public, max-age=${CACHE_TTL}, immutable`,
+        'Cache-Control': `public, max-age=${CACHE_TTL.immutable.kv}, immutable`,
       },
     });
   }
@@ -49,14 +49,14 @@ export async function GET(request: NextRequest) {
   // Write to R2 asynchronously — don't block the response
   void env.EMBLEM_ASSETS.put(r2Key, buf.slice(0), {
     customMetadata: {
-      expiresAt: new Date(Date.now() + CACHE_TTL * 1000).toISOString(),
+      expiresAt: Temporal.Now.instant().add({ seconds: CACHE_TTL.immutable.kv }).toString(),
     },
   });
 
   return new Response(buf, {
     headers: {
       'Content-Type': 'image/png',
-      'Cache-Control': `public, max-age=${CACHE_TTL}, immutable`,
+      'Cache-Control': `public, max-age=${CACHE_TTL.immutable.kv}, immutable`,
     },
   });
 }

@@ -24,6 +24,10 @@ export const config = defineConfig(
     rules: {
       'turbo/no-undeclared-env-vars': 'warn',
       'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+      ],
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true, allowBoolean: true }],
       '@typescript-eslint/no-unused-vars': [
         'error',

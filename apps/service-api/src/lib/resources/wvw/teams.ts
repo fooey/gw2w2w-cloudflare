@@ -1,5 +1,5 @@
 import { WVW_TEAMS, type WvWTeam } from '@service-api/definitions/wvw-teams';
-import type { CloudflareEnv } from '@service-api/index';
+import { type CloudflareEnv } from '@service-api/index';
 import { createCacheProviders } from '@service-api/lib/cache-providers';
 import { withFilteredObjectCache } from '@service-api/lib/resources/cache-wrapper';
 

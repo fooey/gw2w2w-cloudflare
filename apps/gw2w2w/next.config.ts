@@ -1,8 +1,10 @@
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
-import type { NextConfig } from 'next';
+import { type NextConfig } from 'next';
 
 const faviconSrc = getEmblemSrc('97C007DC-87D5-E311-9621-AC162DAE8ACD');
+
+void initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
@@ -23,5 +25,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-void initOpenNextCloudflareForDev();
