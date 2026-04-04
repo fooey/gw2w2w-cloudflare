@@ -33,7 +33,7 @@ An open-source suite of utilities for Guild Wars 2 players, built as a Turborepo
 
 | App                   | Domain              | Runtime                                       | Port |
 | --------------------- | ------------------- | --------------------------------------------- | ---- |
-| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 15 via OpenNext on Cloudflare Workers | 3000 |
+| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 16 via OpenNext on Cloudflare Workers | 3000 |
 | `apps/service-emblem` | `emblem.gw2w2w.com` | Hono on Cloudflare Workers                    | 8787 |
 | `apps/service-api`    | `api.gw2w2w.com`    | Hono on Cloudflare Workers                    | 8788 |
 
@@ -49,7 +49,7 @@ An open-source suite of utilities for Guild Wars 2 players, built as a Turborepo
 ## Tech Stack
 
 - **Monorepo**: Turborepo + pnpm workspaces
-- **Frontend**: Next.js 15 + React 19, Tailwind CSS v4, deployed via `@opennextjs/cloudflare`
+- **Frontend**: Next.js 16 + React 19, Tailwind CSS v4, deployed via `@opennextjs/cloudflare`
 - **Backend**: Hono (two Workers: `service-emblem`, `service-api`)
 - **Storage**: Cloudflare R2 (`EMBLEM_ASSETS` bucket — textures, rendered emblems), Cloudflare KV (`EMBLEM_ENGINE_GUILD_LOOKUP` — guild name→id mappings)
 - **Server rendering**: `@cf-wasm/photon` (Cloudflare Workers-only) for PNG decode, flip transforms, WebP encode
@@ -108,3 +108,22 @@ All TTLs use ±10% random jitter to prevent thundering herd on mass expiry.
 - `GET /v2/guild/<id>` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/:id)
 
 General API reference: https://wiki.guildwars2.com/wiki/API:Main
+
+## ESLint Config Structure
+
+Configs live in `packages/eslint-config/`. All packages extend `base.ts` either directly or via the React/Next wrappers.
+
+```
+base.ts              → strictTypeChecked + stylisticTypeChecked + turbo + prettier
+react-internal.ts    → base + @eslint-react recommended-type-checked + browser globals
+next.ts              → base + @eslint-react + @next/eslint-plugin-next + serviceworker+browser globals
+```
+
+**Key rules:**
+- `@typescript-eslint/consistent-type-imports` — enforces `import type` inline style
+- `@typescript-eslint/no-non-null-assertion` — forbids `!` assertions; use `as Type` instead
+- `@typescript-eslint/non-nullable-type-assertion-style` — disabled (conflicts with above)
+- `turbo/no-undeclared-env-vars` — warns on env vars not declared in `turbo.json`
+- `no-console` — warns except for `console.info`, `console.warn`, `console.error`
+
+**Do not re-spread** `tseslint.configs.recommended`, `js.configs.recommended`, or `eslintConfigPrettier` in `react-internal.ts` or `next.ts`. They already come in via `baseConfig`. Re-spreading silently downgrades `strictTypeChecked` rules since later flat-config entries win on conflicts.
