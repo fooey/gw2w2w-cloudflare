@@ -17,7 +17,8 @@
     "ts:clean": "turbo run ts:clean",
     "check-deps": "pnpm knip --max-show-issues 5",
     "wrangler:login": "pnpm dlx wrangler login",
-    "wrangler:clean": "pnpm -r exec pnpm dlx rimraf .wrangler/state"
+    "wrangler:clean": "pnpm -r exec pnpm dlx rimraf .wrangler/state",
+    "update:turbo": "pnpm dlx @turbo/codemod@latest update"
   },
   "devDependencies": {
     "@types/node": "^24.12.0",
