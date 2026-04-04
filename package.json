@@ -15,14 +15,12 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
     "devtools": "turbo devtools",
     "ts:clean": "turbo run ts:clean",
-    "check-deps": "pnpm knip --max-show-issues 5",
     "wrangler:login": "pnpm dlx wrangler login",
     "wrangler:clean": "pnpm -r exec pnpm dlx rimraf .wrangler/state",
     "update:turbo": "pnpm dlx @turbo/codemod@latest update"
   },
   "devDependencies": {
-    "@types/node": "^24.12.0",
-    "knip": "^5.86.0",
+    "@types/node": "^24",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2.9.3",

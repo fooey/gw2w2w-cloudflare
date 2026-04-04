@@ -28,7 +28,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
   const [activeHue, setActiveHue] = useState<string | null>(null);
   const [activeRarity, setActiveRarity] = useState<string | null>(null);
   const [sort, setSort] = useState<SortEntry | null>({ key: 'hue', dir: 'asc' });
-  const committedRef = useRef<number | null | undefined>(value);
+  const committedRef = useRef(value);
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

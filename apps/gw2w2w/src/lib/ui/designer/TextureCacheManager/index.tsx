@@ -3,13 +3,7 @@
 import { type Emblem } from '@service-api/lib/types';
 import { useCallback, useRef, useState } from 'react';
 
-import {
-  clearTextureCache,
-  clearTextureCacheMark,
-  isTextureCacheMarked,
-  prefetchAllTextures,
-  type PrefetchProgress,
-} from './textureCache';
+import { clearTextureCache, clearTextureCacheMark, isTextureCacheMarked, prefetchAllTextures } from './textureCache';
 
 type CacheState = 'needed' | 'downloading' | 'ready';
 
@@ -21,7 +15,7 @@ interface TextureCacheManagerProps {
 
 export function TextureCacheManager({ backgrounds, foregrounds, children }: TextureCacheManagerProps) {
   const [cacheState, setCacheState] = useState<CacheState>(() => (isTextureCacheMarked() ? 'ready' : 'needed'));
-  const [progress, setProgress] = useState<PrefetchProgress>({ completed: 0, total: 0 });
+  const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const downloadingRef = useRef(false);
 
   const handleDownload = useCallback(async () => {
