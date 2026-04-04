@@ -16,7 +16,7 @@
     "@repo/service-api": "workspace:*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260402.1",
-    "eslint": "^10"
+    "@cloudflare/workers-types": "^4.20260404.1",
+    "eslint": "^10.2.0"
   }
 }
