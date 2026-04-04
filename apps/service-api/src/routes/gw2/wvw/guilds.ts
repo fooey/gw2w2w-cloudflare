@@ -14,7 +14,7 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     const guildId = c.req.param('guildId');
 
     const wvwGuilds = await getWvwGuild(guildId, c.env);
-    const [wvwGuild] = wvwGuilds || [];
+    const [wvwGuild] = wvwGuilds ?? [];
     if (!wvwGuild) {
       const payload: ErrorPayload = {
         message: 'WvW Guild Not Found',
@@ -31,7 +31,7 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     const region = c.req.param('region');
 
     const wvwGuilds = await getWvwGuild('all', c.env);
-    const regionGuilds = wvwGuilds?.filter((guild) => guild.region === region) || [];
+    const regionGuilds = wvwGuilds?.filter((guild) => guild.region === region) ?? [];
 
     if (!Array.isArray(wvwGuilds)) {
       const payload: ErrorPayload = {
@@ -49,7 +49,7 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     const teamId = c.req.param('teamId');
 
     const wvwGuilds = await getWvwGuild('all', c.env);
-    const teamGuilds = wvwGuilds?.filter((guild) => guild.teamId === teamId) || [];
+    const teamGuilds = wvwGuilds?.filter((guild) => guild.teamId === teamId) ?? [];
 
     if (!Array.isArray(wvwGuilds)) {
       const payload: ErrorPayload = {

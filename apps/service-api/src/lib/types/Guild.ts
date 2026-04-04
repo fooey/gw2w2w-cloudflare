@@ -35,14 +35,14 @@ export interface Guild {
       /** The background id, to be resolved against /v2/emblem/backgrounds. */
       id: Emblem['id'];
       /** An array of numbers containing the id of each color used. */
-      colors: Array<Color['id']>;
+      colors: Color['id'][];
     };
     /** An array containing information of the foreground of the guild emblem. */
     foreground: {
       /** The foreground id, to be resolved against /v2/emblem/foregrounds. */
       id: Emblem['id'];
       /** An array of numbers containing the id of each color used. */
-      colors: Array<Color['id']>;
+      colors: Color['id'][];
     };
     /** An array containing the manipulations applied to the logo. */
     flags: (

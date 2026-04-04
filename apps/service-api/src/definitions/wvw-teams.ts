@@ -1,10 +1,10 @@
-export type WvWTeam = {
+export interface WvWTeam {
   id: string;
   en: string;
   de: string;
   es: string;
   fr: string;
-};
+}
 
 export type WvWTeamId = keyof typeof WVW_TEAMS;
 

@@ -35,7 +35,7 @@ export function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> 
 }
 
 export function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
-  const guildApi = apiClient.gw2.guild['search'];
+  const guildApi = apiClient.gw2.guild.search;
   return parseResponse(guildApi.$get({ query: { name } }));
 }
 

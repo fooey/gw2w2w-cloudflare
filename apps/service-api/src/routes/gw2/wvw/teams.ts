@@ -25,7 +25,7 @@ export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     const teamId = c.req.param('teamId');
 
     const wvwTeams = await getWvwTeam(teamId, c.env);
-    const [wvwTeam] = wvwTeams || [];
+    const [wvwTeam] = wvwTeams ?? [];
     if (!wvwTeam) {
       const payload: ErrorPayload = {
         message: 'WvW Team Not Found',

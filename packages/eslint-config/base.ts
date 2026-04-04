@@ -9,6 +9,7 @@ export const config = defineConfig(
   js.configs.recommended,
   eslintConfigPrettier,
   ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   {
     languageOptions: {
       parserOptions: {
@@ -24,6 +25,8 @@ export const config = defineConfig(
     rules: {
       'turbo/no-undeclared-env-vars': 'warn',
       'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
+      // Conflicts with no-non-null-assertion: both can't be satisfied simultaneously
+      '@typescript-eslint/non-nullable-type-assertion-style': 'off',
       '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports', fixStyle: 'inline-type-imports' },

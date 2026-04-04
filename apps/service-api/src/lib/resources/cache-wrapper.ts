@@ -156,7 +156,7 @@ export async function withFilteredObjectCache<T extends { id: number | string }>
   cacheProviders: CacheProviders,
   config: CacheConfig = {},
 ): Promise<T[]> {
-  const allItems = (await withObjectCache(objectKey, apiCall, cacheProviders, config)) || [];
+  const allItems = (await withObjectCache(objectKey, apiCall, cacheProviders, config)) ?? [];
 
   if (ids === 'all') {
     return allItems;

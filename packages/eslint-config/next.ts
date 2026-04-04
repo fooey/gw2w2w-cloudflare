@@ -1,11 +1,8 @@
-import js from '@eslint/js';
 import pluginNext from '@next/eslint-plugin-next';
 import pluginReact from '@eslint-react/eslint-plugin';
-import eslintConfigPrettier from 'eslint-config-prettier';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
-import tseslint from 'typescript-eslint';
 import { config as baseConfig } from './base.js';
 
 export const nextJsConfig = defineConfig(
@@ -18,9 +15,6 @@ export const nextJsConfig = defineConfig(
       },
     },
   },
-  js.configs.recommended,
-  eslintConfigPrettier,
-  ...tseslint.configs.recommended,
   globalIgnores([
     // Default ignores of eslint-config-next:
     '.next/**',
@@ -33,6 +27,7 @@ export const nextJsConfig = defineConfig(
     languageOptions: {
       globals: {
         ...globals.serviceworker,
+        ...globals.browser,
       },
       parserOptions: {
         projectService: true,
@@ -56,18 +51,6 @@ export const nextJsConfig = defineConfig(
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
       '@next/next/no-img-element': 'off',
-    },
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx'], // Target TS files explicitly
-    rules: {
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        {
-          prefer: 'type-imports',
-          fixStyle: 'inline-type-imports',
-        },
-      ],
     },
   },
 );

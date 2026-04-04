@@ -5,7 +5,7 @@ import { getCustomEmblemSrc } from '@gw2w2w/lib/emblems';
 import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
 import { type Color, type Emblem } from '@service-api/lib/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
 import { ColorPicker } from './ColorPicker';
 import { DesignerInit } from './DesignerInit';
@@ -75,15 +75,18 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Capture mount-time values in refs so the one-shot effect has no missing deps
+  const mountPathnameRef = useRef(pathname);
+  const mountSearchParamsSizeRef = useRef(searchParams.size);
+
   const [emblem, setEmblem] = useState<EmblemState>(() => stateFromParams(searchParams));
 
-  // Clear URL params after reading initial state once
+  // Clear URL params after reading initial state once on mount
   useEffect(() => {
-    if (searchParams.size > 0) {
-      router.replace(pathname, { scroll: false });
+    if (mountSearchParamsSizeRef.current > 0) {
+      router.replace(mountPathnameRef.current, { scroll: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
   const shortUrl =
     typeof window !== 'undefined' ? `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}` : '';

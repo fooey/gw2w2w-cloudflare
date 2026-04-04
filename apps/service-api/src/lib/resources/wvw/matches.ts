@@ -14,10 +14,10 @@ export interface WvWMatchTeams<T> {
 export interface WvWMatchSkirmish {
   id: number;
   scores: WvWMatchTeams<number>;
-  map_scores: Array<{
+  map_scores: {
     type: string;
     scores: WvWMatchTeams<number>;
-  }>;
+  }[];
 }
 
 export interface WvWMatchObjective {
@@ -37,7 +37,7 @@ export interface WvWMatchMap {
   id: number;
   type: string;
   scores: WvWMatchTeams<number>;
-  bonuses: Array<{ type: string; owner: string }>;
+  bonuses: { type: string; owner: string }[];
   objectives: WvWMatchObjective[];
   deaths: WvWMatchTeams<number>;
   kills: WvWMatchTeams<number>;

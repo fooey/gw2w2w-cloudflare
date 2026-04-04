@@ -1,6 +1,6 @@
 export type ObjectivesLayout = Record<string, ObjectivesLayoutMap>;
 export type ObjectivesLayoutMap = Record<string, { objectives: LayoutObjective[] }>;
-export type LayoutObjective = { id: string; direction: Direction };
+export interface LayoutObjective { id: string; direction: Direction }
 export type Direction = 'C' | 'N' | 'S' | 'E' | 'W' | 'NE' | 'NW' | 'SE' | 'SW';
 
 const objectivesLayoutEB: ObjectivesLayoutMap = {
