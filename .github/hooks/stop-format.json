@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "windows": "pnpm format --log-level warn",
+        "linux": "pnpm format --log-level warn",
+        "osx": "pnpm format --log-level warn",
+        "cwd": "${workspaceFolder}",
+        "timeout": 30
+      }
+    ]
+  }
+}
