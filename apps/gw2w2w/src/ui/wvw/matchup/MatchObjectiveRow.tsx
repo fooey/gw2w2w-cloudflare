@@ -90,11 +90,21 @@ export function MatchObjectiveRow({
 
   const ICON_SIZE = 24 as const;
 
-  // Compute at render time — refreshed on every API poll (~6s), no clock subscription needed.
-  // Defaults to isInRI=true when last_flipped is absent.
-  const holdSeconds = matchObjective.last_flipped
-    ? Math.floor(Temporal.Instant.from(matchObjective.last_flipped).until(Temporal.Now.instant()).total('seconds'))
-    : null;
+  // Subscribe to the clock only while within RI so the background/bold styling
+  // clears accurately even when the API data hasn't changed (React Query structural sharing).
+  // Outside RI the selector returns null — Zustand bails out and no re-render occurs on ticks.
+  const now = useClockStore((s) => {
+    if (!matchObjective.last_flipped || s.nowMinute === null) return s.nowSecond;
+    const holdSeconds = Math.floor(
+      Temporal.Instant.from(matchObjective.last_flipped).until(s.nowMinute).total('seconds'),
+    );
+    return holdSeconds < RI_TIMER ? s.nowSecond : null;
+  });
+
+  const holdSeconds =
+    now && matchObjective.last_flipped
+      ? Math.floor(Temporal.Instant.from(matchObjective.last_flipped).until(now).total('seconds'))
+      : null;
   const isInRI = holdSeconds === null || holdSeconds < RI_TIMER;
   const freshCapture = holdSeconds !== null && holdSeconds <= 60;
   const ownerBg =
