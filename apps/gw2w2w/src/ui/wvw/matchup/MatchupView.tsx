@@ -46,12 +46,7 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
             })}
           </ul>
         </section>
-        {match && (
-          <section className={'mt-8 rounded p-2 shadow'}>
-            <h2 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Event Log</h2>
-            <ObjectiveLogs matchId={match.id} />
-          </section>
-        )}
+        {match && <ObjectiveLogs matchId={match.id} />}
       </div>
     </SiteLayoutFullWidth>
   );
