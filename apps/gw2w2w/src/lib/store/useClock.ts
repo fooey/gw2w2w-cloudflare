@@ -12,14 +12,10 @@ export const useClockStore = create<ClockState>()(() => ({ nowSecond: null, nowM
 if (typeof window !== 'undefined') {
   setInterval(() => {
     const instant = Temporal.Now.instant();
+    const minuteMark = instant.round({ smallestUnit: 'minute', roundingMode: 'trunc' });
     useClockStore.setState((s) => ({
       nowSecond: instant,
-      nowMinute:
-        s.nowMinute === null ||
-        Math.floor(Number(instant.epochNanoseconds) / 60_000_000_000) !==
-          Math.floor(Number(s.nowMinute.epochNanoseconds) / 60_000_000_000)
-          ? instant
-          : s.nowMinute,
+      nowMinute: s.nowMinute === null || !minuteMark.equals(s.nowMinute) ? minuteMark : s.nowMinute,
     }));
   }, 1_000);
 }
