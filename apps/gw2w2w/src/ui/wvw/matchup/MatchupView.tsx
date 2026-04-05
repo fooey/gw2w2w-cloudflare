@@ -2,7 +2,7 @@
 
 import { useUserPrefs } from '@gw2w2w/lib/store/userPrefs';
 import { useMatch } from '@gw2w2w/lib/wvw/useMatch';
-import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
+import { SiteLayoutFullWidth } from '@gw2w2w/ui/layout/SiteLayout';
 import { objectivesLayout } from '@gw2w2w/ui/wvw/config/objectivesLayoutConfig';
 import { MAP_TYPES } from '@gw2w2w/ui/wvw/config/teamColorConfig';
 import { MatchMap } from '@gw2w2w/ui/wvw/matchup/MatchMap';
@@ -31,7 +31,7 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
   );
 
   return (
-    <SiteLayout
+    <SiteLayoutFullWidth
       pageHeader={pageHeader}
       headerActions={<>{isFetching && <ArrowPathIcon className="inline size-4 animate-spin text-zinc-400" />}</>}
     >
@@ -53,6 +53,6 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
           </section>
         )}
       </div>
-    </SiteLayout>
+    </SiteLayoutFullWidth>
   );
 }
