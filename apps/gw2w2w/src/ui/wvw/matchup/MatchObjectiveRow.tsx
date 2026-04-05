@@ -105,7 +105,7 @@ export function MatchObjectiveRow({
   return (
     <div
       className={clsx(
-        'flex w-full flex-row items-center gap-8 px-2 transition-all duration-200',
+        'flex w-full flex-row items-center justify-between gap-8 px-2 transition-all duration-200',
         { 'font-semibold': isInRI },
         freshCapture && ownerBg,
         ownerText,
@@ -115,13 +115,15 @@ export function MatchObjectiveRow({
         {matchObjective.claimed_by ? (
           <Link
             href={`/guilds/${matchObjective.claimed_by}`}
-            className="flex shrink-0 items-center justify-center overflow-hidden"
+            className="flex w-13 shrink-0 items-center justify-between"
           >
+            <span className={clsx('w-6 text-[8px]')}>{guildQuery.data?.tag}</span>
             {emblemError ? (
-              <NoSymbolIcon className="size-6 text-zinc-400 opacity-25" />
+              <>
+                <NoSymbolIcon className="size-6 text-zinc-400 opacity-25" />
+              </>
             ) : (
               <>
-                {/* <span className={clsx('w-8 text-xs')}>{guildQuery.data?.tag}</span> */}
                 <img
                   src={getEmblemSrc(matchObjective.claimed_by)}
                   alt={guildQuery.data?.name ?? 'Guild Emblem'}
@@ -135,16 +137,14 @@ export function MatchObjectiveRow({
             )}
           </Link>
         ) : (
-          <span style={{ width: ICON_SIZE, height: ICON_SIZE, display: 'inline-block' }} className="shrink-0" />
+          <span className="w-13 shrink-0" />
         )}
         <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} className="shrink-0" />
         <DirectionIcon direction={direction} className="shrink-0" width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
-      </span>
-      <div className="flex w-full flex-row items-center justify-between">
         <span className="max-w-32 overflow-hidden text-xs text-nowrap text-ellipsis">{objectiveLabels?.name}</span>
-        <span>
-          <ObjectiveTimeDisplay lastFlipped={matchObjective.last_flipped} />
-        </span>
+      </span>
+      <div className="flex flex-row items-center justify-end">
+        <ObjectiveTimeDisplay lastFlipped={matchObjective.last_flipped} />
       </div>
     </div>
   );
