@@ -33,8 +33,10 @@ export function useObjectiveTracker(match: WvWMatch | null | undefined) {
     const next = new Map<string, ObjectiveSnapshot>();
     const isFirstRun = prevRef.current.size === 0;
 
-    // On first run, only seed initial events if this match has no log entries yet
-    const shouldSeed = isFirstRun && !useObjectiveLog.getState().events.some((e) => e.matchId === matchId);
+    // Always seed on first run — deduplication in _addEvents handles events already in the log.
+    // This ensures any state changes that occurred while offline are captured when the first
+    // API response arrives, rather than being silently dropped.
+    const shouldSeed = isFirstRun;
 
     for (const map of match.maps) {
       for (const obj of map.objectives) {
