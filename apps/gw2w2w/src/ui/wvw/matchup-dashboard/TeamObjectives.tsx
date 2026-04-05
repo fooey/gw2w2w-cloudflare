@@ -1,6 +1,6 @@
 'use client';
 
-import { ObjectiveIcon } from '@gw2w2w/lib/ui/wvw/common/ObjectiveIcon';
+import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
 import { type WvWTeam } from '@service-api/definitions';
 import { type WvWMatchObjective } from '@service-api/lib/resources/wvw/matches';
 import clsx from 'clsx';

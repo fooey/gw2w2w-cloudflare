@@ -3,11 +3,11 @@ import { fetchWvwGuild } from '@gw2w2w/lib/api/gw2/wvw/guilds';
 import { fetchWvwTeam } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
 import { getDesignerSrc, getEmblemSrc } from '@gw2w2w/lib/emblems';
-import { Card } from '@gw2w2w/lib/ui/Card';
-import { CodePreview } from '@gw2w2w/lib/ui/CodePreview';
-import { CopyToClipboardInput } from '@gw2w2w/lib/ui/controls/CopyToClipboardInput';
-import { GuildSearch } from '@gw2w2w/lib/ui/guilds/guild-search/GuildSearch';
-import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
+import { Card } from '@gw2w2w/ui/Card';
+import { CodePreview } from '@gw2w2w/ui/CodePreview';
+import { CopyToClipboardInput } from '@gw2w2w/ui/controls/CopyToClipboardInput';
+import { GuildSearch } from '@gw2w2w/ui/guilds/guild-search/GuildSearch';
+import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
 import { MagnifyingGlassIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { type Guild, type WvWTeam } from '@repo/service-api/lib/types';
 import { validateArenaNetUuid } from '@repo/utils';
@@ -242,7 +242,7 @@ function GuildWvWTeam({ guildId }: { guildId: string }) {
           return 'N/A';
         }
         return (
-          <Link href={`/wvw/teams/${team.en}`} className="text-rose-900">
+          <Link href={`/wvw/matchups/${team.en}`} className="text-rose-900">
             {team.en}
           </Link>
         );

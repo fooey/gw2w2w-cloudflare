@@ -1,6 +1,6 @@
 import { fetchWvwMatches } from '@gw2w2w/lib/api/gw2/wvw/matches';
-import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
-import { MatchupDashboardContainer } from '@gw2w2w/lib/ui/wvw/matchup-dashboard/MatchupDashboard';
+import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
+import { MatchupDashboardContainer } from '@gw2w2w/ui/wvw/matchup-dashboard/MatchupDashboard';
 
 export function getData() {
   return fetchWvwMatches();

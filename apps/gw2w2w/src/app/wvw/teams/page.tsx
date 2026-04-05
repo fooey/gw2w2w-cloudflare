@@ -1,4 +1,4 @@
-import SiteLayout from '@gw2w2w/lib/ui/layout/SiteLayout';
+import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
 import { WVW_TEAMS, type WvWTeam } from '@repo/service-api/src/definitions';
 import Link from 'next/link';
 

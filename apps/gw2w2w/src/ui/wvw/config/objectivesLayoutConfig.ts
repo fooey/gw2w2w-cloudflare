@@ -1,6 +1,9 @@
 export type ObjectivesLayout = Record<string, ObjectivesLayoutMap>;
 export type ObjectivesLayoutMap = Record<string, { objectives: LayoutObjective[] }>;
-export interface LayoutObjective { id: string; direction: Direction }
+export interface LayoutObjective {
+  id: string;
+  direction: Direction;
+}
 export type Direction = 'C' | 'N' | 'S' | 'E' | 'W' | 'NE' | 'NW' | 'SE' | 'SW';
 
 const objectivesLayoutEB: ObjectivesLayoutMap = {
@@ -34,10 +37,10 @@ const objectivesLayoutEB: ObjectivesLayoutMap = {
   'Green Corner': {
     objectives: [
       { id: '3', direction: 'C' }, //lowlands
-      { id: '13', direction: 'SE' }, //jerrifer
       { id: '11', direction: 'SW' }, //aldons
-      { id: '14', direction: 'NE' }, //klovan
+      { id: '13', direction: 'SE' }, //jerrifer
       { id: '12', direction: 'NW' }, //wildcreek
+      { id: '14', direction: 'NE' }, //klovan
       { id: '10', direction: 'W' }, //rogues
       { id: '4', direction: 'E' }, //golanta
     ],
@@ -45,11 +48,9 @@ const objectivesLayoutEB: ObjectivesLayoutMap = {
 } as const;
 
 const objectivesLayoutAlpineBL: ObjectivesLayoutMap = {
-  North: {
+  HomeTeam: {
     objectives: [
       { id: '37', direction: 'C' }, //keep
-      { id: '33', direction: 'W' }, //bay
-      { id: '32', direction: 'E' }, //hills
       { id: '38', direction: 'NW' }, //longview
       { id: '40', direction: 'NE' }, //cliffside
       { id: '39', direction: 'N' }, //godsword
@@ -57,13 +58,23 @@ const objectivesLayoutAlpineBL: ObjectivesLayoutMap = {
       { id: '51', direction: 'NE' }, //astral
     ],
   },
-  South: {
+  InvaderTeam1: {
     objectives: [
+      { id: '33', direction: 'W' }, //bay
       { id: '35', direction: 'SW' }, //briar
+      { id: '53', direction: 'SW' }, //vale
+    ],
+  },
+  InvaderTeam2: {
+    objectives: [
+      { id: '32', direction: 'E' }, //hills,
       { id: '36', direction: 'SE' }, //lake
-      { id: '34', direction: 'SW' }, //lodge
-      { id: '53', direction: 'SE' }, //vale
-      { id: '50', direction: 'S' }, //water
+      { id: '50', direction: 'SE' }, //water
+    ],
+  },
+  Neutral: {
+    objectives: [
+      { id: '34', direction: 'S' }, //lodge
     ],
   },
   // Ruins: {
@@ -78,25 +89,33 @@ const objectivesLayoutAlpineBL: ObjectivesLayoutMap = {
 } as const;
 
 const objectivesLayoutDesertBL: ObjectivesLayoutMap = {
-  North: {
+  HomeTeam: {
     objectives: [
       { id: '113', direction: 'C' }, //keep
-      { id: '106', direction: 'W' }, //bay
-      { id: '114', direction: 'E' }, //hills
-      { id: '102', direction: 'NW' }, //longview
-      { id: '104', direction: 'NE' }, //cliffside
-      { id: '99', direction: 'N' }, //godsword
-      { id: '115', direction: 'NW' }, //hopes
-      { id: '109', direction: 'NE' }, //astral
+      { id: '102', direction: 'NW' }, //odel
+      { id: '104', direction: 'NE' }, //necro
+      { id: '99', direction: 'N' }, //lab
+      { id: '115', direction: 'NW' }, //hideaway
+      { id: '109', direction: 'NE' }, //refuge
     ],
   },
-  South: {
+  InvaderTeam1: {
     objectives: [
-      { id: '110', direction: 'SW' }, //briar
-      { id: '105', direction: 'SE' }, //lake
-      { id: '101', direction: 'SW' }, //lodge
-      { id: '100', direction: 'SE' }, //vale
-      { id: '116', direction: 'S' }, //water
+      { id: '106', direction: 'W' }, //fire
+      { id: '110', direction: 'SW' }, //outpost
+      { id: '101', direction: 'SW' }, //encampment
+    ],
+  },
+  InvaderTeam2: {
+    objectives: [
+      { id: '114', direction: 'E' }, //air
+      { id: '105', direction: 'SE' }, //depot
+      { id: '100', direction: 'SE' }, //farmstead
+    ],
+  },
+  Neutral: {
+    objectives: [
+      { id: '116', direction: 'S' }, //well
     ],
   },
   // Ruins: {
@@ -116,3 +135,15 @@ export const objectivesLayout: ObjectivesLayout = {
   BlueHome: objectivesLayoutAlpineBL,
   RedHome: objectivesLayoutDesertBL,
 };
+
+export const objectiveDirections: ReadonlyMap<string, Direction> = new Map(
+  Object.values(objectivesLayout).flatMap((mapLayout) =>
+    Object.values(mapLayout).flatMap((section) => section.objectives.map((obj) => [obj.id, obj.direction] as const)),
+  ),
+);
+
+/** @param objectiveId full match objective id, e.g. `"38-9"` */
+export function getObjectiveDirection(objectiveId: string): Direction | undefined {
+  const shortId = objectiveId.split('-')[1] ?? objectiveId;
+  return objectiveDirections.get(shortId);
+}

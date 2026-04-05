@@ -1,4 +1,4 @@
-import { SiteNav } from '@gw2w2w/lib/ui/layout/SiteNav';
+import { SiteNav } from '@gw2w2w/ui/layout/SiteNav';
 
 export default function SiteLayout({
   pageHeader,

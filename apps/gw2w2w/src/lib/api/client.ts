@@ -1,3 +1,5 @@
+export const GW2_API_BASE = 'https://api.guildwars2.com/v2';
+
 const API_BASE_PRODUCTION = 'https://api.gw2w2w.com';
 const API_BASE_DEVELOPMENT = 'http://localhost:8788';
 
