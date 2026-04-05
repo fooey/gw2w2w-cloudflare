@@ -64,7 +64,7 @@ function ObjectiveTimeDisplay({ lastFlipped }: { lastFlipped: string | undefined
     return holdSeconds < RI_TIMER ? s.nowSecond : s.nowMinute;
   });
 
-  if (!lastFlipped || now === null) return <span className="w-8" />;
+  if (!lastFlipped || now === null) return <span />;
 
   const holdTime = Math.floor(Temporal.Instant.from(lastFlipped).until(now).total('seconds'));
   const isInRI = holdTime < RI_TIMER;
@@ -74,7 +74,7 @@ function ObjectiveTimeDisplay({ lastFlipped }: { lastFlipped: string | undefined
         holdTime < 3600 ? { minutes: Math.floor(holdTime / 60) } : { hours: Math.floor(holdTime / 3600) },
       );
 
-  return <span className={clsx('w-8 text-right font-mono text-xs', { 'opacity-30': !isInRI })}>{timeDisplay}</span>;
+  return <span className={clsx('text-right font-mono text-xs', { 'opacity-30': !isInRI })}>{timeDisplay}</span>;
 }
 
 export function MatchObjectiveRow({
@@ -105,47 +105,37 @@ export function MatchObjectiveRow({
   return (
     <div
       className={clsx(
-        'flex w-full flex-row items-center justify-between gap-8 px-2 transition-all duration-200',
+        'grid w-full items-center px-2 transition-all duration-200',
+        'grid-cols-[52px_24px_12px_1fr_32px] gap-1',
         { 'font-semibold': isInRI },
         freshCapture && ownerBg,
         ownerText,
       )}
     >
-      <span className="flex flex-row items-center gap-1">
-        {matchObjective.claimed_by ? (
-          <Link
-            href={`/guilds/${matchObjective.claimed_by}`}
-            className="flex w-13 shrink-0 items-center justify-between"
-          >
-            <span className={clsx('w-6 text-[8px]')}>{guildQuery.data?.tag}</span>
-            {emblemError ? (
-              <>
-                <NoSymbolIcon className="size-6 text-zinc-400 opacity-25" />
-              </>
-            ) : (
-              <>
-                <img
-                  src={getEmblemSrc(matchObjective.claimed_by)}
-                  alt={guildQuery.data?.name ?? 'Guild Emblem'}
-                  width={ICON_SIZE}
-                  height={ICON_SIZE}
-                  onError={() => {
-                    setEmblemError(true);
-                  }}
-                />
-              </>
-            )}
-          </Link>
-        ) : (
-          <span className="w-13 shrink-0" />
-        )}
-        <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} className="shrink-0" />
-        <DirectionIcon direction={direction} className="shrink-0" width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
-        <span className="max-w-32 overflow-hidden text-xs text-nowrap text-ellipsis">{objectiveLabels?.name}</span>
-      </span>
-      <div className="flex flex-row items-center justify-end">
-        <ObjectiveTimeDisplay lastFlipped={matchObjective.last_flipped} />
-      </div>
+      {matchObjective.claimed_by ? (
+        <Link href={`/guilds/${matchObjective.claimed_by}`} className="flex items-center justify-between">
+          <span className="w-6 text-[8px]">{guildQuery.data?.tag}</span>
+          {emblemError ? (
+            <NoSymbolIcon className="size-6 text-zinc-400 opacity-25" />
+          ) : (
+            <img
+              src={getEmblemSrc(matchObjective.claimed_by)}
+              alt={guildQuery.data?.name ?? 'Guild Emblem'}
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+              onError={() => {
+                setEmblemError(true);
+              }}
+            />
+          )}
+        </Link>
+      ) : (
+        <span />
+      )}
+      <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
+      <DirectionIcon direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
+      <span className="overflow-hidden text-xs text-nowrap text-ellipsis">{objectiveLabels?.name}</span>
+      <ObjectiveTimeDisplay lastFlipped={matchObjective.last_flipped} />
     </div>
   );
 }
