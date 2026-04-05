@@ -1,5 +1,6 @@
 import { type Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { UpdateNotifier } from '@gw2w2w/ui/UpdateNotifier';
 import './globals.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         className={`${geistSans.variable} ${geistMono.variable} h-full font-sans text-zinc-900 antialiased`}
         suppressHydrationWarning={true}
       >
+        <UpdateNotifier />
         {children}
       </body>
     </html>

@@ -8,6 +8,9 @@ void initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  env: {
+    NEXT_PUBLIC_BUILD_ID: process.env.CF_PAGES_COMMIT_SHA ?? 'dev',
+  },
   redirects() {
     return [
       {
