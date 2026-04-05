@@ -47,14 +47,14 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
   }
 
   return (
-    <ul className="flex flex-col gap-1 overflow-y-auto">
+    <ul className="flex max-h-96 flex-col gap-1 overflow-y-auto">
       {sorted.map((event) => {
         const matchObjective = eventToMatchObjective(event);
         const direction = getObjectiveDirection(event.objectiveId) ?? 'C';
         const key = `${event.objectiveId}-${event.at.toString()}-${event.type}`;
 
         return (
-          <li key={key}>
+          <li key={key} className="animate-grow-in">
             <div className="flex flex-row items-center gap-2 text-sm text-gray-500">
               <MatchObjectiveRow matchObjective={matchObjective} direction={direction} />
               <span className="w-6 shrink-0 text-xs">{getMapLabel(event.mapType)}</span>
