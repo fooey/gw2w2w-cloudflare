@@ -22,7 +22,7 @@ function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatch[] | null>>) {
     refetchInterval: () => withJitter(60_000, 0.5),
     staleTime: 60_000,
     refetchOnWindowFocus: true,
-    refetchIntervalInBackground: false,
+    refetchIntervalInBackground: true,
     ...queryOptions,
   });
 }

@@ -13,7 +13,7 @@ export function useMatch(matchId: string, queryOptions: Partial<UseQueryOptions<
     refetchInterval: () => withJitter(6_000, 0.75),
     staleTime: 12_000,
     refetchOnWindowFocus: true,
-    refetchIntervalInBackground: false,
+    refetchIntervalInBackground: true,
     ...queryOptions,
   });
   useObjectiveTracker(query.data);
