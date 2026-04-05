@@ -113,7 +113,11 @@ export function MatchObjectiveRow({
       )}
     >
       {matchObjective.claimed_by ? (
-        <Link href={`/guilds/${matchObjective.claimed_by}`} className="flex items-center justify-between">
+        <Link
+          href={`/guilds/${guildQuery.data?.name ? encodeURIComponent(guildQuery.data.name) : matchObjective.claimed_by}`}
+          className="flex items-center justify-between"
+          title={`${guildQuery.data?.name} (${guildQuery.data?.tag})`}
+        >
           <span className="w-6 text-[8px]">{guildQuery.data?.tag}</span>
           {emblemError ? (
             <NoSymbolIcon className="size-6 text-zinc-400 opacity-25" />
