@@ -120,6 +120,7 @@ next.ts              → base + @eslint-react + @next/eslint-plugin-next + servi
 ```
 
 **Key rules:**
+
 - `@typescript-eslint/consistent-type-imports` — enforces `import type` inline style
 - `@typescript-eslint/no-non-null-assertion` — forbids `!` assertions; use `as Type` instead
 - `@typescript-eslint/non-nullable-type-assertion-style` — disabled (conflicts with above)
