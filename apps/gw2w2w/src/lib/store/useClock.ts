@@ -1,0 +1,33 @@
+'use client';
+
+import { create } from 'zustand';
+
+interface ClockState {
+  nowSecond: Temporal.Instant | null;
+  nowMinute: Temporal.Instant | null;
+}
+
+export const useClockStore = create<ClockState>()(() => ({ nowSecond: null, nowMinute: null }));
+
+if (typeof window !== 'undefined') {
+  setInterval(() => {
+    const instant = Temporal.Now.instant();
+    useClockStore.setState((s) => ({
+      nowSecond: instant,
+      nowMinute:
+        s.nowMinute === null ||
+        Math.floor(Number(instant.epochNanoseconds) / 60_000_000_000) !==
+          Math.floor(Number(s.nowMinute.epochNanoseconds) / 60_000_000_000)
+          ? instant
+          : s.nowMinute,
+    }));
+  }, 1_000);
+}
+
+export function useClock(): Temporal.Instant | null {
+  return useClockStore((s) => s.nowSecond);
+}
+
+export function useClockMinute(): Temporal.Instant | null {
+  return useClockStore((s) => s.nowMinute);
+}

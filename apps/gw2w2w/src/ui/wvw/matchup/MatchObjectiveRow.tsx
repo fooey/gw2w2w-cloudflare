@@ -1,7 +1,7 @@
 'use client';
 
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
-import { useClock } from '@gw2w2w/lib/utils/useClock';
+import { useClockStore } from '@gw2w2w/lib/store/useClock';
 import { useWvwObjective } from '@gw2w2w/lib/wvw/objectives';
 import { useGuild } from '@gw2w2w/lib/wvw/useGuild';
 import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
@@ -57,6 +57,26 @@ function DirectionIcon({ direction, ...rest }: { direction: Direction } & React.
   return <Icon {...rest} />;
 }
 
+function ObjectiveTimeDisplay({ lastFlipped }: { lastFlipped: string | undefined }) {
+  const now = useClockStore((s) => {
+    if (!lastFlipped || s.nowMinute === null) return s.nowMinute;
+    const holdSeconds = Math.floor(Temporal.Instant.from(lastFlipped).until(s.nowMinute).total('seconds'));
+    return holdSeconds < RI_TIMER ? s.nowSecond : s.nowMinute;
+  });
+
+  if (!lastFlipped || now === null) return <span className="w-8" />;
+
+  const holdTime = Math.floor(Temporal.Instant.from(lastFlipped).until(now).total('seconds'));
+  const isInRI = holdTime < RI_TIMER;
+  const timeDisplay = isInRI
+    ? getFlippedDisplay(lastFlipped, now)
+    : durationFormatter.format(
+        holdTime < 3600 ? { minutes: Math.floor(holdTime / 60) } : { hours: Math.floor(holdTime / 3600) },
+      );
+
+  return <span className={clsx('w-8 text-right font-mono text-xs', { 'opacity-30': !isInRI })}>{timeDisplay}</span>;
+}
+
 export function MatchObjectiveRow({
   matchObjective,
   direction,
@@ -65,32 +85,22 @@ export function MatchObjectiveRow({
   direction: Direction;
 }) {
   const { data: objectiveLabels } = useWvwObjective(matchObjective.id);
-  const now = useClock();
   const guildQuery = useGuild(matchObjective.claimed_by);
   const [emblemError, setEmblemError] = useState(false);
 
   const ICON_SIZE = 24 as const;
 
-  const holdTime =
-    now && matchObjective.last_flipped
-      ? Math.floor(Temporal.Instant.from(matchObjective.last_flipped).until(now).total('seconds'))
-      : null;
-
-  const isInRI = holdTime !== null && holdTime < RI_TIMER;
-  const freshCapture = holdTime !== null && holdTime <= 60;
+  // Compute at render time — refreshed on every API poll (~6s), no clock subscription needed.
+  // Defaults to isInRI=true when last_flipped is absent.
+  const holdSeconds = matchObjective.last_flipped
+    ? Math.floor(Temporal.Instant.from(matchObjective.last_flipped).until(Temporal.Now.instant()).total('seconds'))
+    : null;
+  const isInRI = holdSeconds === null || holdSeconds < RI_TIMER;
+  const freshCapture = holdSeconds !== null && holdSeconds <= 60;
   const ownerBg =
     matchObjective.owner !== 'Neutral' ? teamColorConfig[matchObjective.owner as TeamColorConfigKey].bg : null;
   const ownerText =
     matchObjective.owner !== 'Neutral' ? teamColorConfig[matchObjective.owner as TeamColorConfigKey].text : null;
-
-  const timeDisplay =
-    holdTime === null
-      ? null
-      : holdTime < RI_TIMER
-        ? getFlippedDisplay(matchObjective.last_flipped, now)
-        : durationFormatter.format(
-            holdTime < 3600 ? { minutes: Math.floor(holdTime / 60) } : { hours: Math.floor(holdTime / 3600) },
-          );
 
   return (
     <div
@@ -133,7 +143,7 @@ export function MatchObjectiveRow({
       <div className="flex w-full flex-row items-center justify-between">
         <span className="max-w-32 overflow-hidden text-xs text-nowrap text-ellipsis">{objectiveLabels?.name}</span>
         <span>
-          <span className={clsx('w-8 text-right font-mono text-xs', { 'opacity-30': !isInRI })}>{timeDisplay}</span>
+          <ObjectiveTimeDisplay lastFlipped={matchObjective.last_flipped} />
         </span>
       </div>
     </div>
