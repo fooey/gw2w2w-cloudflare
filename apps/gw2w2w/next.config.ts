@@ -1,3 +1,5 @@
+import { execSync } from 'node:child_process';
+
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import { type NextConfig } from 'next';
@@ -9,7 +11,13 @@ void initOpenNextCloudflareForDev();
 const nextConfig: NextConfig = {
   reactCompiler: true,
   env: {
-    NEXT_PUBLIC_BUILD_ID: process.env.CF_PAGES_COMMIT_SHA ?? 'dev',
+    NEXT_PUBLIC_BUILD_ID: (() => {
+      try {
+        return execSync('git rev-parse --short HEAD').toString().trim();
+      } catch {
+        return 'dev';
+      }
+    })(),
   },
   redirects() {
     return [
