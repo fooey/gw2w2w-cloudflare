@@ -1,6 +1,7 @@
 import pluginNext from '@next/eslint-plugin-next';
 import pluginReact from '@eslint-react/eslint-plugin';
 import { defineConfig, globalIgnores } from 'eslint/config';
+import pluginReactCompiler from 'eslint-plugin-react-compiler';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import { config as baseConfig } from './base.js';
@@ -51,6 +52,14 @@ export const nextJsConfig = defineConfig(
     rules: {
       ...pluginReactHooks.configs.recommended.rules,
       '@next/next/no-img-element': 'off',
+    },
+  },
+  {
+    plugins: {
+      'react-compiler': pluginReactCompiler,
+    },
+    rules: {
+      'react-compiler/react-compiler': 'error',
     },
   },
 );
