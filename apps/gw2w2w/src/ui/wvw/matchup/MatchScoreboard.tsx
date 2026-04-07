@@ -11,7 +11,7 @@ import { keyBy, sortBy } from 'lodash-es';
 interface MatchScoreboardProps {
   match: WvWMatch;
   lang: Lang;
-  selectedTeamId: string | null;
+  selectedTeamId?: string | null;
   className?: string;
 }
 
