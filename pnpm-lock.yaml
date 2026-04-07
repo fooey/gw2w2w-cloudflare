@@ -18,8 +18,8 @@ importers:
         specifier: ^0.7.2
         version: 0.7.2(prettier@3.8.1)
       turbo:
-        specifier: ^2.9.3
-        version: 2.9.3
+        specifier: ^2.9.4
+        version: 2.9.4
       typescript:
         specifier: ^6
         version: 6.0.2
@@ -67,7 +67,7 @@ importers:
         version: 8.2.0
       next:
         specifier: ^16.2.2
-        version: 16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       p-limit:
         specifier: ^7.3.0
         version: 7.3.0
@@ -86,7 +86,7 @@ importers:
         version: 4.20260404.1
       '@opennextjs/cloudflare':
         specifier: ^1.18.0
-        version: 1.18.0(next@16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))
+        version: 1.18.0(next@16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))
       '@tailwindcss/postcss':
         specifier: ^4.2.2
         version: 4.2.2
@@ -107,7 +107,7 @@ importers:
         version: 10.2.0(jiti@2.6.1)
       eslint-config-next:
         specifier: ^16.2.2
-        version: 16.2.2(@typescript-eslint/parser@8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2))(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2)
+        version: 16.2.2(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2)
       tailwindcss:
         specifier: ^4.2.2
         version: 4.2.2
@@ -227,7 +227,7 @@ importers:
         version: 7.0.1(eslint@10.2.0(jiti@2.6.1))
       eslint-plugin-turbo:
         specifier: ^2.9.3
-        version: 2.9.3(eslint@10.2.0(jiti@2.6.1))(turbo@2.9.3)
+        version: 2.9.3(eslint@10.2.0(jiti@2.6.1))(turbo@2.9.4)
       globals:
         specifier: ^17.4.0
         version: 17.4.0
@@ -1806,33 +1806,33 @@ packages:
   '@tsconfig/node18@1.0.3':
     resolution: {integrity: sha512-RbwvSJQsuN9TB04AQbGULYfOGE/RnSFk/FLQ5b0NmDf5Kx2q/lABZbHQPKCO1vZ6Fiwkplu+yb9pGdLy1iGseQ==}
 
-  '@turbo/darwin-64@2.9.3':
-    resolution: {integrity: sha512-P8foouaP+y/p+hhEGBoZpzMbpVvUMwPjDpcy6wN7EYfvvyISD1USuV27qWkczecihwuPJzQ1lDBuL8ERcavTyg==}
+  '@turbo/darwin-64@2.9.4':
+    resolution: {integrity: sha512-ZSlPqJ5Vqg/wgVw8P3AOVCIosnbBilOxLq7TMz3MN/9U46DUYfdG2jtfevNDufyxyrg98pcPs/GBgDRaaids6g==}
     cpu: [x64]
     os: [darwin]
 
-  '@turbo/darwin-arm64@2.9.3':
-    resolution: {integrity: sha512-SIzEkvtNdzdI50FJDaIQ6kQGqgSSdFPcdn0wqmmONN6iGKjy6hsT+EH99GP65FsfV7DLZTh2NmtTIRl2kdoz5Q==}
+  '@turbo/darwin-arm64@2.9.4':
+    resolution: {integrity: sha512-9cjTWe4OiNlFMSRggPNh+TJlRs7MS5FWrHc96MOzft5vESWjjpvaadYPv5ykDW7b45mVHOF2U/W+48LoX9USWw==}
     cpu: [arm64]
     os: [darwin]
 
-  '@turbo/linux-64@2.9.3':
-    resolution: {integrity: sha512-pLRwFmcHHNBvsCySLS6OFabr/07kDT2pxEt/k6eBf/3asiVQZKJ7Rk88AafQx2aYA641qek4RsXvYO3JYpiBug==}
+  '@turbo/linux-64@2.9.4':
+    resolution: {integrity: sha512-Cl1GjxqBXQ+r9KKowmXG+lhD1gclLp48/SE7NxL//66iaMytRw0uiphWGOkccD92iPiRjHLRUaA9lOTtgr5OCA==}
     cpu: [x64]
     os: [linux]
 
-  '@turbo/linux-arm64@2.9.3':
-    resolution: {integrity: sha512-gy6ApUroC2Nzv+qjGtE/uPNkhHAFU4c8God+zd5Aiv9L9uBgHlxVJpHT3XWl5xwlJZ2KWuMrlHTaS5kmNB+q1Q==}
+  '@turbo/linux-arm64@2.9.4':
+    resolution: {integrity: sha512-j2hPAKVmGNN2EsKigEWD+43y9m7zaPhNAs6ptsyfq0u7evHHBAXAwOfv86OEMg/gvC+pwGip0i1CIm1bR1vYug==}
     cpu: [arm64]
     os: [linux]
 
-  '@turbo/windows-64@2.9.3':
-    resolution: {integrity: sha512-d0YelTX6hAsB7kIEtGB3PzIzSfAg3yDoUlHwuwJc3adBXUsyUIs0YLG+1NNtuhcDOUGnWQeKUoJ2pGWvbpRj7w==}
+  '@turbo/windows-64@2.9.4':
+    resolution: {integrity: sha512-1jWPjCe9ZRmsDTXE7uzqfySNQspnUx0g6caqvwps+k/sc+fm9hC/4zRQKlXZLbVmP3Xxp601Ju71boegHdnYGw==}
     cpu: [x64]
     os: [win32]
 
-  '@turbo/windows-arm64@2.9.3':
-    resolution: {integrity: sha512-/08CwpKJl3oRY8nOlh2YgilZVJDHsr60XTNxRhuDeuFXONpUZ5X+Nv65izbG/xBew9qxcJFbDX9/sAmAX+ITcQ==}
+  '@turbo/windows-arm64@2.9.4':
+    resolution: {integrity: sha512-dlko15TQVu/BFYmIY018Y3covWMRQlUgAkD+OOk+Rokcfj6VY02Vv4mCfT/Zns6B4q8jGbOd6IZhnCFYsE8Viw==}
     cpu: [arm64]
     os: [win32]
 
@@ -3805,8 +3805,8 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  turbo@2.9.3:
-    resolution: {integrity: sha512-J/VUvsGRykPb9R8Kh8dHVBOqioDexLk9BhLCU/ZybRR+HN9UR3cURdazFvNgMDt9zPP8TF6K73Z+tplfmi0PqQ==}
+  turbo@2.9.4:
+    resolution: {integrity: sha512-wZ/kMcZCuK5oEp7sXSSo/5fzKjP9I2EhoiarZjyCm2Ixk0WxFrC/h0gF3686eHHINoFQOOSWgB/pGfvkR8rkgQ==}
     hasBin: true
 
   type-check@0.4.0:
@@ -5441,7 +5441,7 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@opennextjs/aws@3.9.16(next@16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))':
+  '@opennextjs/aws@3.9.16(next@16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))':
     dependencies:
       '@ast-grep/napi': 0.40.5
       '@aws-sdk/client-cloudfront': 3.984.0
@@ -5457,7 +5457,7 @@ snapshots:
       cookie: 1.1.1
       esbuild: 0.25.4
       express: 5.2.1
-      next: 16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      next: 16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       path-to-regexp: 6.3.0
       urlpattern-polyfill: 10.1.0
       yaml: 2.8.2
@@ -5465,16 +5465,16 @@ snapshots:
       - aws-crt
       - supports-color
 
-  '@opennextjs/cloudflare@1.18.0(next@16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))':
+  '@opennextjs/cloudflare@1.18.0(next@16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(wrangler@4.80.0(@cloudflare/workers-types@4.20260404.1))':
     dependencies:
       '@ast-grep/napi': 0.40.5
       '@dotenvx/dotenvx': 1.31.0
-      '@opennextjs/aws': 3.9.16(next@16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
+      '@opennextjs/aws': 3.9.16(next@16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       cloudflare: 4.5.0
       comment-json: 4.6.2
       enquirer: 2.4.1
       glob: 12.0.0
-      next: 16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      next: 16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       ts-tqdm: 0.8.6
       wrangler: 4.80.0(@cloudflare/workers-types@4.20260404.1)
       yargs: 18.0.0
@@ -5980,22 +5980,22 @@ snapshots:
 
   '@tsconfig/node18@1.0.3': {}
 
-  '@turbo/darwin-64@2.9.3':
+  '@turbo/darwin-64@2.9.4':
     optional: true
 
-  '@turbo/darwin-arm64@2.9.3':
+  '@turbo/darwin-arm64@2.9.4':
     optional: true
 
-  '@turbo/linux-64@2.9.3':
+  '@turbo/linux-64@2.9.4':
     optional: true
 
-  '@turbo/linux-arm64@2.9.3':
+  '@turbo/linux-arm64@2.9.4':
     optional: true
 
-  '@turbo/windows-64@2.9.3':
+  '@turbo/windows-64@2.9.4':
     optional: true
 
-  '@turbo/windows-arm64@2.9.3':
+  '@turbo/windows-arm64@2.9.4':
     optional: true
 
   '@tybys/wasm-util@0.10.1':
@@ -6714,26 +6714,6 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-config-next@16.2.2(@typescript-eslint/parser@8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2))(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2):
-    dependencies:
-      '@next/eslint-plugin-next': 16.2.2
-      eslint: 10.2.0(jiti@2.6.1)
-      eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@10.2.0(jiti@2.6.1))
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2))(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.0(jiti@2.6.1))
-      eslint-plugin-jsx-a11y: 6.10.2(eslint@10.2.0(jiti@2.6.1))
-      eslint-plugin-react: 7.37.5(eslint@10.2.0(jiti@2.6.1))
-      eslint-plugin-react-hooks: 7.0.1(eslint@10.2.0(jiti@2.6.1))
-      globals: 16.4.0
-      typescript-eslint: 8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2)
-    optionalDependencies:
-      typescript: 6.0.2
-    transitivePeerDependencies:
-      - '@typescript-eslint/parser'
-      - eslint-import-resolver-webpack
-      - eslint-plugin-import-x
-      - supports-color
-
   eslint-config-next@16.2.2(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2):
     dependencies:
       '@next/eslint-plugin-next': 16.2.2
@@ -6777,18 +6757,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2))(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.0(jiti@2.6.1))
-    transitivePeerDependencies:
-      - supports-color
-
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.0(jiti@2.6.1)):
-    dependencies:
-      debug: 3.2.7
-    optionalDependencies:
-      '@typescript-eslint/parser': 8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2)
-      eslint: 10.2.0(jiti@2.6.1)
-      eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@10.2.0(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.0(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -6800,35 +6769,6 @@ snapshots:
       eslint-import-resolver-node: 0.3.10
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@10.2.0(jiti@2.6.1))
     transitivePeerDependencies:
-      - supports-color
-
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2))(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.0(jiti@2.6.1)):
-    dependencies:
-      '@rtsao/scc': 1.1.0
-      array-includes: 3.1.9
-      array.prototype.findlastindex: 1.2.6
-      array.prototype.flat: 1.3.3
-      array.prototype.flatmap: 1.3.3
-      debug: 3.2.7
-      doctrine: 2.1.0
-      eslint: 10.2.0(jiti@2.6.1)
-      eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.0(jiti@2.6.1))
-      hasown: 2.0.2
-      is-core-module: 2.16.1
-      is-glob: 4.0.3
-      minimatch: 3.1.5
-      object.fromentries: 2.0.8
-      object.groupby: 1.0.3
-      object.values: 1.2.1
-      semver: 6.3.1
-      string.prototype.trimend: 1.0.9
-      tsconfig-paths: 3.15.0
-    optionalDependencies:
-      '@typescript-eslint/parser': 8.58.0(eslint@10.2.0(jiti@2.6.1))(typescript@6.0.2)
-    transitivePeerDependencies:
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
       - supports-color
 
   eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@3.10.1)(eslint@10.2.0(jiti@2.6.1)):
@@ -7015,11 +6955,11 @@ snapshots:
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-turbo@2.9.3(eslint@10.2.0(jiti@2.6.1))(turbo@2.9.3):
+  eslint-plugin-turbo@2.9.3(eslint@10.2.0(jiti@2.6.1))(turbo@2.9.4):
     dependencies:
       dotenv: 16.0.3
       eslint: 10.2.0(jiti@2.6.1)
-      turbo: 2.9.3
+      turbo: 2.9.4
 
   eslint-scope@9.1.2:
     dependencies:
@@ -7719,31 +7659,6 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  next@16.2.2(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
-    dependencies:
-      '@next/env': 16.2.2
-      '@swc/helpers': 0.5.15
-      baseline-browser-mapping: 2.10.14
-      caniuse-lite: 1.0.30001785
-      postcss: 8.4.31
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      styled-jsx: 5.1.6(@babel/core@7.28.6)(react@19.2.4)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 16.2.2
-      '@next/swc-darwin-x64': 16.2.2
-      '@next/swc-linux-arm64-gnu': 16.2.2
-      '@next/swc-linux-arm64-musl': 16.2.2
-      '@next/swc-linux-x64-gnu': 16.2.2
-      '@next/swc-linux-x64-musl': 16.2.2
-      '@next/swc-win32-arm64-msvc': 16.2.2
-      '@next/swc-win32-x64-msvc': 16.2.2
-      babel-plugin-react-compiler: 1.0.0
-      sharp: 0.34.5
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-
   next@16.2.2(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@next/env': 16.2.2
@@ -8250,13 +8165,6 @@ snapshots:
 
   strnum@2.2.0: {}
 
-  styled-jsx@5.1.6(@babel/core@7.28.6)(react@19.2.4):
-    dependencies:
-      client-only: 0.0.1
-      react: 19.2.4
-    optionalDependencies:
-      '@babel/core': 7.28.6
-
   styled-jsx@5.1.6(react@19.2.4):
     dependencies:
       client-only: 0.0.1
@@ -8309,14 +8217,14 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  turbo@2.9.3:
+  turbo@2.9.4:
     optionalDependencies:
-      '@turbo/darwin-64': 2.9.3
-      '@turbo/darwin-arm64': 2.9.3
-      '@turbo/linux-64': 2.9.3
-      '@turbo/linux-arm64': 2.9.3
-      '@turbo/windows-64': 2.9.3
-      '@turbo/windows-arm64': 2.9.3
+      '@turbo/darwin-64': 2.9.4
+      '@turbo/darwin-arm64': 2.9.4
+      '@turbo/linux-64': 2.9.4
+      '@turbo/linux-arm64': 2.9.4
+      '@turbo/windows-64': 2.9.4
+      '@turbo/windows-arm64': 2.9.4
 
   type-check@0.4.0:
     dependencies:
