@@ -7,6 +7,7 @@ import { objectivesLayout } from '@gw2w2w/ui/wvw/config/objectivesLayoutConfig';
 import { MAP_TYPES } from '@gw2w2w/ui/wvw/config/teamColorConfig';
 import { MatchMap } from '@gw2w2w/ui/wvw/matchup/MatchMap';
 import { MatchScoreboard } from '@gw2w2w/ui/wvw/matchup/MatchScoreboard';
+import { GuildActivity } from '@gw2w2w/ui/wvw/matchup/GuildActivity';
 import { ObjectiveLogs } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogs';
 import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
 
@@ -37,6 +38,7 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
           </ul>
         </section>
         {match && <ObjectiveLogs matchId={match.id} />}
+        {match && <GuildActivity matchId={match.id} />}
       </div>
     </SiteLayoutFullWidth>
   );

@@ -1,48 +1,12 @@
 'use client';
 
-import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '@gw2w2w/lib/store/logFilters';
+import { EVENT_TYPES, getTimeCutoff, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '@gw2w2w/lib/store/logFilters';
 import { useObjectiveLog } from '@gw2w2w/lib/store/objectiveLog';
 import { cn } from '@gw2w2w/lib/utils/cn';
 import { MAP_TYPES } from '@gw2w2w/ui/wvw/config/teamColorConfig';
+import { FilterGroup, TimeWindowFilter } from '@gw2w2w/ui/wvw/matchup/LogFilterGroup';
 import { getMapLabel, ObjectiveLogsRow } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogsRow';
-import clsx from 'clsx';
 import { useRef, useState } from 'react';
-
-function FilterGroup<T extends string>({
-  label,
-  options,
-  active,
-  onToggle,
-  getLabel,
-}: {
-  label: string;
-  options: readonly T[];
-  active: string[];
-  onToggle: (v: T) => void;
-  getLabel?: (v: T) => string;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="w-16 shrink-0 text-xs text-gray-400">{label}</span>
-      <div className="flex flex-wrap gap-1">
-        {options.map((opt) => (
-          <button
-            key={opt}
-            onClick={() => {
-              onToggle(opt);
-            }}
-            className={clsx('rounded px-2 py-0.5 text-xs transition-colors', {
-              'bg-gray-200 text-gray-400 line-through': !active.includes(opt),
-              'bg-gray-700 text-white': active.includes(opt),
-            })}
-          >
-            {getLabel ? getLabel(opt) : opt}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 interface ObjectiveLogsProps {
   matchId: string;
@@ -50,10 +14,22 @@ interface ObjectiveLogsProps {
 
 export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
   const allEvents = useObjectiveLog((state) => state.events);
-  const { maps, objectiveTypes, eventTypes, owners, toggleMap, toggleObjectiveType, toggleEventType, toggleOwner } =
-    useLogFilters();
+  const {
+    maps,
+    objectiveTypes,
+    eventTypes,
+    owners,
+    timeWindow,
+    toggleMap,
+    toggleObjectiveType,
+    toggleEventType,
+    toggleOwner,
+    setTimeWindow,
+  } = useLogFilters();
   const listRef = useRef<HTMLUListElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  const cutoff = getTimeCutoff(timeWindow);
 
   const filtered = allEvents
     .filter(
@@ -62,7 +38,8 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
         maps.includes(e.mapType) &&
         objectiveTypes.includes(e.objectiveType) &&
         eventTypes.includes(e.type) &&
-        owners.includes(e.owner),
+        owners.includes(e.owner) &&
+        (cutoff === null || Temporal.Instant.compare(e.at, cutoff) >= 0),
     )
     .sort((a, b) => Temporal.Instant.compare(b.at, a.at));
 
@@ -74,6 +51,7 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
     <section className="mt-8 rounded p-2 shadow">
       <h2 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Event Log</h2>
       <div className="mb-3 flex flex-col gap-1.5">
+        <TimeWindowFilter value={timeWindow} onChange={setTimeWindow} />
         <FilterGroup label="Map" options={MAP_TYPES} active={maps} onToggle={toggleMap} getLabel={getMapLabel} />
         <FilterGroup label="Type" options={OBJECTIVE_TYPES} active={objectiveTypes} onToggle={toggleObjectiveType} />
         <FilterGroup label="Event" options={EVENT_TYPES} active={eventTypes} onToggle={toggleEventType} />
