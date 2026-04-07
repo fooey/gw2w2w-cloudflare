@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const CURRENT_BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID ?? 'dev';
+const CURRENT_BUILD_ID = process.env.NEXT_PUBLIC_BUILD_HASH ?? 'dev';
 const POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export function UpdateNotifier() {

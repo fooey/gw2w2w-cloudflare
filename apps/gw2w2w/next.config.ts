@@ -11,13 +11,14 @@ void initOpenNextCloudflareForDev();
 const nextConfig: NextConfig = {
   reactCompiler: true,
   env: {
-    NEXT_PUBLIC_BUILD_ID: (() => {
+    NEXT_PUBLIC_BUILD_HASH: (() => {
       try {
         return execSync('git rev-parse --short HEAD').toString().trim();
       } catch {
         return 'dev';
       }
     })(),
+    NEXT_PUBLIC_BUILD_TIMESTAMP: new Date().toISOString(),
   },
   redirects() {
     return [
