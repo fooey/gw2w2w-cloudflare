@@ -28,7 +28,7 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
       <div>
         <section>
           <MatchScoreboard match={match ?? initialMatch} lang={lang} selectedTeamId={selectedTeamId} className="mb-8" />
-          <ul className="flex flex-row justify-between gap-2">
+          <ul className="grid grid-cols-4 gap-2">
             {Object.entries(objectivesLayout).map(([mapName, mapLayout]) => {
               const map = maps.find((m) => m.type === mapName);
               if (!map) return null;

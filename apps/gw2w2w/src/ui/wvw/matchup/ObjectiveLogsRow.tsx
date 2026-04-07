@@ -45,7 +45,7 @@ export function ObjectiveLogsRow({ event }: ObjectiveLogsRowProps) {
     <li
       className={cn(
         'animate-grow-in col-span-full grid grid-cols-subgrid items-center text-sm text-gray-500',
-        'hover:bg-black/5',
+        'hover:font-semibold',
         freshCapture && teamConfig.bg,
         teamConfig.text,
       )}
@@ -55,10 +55,14 @@ export function ObjectiveLogsRow({ event }: ObjectiveLogsRowProps) {
       <ObjectiveDirection direction={direction} width={12} height={12} />
       <ObjectiveName objectiveId={event.objectiveId} />
       <ObjectiveTimer lastFlipped={event.at.toJSON()} />
-      <span className="text-xs">{getMapLabel(event.mapType)}</span>
-      <span className="text-xs">{event.type === 'capture' ? 'Capture' : 'Claim'}</span>
-      <span className="font-mono text-xs text-gray-400">
-        {event.at.toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
+      <span className="min-w-8 text-center text-xs">{getMapLabel(event.mapType)}</span>
+      <span className="min-w-12 text-xs">{event.type === 'capture' ? 'Capture' : 'Claim'}</span>
+      <span className="min-w-24 text-right font-mono text-xs text-gray-400">
+        {event.at.toLocaleString(undefined, {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
       </span>
     </li>
   );

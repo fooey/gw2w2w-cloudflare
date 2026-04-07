@@ -1,6 +1,7 @@
 'use client';
 
 import { useClockStore } from '@gw2w2w/lib/store/useClock';
+import { cn } from '@gw2w2w/lib/utils/cn';
 import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
 import { type Direction } from '@gw2w2w/ui/wvw/config/objectivesLayoutConfig';
 import { teamColorConfig, type TeamColorConfigKey } from '@gw2w2w/ui/wvw/config/teamColorConfig';
@@ -9,7 +10,6 @@ import { ObjectiveGuild } from '@gw2w2w/ui/wvw/matchup/objective/Guild';
 import { ObjectiveName } from '@gw2w2w/ui/wvw/matchup/objective/Name';
 import { ObjectiveTimer } from '@gw2w2w/ui/wvw/matchup/objective/Timer';
 import { type WvWMatchObjective } from '@service-api/lib/resources/wvw/matches';
-import { cn } from '@gw2w2w/lib/utils/cn';
 
 const RI_TIMER = 5 * 60;
 
@@ -34,8 +34,7 @@ export function MatchObjectiveRow({
     now && matchObjective.last_flipped
       ? Math.floor(Temporal.Instant.from(matchObjective.last_flipped).until(now).total('seconds'))
       : null;
-  const isInRI = holdSeconds === null || holdSeconds < RI_TIMER;
-  const freshCapture = holdSeconds !== null && holdSeconds <= 60;
+  const isInRI = holdSeconds !== null && holdSeconds < RI_TIMER;
   const ownerBg =
     matchObjective.owner !== 'Neutral' ? teamColorConfig[matchObjective.owner as TeamColorConfigKey].bg : null;
   const ownerText =
@@ -46,9 +45,8 @@ export function MatchObjectiveRow({
       className={cn(
         'grid w-full items-center px-2 transition-all duration-200',
         'grid-cols-[52px_24px_12px_1fr_32px] gap-1',
-        'hover:bg-black/5',
-        { 'font-semibold': isInRI },
-        freshCapture && ownerBg,
+        'hover:font-semibold',
+        isInRI && ownerBg,
         ownerText,
       )}
     >
@@ -56,7 +54,7 @@ export function MatchObjectiveRow({
       <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
       <ObjectiveDirection direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
       <ObjectiveName objectiveId={matchObjective.id} />
-      <ObjectiveTimer lastFlipped={matchObjective.last_flipped} />
+      <ObjectiveTimer className={cn('min-w-8', isInRI && ownerBg)} lastFlipped={matchObjective.last_flipped} />
     </div>
   );
 }
