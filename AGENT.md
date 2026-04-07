@@ -4,6 +4,22 @@
 
 This project uses **pnpm**. Always use `pnpm dlx` instead of `npx` when running one-off executables.
 
+## React Compiler
+
+**React 19 / React Compiler System Instructions:**
+
+You are assisting with a React application that has the **React Compiler fully enabled**. Your mental model for React performance optimization must shift to the compiler paradigm.
+
+Adhere to the following rules strictly:
+
+1. **NO MANUAL MEMOIZATION:** Do NOT use, suggest, or write `useMemo`, `useCallback`, or `React.memo()`. The compiler handles all dependency tracking and memoization at the component and hook level automatically. Assume all valid React code is highly optimized by default.
+2. **RULES OF REACT ARE CRITICAL:** The compiler will silently bail out if the Rules of React are broken. You must be hyper-vigilant about:
+   - Never mutating props or state directly.
+   - Keeping render functions entirely pure (no side effects).
+   - Calling hooks unconditionally at the top level.
+3. **CLEAN CODE OVER PREMATURE OPTIMIZATION:** Write standard, readable, idiomatic JavaScript. Do not create intermediary variables or abstract functions solely for the sake of "performance" or "reference stability." The compiler will handle reference stability.
+4. **OPT-OUT DIRECTIVE:** If there is a highly specific, proven edge case where the compiler is breaking third-party integration or causing an issue, you may use the `"use no memo"` directive at the top of a component or hook to opt it out of compilation. Explain exactly why you are opting out if you do so.
+
 ## Code Formatting
 
 **Always run `pnpm format` after making code changes.** This repo uses Prettier with `prettier-plugin-tailwindcss` for consistent formatting across all `.ts`, `.tsx`, `.md`, `.json`, and other source files.
