@@ -1,5 +1,9 @@
 # Project Context: gw2w2w-cloudflare
 
+## Package Manager
+
+This project uses **pnpm**. Always use `pnpm dlx` instead of `npx` when running one-off executables.
+
 ## Code Formatting
 
 **Always run `pnpm format` after making code changes.** This repo uses Prettier with `prettier-plugin-tailwindcss` for consistent formatting across all `.ts`, `.tsx`, `.md`, `.json`, and other source files.
