@@ -10,7 +10,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid';
 import { type Color, type Emblem } from '@service-api/lib/types';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { EmblemPreview } from '../EmblemPreview';
 import { type EmblemState } from '../types';
 
@@ -37,7 +37,7 @@ interface LayerThumbProps {
   onClick: () => void;
 }
 
-const LayerThumb = memo(function LayerThumb({
+function LayerThumb({
   thumbEmblem,
   layer,
   isSelected,
@@ -69,7 +69,7 @@ const LayerThumb = memo(function LayerThumb({
       <span className="pb-0.5 text-[10px] text-gray-400">#{layer.id}</span>
     </button>
   );
-});
+}
 
 function makeEmblemState(
   layerType: 'background' | 'foreground',
@@ -118,13 +118,13 @@ export function LayerPicker({
     };
   }, [open]);
 
-  const filtered = useMemo(() => {
+  const filtered = (() => {
     const s = search.trim();
     const result = s ? layers.filter((l) => String(l.id).includes(s)) : layers;
     return result.slice(0, MAX_VISIBLE);
-  }, [layers, search]);
+  })();
 
-  const triggerEmblem = useMemo(() => makeEmblemState(layerType, value, colorIds), [layerType, value, colorIds]);
+  const triggerEmblem = makeEmblemState(layerType, value, colorIds);
 
   const backgrounds = layerType === 'background' ? layers : ([] as Emblem[]);
   const foregrounds = layerType === 'foreground' ? layers : ([] as Emblem[]);

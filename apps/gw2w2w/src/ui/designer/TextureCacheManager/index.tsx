@@ -1,7 +1,7 @@
 'use client';
 
 import { type Emblem } from '@service-api/lib/types';
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { clearTextureCache, clearTextureCacheMark, isTextureCacheMarked, prefetchAllTextures } from './textureCache';
 
@@ -18,7 +18,7 @@ export function TextureCacheManager({ backgrounds, foregrounds, children }: Text
   const [progress, setProgress] = useState({ completed: 0, total: 0 });
   const downloadingRef = useRef(false);
 
-  const handleDownload = useCallback(async () => {
+  async function handleDownload() {
     if (downloadingRef.current) return;
     downloadingRef.current = true;
     setCacheState('downloading');
@@ -33,17 +33,17 @@ export function TextureCacheManager({ backgrounds, foregrounds, children }: Text
       clearTextureCacheMark();
       setCacheState('needed');
     }
-  }, [backgrounds, foregrounds]);
+  }
 
-  const handleRedownload = useCallback(() => {
+  function handleRedownload() {
     clearTextureCacheMark();
     setCacheState('needed');
-  }, []);
+  }
 
-  const handleClearCache = useCallback(async () => {
+  async function handleClearCache() {
     await clearTextureCache();
     setCacheState('needed');
-  }, []);
+  }
 
   if (cacheState === 'needed' || cacheState === 'downloading') {
     const isDownloading = cacheState === 'downloading';

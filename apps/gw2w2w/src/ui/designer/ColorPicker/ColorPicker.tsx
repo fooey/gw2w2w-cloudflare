@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/20/solid';
 import { type Color } from '@service-api/lib/types';
 import { matchSorter } from 'match-sorter';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HUE_CATEGORIES, RARITY_CATEGORIES } from './filtering';
 import { SORT_OPTIONS, type SortEntry, sortColors } from './sorting';
 
@@ -42,9 +42,9 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
     };
   }, [open]);
 
-  const selected = useMemo(() => colors.find((c) => c.id === value), [colors, value]);
+  const selected = colors.find((c) => c.id === value);
 
-  const filtered = useMemo(() => {
+  const filtered = (() => {
     const searched = search ? matchSorter(colors, search, { keys: ['name'] }) : colors;
     const result = searched.filter((c) => {
       const matchesHue = !activeHue || c.categories.includes(activeHue);
@@ -52,7 +52,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
       return matchesHue && matchesRarity;
     });
     return sortColors(result, sort);
-  }, [colors, search, activeHue, activeRarity, sort]);
+  })();
 
   function handleSelect(colorId: number) {
     committedRef.current = colorId;
@@ -99,6 +99,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
   }
 
   function handleRandom() {
+    // eslint-disable-next-line react-hooks/purity -- Math.random() is intentional in this event handler
     const color = filtered[Math.floor(Math.random() * filtered.length)];
     if (color) onChange?.(color.id);
   }

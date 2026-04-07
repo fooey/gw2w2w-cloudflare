@@ -11,7 +11,7 @@ import { ObjectiveGuild } from '@gw2w2w/ui/wvw/matchup/objective/Guild';
 import { ObjectiveName } from '@gw2w2w/ui/wvw/matchup/objective/Name';
 import { ObjectiveTimer } from '@gw2w2w/ui/wvw/matchup/objective/Timer';
 import clsx from 'clsx';
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 const MAP_LABELS: Record<string, string> = {
   Center: 'EBG',
@@ -71,20 +71,16 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
   const listRef = useRef<HTMLUListElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const filtered = useMemo(
-    () =>
-      allEvents
-        .filter(
-          (e) =>
-            e.matchId === matchId &&
-            maps.includes(e.mapType) &&
-            objectiveTypes.includes(e.objectiveType) &&
-            eventTypes.includes(e.type) &&
-            owners.includes(e.owner),
-        )
-        .sort((a, b) => Temporal.Instant.compare(b.at, a.at)),
-    [allEvents, matchId, maps, objectiveTypes, eventTypes, owners],
-  );
+  const filtered = allEvents
+    .filter(
+      (e) =>
+        e.matchId === matchId &&
+        maps.includes(e.mapType) &&
+        objectiveTypes.includes(e.objectiveType) &&
+        eventTypes.includes(e.type) &&
+        owners.includes(e.owner),
+    )
+    .sort((a, b) => Temporal.Instant.compare(b.at, a.at));
 
   // Update this when adding/removing columns from the event log row.
   // Left group: guild, icon, direction, name | Right group: timer, map, event type, timestamp

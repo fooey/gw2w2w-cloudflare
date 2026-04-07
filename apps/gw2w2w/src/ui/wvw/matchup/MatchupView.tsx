@@ -11,7 +11,6 @@ import { ObjectiveLogs } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogs';
 import { ArrowPathIcon } from '@heroicons/react/20/solid';
 import { WVW_TEAMS, type WvWTeamId } from '@service-api/definitions';
 import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
-import { useMemo } from 'react';
 
 export interface MatchupViewProps {
   match: WvWMatch;
@@ -24,10 +23,8 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
 
   const pageHeader = selectedTeamId ? WVW_TEAMS[selectedTeamId as WvWTeamId][lang] : `WvW Matchup ${initialMatch.id}`;
 
-  const maps = useMemo(
-    () =>
-      [...(match?.maps ?? [])].sort((a, b) => MAP_TYPES.indexOf(a.type as never) - MAP_TYPES.indexOf(b.type as never)),
-    [match?.maps],
+  const maps = [...(match?.maps ?? [])].sort(
+    (a, b) => MAP_TYPES.indexOf(a.type as never) - MAP_TYPES.indexOf(b.type as never),
   );
 
   return (

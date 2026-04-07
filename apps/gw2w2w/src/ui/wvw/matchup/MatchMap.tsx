@@ -7,7 +7,6 @@ import { MatchObjectiveRow } from '@gw2w2w/ui/wvw/matchup/MatchObjectiveRow';
 import { type WvWMatchMap, type WvWMatchObjective } from '@service-api/lib/resources/wvw/matches';
 import { type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 
 const mapTypeBorderClass: Record<string, string> = {
   Center: 'border-gray-300',
@@ -24,16 +23,13 @@ const SCOREBOARD_TYPES_BL = ['Keep', 'Tower', 'Camp'] as const;
 const VISIBLE_OBJECTIVE_TYPES: readonly WvWObjective['type'][] = ['Castle', 'Keep', 'Camp', 'Tower'] as const;
 
 export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: ObjectivesLayoutMap }) {
-  const objectivesById = useMemo(() => {
-    const index = new Map<string, WvWMatchObjective>();
-    for (const obj of map.objectives) {
-      if (VISIBLE_OBJECTIVE_TYPES.includes(obj.type)) {
-        const id = obj.id.split('-')[1];
-        if (id) index.set(id, obj);
-      }
+  const objectivesById = new Map<string, WvWMatchObjective>();
+  for (const obj of map.objectives) {
+    if (VISIBLE_OBJECTIVE_TYPES.includes(obj.type)) {
+      const id = obj.id.split('-')[1];
+      if (id) objectivesById.set(id, obj);
     }
-    return index;
-  }, [map]);
+  }
 
   const border = mapTypeBorderClass[map.type] ?? 'border-gray-300';
   const scoreboardTypes = map.type === 'Center' ? SCOREBOARD_TYPES_CENTER : SCOREBOARD_TYPES_BL;
