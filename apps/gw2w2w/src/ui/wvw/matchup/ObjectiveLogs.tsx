@@ -3,26 +3,10 @@
 import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '@gw2w2w/lib/store/logFilters';
 import { useObjectiveLog } from '@gw2w2w/lib/store/objectiveLog';
 import { cn } from '@gw2w2w/lib/utils/cn';
-import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
-import { getObjectiveDirection } from '@gw2w2w/ui/wvw/config/objectivesLayoutConfig';
 import { MAP_TYPES } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { ObjectiveDirection } from '@gw2w2w/ui/wvw/matchup/objective/Direction';
-import { ObjectiveGuild } from '@gw2w2w/ui/wvw/matchup/objective/Guild';
-import { ObjectiveName } from '@gw2w2w/ui/wvw/matchup/objective/Name';
-import { ObjectiveTimer } from '@gw2w2w/ui/wvw/matchup/objective/Timer';
+import { getMapLabel, ObjectiveLogsRow } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogsRow';
 import clsx from 'clsx';
 import { useRef, useState } from 'react';
-
-const MAP_LABELS: Record<string, string> = {
-  Center: 'EBG',
-  GreenHome: 'GBL',
-  BlueHome: 'BBL',
-  RedHome: 'RBL',
-};
-
-function getMapLabel(mapType: string): string {
-  return MAP_LABELS[mapType] ?? mapType;
-}
 
 function FilterGroup<T extends string>({
   label,
@@ -104,31 +88,11 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
             onScroll={(e) => {
               setShowScrollTop(e.currentTarget.scrollTop > 0);
             }}
-            className={cn('grid max-h-96 gap-x-2 gap-y-1 overflow-y-auto overscroll-contain', LOG_COLS)}
+            className={cn('grid max-h-96 gap-x-2 gap-y-1 overflow-y-auto', LOG_COLS)}
           >
-            {filtered.map((event) => {
-              const direction = getObjectiveDirection(event.objectiveId) ?? 'C';
-              const key = `${event.objectiveId}-${event.at.toString()}-${event.type}`;
-              const claimedBy = event.type === 'claim' ? event.claimedBy : undefined;
-
-              return (
-                <li
-                  key={key}
-                  className="animate-grow-in col-span-full grid grid-cols-subgrid items-center text-sm text-gray-500"
-                >
-                  <ObjectiveGuild claimedBy={claimedBy} />
-                  <ObjectiveIcon type={event.objectiveType} owner={event.owner} size={24} />
-                  <ObjectiveDirection direction={direction} width={12} height={12} />
-                  <ObjectiveName objectiveId={event.objectiveId} />
-                  <ObjectiveTimer lastFlipped={event.at.toJSON()} />
-                  <span className="text-xs">{getMapLabel(event.mapType)}</span>
-                  <span className="text-xs">{event.type === 'capture' ? 'Capture' : 'Claim'}</span>
-                  <span className="font-mono text-xs text-gray-400">
-                    {event.at.toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
-                  </span>
-                </li>
-              );
-            })}
+            {filtered.map((event) => (
+              <ObjectiveLogsRow key={`${event.objectiveId}-${event.at.toString()}-${event.type}`} event={event} />
+            ))}
           </ul>
           {showScrollTop && (
             <button

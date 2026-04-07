@@ -46,6 +46,7 @@ export function MatchObjectiveRow({
       className={cn(
         'grid w-full items-center px-2 transition-all duration-200',
         'grid-cols-[52px_24px_12px_1fr_32px] gap-1',
+        'hover:bg-black/5',
         { 'font-semibold': isInRI },
         freshCapture && ownerBg,
         ownerText,

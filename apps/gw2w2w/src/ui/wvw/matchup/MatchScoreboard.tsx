@@ -2,7 +2,7 @@
 
 import { type Lang } from '@gw2w2w/ui/wvw/config/lang';
 import { TEAM_COLORS } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { TeamObjectives } from '@gw2w2w/ui/wvw/matchup-dashboard/TeamObjectives';
+import { TeamScore } from '@gw2w2w/ui/wvw/matchup-dashboard/TeamScore';
 import { WVW_TEAMS, type WvWTeamId } from '@service-api/definitions';
 import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
 import clsx from 'clsx';
@@ -11,10 +11,11 @@ import { keyBy, sortBy } from 'lodash-es';
 interface MatchScoreboardProps {
   match: WvWMatch;
   lang: Lang;
+  selectedTeamId: string | null;
   className?: string;
 }
 
-export function MatchScoreboard({ match, lang, className }: MatchScoreboardProps) {
+export function MatchScoreboard({ match, lang, selectedTeamId, className }: MatchScoreboardProps) {
   const redId = match.all_worlds.red.find((id) => id > 10_000)?.toString() as WvWTeamId | undefined;
   const blueId = match.all_worlds.blue.find((id) => id > 10_000)?.toString() as WvWTeamId | undefined;
   const greenId = match.all_worlds.green.find((id) => id > 10_000)?.toString() as WvWTeamId | undefined;
@@ -38,12 +39,12 @@ export function MatchScoreboard({ match, lang, className }: MatchScoreboardProps
   const teams = keyBy(sortedScores, 'color');
 
   return (
-    <div className={clsx('grid grid-cols-3 gap-2', className)}>
+    <div className={clsx('grid grid-cols-3 gap-2 align-baseline', className)}>
       {TEAM_COLORS.map((color) => {
         const data = teams[color.toLowerCase()];
         if (!data) return null;
         return (
-          <TeamObjectives
+          <TeamScore
             key={color}
             team={data.team}
             color={color}
@@ -51,6 +52,7 @@ export function MatchScoreboard({ match, lang, className }: MatchScoreboardProps
             score={data.score}
             objectives={objectives}
             lang={lang}
+            isSelectedTeam={data.id === selectedTeamId}
           />
         );
       })}

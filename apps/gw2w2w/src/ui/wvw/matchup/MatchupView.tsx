@@ -8,8 +8,6 @@ import { MAP_TYPES } from '@gw2w2w/ui/wvw/config/teamColorConfig';
 import { MatchMap } from '@gw2w2w/ui/wvw/matchup/MatchMap';
 import { MatchScoreboard } from '@gw2w2w/ui/wvw/matchup/MatchScoreboard';
 import { ObjectiveLogs } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogs';
-import { ArrowPathIcon } from '@heroicons/react/20/solid';
-import { WVW_TEAMS, type WvWTeamId } from '@service-api/definitions';
 import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
 
 export interface MatchupViewProps {
@@ -19,22 +17,17 @@ export interface MatchupViewProps {
 
 export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupViewProps) {
   const lang = useUserPrefs((s) => s.lang);
-  const { data: match, isFetching } = useMatch(initialMatch.id, { initialData: initialMatch });
-
-  const pageHeader = selectedTeamId ? WVW_TEAMS[selectedTeamId as WvWTeamId][lang] : `WvW Matchup ${initialMatch.id}`;
+  const { data: match } = useMatch(initialMatch.id, { initialData: initialMatch, initialDataUpdatedAt: 0 });
 
   const maps = [...(match?.maps ?? [])].sort(
     (a, b) => MAP_TYPES.indexOf(a.type as never) - MAP_TYPES.indexOf(b.type as never),
   );
 
   return (
-    <SiteLayoutFullWidth
-      pageHeader={pageHeader}
-      headerActions={<>{isFetching && <ArrowPathIcon className="inline size-4 animate-spin text-zinc-400" />}</>}
-    >
+    <SiteLayoutFullWidth className="pt-0">
       <div>
         <section>
-          <MatchScoreboard match={match ?? initialMatch} lang={lang} className="mb-8" />
+          <MatchScoreboard match={match ?? initialMatch} lang={lang} selectedTeamId={selectedTeamId} className="mb-8" />
           <ul className="flex flex-row justify-between gap-2">
             {Object.entries(objectivesLayout).map(([mapName, mapLayout]) => {
               const map = maps.find((m) => m.type === mapName);

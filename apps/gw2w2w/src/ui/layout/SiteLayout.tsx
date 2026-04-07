@@ -1,9 +1,13 @@
+import { cn } from '@gw2w2w/lib/utils/cn';
 import { SiteNav } from '@gw2w2w/ui/layout/SiteNav';
 
 interface SiteLayoutProps {
   pageHeader?: React.ReactNode;
   headerActions?: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
+  classNameInner?: string;
+  classNameOuter?: string;
 }
 
 function SiteHeader({ pageHeader, headerActions }: Pick<SiteLayoutProps, 'pageHeader' | 'headerActions'>) {
@@ -36,35 +40,49 @@ function SiteFooter() {
   );
 }
 
-export default function SiteLayout({ pageHeader, headerActions, children }: SiteLayoutProps) {
+export default function SiteLayout({
+  pageHeader,
+  headerActions,
+  children,
+  className,
+  classNameInner,
+  classNameOuter,
+}: SiteLayoutProps) {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className={cn('flex min-h-full flex-col', classNameOuter)}>
       <SiteNav />
-      <div className="py-10">
+      <main className={cn('py-10', className)}>
         <SiteHeader pageHeader={pageHeader} headerActions={headerActions} />
-        <main>
+        <section>
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <div className="bg-white">
-              <div className="mx-auto max-w-7xl p-6 lg:p-8">{children}</div>
+              <div className={cn('mx-auto max-w-7xl p-6 lg:p-8', classNameInner)}>{children}</div>
             </div>
           </div>
-        </main>
-      </div>
+        </section>
+      </main>
       <SiteFooter />
     </div>
   );
 }
 
-export function SiteLayoutFullWidth({ pageHeader, headerActions, children }: SiteLayoutProps) {
+export function SiteLayoutFullWidth({
+  pageHeader,
+  headerActions,
+  children,
+  className,
+  classNameInner,
+  classNameOuter,
+}: SiteLayoutProps) {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className={cn('flex min-h-full flex-col', classNameOuter)}>
       <SiteNav />
-      <div className="py-10">
+      <main className={cn('py-10', className)}>
         <SiteHeader pageHeader={pageHeader} headerActions={headerActions} />
-        <main>
-          <div className="px-4 py-8 sm:px-6 lg:px-8">{children}</div>
-        </main>
-      </div>
+        <section>
+          <div className={cn('px-4 py-8 sm:px-6 lg:px-8', classNameInner)}>{children}</div>
+        </section>
+      </main>
       <SiteFooter />
     </div>
   );
