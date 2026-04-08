@@ -7,6 +7,8 @@
     "dev": "wrangler dev --port 8788 --local",
     "deploy": "wrangler deploy",
     "lint": "eslint ./src",
+    "check-types": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "ts:clean": "npx tsc --build --clean"
   },

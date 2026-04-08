@@ -18,6 +18,17 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "check-types": {
+      "inputs": ["**/*.{ts,tsx}"],
+      "dependsOn": ["transit"]
+    },
+    "format": {
+      "inputs": ["**/*.{ts,tsx,md,json,mjs,mts,cjs}"],
+      "dependsOn": ["transit"]
     }
   }
 }

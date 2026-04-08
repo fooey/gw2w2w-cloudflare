@@ -9,7 +9,8 @@
   },
   "scripts": {
     "lint": "eslint ./src",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\""
   },
   "dependencies": {
     "@cf-wasm/photon": "^0.3.4",

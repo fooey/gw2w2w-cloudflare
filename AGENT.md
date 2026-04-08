@@ -29,6 +29,14 @@ Adhere to the following rules strictly:
 
 Run `pnpm format` on every file you create or modify before considering a task complete. Never leave formatting as a manual follow-up step.
 
+## Type Checking
+
+**Always run `pnpm check-types` after making code changes** to verify there are no TypeScript errors across the monorepo.
+
+- **Check all packages**: `pnpm check-types`
+
+Run `pnpm check-types` after formatting and before considering a task complete. Fix any type errors before finishing.
+
 ## Documentation Maintenance
 
 **Always keep `README.md` up to date.** When you add, remove, or significantly change a feature, architecture decision, or package, update the relevant sections of `README.md` in the same change. This includes:
