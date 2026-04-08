@@ -15,12 +15,16 @@ import { useState } from 'react';
 const ACTIVITY_OBJ_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 type ActivityObjType = (typeof ACTIVITY_OBJ_TYPES)[number];
 
-type SortKey = ActivityObjType | 'total' | 'lastActivity';
+const ACTIVITY_MAP_TYPES = ['Center', 'GreenHome', 'BlueHome', 'RedHome'] as const;
+type ActivityMapType = (typeof ACTIVITY_MAP_TYPES)[number];
+
+type SortKey = ActivityObjType | ActivityMapType | 'total' | 'lastActivity';
 type SortDir = 'asc' | 'desc';
 
 interface GuildStats {
   guildId: string;
   byType: Record<ActivityObjType, number>;
+  byMap: Record<ActivityMapType, number>;
   total: number;
   lastActivity: Temporal.Instant;
   lastActivityMap: string;
@@ -67,35 +71,28 @@ function GuildActivityRow({ stats }: { stats: GuildStats }) {
   const guildQuery = useGuild(stats.guildId);
   const guild = guildQuery.data;
   const teamText = (teamColorConfig as Record<string, { text: string } | undefined>)[stats.lastActivityOwner]?.text;
+  const guildLink = `/guilds/${guild?.name ? encodeURIComponent(guild.name) : stats.guildId}`;
 
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50">
-      <td className="w-px px-2 py-1 whitespace-nowrap">
-        <Link
-          href={`/guilds/${guild?.name ? encodeURIComponent(guild.name) : stats.guildId}`}
-          title={guild ? `${guild.name} [${guild.tag}]` : stats.guildId}
-        >
+    <tr className="border-t border-gray-100 hover:bg-gray-100 hover:font-semibold">
+      <td className="w-8 p-0 py-1">
+        <Link href={guildLink} title={guild ? `${guild.name} [${guild.tag}]` : stats.guildId}>
           <img
             src={getEmblemSrc(stats.guildId)}
             alt={guild?.name ?? 'Guild Emblem'}
-            width={20}
-            height={20}
-            className="shrink-0"
+            width={32}
+            height={32}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.visibility = 'hidden';
             }}
           />
         </Link>
       </td>
-      <td className={cn('w-px px-2 py-1 font-mono text-xs whitespace-nowrap', teamText)}>
-        <Link href={`/guilds/${guild?.name ? encodeURIComponent(guild.name) : stats.guildId}`}>
-          [{guild?.tag ?? '…'}]
-        </Link>
+      <td className={cn('w-px px-2 py-1 text-sm font-medium', teamText)}>
+        <Link href={guildLink}>[{guild?.tag ?? '…'}]</Link>
       </td>
       <td className={cn('px-2 py-1 text-sm font-medium', teamText)}>
-        <Link href={`/guilds/${guild?.name ? encodeURIComponent(guild.name) : stats.guildId}`}>
-          {guild?.name ?? stats.guildId}
-        </Link>
+        <Link href={guildLink}>{guild?.name ?? stats.guildId}</Link>
       </td>
       {ACTIVITY_OBJ_TYPES.map((type) => (
         <td
@@ -103,6 +100,14 @@ function GuildActivityRow({ stats }: { stats: GuildStats }) {
           className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
         >
           {stats.byType[type]}
+        </td>
+      ))}
+      {ACTIVITY_MAP_TYPES.map((map) => (
+        <td
+          key={map}
+          className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
+        >
+          {stats.byMap[map]}
         </td>
       ))}
       <td className="w-px px-2 py-1 text-center text-sm font-semibold whitespace-nowrap text-gray-800 tabular-nums">
@@ -153,10 +158,12 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
     const type = event.objectiveType as ActivityObjType;
     if (!ACTIVITY_OBJ_TYPES.includes(type)) continue;
 
+    const mapType = event.mapType as ActivityMapType;
     if (!existing) {
       statsByGuild.set(event.claimedBy, {
         guildId: event.claimedBy,
         byType: { Castle: 0, Keep: 0, Tower: 0, Camp: 0, [type]: 1 },
+        byMap: { Center: 0, GreenHome: 0, BlueHome: 0, RedHome: 0, [mapType]: 1 },
         total: 1,
         lastActivity: event.at,
         lastActivityMap: event.mapType,
@@ -164,6 +171,7 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
       });
     } else {
       existing.byType[type] += 1;
+      if (ACTIVITY_MAP_TYPES.includes(mapType)) existing.byMap[mapType] += 1;
       existing.total += 1;
       if (Temporal.Instant.compare(event.at, existing.lastActivity) > 0) {
         existing.lastActivity = event.at;
@@ -179,8 +187,10 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
       cmp = Temporal.Instant.compare(a.lastActivity, b.lastActivity);
     } else if (sortKey === 'total') {
       cmp = a.total - b.total;
+    } else if ((ACTIVITY_MAP_TYPES as readonly string[]).includes(sortKey)) {
+      cmp = a.byMap[sortKey as ActivityMapType] - b.byMap[sortKey as ActivityMapType];
     } else {
-      cmp = a.byType[sortKey] - b.byType[sortKey];
+      cmp = a.byType[sortKey as ActivityObjType] - b.byType[sortKey as ActivityObjType];
     }
     return sortDir === 'desc' ? -cmp : cmp;
   });
@@ -223,6 +233,17 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
                     onSort={handleSort}
                     className="w-px text-center whitespace-nowrap"
                     title={type}
+                  />
+                ))}
+                {ACTIVITY_MAP_TYPES.map((map) => (
+                  <SortableHeader
+                    key={map}
+                    label={getMapLabel(map)}
+                    sortKey={map}
+                    current={sortKey}
+                    dir={sortDir}
+                    onSort={handleSort}
+                    className="w-px text-center whitespace-nowrap"
                   />
                 ))}
                 <SortableHeader
