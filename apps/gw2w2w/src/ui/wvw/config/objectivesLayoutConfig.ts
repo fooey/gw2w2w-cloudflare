@@ -48,26 +48,34 @@ const objectivesLayoutEB: ObjectivesLayoutMap = {
 } as const;
 
 const objectivesLayoutAlpineBL: ObjectivesLayoutMap = {
-  HomeTeam: {
+  HomeGarri: {
     objectives: [
       { id: '37', direction: 'C' }, //keep
+    ],
+  },
+  HomeCore: {
+    objectives: [
+      { id: '39', direction: 'N' }, //godsword
       { id: '38', direction: 'NW' }, //longview
       { id: '40', direction: 'NE' }, //cliffside
-      { id: '39', direction: 'N' }, //godsword
+    ],
+  },
+  Central: {
+    objectives: [
+      { id: '33', direction: 'W' }, //bay
+      { id: '32', direction: 'E' }, //hills,
       { id: '52', direction: 'NW' }, //hopes
       { id: '51', direction: 'NE' }, //astral
     ],
   },
   InvaderTeam1: {
     objectives: [
-      { id: '33', direction: 'W' }, //bay
       { id: '35', direction: 'SW' }, //briar
       { id: '53', direction: 'SW' }, //vale
     ],
   },
   InvaderTeam2: {
     objectives: [
-      { id: '32', direction: 'E' }, //hills,
       { id: '36', direction: 'SE' }, //lake
       { id: '50', direction: 'SE' }, //water
     ],
@@ -89,26 +97,34 @@ const objectivesLayoutAlpineBL: ObjectivesLayoutMap = {
 } as const;
 
 const objectivesLayoutDesertBL: ObjectivesLayoutMap = {
-  HomeTeam: {
+  HomeGarri: {
     objectives: [
       { id: '113', direction: 'C' }, //keep
+    ],
+  },
+  HomeCore: {
+    objectives: [
+      { id: '99', direction: 'N' }, //lab
       { id: '102', direction: 'NW' }, //odel
       { id: '104', direction: 'NE' }, //necro
-      { id: '99', direction: 'N' }, //lab
+    ],
+  },
+  Central: {
+    objectives: [
+      { id: '106', direction: 'W' }, //fire
+      { id: '114', direction: 'E' }, //air
       { id: '115', direction: 'NW' }, //hideaway
       { id: '109', direction: 'NE' }, //refuge
     ],
   },
   InvaderTeam1: {
     objectives: [
-      { id: '106', direction: 'W' }, //fire
       { id: '110', direction: 'SW' }, //outpost
       { id: '101', direction: 'SW' }, //encampment
     ],
   },
   InvaderTeam2: {
     objectives: [
-      { id: '114', direction: 'E' }, //air
       { id: '105', direction: 'SE' }, //depot
       { id: '100', direction: 'SE' }, //farmstead
     ],
