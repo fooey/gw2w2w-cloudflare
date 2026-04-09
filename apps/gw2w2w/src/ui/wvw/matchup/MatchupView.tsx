@@ -9,7 +9,7 @@ import { MatchMap } from '@gw2w2w/ui/wvw/matchup/MatchMap';
 import { MatchScoreboard } from '@gw2w2w/ui/wvw/matchup/MatchScoreboard';
 import { GuildActivity } from '@gw2w2w/ui/wvw/matchup/GuildActivity';
 import { ObjectiveLogs } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogs';
-import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
+import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
 
 export interface MatchupViewProps {
   match: WvWMatch;

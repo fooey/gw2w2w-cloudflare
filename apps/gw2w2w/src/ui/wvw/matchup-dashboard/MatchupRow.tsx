@@ -2,7 +2,7 @@
 
 import { type Lang } from '@gw2w2w/ui/wvw/config/lang';
 import { MatchScoreboard } from '@gw2w2w/ui/wvw/matchup/MatchScoreboard';
-import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
+import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
 import Link from 'next/link';
 
 export function MatchupRow({ match, lang }: { match: WvWMatch; lang: Lang }) {

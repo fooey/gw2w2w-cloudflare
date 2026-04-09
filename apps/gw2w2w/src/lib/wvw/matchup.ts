@@ -1,5 +1,5 @@
-import { WVW_TEAMS } from '@service-api/definitions';
-import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
+import { WVW_TEAMS } from '@repo/service-api/definitions';
+import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
 
 /** e.g. "1-1", "2-3" */
 export function isMatchId(slug: string): boolean {

@@ -4,8 +4,8 @@ import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
 import { type ObjectivesLayoutMap } from '@gw2w2w/ui/wvw/config/objectivesLayoutConfig';
 import { TEAM_COLORS, teamColorConfig } from '@gw2w2w/ui/wvw/config/teamColorConfig';
 import { MatchObjectiveRow } from '@gw2w2w/ui/wvw/matchup/MatchObjectiveRow';
-import { type WvWMatchMap, type WvWMatchObjective } from '@service-api/lib/resources/wvw/matches';
-import { type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
+import { type WvWMatchMap, type WvWMatchObjective } from '@repo/service-api/lib/resources/wvw/matches';
+import { type WvWObjective } from '@repo/service-api/lib/resources/wvw/objectives';
 import clsx from 'clsx';
 
 const mapTypeBorderClass: Record<string, string> = {

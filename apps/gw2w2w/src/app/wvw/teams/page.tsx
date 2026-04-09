@@ -1,5 +1,5 @@
 import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
-import { WVW_TEAMS, type WvWTeam } from '@repo/service-api/src/definitions';
+import { WVW_TEAMS, type WvWTeam } from '@repo/service-api/definitions';
 import Link from 'next/link';
 
 const naTeams: WvWTeam[] = Object.values(WVW_TEAMS)

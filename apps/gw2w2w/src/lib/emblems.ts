@@ -1,5 +1,5 @@
 import { type EmblemState } from '@gw2w2w/ui/designer/types';
-import { type Guild } from '@service-api/lib/types';
+import { type Guild } from '@repo/service-api/lib/types';
 
 const EMBLEM_HOST_PRODUCTION = 'https://emblem.gw2w2w.com';
 const EMBLEM_HOST_DEVELOPMENT = 'http://localhost:8787';

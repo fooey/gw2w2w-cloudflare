@@ -17,10 +17,19 @@
   "license": "ISC",
   "exports": {
     ".": "./src/index.ts",
+    "./definitions": "./src/definitions/index.ts",
+    "./definitions/wvw-teams": "./src/definitions/wvw-teams.ts",
     "./lib/cache-providers": "./src/lib/cache-providers/index.ts",
     "./lib/resources": "./src/lib/resources/index.ts",
     "./lib/types": "./src/lib/types/index.ts",
-    "./src/definitions": "./src/definitions/index.ts"
+    "./lib/resources/constants": "./src/lib/resources/constants.ts",
+    "./lib/resources/wvw/abilities": "./src/lib/resources/wvw/abilities.ts",
+    "./lib/resources/wvw/guilds": "./src/lib/resources/wvw/guilds.ts",
+    "./lib/resources/wvw/matches": "./src/lib/resources/wvw/matches.ts",
+    "./lib/resources/wvw/objectives": "./src/lib/resources/wvw/objectives.ts",
+    "./lib/resources/wvw/ranks": "./src/lib/resources/wvw/ranks.ts",
+    "./lib/resources/wvw/timers": "./src/lib/resources/wvw/timers.ts",
+    "./lib/resources/wvw/upgrades": "./src/lib/resources/wvw/upgrades.ts"
   },
   "dependencies": {
     "@henrygd/queue": "^1.2.0",

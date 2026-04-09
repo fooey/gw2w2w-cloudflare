@@ -1,5 +1,5 @@
 import { MAP_TYPES, TEAM_COLORS } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
+import { type WvWObjective } from '@repo/service-api/lib/resources/wvw/objectives';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

@@ -4,7 +4,7 @@ import {
   type WvWLockoutTimer,
   type WvWTeamAssignmentTimer,
   type WvWTimers,
-} from '@service-api/lib/resources/wvw/timers';
+} from '@repo/service-api/lib/resources/wvw/timers';
 
 export function fetchWvwTimers(): Promise<WvWTimers[] | null> {
   return apiFetch(`/gw2/wvw/timers`).then(parseResponse<WvWTimers[]>);

@@ -1,5 +1,5 @@
 import { fetchWvwObjectives } from '@gw2w2w/lib/api/gw2/wvw/objectives';
-import { type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
+import { type WvWObjective } from '@repo/service-api/lib/resources/wvw/objectives';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 export async function getWvWObjectIcons() {

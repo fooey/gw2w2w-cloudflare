@@ -4,8 +4,8 @@ import {
   type ClaimEvent,
   type ObjectiveEvent,
 } from '@gw2w2w/lib/store/objectiveLog';
-import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
-import { type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
+import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
+import { type WvWObjective } from '@repo/service-api/lib/resources/wvw/objectives';
 import { useEffect, useRef } from 'react';
 
 interface ObjectiveSnapshot {

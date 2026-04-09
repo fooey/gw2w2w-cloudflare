@@ -3,8 +3,8 @@
 import { fetchWvwMatchesDirect } from '@gw2w2w/lib/api/gw2/wvw/matches';
 import { useUserPrefs } from '@gw2w2w/lib/store/userPrefs';
 import { LANGS } from '@gw2w2w/ui/wvw/config/lang';
-import { withJitter } from '@service-api/lib/resources/constants';
-import { type WvWMatch } from '@service-api/lib/resources/wvw/matches';
+import { withJitter } from '@repo/service-api/lib/resources/constants';
+import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
 import { QueryClient, QueryClientProvider, useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useState } from 'react';

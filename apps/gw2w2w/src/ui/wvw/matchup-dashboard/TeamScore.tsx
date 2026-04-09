@@ -2,8 +2,8 @@
 
 import { cn } from '@gw2w2w/lib/utils/cn';
 import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
-import { type WvWTeam } from '@service-api/definitions';
-import { type WvWMatchObjective } from '@service-api/lib/resources/wvw/matches';
+import { type WvWTeam } from '@repo/service-api/definitions';
+import { type WvWMatchObjective } from '@repo/service-api/lib/resources/wvw/matches';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { type Lang } from '../config/lang';

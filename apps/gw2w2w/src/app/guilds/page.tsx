@@ -2,7 +2,7 @@ import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrou
 import { getEmblemSrc } from '@gw2w2w/lib/emblems';
 import { GuildSearch } from '@gw2w2w/ui/guilds/guild-search/GuildSearch';
 import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
-import { type Guild } from '@service-api/lib/types';
+import { type Guild } from '@repo/service-api/lib/types';
 import clsx from 'clsx';
 import Link from 'next/link';
 

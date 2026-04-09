@@ -9,7 +9,7 @@ import { ObjectiveDirection } from '@gw2w2w/ui/wvw/matchup/objective/Direction';
 import { ObjectiveGuild } from '@gw2w2w/ui/wvw/matchup/objective/Guild';
 import { ObjectiveName } from '@gw2w2w/ui/wvw/matchup/objective/Name';
 import { ObjectiveTimer } from '@gw2w2w/ui/wvw/matchup/objective/Timer';
-import { type WvWMatchObjective } from '@service-api/lib/resources/wvw/matches';
+import { type WvWMatchObjective } from '@repo/service-api/lib/resources/wvw/matches';
 
 const RI_TIMER = 5 * 60;
 

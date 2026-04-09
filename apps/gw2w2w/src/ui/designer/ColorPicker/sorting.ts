@@ -1,4 +1,4 @@
-import { type Color } from '@service-api/lib/types';
+import { type Color } from '@repo/service-api/lib/types';
 
 export const SORT_OPTIONS = [
   { key: 'id', label: 'ID' },

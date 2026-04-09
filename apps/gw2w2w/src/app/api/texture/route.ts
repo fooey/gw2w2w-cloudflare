@@ -1,5 +1,5 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
+import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const ALLOWED_HOSTNAME = 'render.guildwars2.com';

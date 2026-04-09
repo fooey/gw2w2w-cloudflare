@@ -2,7 +2,7 @@ import { WvWTeamGuildFilter } from '@gw2w2w/app/wvw/teams/[teamName]/WvWTeamGuil
 import { fetchWvwTeamGuildDetails } from '@gw2w2w/lib/api/gw2/wvw/teams';
 import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
 import { type Guild } from '@repo/service-api/lib/types';
-import { WVW_TEAMS } from '@repo/service-api/src/definitions';
+import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 

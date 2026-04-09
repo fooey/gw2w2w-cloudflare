@@ -9,7 +9,7 @@ import {
   SparklesIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
-import { type Color, type Emblem } from '@service-api/lib/types';
+import { type Color, type Emblem } from '@repo/service-api/lib/types';
 import { useEffect, useRef, useState } from 'react';
 import { EmblemPreview } from '../EmblemPreview';
 import { type EmblemState } from '../types';
