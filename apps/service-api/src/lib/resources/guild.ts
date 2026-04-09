@@ -1,8 +1,8 @@
 import { normalizeGuildName, validateArenaNetUuid } from '@repo/utils';
-import { type CloudflareEnv } from '@service-api/index';
-import { createCacheProviders } from '@service-api/lib/cache-providers';
-import { apiFetch } from '@service-api/lib/resources/api';
-import { type Guild } from '@service-api/lib/types/Guild';
+import { type CloudflareEnv } from '#index.ts';
+import { createCacheProviders } from '#lib/cache-providers/index.ts';
+import { apiFetch } from '#lib/resources/api.ts';
+import { type Guild } from '#lib/types/Guild.ts';
 import { withKvCache, withObjectCache } from './cache-wrapper';
 import { CACHE_TTL } from './constants';
 

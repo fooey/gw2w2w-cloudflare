@@ -1,8 +1,8 @@
 'use client';
 
-import { getEmblemSrc } from '@gw2w2w/lib/emblems';
-import { cn } from '@gw2w2w/lib/utils/cn';
-import { useGuild } from '@gw2w2w/lib/wvw/useGuild';
+import { getEmblemSrc } from '#lib/emblems';
+import { cn } from '#lib/utils/cn';
+import { useGuild } from '#lib/wvw/useGuild';
 import { NoSymbolIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import { useState } from 'react';

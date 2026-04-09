@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
-import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
-import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
-import { getEmblemBackground, getEmblemForeground } from '@service-api/lib/resources/emblem';
+import { type CloudflareEnv, type ErrorPayload } from '#index.ts';
+import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { getEmblemBackground, getEmblemForeground } from '#lib/resources/emblem.ts';
 import { Hono } from 'hono';
 import { z } from 'zod';
 

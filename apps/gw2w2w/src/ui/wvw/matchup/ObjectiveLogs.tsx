@@ -1,11 +1,11 @@
 'use client';
 
-import { EVENT_TYPES, getTimeCutoff, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '@gw2w2w/lib/store/logFilters';
-import { useObjectiveLog } from '@gw2w2w/lib/store/objectiveLog';
-import { cn } from '@gw2w2w/lib/utils/cn';
-import { MAP_TYPES } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { FilterGroup, TimeWindowFilter } from '@gw2w2w/ui/wvw/matchup/LogFilterGroup';
-import { getMapLabel, ObjectiveLogsRow } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogsRow';
+import { EVENT_TYPES, getTimeCutoff, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
+import { useObjectiveLog } from '#lib/store/objectiveLog';
+import { cn } from '#lib/utils/cn';
+import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
+import { getMapLabel, ObjectiveLogsRow } from '#ui/wvw/matchup/ObjectiveLogsRow';
 import { useRef, useState } from 'react';
 
 interface ObjectiveLogsProps {

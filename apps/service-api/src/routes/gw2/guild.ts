@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
-import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
-import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
-import { getGuild, searchGuild } from '@service-api/lib/resources/guild';
-import { type Guild } from '@service-api/lib/types';
+import { type CloudflareEnv, type ErrorPayload } from '#index.ts';
+import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { getGuild, searchGuild } from '#lib/resources/guild.ts';
+import { type Guild } from '#lib/types/index.ts';
 import { Hono } from 'hono';
 import { z } from 'zod';
 

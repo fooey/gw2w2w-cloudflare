@@ -1,7 +1,7 @@
 'use client';
 
-import { useClockStore } from '@gw2w2w/lib/store/useClock';
-import { cn } from '@gw2w2w/lib/utils/cn';
+import { useClockStore } from '#lib/store/useClock';
+import { cn } from '#lib/utils/cn';
 
 const FLIP_WINDOW_SECONDS = 5 * 60;
 const RI_TIMER = 5 * 60;

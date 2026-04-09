@@ -1,5 +1,5 @@
-import { cn } from '@gw2w2w/lib/utils/cn';
-import { SiteNav } from '@gw2w2w/ui/layout/SiteNav';
+import { cn } from '#lib/utils/cn';
+import { SiteNav } from '#ui/layout/SiteNav';
 
 interface SiteLayoutProps {
   pageHeader?: React.ReactNode;

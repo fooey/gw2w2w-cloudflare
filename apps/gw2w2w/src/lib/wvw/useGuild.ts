@@ -1,5 +1,5 @@
-import { fetchGuildDirect } from '@gw2w2w/lib/api/gw2/guild';
-import { type Guild } from '@repo/service-api/lib/types';
+import { fetchGuildDirect } from '#lib/api/gw2/guild';
+import { type Guild } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 export type UseGuildResult = Guild | null;

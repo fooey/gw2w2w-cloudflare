@@ -3,6 +3,9 @@
   "version": "1.0.4",
   "description": "",
   "main": "src/index.ts",
+  "imports": {
+    "#*": "./src/*"
+  },
   "scripts": {
     "dev": "wrangler dev --port 8787 --local",
     "deploy": "wrangler deploy",

@@ -1,9 +1,9 @@
-import { type CloudflareEnv } from '@service-api/index';
-import { createCacheProviders } from '@service-api/lib/cache-providers';
-import { apiFetch } from '@service-api/lib/resources/api';
-import { withFilteredObjectCache } from '@service-api/lib/resources/cache-wrapper';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
-import { type WvWObjective } from '@service-api/lib/resources/wvw/objectives';
+import { type CloudflareEnv } from '#index.ts';
+import { createCacheProviders } from '#lib/cache-providers/index.ts';
+import { apiFetch } from '#lib/resources/api.ts';
+import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { type WvWObjective } from '#lib/resources/wvw/objectives.ts';
 
 export interface WvWMatchTeams<T> {
   red: T;

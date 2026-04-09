@@ -1,4 +1,4 @@
-import { TIME_WINDOWS, type TimeWindow } from '@gw2w2w/lib/store/logFilters';
+import { TIME_WINDOWS, type TimeWindow } from '#lib/store/logFilters';
 import clsx from 'clsx';
 
 export function FilterGroup<T extends string>({

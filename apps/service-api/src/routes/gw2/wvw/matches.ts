@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
-import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
-import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
-import { getWvWMatchByWorld, getWvWMatches } from '@service-api/lib/resources/wvw/matches';
+import { type CloudflareEnv, type ErrorPayload } from '#index.ts';
+import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { getWvWMatchByWorld, getWvWMatches } from '#lib/resources/wvw/matches.ts';
 import { Hono } from 'hono';
 import { z } from 'zod';
 

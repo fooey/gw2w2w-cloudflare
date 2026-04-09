@@ -1,13 +1,13 @@
-import { type CloudflareEnv } from '@service-api/index';
-import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
+import { type CloudflareEnv } from '#index.ts';
+import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
 import {
   getWvWLockoutTimer,
   getWvWTeamAssignmentTimer,
   getWvWTimers,
   WVW_REGIONS,
   type WvWRegion,
-} from '@service-api/lib/resources/wvw/timers';
+} from '#lib/resources/wvw/timers.ts';
 import { Hono } from 'hono';
 
 export const apiWvwTimersRoute = new Hono<{ Bindings: CloudflareEnv }>()

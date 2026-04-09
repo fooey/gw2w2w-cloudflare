@@ -1,10 +1,11 @@
 'use client';
 
-import { type Lang } from '@gw2w2w/ui/wvw/config/lang';
-import { TEAM_COLORS } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { TeamScore } from '@gw2w2w/ui/wvw/matchup-dashboard/TeamScore';
-import { WVW_TEAMS, type WvWTeamId } from '@repo/service-api/definitions';
-import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
+import { type Lang } from '#ui/wvw/config/lang';
+import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
+import { TeamScore } from '#ui/wvw/matchup-dashboard/TeamScore';
+import { type WvWTeamId } from '@repo/service-api/types';
+import { WVW_TEAMS } from '@repo/service-api/definitions';
+import { type WvWMatch } from '@repo/service-api/types';
 import clsx from 'clsx';
 import { keyBy, sortBy } from 'lodash-es';
 

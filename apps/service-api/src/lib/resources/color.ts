@@ -1,8 +1,8 @@
-import { type CloudflareEnv } from '@service-api/index';
-import { createCacheProviders } from '@service-api/lib/cache-providers';
-import { apiFetch } from '@service-api/lib/resources/api';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
-import { type Color } from '@service-api/lib/types';
+import { type CloudflareEnv } from '#index.ts';
+import { createCacheProviders } from '#lib/cache-providers/index.ts';
+import { apiFetch } from '#lib/resources/api.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { type Color } from '#lib/types/index.ts';
 import { withFilteredObjectCache } from './cache-wrapper';
 
 function getColorFromApi(env: CloudflareEnv): Promise<Color[] | null> {

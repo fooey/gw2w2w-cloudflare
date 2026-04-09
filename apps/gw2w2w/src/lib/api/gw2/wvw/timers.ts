@@ -1,10 +1,6 @@
-import { apiFetch } from '@gw2w2w/lib/api/client';
-import { parseResponse } from '@gw2w2w/lib/api/utils';
-import {
-  type WvWLockoutTimer,
-  type WvWTeamAssignmentTimer,
-  type WvWTimers,
-} from '@repo/service-api/lib/resources/wvw/timers';
+import { apiFetch } from '#lib/api/client';
+import { parseResponse } from '#lib/api/utils';
+import { type WvWLockoutTimer, type WvWTeamAssignmentTimer, type WvWTimers } from '@repo/service-api/types';
 
 export function fetchWvwTimers(): Promise<WvWTimers[] | null> {
   return apiFetch(`/gw2/wvw/timers`).then(parseResponse<WvWTimers[]>);

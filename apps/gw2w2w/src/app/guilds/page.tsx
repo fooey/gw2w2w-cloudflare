@@ -1,8 +1,8 @@
-import { emblemBackgroundClasses } from '@gw2w2w/lib/definitions/emblem-backgrounds';
-import { getEmblemSrc } from '@gw2w2w/lib/emblems';
-import { GuildSearch } from '@gw2w2w/ui/guilds/guild-search/GuildSearch';
-import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
-import { type Guild } from '@repo/service-api/lib/types';
+import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
+import { getEmblemSrc } from '#lib/emblems';
+import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
+import SiteLayout from '#ui/layout/SiteLayout';
+import { type Guild } from '@repo/service-api/types';
 import clsx from 'clsx';
 import Link from 'next/link';
 

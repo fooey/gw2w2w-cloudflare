@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
-import { type CloudflareEnv } from '@service-emblem/index';
-import { getApiClient, getEmblemBytes, getEmblemBytesByGuildId, HttpError, searchGuild } from '@service-emblem/lib/api';
+import { type CloudflareEnv } from '#index.ts';
+import { getApiClient, getEmblemBytes, getEmblemBytesByGuildId, HttpError, searchGuild } from '#lib/api.ts';
 import { Hono } from 'hono';
 import z from 'zod';
 

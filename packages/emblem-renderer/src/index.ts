@@ -1,5 +1,5 @@
 import { fliph, flipv, PhotonImage } from '@cf-wasm/photon';
-import { type Color, type Guild } from '@repo/service-api/lib/types';
+import { type Color, type Guild } from '@repo/service-api/types';
 import { type ColorRGB, getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
 
 export { renderEmblemPixels, type ColorRGB };

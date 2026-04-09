@@ -1,5 +1,5 @@
 import { allowedCsrf, allowedOrigin } from '@repo/utils/routing/security';
-import { serviceEmblemRoute } from '@service-emblem/routes/emblem';
+import { serviceEmblemRoute } from '#routes/emblem.ts';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';

@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
-import { WVW_TEAMS } from '@service-api/definitions';
-import { type CloudflareEnv, type ErrorPayload } from '@service-api/index';
-import { withCacheJson } from '@service-api/lib/cache-providers/cf-cache';
-import { CACHE_TTL } from '@service-api/lib/resources/constants';
-import { getWvwGuild } from '@service-api/lib/resources/wvw/guilds';
+import { WVW_TEAMS } from '#definitions/index.ts';
+import { type CloudflareEnv, type ErrorPayload } from '#index.ts';
+import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { getWvwGuild } from '#lib/resources/wvw/guilds.ts';
 import { Hono } from 'hono';
 import { z } from 'zod';
 

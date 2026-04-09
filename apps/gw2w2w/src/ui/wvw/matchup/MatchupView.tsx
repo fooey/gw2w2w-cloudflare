@@ -1,15 +1,15 @@
 'use client';
 
-import { useUserPrefs } from '@gw2w2w/lib/store/userPrefs';
-import { useMatch } from '@gw2w2w/lib/wvw/useMatch';
-import { SiteLayoutFullWidth } from '@gw2w2w/ui/layout/SiteLayout';
-import { objectivesLayout } from '@gw2w2w/ui/wvw/config/objectivesLayoutConfig';
-import { MAP_TYPES } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { MatchMap } from '@gw2w2w/ui/wvw/matchup/MatchMap';
-import { MatchScoreboard } from '@gw2w2w/ui/wvw/matchup/MatchScoreboard';
-import { GuildActivity } from '@gw2w2w/ui/wvw/matchup/GuildActivity';
-import { ObjectiveLogs } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogs';
-import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
+import { useUserPrefs } from '#lib/store/userPrefs';
+import { useMatch } from '#lib/wvw/useMatch';
+import { SiteLayoutFullWidth } from '#ui/layout/SiteLayout';
+import { objectivesLayout } from '#ui/wvw/config/objectivesLayoutConfig';
+import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
+import { MatchMap } from '#ui/wvw/matchup/MatchMap';
+import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
+import { GuildActivity } from '#ui/wvw/matchup/GuildActivity';
+import { ObjectiveLogs } from '#ui/wvw/matchup/ObjectiveLogs';
+import { type WvWMatch } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
   match: WvWMatch;

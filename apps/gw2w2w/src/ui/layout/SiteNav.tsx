@@ -1,6 +1,6 @@
 'use client';
 
-import { pageAttributes } from '@gw2w2w/lib/definitions/site-sections';
+import { pageAttributes } from '#lib/definitions/site-sections';
 import {
   Disclosure,
   DisclosureButton,

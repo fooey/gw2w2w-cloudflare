@@ -1,6 +1,6 @@
 'use client';
 
-import { MatchupView, type MatchupViewProps } from '@gw2w2w/ui/wvw/matchup/MatchupView';
+import { MatchupView, type MatchupViewProps } from '#ui/wvw/matchup/MatchupView';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 

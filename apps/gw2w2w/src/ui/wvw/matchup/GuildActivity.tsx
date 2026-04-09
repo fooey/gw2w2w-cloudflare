@@ -1,14 +1,14 @@
 'use client';
 
-import { getEmblemSrc } from '@gw2w2w/lib/emblems';
-import { getTimeCutoff, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '@gw2w2w/lib/store/logFilters';
-import { type ClaimEvent, useObjectiveLog } from '@gw2w2w/lib/store/objectiveLog';
-import { cn } from '@gw2w2w/lib/utils/cn';
-import { useGuild } from '@gw2w2w/lib/wvw/useGuild';
-import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
-import { MAP_TYPES, teamColorConfig } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { FilterGroup, TimeWindowFilter } from '@gw2w2w/ui/wvw/matchup/LogFilterGroup';
-import { getMapLabel } from '@gw2w2w/ui/wvw/matchup/ObjectiveLogsRow';
+import { getEmblemSrc } from '#lib/emblems';
+import { getTimeCutoff, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
+import { type ClaimEvent, useObjectiveLog } from '#lib/store/objectiveLog';
+import { cn } from '#lib/utils/cn';
+import { useGuild } from '#lib/wvw/useGuild';
+import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
+import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
+import { getMapLabel } from '#ui/wvw/matchup/ObjectiveLogsRow';
 import Link from 'next/link';
 import { useState } from 'react';
 

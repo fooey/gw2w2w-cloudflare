@@ -1,4 +1,4 @@
-import { type CloudflareEnv } from '@service-api/index';
+import { type CloudflareEnv } from '#index.ts';
 import { Hono } from 'hono';
 import { apiColorRoute } from './color';
 import { apiEmblemRoute } from './emblem';

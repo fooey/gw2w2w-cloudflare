@@ -1,6 +1,6 @@
-import { apiFetch, GW2_API_BASE } from '@gw2w2w/lib/api/client';
-import { parseResponse } from '@gw2w2w/lib/api/utils';
-import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
+import { apiFetch, GW2_API_BASE } from '#lib/api/client';
+import { parseResponse } from '#lib/api/utils';
+import { type WvWMatch } from '@repo/service-api/types';
 
 export function fetchWvwMatches(): Promise<WvWMatch[] | null> {
   return apiFetch(`/gw2/wvw/matches`).then(parseResponse<WvWMatch[]>);

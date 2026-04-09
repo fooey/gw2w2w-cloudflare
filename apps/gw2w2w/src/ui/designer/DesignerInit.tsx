@@ -1,6 +1,6 @@
 'use client';
 
-import { type Emblem } from '@repo/service-api/lib/types';
+import { type Emblem } from '@repo/service-api/types';
 import { useEffect, useState } from 'react';
 
 import { TextureCacheManager } from './TextureCacheManager';

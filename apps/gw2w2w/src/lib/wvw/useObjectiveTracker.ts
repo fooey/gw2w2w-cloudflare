@@ -1,11 +1,5 @@
-import {
-  useObjectiveLog,
-  type CaptureEvent,
-  type ClaimEvent,
-  type ObjectiveEvent,
-} from '@gw2w2w/lib/store/objectiveLog';
-import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
-import { type WvWObjective } from '@repo/service-api/lib/resources/wvw/objectives';
+import { useObjectiveLog, type CaptureEvent, type ClaimEvent, type ObjectiveEvent } from '#lib/store/objectiveLog';
+import { type WvWMatch, type WvWObjective } from '@repo/service-api/types';
 import { useEffect, useRef } from 'react';
 
 interface ObjectiveSnapshot {

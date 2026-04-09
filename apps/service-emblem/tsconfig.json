@@ -6,11 +6,7 @@
     "moduleResolution": "NodeNext",
     "lib": ["esnext"],
     "types": ["@cloudflare/workers-types"],
-    "incremental": true,
-    "paths": {
-      "@service-emblem/*": ["./src/*"],
-      "@service-api/*": ["../service-api/src/*"]
-    }
+    "incremental": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

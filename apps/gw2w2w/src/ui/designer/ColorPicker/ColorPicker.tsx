@@ -9,7 +9,7 @@ import {
   SparklesIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
-import { type Color } from '@repo/service-api/lib/types';
+import { type Color } from '@repo/service-api/types';
 import { matchSorter } from 'match-sorter';
 import { useEffect, useRef, useState } from 'react';
 import { HUE_CATEGORIES, RARITY_CATEGORIES } from './filtering';

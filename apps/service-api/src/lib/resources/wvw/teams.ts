@@ -1,7 +1,7 @@
-import { WVW_TEAMS, type WvWTeam } from '@service-api/definitions/wvw-teams';
-import { type CloudflareEnv } from '@service-api/index';
-import { createCacheProviders } from '@service-api/lib/cache-providers';
-import { withFilteredObjectCache } from '@service-api/lib/resources/cache-wrapper';
+import { WVW_TEAMS, type WvWTeam } from '#definitions/wvw-teams.ts';
+import { type CloudflareEnv } from '#index.ts';
+import { createCacheProviders } from '#lib/cache-providers/index.ts';
+import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
 
 function getWvwTeamFromApi(): Promise<WvWTeam[] | null> {
   return Promise.resolve(Object.values(WVW_TEAMS));

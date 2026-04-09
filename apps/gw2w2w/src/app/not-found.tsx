@@ -1,4 +1,4 @@
-import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
+import SiteLayout from '#ui/layout/SiteLayout';
 import Link from 'next/link';
 
 export default function NotFound() {

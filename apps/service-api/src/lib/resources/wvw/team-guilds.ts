@@ -1,7 +1,7 @@
-import { type CloudflareEnv } from '@service-api/index';
-import { createCacheProviders } from '@service-api/lib/cache-providers';
-import { getGuild } from '@service-api/lib/resources/guild';
-import { type Guild } from '@service-api/lib/types';
+import { type CloudflareEnv } from '#index.ts';
+import { createCacheProviders } from '#lib/cache-providers/index.ts';
+import { getGuild } from '#lib/resources/guild.ts';
+import { type Guild } from '#lib/types/index.ts';
 import { newQueue } from '@henrygd/queue/rl';
 import { withObjectCache } from '../cache-wrapper';
 import { getWvwGuild } from './guilds';

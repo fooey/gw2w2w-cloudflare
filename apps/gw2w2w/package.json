@@ -2,6 +2,15 @@
   "name": "gw2w2w",
   "version": "1.0.4",
   "private": true,
+  "imports": {
+    "#*": [
+      "./src/*",
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts",
+      "./src/*/index.tsx"
+    ]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

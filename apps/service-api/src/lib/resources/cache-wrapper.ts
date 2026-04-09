@@ -1,12 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill';
-import { type CacheProviders } from '@service-api/lib/resources';
-import {
-  CACHE_TTL,
-  getEnableCacheLogging,
-  NOT_FOUND_CACHE_EXPIRATION,
-  NOT_FOUND_CACHE_VALUE,
-  withJitter,
-} from './constants';
+import { withJitter } from '@repo/utils';
+import { type CacheProviders } from '#lib/resources/index.ts';
+import { CACHE_TTL, getEnableCacheLogging, NOT_FOUND_CACHE_EXPIRATION, NOT_FOUND_CACHE_VALUE } from './constants';
 
 export interface CacheConfig {
   /** TTL for successful cache entries (seconds) */

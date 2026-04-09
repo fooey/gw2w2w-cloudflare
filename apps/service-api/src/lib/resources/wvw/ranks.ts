@@ -1,7 +1,7 @@
-import { type CloudflareEnv } from '@service-api/index';
-import { createCacheProviders } from '@service-api/lib/cache-providers';
-import { apiFetch } from '@service-api/lib/resources/api';
-import { withFilteredObjectCache } from '@service-api/lib/resources/cache-wrapper';
+import { type CloudflareEnv } from '#index.ts';
+import { createCacheProviders } from '#lib/cache-providers/index.ts';
+import { apiFetch } from '#lib/resources/api.ts';
+import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
 
 export interface WvWRank {
   id: number;

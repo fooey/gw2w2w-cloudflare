@@ -6,11 +6,7 @@
     "types": ["node"],
     "noUncheckedSideEffectImports": false,
     "jsx": "react-jsx",
-    "incremental": true,
-    "paths": {
-      "@gw2w2w/*": ["./src/*"],
-      "@service-api/*": ["../service-api/src/*"]
-    }
+    "incremental": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts"],
   "exclude": ["node_modules"]

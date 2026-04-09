@@ -1,4 +1,4 @@
-import { DEFAULT_LANG, LANGS, type Lang } from '@gw2w2w/ui/wvw/config/lang';
+import { DEFAULT_LANG, LANGS, type Lang } from '#ui/wvw/config/lang';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

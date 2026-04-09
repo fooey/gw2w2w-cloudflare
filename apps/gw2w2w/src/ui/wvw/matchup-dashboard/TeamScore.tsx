@@ -1,9 +1,8 @@
 'use client';
 
-import { cn } from '@gw2w2w/lib/utils/cn';
-import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
-import { type WvWTeam } from '@repo/service-api/definitions';
-import { type WvWMatchObjective } from '@repo/service-api/lib/resources/wvw/matches';
+import { cn } from '#lib/utils/cn';
+import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
+import { type WvWMatchObjective, type WvWTeam } from '@repo/service-api/types';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { type Lang } from '../config/lang';

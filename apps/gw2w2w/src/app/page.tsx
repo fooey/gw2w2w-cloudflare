@@ -1,5 +1,5 @@
-import { homePageAttributes, siteFeatures } from '@gw2w2w/lib/definitions/site-sections';
-import SiteLayout from '@gw2w2w/ui/layout/SiteLayout';
+import { homePageAttributes, siteFeatures } from '#lib/definitions/site-sections';
+import SiteLayout from '#ui/layout/SiteLayout';
 import Link from 'next/link';
 
 export default function Home() {

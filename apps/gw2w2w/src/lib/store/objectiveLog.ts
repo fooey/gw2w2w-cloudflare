@@ -1,4 +1,4 @@
-import { type WvWObjective } from '@repo/service-api/lib/resources/wvw/objectives';
+import { type WvWObjective } from '@repo/service-api/types';
 import { create } from 'zustand';
 
 export interface CaptureEvent {

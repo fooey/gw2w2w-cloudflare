@@ -1,7 +1,7 @@
-import { fetchWvwMatchDirect } from '@gw2w2w/lib/api/gw2/wvw/matches';
-import { useObjectiveTracker } from '@gw2w2w/lib/wvw/useObjectiveTracker';
-import { withJitter } from '@repo/service-api/lib/resources/constants';
-import { type WvWMatch } from '@repo/service-api/lib/resources/wvw/matches';
+import { fetchWvwMatchDirect } from '#lib/api/gw2/wvw/matches';
+import { useObjectiveTracker } from '#lib/wvw/useObjectiveTracker';
+import { withJitter } from '@repo/utils';
+import { type WvWMatch } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 export type UseMatchResults = WvWMatch | null;

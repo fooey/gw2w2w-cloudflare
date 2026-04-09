@@ -1,7 +1,7 @@
 'use client';
 
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
-import { type Color, type Emblem } from '@repo/service-api/lib/types';
+import { type Color, type Emblem } from '@repo/service-api/types';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { fetchTexture } from '../TextureCacheManager/textureCache';

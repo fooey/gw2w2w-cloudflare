@@ -1,4 +1,4 @@
-import { searchGuild } from '@gw2w2w/ui/guilds/guild-search/actions';
+import { searchGuild } from '#ui/guilds/guild-search/actions';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 
 export function GuildSearch({ defaultValue }: { defaultValue?: string }) {

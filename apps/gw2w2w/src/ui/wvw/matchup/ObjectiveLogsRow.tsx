@@ -1,13 +1,13 @@
-import { type ObjectiveEvent } from '@gw2w2w/lib/store/objectiveLog';
-import { useClockStore } from '@gw2w2w/lib/store/useClock';
-import { cn } from '@gw2w2w/lib/utils/cn';
-import { ObjectiveIcon } from '@gw2w2w/ui/wvw/common/ObjectiveIcon';
-import { getObjectiveDirection } from '@gw2w2w/ui/wvw/config/objectivesLayoutConfig';
-import { teamColorConfig, type TeamColorConfigKey } from '@gw2w2w/ui/wvw/config/teamColorConfig';
-import { ObjectiveDirection } from '@gw2w2w/ui/wvw/matchup/objective/Direction';
-import { ObjectiveGuild } from '@gw2w2w/ui/wvw/matchup/objective/Guild';
-import { ObjectiveName } from '@gw2w2w/ui/wvw/matchup/objective/Name';
-import { ObjectiveTimer } from '@gw2w2w/ui/wvw/matchup/objective/Timer';
+import { type ObjectiveEvent } from '#lib/store/objectiveLog';
+import { useClockStore } from '#lib/store/useClock';
+import { cn } from '#lib/utils/cn';
+import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
+import { getObjectiveDirection } from '#ui/wvw/config/objectivesLayoutConfig';
+import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
+import { ObjectiveDirection } from '#ui/wvw/matchup/objective/Direction';
+import { ObjectiveGuild } from '#ui/wvw/matchup/objective/Guild';
+import { ObjectiveName } from '#ui/wvw/matchup/objective/Name';
+import { ObjectiveTimer } from '#ui/wvw/matchup/objective/Timer';
 
 const RI_TIMER = 5 * 60;
 
