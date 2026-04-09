@@ -1,6 +1,5 @@
 import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
-// @ts-ignore
 import turboPlugin from 'eslint-plugin-turbo';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
@@ -8,9 +7,9 @@ import tseslint from 'typescript-eslint';
 export const config = defineConfig(
   js.configs.recommended,
   eslintConfigPrettier,
-  ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
   {
+    files: ['src/**/*.{ts,tsx,mts,cts}'],
+    extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
     languageOptions: {
       parserOptions: {
         projectService: true,

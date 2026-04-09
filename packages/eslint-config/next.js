@@ -1,14 +1,15 @@
-import pluginNext from '@next/eslint-plugin-next';
 import pluginReact from '@eslint-react/eslint-plugin';
-import { defineConfig, globalIgnores } from 'eslint/config';
+import pluginNext from '@next/eslint-plugin-next';
 import pluginReactCompiler from 'eslint-plugin-react-compiler';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import { config as baseConfig } from './base.js';
 
 export const nextJsConfig = defineConfig(
   ...baseConfig,
   {
+    files: ['src/**/*.{ts,tsx,mts,cts}'],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -24,6 +25,7 @@ export const nextJsConfig = defineConfig(
     'next-env.d.ts',
   ]),
   {
+    files: ['src/**/*.{ts,tsx,mts,cts}'],
     ...pluginReact.configs['recommended-type-checked'],
     languageOptions: {
       globals: {
@@ -47,7 +49,7 @@ export const nextJsConfig = defineConfig(
   },
   {
     plugins: {
-      'react-hooks': pluginReactHooks as any,
+      'react-hooks': pluginReactHooks,
     },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,

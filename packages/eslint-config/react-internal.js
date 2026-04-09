@@ -16,7 +16,7 @@ export const config = defineConfig(
   },
   {
     plugins: {
-      'react-hooks': pluginReactHooks as any,
+      'react-hooks': pluginReactHooks,
     },
     rules: {
       ...pluginReactHooks.configs.recommended.rules,

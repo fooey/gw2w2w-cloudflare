@@ -1,8 +1,7 @@
 // import nextVitals from 'eslint-config-next/core-web-vitals';
 // import nextTs from 'eslint-config-next/typescript';
 // import { defineConfig, globalIgnores } from 'eslint/config';
-import { type Linter } from 'eslint';
-import { nextJsConfig } from '../../packages/eslint-config/next';
+import { nextJsConfig } from '@repo/eslint-config/next-js';
 
 // const eslintConfig = defineConfig([
 //   ...nextVitals,
@@ -23,7 +22,8 @@ import { nextJsConfig } from '../../packages/eslint-config/next';
 //   },
 // ]);
 
-const config: Linter.Config[] = [
+/** @type {import('eslint').Linter.Config[]} */
+const config = [
   ...nextJsConfig,
   {
     files: ['**/actions.ts', '**/actions/**/*.ts'],
@@ -31,6 +31,6 @@ const config: Linter.Config[] = [
       '@typescript-eslint/require-await': 'off',
     },
   },
-] as Linter.Config[];
+];
 
 export default config;
