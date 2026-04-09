@@ -2,47 +2,35 @@ import { fetchWvwObjectives } from '#lib/api/gw2/wvw/objectives';
 import { type WvWObjective } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
-export async function getWvWObjectIcons() {
-  const objectives = await fetchWvwObjectives();
-  if (!objectives) return null;
+type WvwObjectivesQueryOptions = Partial<
+  Omit<UseQueryOptions<WvWObjective[] | null>, 'queryKey' | 'queryFn' | 'staleTime'>
+>;
 
-  const iconMap = new Map<WvWObjective['type'], string | undefined>();
-  for (const { type, marker } of objectives) {
-    if (!iconMap.has(type)) {
-      iconMap.set(type, marker);
-    }
-  }
-
-  return Array.from(iconMap.entries()).map(([type, marker]) => ({ type, marker }));
-}
-
-export function useWvwObjectives(queryOptions?: Partial<UseQueryOptions<WvWObjective[] | null>>) {
+export function useWvwObjectives(queryOptions?: WvwObjectivesQueryOptions) {
   return useQuery({
+    ...queryOptions,
     queryKey: ['wvwObjectives'],
     queryFn: () => fetchWvwObjectives(),
-    ...queryOptions,
+    staleTime: Infinity,
   });
 }
-export function useWvwObjective(objectiveId: string, queryOptions?: Partial<UseQueryOptions<WvWObjective | null>>) {
-  const objectivesQuery = useWvwObjectives(queryOptions as Partial<UseQueryOptions<WvWObjective[] | null>>);
-  const objectivesDictionary = objectivesQuery.data?.reduce(
-    (dict, obj) => {
-      dict[obj.id] = obj;
-      return dict;
-    },
-    {} as Record<string, WvWObjective>,
-  );
 
-  return {
-    ...objectivesQuery,
-    data: objectiveId && objectivesDictionary ? objectivesDictionary[objectiveId] : null,
-  };
-}
-
-export function useWvWObjectIcon(type: WvWObjective['type']) {
+export function useWvwObjective(objectiveId: string, queryOptions?: Omit<WvwObjectivesQueryOptions, 'select'>) {
   return useQuery({
+    ...queryOptions,
     queryKey: ['wvwObjectives'],
     queryFn: () => fetchWvwObjectives(),
+    staleTime: Infinity,
+    select: (data) => data?.find((obj) => obj.id === objectiveId) ?? null,
+  });
+}
+
+export function useWvWObjectIcon(type: WvWObjective['type'], queryOptions?: Omit<WvwObjectivesQueryOptions, 'select'>) {
+  return useQuery({
+    ...queryOptions,
+    queryKey: ['wvwObjectives'],
+    queryFn: () => fetchWvwObjectives(),
+    staleTime: Infinity,
     select: (data) => data?.find((obj) => obj.type === type)?.marker,
   });
 }
