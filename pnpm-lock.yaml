@@ -4,13 +4,40 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@cloudflare/workers-types':
+      specifier: ^4.20260404.1
+      version: 4.20260404.1
+    '@hono/zod-validator':
+      specifier: ^0.7.6
+      version: 0.7.6
+    '@types/node':
+      specifier: ^25.5.2
+      version: 25.5.2
+    eslint:
+      specifier: ^10.2.0
+      version: 10.2.0
+    hono:
+      specifier: ^4.12.10
+      version: 4.12.10
+    typescript:
+      specifier: ^6
+      version: 6.0.2
+    wrangler:
+      specifier: ^4.80.0
+      version: 4.80.0
+    zod:
+      specifier: ^4.3.6
+      version: 4.3.6
+
 importers:
 
   .:
     devDependencies:
       '@types/node':
-        specifier: ^24
-        version: 24.12.2
+        specifier: 'catalog:'
+        version: 25.5.2
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
@@ -21,10 +48,10 @@ importers:
         specifier: ^2.9.5
         version: 2.9.5
       typescript:
-        specifier: ^6
+        specifier: 'catalog:'
         version: 6.0.2
       wrangler:
-        specifier: ^4.80.0
+        specifier: 'catalog:'
         version: 4.80.0(@cloudflare/workers-types@4.20260404.1)
 
   apps/gw2w2w:
@@ -85,7 +112,7 @@ importers:
         version: 5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20260404.1
+        specifier: 'catalog:'
         version: 4.20260404.1
       '@opennextjs/cloudflare':
         specifier: ^1.18.0
@@ -100,7 +127,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       '@types/node':
-        specifier: ^25.5.2
+        specifier: 'catalog:'
         version: 25.5.2
       '@types/react':
         specifier: ^19.2.14
@@ -112,7 +139,7 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       eslint:
-        specifier: ^10.2.0
+        specifier: 'catalog:'
         version: 10.2.0(jiti@2.6.1)
       eslint-config-next:
         specifier: ^16.2.2
@@ -121,10 +148,10 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       typescript:
-        specifier: ^6
+        specifier: 'catalog:'
         version: 6.0.2
       wrangler:
-        specifier: ^4.80.0
+        specifier: 'catalog:'
         version: 4.80.0(@cloudflare/workers-types@4.20260404.1)
 
   apps/service-api:
@@ -133,7 +160,7 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@hono/zod-validator':
-        specifier: ^0.7.6
+        specifier: 'catalog:'
         version: 0.7.6(hono@4.12.10)(zod@4.3.6)
       '@js-temporal/polyfill':
         specifier: ^0.5.1
@@ -142,14 +169,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       hono:
-        specifier: ^4.12.10
+        specifier: 'catalog:'
         version: 4.12.10
       zod:
-        specifier: ^4.3.6
+        specifier: 'catalog:'
         version: 4.3.6
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20260404.1
+        specifier: 'catalog:'
         version: 4.20260404.1
       '@repo/eslint-config':
         specifier: workspace:*
@@ -158,19 +185,19 @@ importers:
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/node':
-        specifier: ^25.5.2
+        specifier: 'catalog:'
         version: 25.5.2
       eslint:
-        specifier: ^10.2.0
+        specifier: 'catalog:'
         version: 10.2.0(jiti@2.6.1)
       wrangler:
-        specifier: ^4.80.0
+        specifier: 'catalog:'
         version: 4.80.0(@cloudflare/workers-types@4.20260404.1)
 
   apps/service-emblem:
     dependencies:
       '@hono/zod-validator':
-        specifier: ^0.7.6
+        specifier: 'catalog:'
         version: 0.7.6(hono@4.12.10)(zod@4.3.6)
       '@repo/emblem-renderer':
         specifier: workspace:*
@@ -182,14 +209,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       hono:
-        specifier: ^4.12.10
+        specifier: 'catalog:'
         version: 4.12.10
       zod:
-        specifier: ^4.3.6
+        specifier: 'catalog:'
         version: 4.3.6
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20260404.1
+        specifier: 'catalog:'
         version: 4.20260404.1
       '@repo/eslint-config':
         specifier: workspace:*
@@ -198,10 +225,10 @@ importers:
         specifier: workspace:*
         version: link:../../packages/typescript-config
       eslint:
-        specifier: ^10.2.0
+        specifier: 'catalog:'
         version: 10.2.0(jiti@2.6.1)
       wrangler:
-        specifier: ^4.80.0
+        specifier: 'catalog:'
         version: 4.80.0(@cloudflare/workers-types@4.20260404.1)
 
   packages/emblem-renderer:
@@ -214,7 +241,7 @@ importers:
         version: link:../../apps/service-api
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: ^4.20260404.1
+        specifier: 'catalog:'
         version: 4.20260404.1
       '@repo/eslint-config':
         specifier: workspace:*
@@ -223,7 +250,7 @@ importers:
         specifier: workspace:*
         version: link:../typescript-config
       eslint:
-        specifier: ^10.2.0
+        specifier: 'catalog:'
         version: 10.2.0(jiti@2.6.1)
 
   packages/eslint-config:
@@ -238,7 +265,7 @@ importers:
         specifier: ^16.2.2
         version: 16.2.2
       eslint:
-        specifier: ^10.2.0
+        specifier: 'catalog:'
         version: 10.2.0(jiti@2.6.1)
       eslint-config-prettier:
         specifier: ^10.1.8
@@ -259,7 +286,7 @@ importers:
         specifier: ^17.4.0
         version: 17.4.0
       typescript:
-        specifier: ^6
+        specifier: 'catalog:'
         version: 6.0.2
       typescript-eslint:
         specifier: ^8.58.0
@@ -283,10 +310,10 @@ importers:
         specifier: workspace:*
         version: link:../typescript-config
       eslint:
-        specifier: ^10.2.0
+        specifier: 'catalog:'
         version: 10.2.0(jiti@2.6.1)
       typescript:
-        specifier: ^6
+        specifier: 'catalog:'
         version: 6.0.2
 
 packages:
@@ -1925,9 +1952,6 @@ packages:
 
   '@types/node@18.19.130':
     resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
-
-  '@types/node@24.12.2':
-    resolution: {integrity: sha512-A1sre26ke7HDIuY/M23nd9gfB+nrmhtYyMINbjI1zHJxYteKR6qSMX56FsmjMcDb3SMcjJg5BiRRgOCC/yBD0g==}
 
   '@types/node@25.5.2':
     resolution: {integrity: sha512-tO4ZIRKNC+MDWV4qKVZe3Ql/woTnmHDr5JD8UI5hn2pwBrHEwOEMZK7WlNb5RKB6EoJ02gwmQS9OrjuFnZYdpg==}
@@ -3923,9 +3947,6 @@ packages:
 
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-
-  undici-types@7.16.0:
-    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
@@ -6160,10 +6181,6 @@ snapshots:
   '@types/node@18.19.130':
     dependencies:
       undici-types: 5.26.5
-
-  '@types/node@24.12.2':
-    dependencies:
-      undici-types: 7.16.0
 
   '@types/node@25.5.2':
     dependencies:
@@ -8439,8 +8456,6 @@ snapshots:
       which-boxed-primitive: 1.1.1
 
   undici-types@5.26.5: {}
-
-  undici-types@7.16.0: {}
 
   undici-types@7.18.2: {}
 

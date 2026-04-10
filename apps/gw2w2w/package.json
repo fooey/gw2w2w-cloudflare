@@ -45,19 +45,19 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260404.1",
+    "@cloudflare/workers-types": "catalog:",
     "@opennextjs/cloudflare": "^1.18.0",
     "@tailwindcss/postcss": "^4.2.2",
-    "@types/node": "^25.5.2",
+    "@types/node": "catalog:",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^10.2.0",
+    "eslint": "catalog:",
     "eslint-config-next": "^16.2.2",
     "tailwindcss": "^4.2.2",
-    "typescript": "^6",
-    "wrangler": "^4.80.0"
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   }
 }

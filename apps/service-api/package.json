@@ -28,18 +28,18 @@
   },
   "dependencies": {
     "@henrygd/queue": "^1.2.0",
-    "@hono/zod-validator": "^0.7.6",
+    "@hono/zod-validator": "catalog:",
     "@js-temporal/polyfill": "^0.5.1",
     "@repo/utils": "workspace:*",
-    "hono": "^4.12.10",
-    "zod": "^4.3.6"
+    "hono": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260404.1",
+    "@cloudflare/workers-types": "catalog:",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "^25.5.2",
-    "eslint": "^10.2.0",
-    "wrangler": "^4.80.0"
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "wrangler": "catalog:"
   }
 }

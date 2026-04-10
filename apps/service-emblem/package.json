@@ -21,18 +21,18 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@hono/zod-validator": "^0.7.6",
+    "@hono/zod-validator": "catalog:",
     "@repo/emblem-renderer": "workspace:*",
     "@repo/service-api": "workspace:*",
     "@repo/utils": "workspace:*",
-    "hono": "^4.12.10",
-    "zod": "^4.3.6"
+    "hono": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260404.1",
+    "@cloudflare/workers-types": "catalog:",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "eslint": "^10.2.0",
-    "wrangler": "^4.80.0"
+    "eslint": "catalog:",
+    "wrangler": "catalog:"
   }
 }

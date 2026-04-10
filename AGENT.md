@@ -4,6 +4,18 @@
 
 This project uses **pnpm**. Always use `pnpm dlx` instead of `npx` when running one-off executables.
 
+## Dependency Management
+
+This repo uses **pnpm catalogs** for shared dependency versions. The catalog is defined in `pnpm-workspace.yaml`.
+
+**When adding or updating a dependency that is already in the catalog**, use `"catalog:"` as the version in `package.json` — never hardcode the version string.
+
+**When adding a new dependency that is used in 2 or more packages**, add it to the catalog in `pnpm-workspace.yaml` first, then reference it as `"catalog:"` in each `package.json`.
+
+**To upgrade a cataloged dependency**, update the version in `pnpm-workspace.yaml` and run `pnpm install`. Do not update individual `package.json` files.
+
+Current catalog entries: `wrangler`, `eslint`, `typescript`, `hono`, `@hono/zod-validator`, `zod`, `@cloudflare/workers-types`, `@types/node`.
+
 ## React Compiler
 
 **React 19 / React Compiler System Instructions:**

@@ -24,12 +24,12 @@
     "update:turbo": "pnpm dlx @turbo/codemod@latest update"
   },
   "devDependencies": {
-    "@types/node": "^24",
+    "@types/node": "catalog:",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2.9.5",
-    "typescript": "^6",
-    "wrangler": "^4.80.0"
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   },
   "engines": {
     "node": ">=24",

@@ -1,6 +1,17 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+
+catalog:
+  wrangler: "^4.80.0"
+  eslint: "^10.2.0"
+  typescript: "^6"
+  hono: "^4.12.10"
+  "@hono/zod-validator": "^0.7.6"
+  zod: "^4.3.6"
+  "@cloudflare/workers-types": "^4.20260404.1"
+  "@types/node": "^25.5.2"
+
 allowBuilds:
   esbuild: true
   sharp: true
