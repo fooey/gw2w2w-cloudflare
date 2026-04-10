@@ -13,7 +13,7 @@
     "check-types": "tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "ts:clean": "npx tsc --build --clean"
+    "ts:clean": "tsc --build --clean"
   },
   "keywords": [],
   "author": "",

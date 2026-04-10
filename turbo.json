@@ -7,7 +7,7 @@
       "dependsOn": ["^build"],
       "env": ["CF_PAGES_COMMIT_SHA"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "/dist/**"]
+      "outputs": [".next/**", "!.next/cache/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -27,8 +27,7 @@
       "dependsOn": ["transit"]
     },
     "format": {
-      "inputs": ["**/*.{ts,tsx,md,json,mjs,mts,cjs}"],
-      "dependsOn": ["transit"]
+      "inputs": ["**/*.{ts,tsx,md,json,mjs,mts,cjs}"]
     }
   }
 }
