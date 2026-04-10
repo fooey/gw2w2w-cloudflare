@@ -68,9 +68,6 @@ importers:
       '@repo/service-api':
         specifier: workspace:*
         version: link:../service-api
-      '@repo/service-emblem':
-        specifier: workspace:*
-        version: link:../service-emblem
       '@repo/utils':
         specifier: workspace:*
         version: link:../../packages/utils

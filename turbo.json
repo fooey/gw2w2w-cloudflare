@@ -2,6 +2,25 @@
   "$schema": "https://v2-9-5.turborepo.dev/schema.json",
   "ui": "tui",
   "globalEnv": ["NODE_ENV"],
+  "boundaries": {
+    "tags": {
+      "app": {
+        "dependents": {
+          "deny": ["app", "service", "library", "tooling"]
+        }
+      },
+      "library": {
+        "dependencies": {
+          "deny": ["app"]
+        }
+      },
+      "service": {
+        "dependencies": {
+          "deny": ["app"]
+        }
+      }
+    }
+  },
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

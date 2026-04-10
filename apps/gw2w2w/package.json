@@ -29,7 +29,6 @@
     "@heroicons/react": "^2.2.0",
     "@repo/emblem-renderer": "workspace:*",
     "@repo/service-api": "workspace:*",
-    "@repo/service-emblem": "workspace:*",
     "@repo/utils": "workspace:*",
     "@silvia-odwyer/photon": "^0.3.3",
     "@tanstack/react-query": "^5.96.2",

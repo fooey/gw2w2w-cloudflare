@@ -49,6 +49,18 @@ Run `pnpm format` on every file you create or modify before considering a task c
 
 Run `pnpm check-types` after formatting and before considering a task complete. Fix any type errors before finishing.
 
+## Package Boundaries
+
+**Always run `pnpm check-boundaries` after adding or changing any `@repo/*` import.** This enforces architectural rules across the monorepo:
+
+- `app` packages (`gw2w2w`) — nothing may import them
+- `service` packages (`service-api`, `service-emblem`) — cannot import `app` packages
+- `library` packages (`emblem-renderer`, `utils`) — cannot import `app` packages
+
+If `check-boundaries` reports a violation, fix the dependency or the package tag before finishing. Do not suppress the rule.
+
+- **Check boundaries**: `pnpm check-boundaries`
+
 ## Documentation Maintenance
 
 **Always keep `README.md` up to date.** When you add, remove, or significantly change a feature, architecture decision, or package, update the relevant sections of `README.md` in the same change. This includes:
