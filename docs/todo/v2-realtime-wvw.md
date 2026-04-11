@@ -19,20 +19,25 @@ A planned major evolution of the WvW tools — server-driven event tracking with
 
 ```
 GW2 API (/v2/wvw/matches?ids=all)
-   ↓ every ~6s (ETag-gated)
+   ↓ every ~6s (ETag-gated — 304 = skip all work)
 MatchupPoller DO  ← single global instance
-   ├── in-memory: previous matchup snapshot (diff runs entirely in memory, no storage reads)
-   ├── diff → detect captures and claims
-   ├── INSERT OR IGNORE new events → D1 (persistent log)
-   ├── INSERT OR REPLACE match_state → D1 (current match blob)
-   ├── UPDATE guild_activity → D1 (incremental aggregates)
+   ├── always (on ETag change):
+   │   ├── INSERT OR REPLACE match_state → D1 (full blob + end_time)
+   │   └── push match-state SSE → connected clients (scores, skirmishes)
+   ├── only when objective snapshot differs (scoped diff, not full JSON):
+   │   ├── INSERT OR IGNORE new events → D1 (captures / claims)
+   │   ├── UPSERT guild_activity → D1 (incremental aggregates, claims only)
+   │   └── push capture / claim SSE → subscribed clients
+   ├── on end_time advance (weekly reset):
+   │   ├── DELETE events + guild_activity
+   │   └── push reset SSE → all clients
    ├── reschedule alarm → self (next poll)
-   └── fan out → connected SSE clients (filtered per subscription)
+   └── (cold start) read match_state from D1 → rebuild in-memory objective snapshot
          ↑
       Browser clients
          ├── on connect: Worker queries D1 for current match state + recent events
-         ├── live updates: SSE push (match-state and event types)
-         └── on reconnect: Last-Event-ID → replay missed events from D1
+         ├── live updates: SSE push (match-state, capture, claim, reset event types)
+         └── on reconnect: Last-Event-ID → replay missed events from D1 (if no reset)
 ```
 
 ### Key Insight: The DO Is the Differ
@@ -60,9 +65,26 @@ Target interval: **~6 seconds**.
 
 ### ETag / Conditional Requests
 
-The GW2 API returns `ETag` headers. On each alarm, send `If-None-Match` with the previous ETag. A `304 Not Modified` response means nothing changed — skip diffing, skip all D1 writes, reschedule and sleep. Eliminates wasted compute and write ops during quiet periods.
+The GW2 API returns `ETag` headers. On each alarm, send `If-None-Match` with the previous ETag. A `304 Not Modified` response means nothing changed — skip all work, reschedule and sleep.
 
 Store the last ETag in DO memory (and D1 for cold-start recovery alongside match state).
+
+### Scoped Diffing: Objectives Only
+
+The full match payload includes kills, deaths, and skirmish tick scores, which update frequently and cause ETag changes independently of any objective state change. Running the full event diff on every ETag change wastes compute and risks spurious D1 writes.
+
+The alarm handler separates two concerns:
+
+1. **Match state** — always write the full blob to D1 and push a `match-state` SSE event when the ETag changes. Clients get score/skirmish updates through this path.
+
+2. **Event diff** — extract only the fields that drive events from each `maps[].objectives[]` entry and compare against the in-memory objective snapshot:
+   - `last_flipped` → capture detection
+   - `claimed_by` + `claimed_at` → claim detection
+   - `owner` → included in event payload
+
+   Only when the objective snapshot differs does the DO insert into `events`, update `guild_activity`, and fan out capture/claim SSE events.
+
+A skirmish tick (ETag changes, no objective change) therefore results in a `match-state` push with no event work. An objective flip results in both a `match-state` push and event inserts/fanout.
 
 ### Latency Floor
 
