@@ -7,8 +7,8 @@ interface ObjectiveSnapshot {
   objectiveType: WvWObjective['type'];
   owner: string;
   last_flipped: string;
-  claimed_by?: string;
-  claimed_at?: string;
+  claimed_by?: string | null;
+  claimed_at?: string | null;
 }
 
 export function useObjectiveTracker(match: WvWMatch | null | undefined) {

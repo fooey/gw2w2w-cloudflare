@@ -158,8 +158,24 @@ All TTLs use ±10% random jitter to prevent thundering herd on mass expiry.
 - `GET /v2/colors?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/colors)
 - `GET /v2/guild/search?name=<name>` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/search)
 - `GET /v2/guild/<id>` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/:id)
+- `GET /v2/wvw/matches` / `?ids=all` / `?world=<id>` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/matches)
+- `GET /v2/wvw/matches/overview?ids=all` — lightweight: worlds + schedule only
+- `GET /v2/wvw/matches/stats?ids=all` — kills/deaths per team per map
+- `GET /v2/wvw/objectives?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/objectives)
+- `GET /v2/worlds?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/worlds)
 
 General API reference: https://wiki.guildwars2.com/wiki/API:Main
+
+## Local API Reference Docs
+
+`apps/service-api/ref/api.guildwars2/` contains local documentation and live-sampled responses:
+
+- **`API.md`** — schema reference for all endpoints consumed by this project, with TypeScript type definitions, parameter tables, and known bugs
+- **`samples/`** — real API responses captured from the live GW2 API (sampled 2026-04-11):
+  - `wvw-matches-root.json` — root `/v2/wvw/matches` (array of active match IDs)
+  - `wvw-matches-all-single.json` — single full match object (trimmed; full response is ~47 KB per match)
+  - `wvw-matches-overview-all.json` — all 9 active matches from `/v2/wvw/matches/overview?ids=all`
+  - `wvw-matches-stats-all.json` — all 9 active matches from `/v2/wvw/matches/stats?ids=all`
 
 ## ESLint Config Structure
 

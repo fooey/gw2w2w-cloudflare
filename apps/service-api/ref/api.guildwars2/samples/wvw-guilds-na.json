@@ -1,0 +1,8 @@
+{
+  "_note": "Truncated — full response contains thousands of guild-to-team mappings. Keys are guild UUIDs; values are WvW team IDs (matching keys in definitions/wvw-teams.ts).",
+  "001D8557-12B6-4F6C-93FB-452529808948": "11003",
+  "00375D48-76C6-E311-8290-AC162DAE0BED": "11001",
+  "000A0EAE-FB4D-4C45-8225-EFF41D0A6871": "11006",
+  "00419C26-9A80-EE11-8465-02315AB41281": "11007",
+  "001E7824-78CF-E411-9621-AC162DAE8ACD": "11010"
+}

@@ -7,8 +7,8 @@ export interface WvWObjective {
   id: string;
   name: string;
   sector_id: number;
-  type: 'Spawn' | 'Camp' | 'Ruins' | 'Tower' | 'Keep' | 'Castle' | 'Mercenary' | 'Generic';
-  map_type: string;
+  type: 'Spawn' | 'Camp' | 'Ruins' | 'Tower' | 'Keep' | 'Castle' | 'Mercenary' | 'Generic' | 'Resource';
+  map_type: 'Center' | 'RedHome' | 'BlueHome' | 'GreenHome' | 'EdgeOfTheMists';
   map_id: number;
   upgrade_id?: number;
   coord?: [number, number, number];

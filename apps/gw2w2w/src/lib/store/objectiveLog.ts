@@ -1,4 +1,4 @@
-import { type WvWObjective } from '@repo/service-api/types';
+import { type WvWObjective, type WvWTeamColor } from '@repo/service-api/types';
 import { create } from 'zustand';
 
 export interface CaptureEvent {
@@ -8,7 +8,7 @@ export interface CaptureEvent {
   objectiveId: string;
   objectiveType: WvWObjective['type'];
   mapType: string;
-  owner: string;
+  owner: WvWTeamColor;
 }
 
 export interface ClaimEvent {
@@ -18,7 +18,7 @@ export interface ClaimEvent {
   objectiveId: string;
   objectiveType: WvWObjective['type'];
   mapType: string;
-  owner: string;
+  owner: WvWTeamColor;
   claimedBy: string;
 }
 

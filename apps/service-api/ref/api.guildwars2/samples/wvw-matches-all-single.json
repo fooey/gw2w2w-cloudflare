@@ -1,0 +1,154 @@
+{
+  "_note": "Single match object from GET /v2/wvw/matches?ids=all — sampled 2026-04-11. Skirmishes trimmed to first 2 of ~14. Maps trimmed to Center map only with first 6 objectives. Full response per match is ~47 KB.",
+  "id": "2-1",
+  "start_time": "2026-04-10T18:00:00Z",
+  "end_time": "2026-04-17T17:58:00Z",
+  "scores": {
+    "red": 87876,
+    "blue": 62478,
+    "green": 65532
+  },
+  "worlds": {
+    "red": 2003,
+    "blue": 2001,
+    "green": 2014
+  },
+  "all_worlds": {
+    "red": [12003, 2104, 2003],
+    "blue": [2102, 12001, 2001],
+    "green": [12014, 2014]
+  },
+  "deaths": {
+    "red": 5737,
+    "blue": 9102,
+    "green": 6257
+  },
+  "kills": {
+    "red": 10511,
+    "blue": 5570,
+    "green": 4536
+  },
+  "victory_points": {
+    "red": 367,
+    "blue": 246,
+    "green": 265
+  },
+  "skirmishes": [
+    {
+      "id": 1,
+      "scores": {
+        "red": 9049,
+        "blue": 5516,
+        "green": 7628
+      },
+      "map_scores": [
+        { "type": "Center", "scores": { "red": 3599, "blue": 2089, "green": 3147 } },
+        { "type": "RedHome", "scores": { "red": 1459, "blue": 1332, "green": 2147 } },
+        { "type": "BlueHome", "scores": { "red": 2638, "blue": 721, "green": 1014 } },
+        { "type": "GreenHome", "scores": { "red": 1353, "blue": 1374, "green": 1320 } }
+      ]
+    },
+    {
+      "id": 2,
+      "scores": {
+        "red": 6672,
+        "blue": 5741,
+        "green": 5668
+      },
+      "map_scores": [
+        { "type": "Center", "scores": { "red": 2852, "blue": 2814, "green": 2397 } },
+        { "type": "RedHome", "scores": { "red": 2067, "blue": 890, "green": 1501 } },
+        { "type": "BlueHome", "scores": { "red": 874, "blue": 1503, "green": 625 } },
+        { "type": "GreenHome", "scores": { "red": 879, "blue": 534, "green": 1145 } }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "id": 38,
+      "type": "Center",
+      "scores": {
+        "red": 41870,
+        "blue": 28229,
+        "green": 26810
+      },
+      "bonuses": [],
+      "objectives": [
+        {
+          "id": "38-131",
+          "type": "Spawn",
+          "owner": "Green",
+          "last_flipped": "2026-04-10T18:03:35Z",
+          "points_tick": 0,
+          "points_capture": 0
+        },
+        {
+          "id": "38-20",
+          "type": "Tower",
+          "owner": "Red",
+          "last_flipped": "2026-04-11T04:42:13Z",
+          "claimed_by": "B843251B-D57F-E711-80DA-101F7433AF15",
+          "claimed_at": "2026-04-11T04:42:58Z",
+          "points_tick": 10,
+          "points_capture": 40,
+          "yaks_delivered": 70,
+          "guild_upgrades": [583, 329, 483, 178, 590, 306]
+        },
+        {
+          "id": "38-10",
+          "type": "Camp",
+          "owner": "Green",
+          "last_flipped": "2026-04-11T20:48:28Z",
+          "claimed_by": "DD69E47F-7B07-E711-80D3-E83935B5B448",
+          "claimed_at": "2026-04-11T20:58:11Z",
+          "points_tick": 3,
+          "points_capture": 3,
+          "yaks_delivered": 18,
+          "guild_upgrades": []
+        },
+        {
+          "id": "38-9",
+          "type": "Castle",
+          "owner": "Red",
+          "last_flipped": "2026-04-11T21:03:30Z",
+          "claimed_by": "A8F44CB2-9B44-EF11-8465-0290273D6B3C",
+          "claimed_at": "2026-04-11T21:03:33Z",
+          "points_tick": 12,
+          "points_capture": 12,
+          "yaks_delivered": 2,
+          "guild_upgrades": []
+        },
+        {
+          "id": "38-4",
+          "type": "Camp",
+          "owner": "Green",
+          "last_flipped": "2026-04-11T21:10:36Z",
+          "claimed_by": "994E7254-4BBC-ED11-81AB-8B4A188BDE13",
+          "claimed_at": "2026-04-11T21:11:13Z",
+          "points_tick": 2,
+          "points_capture": 2,
+          "yaks_delivered": 7,
+          "guild_upgrades": []
+        },
+        {
+          "id": "38-9",
+          "type": "Ruins",
+          "owner": "Neutral",
+          "last_flipped": "2026-04-11T20:00:00Z",
+          "points_tick": 0,
+          "points_capture": 5
+        }
+      ],
+      "deaths": {
+        "red": 3202,
+        "blue": 4748,
+        "green": 3281
+      },
+      "kills": {
+        "red": 6147,
+        "blue": 3028,
+        "green": 1929
+      }
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "id": 10,
+    "name": "Sky",
+    "base_rgb": [128, 26, 26],
+    "cloth": {
+      "brightness": 22,
+      "contrast": 1.25,
+      "hue": 196,
+      "saturation": 0.742188,
+      "lightness": 1.32812,
+      "rgb": [54, 130, 160]
+    },
+    "leather": {
+      "brightness": 22,
+      "contrast": 1.25,
+      "hue": 196,
+      "saturation": 0.664062,
+      "lightness": 1.32812,
+      "rgb": [61, 129, 156]
+    },
+    "metal": {
+      "brightness": 22,
+      "contrast": 1.28906,
+      "hue": 196,
+      "saturation": 0.546875,
+      "lightness": 1.32812,
+      "rgb": [65, 123, 146]
+    },
+    "fur": {
+      "brightness": 22,
+      "contrast": 1.25,
+      "hue": 196,
+      "saturation": 0.742188,
+      "lightness": 1.32812,
+      "rgb": [54, 130, 160]
+    },
+    "item": 20370,
+    "categories": ["Blue", "Vibrant", "Rare"]
+  },
+  {
+    "id": 11,
+    "name": "Starry Night",
+    "base_rgb": [128, 26, 26],
+    "cloth": {
+      "brightness": -30,
+      "contrast": 1,
+      "hue": 188,
+      "saturation": 1.25,
+      "lightness": 0.625,
+      "rgb": [0, 31, 52]
+    },
+    "leather": {
+      "brightness": -25,
+      "contrast": 1,
+      "hue": 188,
+      "saturation": 1.05469,
+      "lightness": 0.78125,
+      "rgb": [0, 34, 51]
+    },
+    "metal": {
+      "brightness": -30,
+      "contrast": 1,
+      "hue": 188,
+      "saturation": 0.78125,
+      "lightness": 0.625,
+      "rgb": [0, 19, 32]
+    },
+    "fur": {
+      "brightness": -30,
+      "contrast": 1,
+      "hue": 188,
+      "saturation": 1.25,
+      "lightness": 0.625,
+      "rgb": [0, 31, 52]
+    },
+    "item": 20369,
+    "categories": ["Blue", "Vibrant", "Rare"]
+  }
+]

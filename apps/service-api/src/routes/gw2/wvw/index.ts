@@ -6,7 +6,6 @@ import { apiWvwMatchesRoute } from './matches';
 import { apiWvwObjectivesRoute } from './objectives';
 import { apiWvwRanksRoute } from './ranks';
 import { apiWvwTeamsRoute } from './teams';
-import { apiWvwTimersRoute } from './timers';
 import { apiWvwUpgradesRoute } from './upgrades';
 
 export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
@@ -16,5 +15,4 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .route('/objectives', apiWvwObjectivesRoute)
   .route('/ranks', apiWvwRanksRoute)
   .route('/teams', apiWvwTeamsRoute)
-  .route('/timers', apiWvwTimersRoute)
   .route('/upgrades', apiWvwUpgradesRoute);
