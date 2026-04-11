@@ -22,14 +22,13 @@ GW2 API (/v2/wvw/matches?ids=all)
    ↓ every ~6s (ETag-gated — 304 = skip all work)
 MatchupPoller DO  ← single global instance
    ├── always (on ETag change):
-   │   ├── INSERT OR REPLACE match_state → D1 (full blob + end_time)
-   │   └── push match-state SSE → connected clients (scores, skirmishes)
+   │   ├── INSERT OR REPLACE match_state → D1 (stripped blob + end_time)
+   │   └── push match-state SSE → connected clients (scores, kills/deaths, objectives, bonuses, worlds)
    ├── only when objective snapshot differs (scoped diff, not full JSON):
    │   ├── INSERT OR IGNORE new events → D1 (captures / claims)
-   │   ├── UPSERT guild_activity → D1 (incremental aggregates, claims only)
    │   └── push capture / claim SSE → subscribed clients
    ├── on end_time advance (weekly reset):
-   │   ├── DELETE events + guild_activity
+   │   ├── DELETE events
    │   └── push reset SSE → all clients
    ├── reschedule alarm → self (next poll)
    └── (cold start) read match_state from D1 → rebuild in-memory objective snapshot
@@ -75,16 +74,26 @@ The full match payload includes kills, deaths, and skirmish tick scores, which u
 
 The alarm handler separates two concerns:
 
-1. **Match state** — always write the full blob to D1 and push a `match-state` SSE event when the ETag changes. Clients get score/skirmish updates through this path.
+1. **Match state** — on every ETag change, store a stripped blob in D1 and push a `match-state` SSE event. The stored blob omits `skirmishes` (per-skirmish tick history). Clients receive:
+   - `scores` — cumulative war score per team
+   - `victory_points` — PPT tally
+   - `kills` / `deaths` — full-week totals per team
+   - `maps[].scores` / `maps[].kills` / `maps[].deaths` — per-map breakdowns
+   - `maps[].objectives[]` — full objective state (owner, last_flipped, claimed_by, claimed_at, yaks_delivered, guild_upgrades)
+   - `maps[].bonuses` — active map bonuses (e.g. Bloodlust)
+   - `worlds` / `all_worlds` — team composition
+   - `start_time` / `end_time` — for reset countdown and detection
+
+   Skirmishes are intentionally excluded — per-tick history is high-volume data with limited display value at this stage.
 
 2. **Event diff** — extract only the fields that drive events from each `maps[].objectives[]` entry and compare against the in-memory objective snapshot:
    - `last_flipped` → capture detection
    - `claimed_by` + `claimed_at` → claim detection
    - `owner` → included in event payload
 
-   Only when the objective snapshot differs does the DO insert into `events`, update `guild_activity`, and fan out capture/claim SSE events.
+   Only when the objective snapshot differs does the DO insert into `events` and fan out capture/claim SSE events.
 
-A skirmish tick (ETag changes, no objective change) therefore results in a `match-state` push with no event work. An objective flip results in both a `match-state` push and event inserts/fanout.
+A score/kill tick (ETag changes, no objective change) results in a `match-state` push with no event work. An objective flip results in both a `match-state` push and event inserts/fanout.
 
 ### Latency Floor
 
@@ -98,7 +107,7 @@ ArenaNet does not publish their WvW API refresh rate. Based on observation it ap
 
 - Full SQL — query by matchId, objectiveId, guild, time window
 - Append-only event writes, blob upserts for match state — simple access patterns
-- Seeding new clients and guild activity lookups are O(1) or bounded indexed reads
+- Seeding new clients is a bounded indexed read; guild activity is computed on demand via indexed GROUP BY
 - Free tier at this workload: ~50K event rows/week, 9 match state rows → nowhere near the 50M row write/month included limit
 
 ### Schema
@@ -107,9 +116,10 @@ ArenaNet does not publish their WvW API refresh rate. Based on observation it ap
 -- Current match state — 9 rows, one per active matchup (IDs are permanent: 1-1..1-4, 2-1..2-5)
 -- Upserted when ETag changes, used to seed new SSE clients without a GW2 API call.
 -- end_time is stored as a top-level column for cheap reset detection (string equality vs blob parse).
+-- data is WvWMatch with skirmishes[] stripped — skirmish history is excluded from the V2 scope.
 CREATE TABLE match_state (
   match_id   TEXT PRIMARY KEY,
-  data       TEXT NOT NULL,    -- full WvWMatch JSON blob
+  data       TEXT NOT NULL,    -- WvWMatchStripped JSON blob (WvWMatch minus skirmishes[])
   end_time   TEXT NOT NULL,    -- from WvWMatch.end_time; advances on weekly reset
   etag       TEXT,
   updated_at TEXT NOT NULL
@@ -130,33 +140,14 @@ CREATE TABLE events (
   UNIQUE (match_id, objective_id, type, at)
 );
 
+-- idx_events_match: cursor-based event feed per match (seeding, replay)
 CREATE INDEX idx_events_match ON events (match_id, id DESC);
-CREATE INDEX idx_events_guild ON events (claimed_by, id DESC);
 
--- Incremental guild activity aggregates — updated on each claim event insert.
--- Shaped to match the GuildStats interface consumed by GuildActivity.tsx.
--- Enables O(1) guild lookups without scanning the events table.
-CREATE TABLE guild_activity (
-  guild_id              TEXT NOT NULL,
-  match_id              TEXT NOT NULL,
-  -- claim counts by objective type (mirrors ACTIVITY_OBJ_TYPES: Castle / Keep / Tower / Camp)
-  claims_castle         INTEGER NOT NULL DEFAULT 0,
-  claims_keep           INTEGER NOT NULL DEFAULT 0,
-  claims_tower          INTEGER NOT NULL DEFAULT 0,
-  claims_camp           INTEGER NOT NULL DEFAULT 0,
-  -- claim counts by map (mirrors ACTIVITY_MAP_TYPES: Center / GreenHome / BlueHome / RedHome)
-  claims_center         INTEGER NOT NULL DEFAULT 0,
-  claims_green_home     INTEGER NOT NULL DEFAULT 0,
-  claims_blue_home      INTEGER NOT NULL DEFAULT 0,
-  claims_red_home       INTEGER NOT NULL DEFAULT 0,
-  -- total claims
-  total                 INTEGER NOT NULL DEFAULT 0,
-  -- most recent claim metadata (for lastActivity / lastActivityMap / lastActivityOwner)
-  last_seen_at          TEXT NOT NULL,
-  last_seen_map         TEXT NOT NULL,
-  last_seen_owner       TEXT NOT NULL,
-  PRIMARY KEY (guild_id, match_id)
-);
+-- idx_events_guild: guild event feed + per-guild claim aggregation
+CREATE INDEX idx_events_guild ON events (claimed_by, match_id, type, id DESC);
+
+-- idx_events_claims: full-match claim leaderboard across all guilds
+CREATE INDEX idx_events_claims ON events (match_id, type, claimed_by);
 ```
 
 ### Deduplication: INSERT OR IGNORE
@@ -172,39 +163,40 @@ No read-before-write needed. SQLite silently drops duplicates and does not consu
 
 The `at` value is always the **GW2 API timestamp** (`last_flipped` / `claimed_at`), never insertion time — this is what makes the key stable across restarts.
 
-### Guild Activity Upsert
+### Guild Activity Query
 
-On each new claim event, increment the relevant counters atomically using `INSERT ... ON CONFLICT DO UPDATE` (SQLite `UPSERT`). This avoids a read-modify-write cycle:
+Guild activity aggregates are computed on demand via a single indexed GROUP BY against `events`. No separate aggregate table is maintained — the events table is bounded to the current match week (~50K rows max) and the guild index makes per-guild scans fast.
 
 ```sql
-INSERT INTO guild_activity (
-  guild_id, match_id,
-  claims_castle, claims_keep, claims_tower, claims_camp,
-  claims_center, claims_green_home, claims_blue_home, claims_red_home,
-  total, last_seen_at, last_seen_map, last_seen_owner
-) VALUES (
-  ?1, ?2,
-  ?3, ?4, ?5, ?6,   -- 1 for the matching objective type, 0 for others
-  ?7, ?8, ?9, ?10,  -- 1 for the matching map, 0 for others
-  1, ?11, ?12, ?13
-)
-ON CONFLICT (guild_id, match_id) DO UPDATE SET
-  claims_castle     = claims_castle     + excluded.claims_castle,
-  claims_keep       = claims_keep       + excluded.claims_keep,
-  claims_tower      = claims_tower      + excluded.claims_tower,
-  claims_camp       = claims_camp       + excluded.claims_camp,
-  claims_center     = claims_center     + excluded.claims_center,
-  claims_green_home = claims_green_home + excluded.claims_green_home,
-  claims_blue_home  = claims_blue_home  + excluded.claims_blue_home,
-  claims_red_home   = claims_red_home   + excluded.claims_red_home,
-  total             = total             + 1,
-  last_seen_at      = excluded.last_seen_at,
-  last_seen_map     = excluded.last_seen_map,
-  last_seen_owner   = excluded.last_seen_owner
-WHERE excluded.last_seen_at > guild_activity.last_seen_at;
+-- Per-guild activity for a specific match (used by guild activity endpoint)
+SELECT
+  claimed_by                                                        AS guild_id,
+  match_id,
+  COUNT(*) FILTER (WHERE objective_type = 'Castle')                 AS claims_castle,
+  COUNT(*) FILTER (WHERE objective_type = 'Keep')                   AS claims_keep,
+  COUNT(*) FILTER (WHERE objective_type = 'Tower')                  AS claims_tower,
+  COUNT(*) FILTER (WHERE objective_type = 'Camp')                   AS claims_camp,
+  COUNT(*) FILTER (WHERE map_type = 'Center')                       AS claims_center,
+  COUNT(*) FILTER (WHERE map_type = 'GreenHome')                    AS claims_green_home,
+  COUNT(*) FILTER (WHERE map_type = 'BlueHome')                     AS claims_blue_home,
+  COUNT(*) FILTER (WHERE map_type = 'RedHome')                      AS claims_red_home,
+  COUNT(*)                                                          AS total,
+  MAX(at)                                                           AS last_seen_at
+FROM events
+WHERE claimed_by = ? AND match_id = ? AND type = 'claim'
+GROUP BY claimed_by, match_id;
+
+-- Full-match guild leaderboard (all guilds active in a match)
+SELECT
+  claimed_by AS guild_id,
+  COUNT(*)   AS total
+FROM events
+WHERE match_id = ? AND type = 'claim'
+GROUP BY claimed_by
+ORDER BY total DESC;
 ```
 
-Only triggered on `claim` events (not captures) since `GuildStats` is claim-only. The `WHERE` clause on the conflict update ensures `last_seen_*` fields only advance forward in time.
+Both queries use `idx_events_guild` and `idx_events_claims` respectively, scanning only claim rows for the relevant match.
 
 ### Match State Upsert
 
@@ -222,8 +214,7 @@ Match IDs are permanent and never change (`1-1` through `1-4` for NA, `2-1` thro
 On reset:
 
 1. `DELETE FROM events`
-2. `DELETE FROM guild_activity`
-3. `INSERT OR REPLACE` new match state rows
+2. `INSERT OR REPLACE` new match state rows
 
 ### Lazy Loading for Clients
 
@@ -251,7 +242,7 @@ Server-Sent Events over HTTP. Chosen over WebSockets because delivery is strictl
 
 ```
 event: match-state
-data: { matchId, data: WvWMatch }
+data: { matchId, data: WvWMatchStripped }  -- WvWMatch minus skirmishes[]
 
 event: capture
 data: { id, matchId, objectiveId, objectiveType, mapType, owner, at }
@@ -262,6 +253,8 @@ data: { id, matchId, objectiveId, objectiveType, mapType, owner, claimedBy, at }
 event: reset
 data: { matchId, endTime }
 ```
+
+`WvWMatchStripped` is the full `WvWMatch` shape minus `skirmishes[]`. The DO strips this field before writing to D1 and before fanning out to SSE clients.
 
 The `id:` field on each SSE event maps to the D1 autoincrement row id, used as the `Last-Event-ID` cursor for resumability.
 
@@ -340,7 +333,7 @@ Request notification permission **lazily** on the first relevant event — not o
 
 1. **MatchupPoller DO** — alarm loop, GW2 fetch (`ids=all`), ETag support, in-memory diff
 2. **D1 schema** — create tables and indexes, migration setup in `service-api`
-3. **D1 writes** — event inserts (`INSERT OR IGNORE`), match state upserts, guild activity updates
+3. **D1 writes** — event inserts (`INSERT OR IGNORE`), match state upserts
 4. **Cold-start recovery** — DO constructor reads D1 match state to rebuild in-memory snapshot
 5. **SSE endpoint** — Worker route that serves current state from D1 then streams from DO
 6. **`Last-Event-ID` replay** — missed event catch-up on reconnect
