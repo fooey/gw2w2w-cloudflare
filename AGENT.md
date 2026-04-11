@@ -128,6 +128,31 @@ The compositing pipeline is split by platform:
 
 ## Caching Strategy
 
+### Build ID Invalidation (`service-api`)
+
+Static GW2 game data (colors, objectives, abilities, ranks, upgrades, emblem layers) is cached in R2 with a 30-day TTL (`CACHE_TTL.patch`). These collections are invalidated when ArenaNet releases a game patch.
+
+**How it works:**
+
+1. A Cron Trigger fires every 15 minutes (`*/15 * * * *`) and calls `checkBuildId` in `src/cron/buildWatcher.ts`
+2. `checkBuildId` fetches `GET /v2/build` and compares the returned ID against `meta:build_id` in KV
+3. If the ID changed: deletes all R2 keys in `STATIC_CACHE_KEYS`, updates the stored build ID, returns `true`
+4. The `scheduled` handler in `src/index.ts` calls `ctx.waitUntil(warmStaticCaches(env))` when `true` is returned — re-fetching all collections fire-and-forget so no user ever sees a cold miss
+
+**To add a new build-invalidated resource**, edit `src/cron/buildWatcher.ts` only:
+
+- Add the R2 key string to `STATIC_CACHE_KEYS`
+- Add the corresponding `(env) => getMyResource('all', env)` entry to `WARM_CACHE_FNS`
+- Use `CACHE_TTL.patch` as the TTL in the resource's `withFilteredObjectCache` call
+
+**To test locally:**
+
+```
+curl "http://localhost:8788/__scheduled?cron=*/15+*+*+*+*"
+```
+
+(Requires `--test-scheduled` flag in wrangler dev — already set in `package.json`)
+
 ### Server-side (R2 key format)
 
 - `textures:<encodeURIComponent(gw2RenderUrl)>` — raw PNG ArrayBuffers, 1-year TTL

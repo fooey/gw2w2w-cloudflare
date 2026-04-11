@@ -11,6 +11,9 @@ hostname = "api.guildwars2.com"
 pattern = "api.gw2w2w.com"
 custom_domain = true
 
+[triggers]
+crons = ["*/15 * * * *"]
+
 [[kv_namespaces]]
 binding = "EMBLEM_ENGINE_GUILD_LOOKUP"
 id = "24797f12df1d4f8197edadc01d10535c"

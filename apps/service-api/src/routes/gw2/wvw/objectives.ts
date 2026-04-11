@@ -10,7 +10,7 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/', async (c) => {
     const objectives = await getWvWObjective('all', c.env);
 
-    return withCacheJson(c, CACHE_TTL.static.http, objectives);
+    return withCacheJson(c, CACHE_TTL.patch.http, objectives);
   })
   .get('/:id', zValidator('param', z.object({ id: z.string() })), async (c) => {
     const id = c.req.param('id');
@@ -25,5 +25,5 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return withCacheJson(c, CACHE_TTL.static.http, objective);
+    return withCacheJson(c, CACHE_TTL.patch.http, objective);
   });

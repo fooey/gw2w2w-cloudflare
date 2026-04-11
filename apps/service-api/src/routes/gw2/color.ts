@@ -9,7 +9,7 @@ import { z } from 'zod';
 export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/', async (c) => {
     const colors = await getColor('all', c.env);
-    return withCacheJson(c, CACHE_TTL.static.http, colors);
+    return withCacheJson(c, CACHE_TTL.patch.http, colors);
   })
   .get(
     '/:colorId',
@@ -28,6 +28,6 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
         return c.json(payload, 404);
       }
 
-      return withCacheJson(c, CACHE_TTL.static.http, color);
+      return withCacheJson(c, CACHE_TTL.patch.http, color);
     },
   );

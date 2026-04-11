@@ -9,7 +9,7 @@ import { z } from 'zod';
 export const apiWvwAbilitiesRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/', async (c) => {
     const abilities = await getWvWAbility('all', c.env);
-    return withCacheJson(c, CACHE_TTL.static.http, abilities);
+    return withCacheJson(c, CACHE_TTL.patch.http, abilities);
   })
   .get('/:id', zValidator('param', z.object({ id: z.coerce.number().int().positive() })), async (c) => {
     const id = c.req.param('id');
@@ -24,5 +24,5 @@ export const apiWvwAbilitiesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return withCacheJson(c, CACHE_TTL.static.http, ability);
+    return withCacheJson(c, CACHE_TTL.patch.http, ability);
   });

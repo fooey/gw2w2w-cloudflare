@@ -6,6 +6,7 @@ import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { type ContentfulStatusCode } from 'hono/utils/http-status';
+import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
 import { apiGw2Route } from './routes/gw2';
 
 export interface ErrorPayload {
@@ -68,4 +69,13 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   });
 
 export type ServiceApiAppType = typeof app;
-export default app;
+
+export default {
+  fetch: app.fetch,
+  async scheduled(_event: ScheduledEvent, env: CloudflareEnv, ctx: ExecutionContext): Promise<void> {
+    const didInvalidate = await checkBuildId(env);
+    if (didInvalidate) {
+      ctx.waitUntil(warmStaticCaches(env));
+    }
+  },
+};
