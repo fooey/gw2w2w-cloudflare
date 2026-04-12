@@ -277,11 +277,26 @@ Replays missed events before handing off to the live DO stream. Clients never mi
 Clients scope their feed via query params:
 
 ```
-/api/wvw/stream?matchId=2-5
-/api/wvw/stream?matchId=2-5&guild=AAAA-BBBB-CCCC-DDDD
+/wvw/stream?matchId=2-5
+/wvw/stream?matchId=2-5&guild=AAAA-BBBB-CCCC-DDDD
 ```
 
 The DO filters fanout so clients only receive events relevant to their subscription.
+
+---
+
+## Route Prefix Convention
+
+`service-api` mounts two top-level route trees:
+
+| Prefix   | What it serves                                                   |
+| -------- | ---------------------------------------------------------------- |
+| `/gw2/*` | GW2 API proxy — passes requests through to ArenaNet              |
+| `/wvw/*` | Our data — D1 match state, event log, guild activity, SSE stream |
+
+The new V2 endpoints all live under `/wvw`. They must **not** be nested under `/gw2` — the prefix signals the data source. `service-api/src/index.ts` gains a `.route('/wvw', apiWvwOwnRoute)` alongside the existing `.route('/gw2', apiGw2Route)`.
+
+GW2 proxy routes that happen to be about WvW (`/gw2/wvw/matches`, `/gw2/wvw/objectives`, etc.) remain unchanged.
 
 ---
 
@@ -364,32 +379,82 @@ New client responsibilities:
 
 ---
 
-## Implementation Order
+## Implementation Phases
 
-1. **MatchupPoller DO** — alarm loop, GW2 fetch (`ids=all`), ETag support, in-memory diff
-2. **D1 schema** — create tables and indexes, migration setup in `service-api`
+Each phase is a self-contained unit of work with a clear verification checkpoint before moving on.
+
+---
+
+### Phase 1: DO Polling + D1 Foundation
+
+The server-side engine. No client changes — pure backend infrastructure.
+
+1. **D1 schema** — create tables and indexes, migration setup in `service-api`
+2. **MatchupPoller DO** — alarm loop, GW2 fetch (`ids=all`), ETag support, in-memory objective diff
 3. **D1 writes** — event inserts (`INSERT OR IGNORE`), match state upserts
 4. **Cold-start recovery** — DO constructor reads D1 match state to rebuild in-memory snapshot
-5. **SSE endpoint** — Worker route that serves current state from D1 then streams from DO
-6. **`Last-Event-ID` replay** — missed event catch-up on reconnect
-7. **Reset detection** — `end_time` advance detection, `DELETE FROM events`, reset SSE event
-8. **Client SSE integration** — `useMatchSSE`, seed log from SSE on connect, remove `useObjectiveTracker`
-9. **Subscription filtering** — matchId and guild scoping on the SSE endpoint
-10. **REST event log endpoint** — cursor pagination + server-side filtering (mapType, objectiveType, eventType, owner, since)
-11. **REST guild activity endpoint** — offset pagination, server-side sort by any column, objectiveType and mapType filters
-12. **Infinite scroll event log (client)** — Zustand filter state drives REST API params; `useInfiniteQuery` replaces in-memory filter over `objectiveLog`
-13. **Guild activity paging (client)** — `useQuery` replaces client-side aggregate; sort/filter via query params
+
+**Verify:** Tail DO logs (`wrangler tail`) to confirm alarm loop firing ~every 6s. Query D1 directly to confirm `match_state` rows being upserted and `events` rows accumulating. Confirm no duplicate events after a forced DO eviction (cold-start test).
+
+---
+
+### Phase 2: SSE Endpoint
+
+Expose the DO's live stream over HTTP. No client changes yet — verify with `curl` and a raw browser `EventSource`.
+
+5. **SSE endpoint** — Worker route that seeds current state from D1 then hands off to DO stream
+6. **`Last-Event-ID` replay** — on reconnect, replay missed events from D1 before resuming live stream
+7. **Reset detection** — detect `end_time` advance, `DELETE FROM events`, push `reset` SSE event
+
+**Verify:** `curl -N /api/wvw/stream?matchId=2-5` shows an initial `match-state` event followed by live `capture`/`claim` events. Simulate disconnect + reconnect with a known `Last-Event-ID` and confirm missed events replay in order. Confirm a manual reset wipe clears D1 and pushes a `reset` event.
+
+---
+
+### Phase 3: Client SSE Integration
+
+Wire the Next.js app to the SSE stream. Remove all GW2 API polling from the client.
+
+8. **`useMatchSSE` hook** — open `EventSource`, handle `match-state`, `capture`, `claim`, `reset` event types; seed local log on connect
+9. **Subscription filtering** — pass `matchId` (and optionally `guild`) as query params; DO filters fanout
+10. **Remove client polling** — delete `useObjectiveTracker`, remove `refetchInterval` from `useMatch`
+
+**Verify:** App running in browser shows real-time objective events with no outbound GW2 API calls (check Network tab). Reconnect the tab and confirm the log picks up where it left off without duplicates.
+
+---
+
+### Phase 4: REST APIs
+
+Historical browsing and aggregation endpoints. Query D1 directly — no DO or GW2 API involved.
+
+11. **`GET /wvw/matches` endpoint** — reads all 9 `match_state` rows from D1; returns `WvWMatchStripped[]`; replaces direct GW2 API calls from the matchup dashboard list view
+12. **REST event log endpoint** — cursor pagination + server-side filtering (`mapType`, `objectiveType`, `eventType`, `owner`, `since`)
+13. **REST guild activity endpoint** — offset pagination, server-side sort by any column, `objectiveType` and `mapType` filters
+
+**Verify:** `GET /wvw/matches` returns all 9 matchup rows from D1 (not from GW2). Hit the event log and guild activity endpoints with representative query params and confirm correct rows, correct pagination cursors, and correct sort order. Confirm invalid params are rejected with 400s.
+
+---
+
+### Phase 5: Client REST Integration
+
+Replace in-memory client-side filtering and aggregation with server-driven pagination. Also migrates the matchup dashboard list away from direct GW2 API polling.
+
+14. **Matchup dashboard** — `MatchupDashboard` switches from `fetchWvwMatchesDirect` to `useQuery` against `GET /wvw/matches`; removes direct GW2 API dependency from the list view
+15. **Infinite scroll event log** — Zustand filter state drives REST API params via `useInfiniteQuery`; replaces in-memory filter over `objectiveLog`
+16. **Guild activity paging** — `useQuery` replaces client-side aggregate; sort/filter/page via REST guild endpoint
+
+**Verify:** Full end-to-end — no outbound GW2 API calls from any client page (check Network tab on both the list view and the individual matchup view). Filter controls update the REST query, infinite scroll loads pages, guild activity table sorts and filters server-side. No client-side array filtering remains.
 
 ---
 
 ## Related Existing Code
 
-| File                                               | Current role                                     | V2 fate                                              |
-| -------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------- |
-| `apps/gw2w2w/src/lib/wvw/useMatch.ts`              | Polls GW2 API via `useQuery` + `refetchInterval` | Replaced by `EventSource` hook                       |
-| `apps/gw2w2w/src/lib/wvw/useObjectiveTracker.ts`   | Client-side diff + event detection               | Logic moves server-side into DO; file removed        |
-| `apps/gw2w2w/src/lib/store/objectiveLog.ts`        | Ephemeral in-memory event log                    | Backed by D1; seeded on connect; paginated via REST  |
-| `apps/gw2w2w/src/lib/store/logFilters.ts`          | Client-side filter state (persisted)             | Unchanged — filter state now drives REST API params  |
-| `apps/gw2w2w/src/ui/wvw/matchup/GuildActivity.tsx` | Client-side aggregate from `objectiveLog`        | API-backed; sort/filter/page via REST guild endpoint |
-| `apps/gw2w2w/src/lib/api/gw2/`                     | Direct GW2 API client                            | No longer called from client                         |
-| `apps/service-api/`                                | REST proxy to GW2 API                            | MatchupPoller DO, SSE + REST endpoints, D1 bindings  |
+| File                                                            | Current role                                     | V2 fate                                                       |
+| --------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
+| `apps/gw2w2w/src/ui/wvw/matchup-dashboard/MatchupDashboard.tsx` | Polls GW2 directly via `refetchInterval: 60s`    | Polls `GET /wvw/matches` (D1-backed); removes direct GW2 call |
+| `apps/gw2w2w/src/lib/wvw/useMatch.ts`                           | Polls GW2 API via `useQuery` + `refetchInterval` | Replaced by `useMatchSSE` hook                                |
+| `apps/gw2w2w/src/lib/wvw/useObjectiveTracker.ts`                | Client-side diff + event detection               | Logic moves server-side into DO; file removed                 |
+| `apps/gw2w2w/src/lib/store/objectiveLog.ts`                     | Ephemeral in-memory event log                    | Backed by D1; seeded on connect; paginated via REST           |
+| `apps/gw2w2w/src/lib/store/logFilters.ts`                       | Client-side filter state (persisted)             | Unchanged — filter state now drives REST API params           |
+| `apps/gw2w2w/src/ui/wvw/matchup/GuildActivity.tsx`              | Client-side aggregate from `objectiveLog`        | API-backed; sort/filter/page via REST guild endpoint          |
+| `apps/gw2w2w/src/lib/api/gw2/`                                  | Direct GW2 API client                            | No longer called from client                                  |
+| `apps/service-api/`                                             | REST proxy to GW2 API                            | MatchupPoller DO, SSE + REST endpoints, D1 bindings           |
