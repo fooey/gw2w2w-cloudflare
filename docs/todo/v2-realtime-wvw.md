@@ -56,7 +56,7 @@ This collapses what is currently N independent client polls + N independent diff
 
 Cron Triggers have a 1-minute minimum interval. DO alarms support arbitrary sub-minute scheduling and are a first-class, documented Cloudflare feature — not a workaround. The alarm handler reschedules itself at the end of each invocation.
 
-Target interval: **~6 seconds**.
+Interval: **6 seconds** (fixed).
 
 ### Single Fetch for All 9 Matchups
 
@@ -224,7 +224,7 @@ On SSE connect, don't dump the full week's event history. Seed with a bounded re
 SELECT * FROM events WHERE match_id = ? ORDER BY id DESC LIMIT 100
 ```
 
-Clients can paginate backward on demand (`WHERE id < ? LIMIT 100`).
+Clients can paginate backward on demand via the REST event log endpoint, which supports the full filter set (mapType, objectiveType, eventType, owner, since) and returns pages in cursor order. Client-side filter state drives API params rather than filtering an in-memory array.
 
 ---
 
@@ -285,6 +285,53 @@ The DO filters fanout so clients only receive events relevant to their subscript
 
 ---
 
+## REST API: Event Log & Guild Activity
+
+These endpoints serve historical browsing, sorting, and arbitrary filter combinations that SSE cannot provide. They query D1 directly — no GW2 API call involved.
+
+### Event Log
+
+```
+GET /wvw/events?matchId=&limit=&before=&mapType=&objectiveType=&eventType=&owner=&since=
+```
+
+| Param | Values | Notes |
+| --- | --- | --- |
+| `matchId` | `1-1`…`2-5` | Required |
+| `limit` | 1–100 | Default 50 |
+| `before` | event `id` | Cursor — return rows with `id < before` |
+| `mapType` | `Center` \| `RedHome` \| `BlueHome` \| `GreenHome` | Repeatable |
+| `objectiveType` | `Camp` \| `Tower` \| `Keep` \| `Castle` \| `Ruins` | Repeatable |
+| `eventType` | `capture` \| `claim` | Repeatable |
+| `owner` | `Red` \| `Blue` \| `Green` \| `Neutral` | Repeatable |
+| `since` | ISO 8601 timestamp | Lower bound on `at` |
+
+Response: `{ events: EventRow[], nextCursor: number | null }`
+
+`nextCursor` is the `id` of the last returned row — pass as `before` on the next request. `null` means no more rows. The client uses `useInfiniteQuery` to accumulate pages for infinite scroll.
+
+### Guild Activity
+
+```
+GET /wvw/guilds?matchId=&limit=&page=&sort=&order=&objectiveType=&mapType=
+```
+
+| Param | Values | Notes |
+| --- | --- | --- |
+| `matchId` | `1-1`…`2-5` | Required |
+| `limit` | 1–100 | Default 50 |
+| `page` | integer ≥ 0 | Offset pagination — required for arbitrary sort |
+| `sort` | `total` \| `last_seen_at` \| `claims_castle` \| `claims_keep` \| `claims_tower` \| `claims_camp` \| `claims_center` \| `claims_green_home` \| `claims_blue_home` \| `claims_red_home` | Default `total` |
+| `order` | `asc` \| `desc` | Default `desc` |
+| `objectiveType` | `Camp` \| `Tower` \| `Keep` \| `Castle` | Repeatable filter |
+| `mapType` | `Center` \| `RedHome` \| `BlueHome` \| `GreenHome` | Repeatable filter |
+
+Response: `{ guilds: GuildActivityRow[], total: number, page: number, pages: number }`
+
+Offset pagination (not cursor) because arbitrary column sorting requires random-access paging — cursor pagination doesn't compose cleanly with `ORDER BY` on computed aggregate columns. The response is the existing GROUP BY query with optional `HAVING` filters and `ORDER BY` driven by params.
+
+---
+
 ## Client Changes
 
 The following are **removed** in V2 — clients no longer interact with the GW2 API directly:
@@ -297,20 +344,8 @@ New client responsibilities:
 
 - Open `EventSource` and handle `match-state`, `capture`, `claim` event types
 - Append incoming events to the local log (deduplication by event `id`)
-- Page Visibility API check to route events to in-app toast vs browser notification
-
----
-
-## Browser Notifications
-
-```
-SSE event received
-  ├── document.visibilityState === 'visible' → in-app toast + UI update
-  └── document.visibilityState === 'hidden'  → Notification.requestPermission()
-                                                → showNotification(...)
-```
-
-Request notification permission **lazily** on the first relevant event — not on page load. Service Worker push (tab fully closed) is a possible future extension.
+- Infinite scroll event log — Zustand filter state drives REST API query params via `useInfiniteQuery`; replaces client-side in-memory filter over `objectiveLog`
+- Guild activity table — fetched from REST API via `useQuery`; server-side sorting, filtering, and offset pagination replaces client-side aggregate over `objectiveLog`
 
 ---
 
@@ -337,12 +372,13 @@ Request notification permission **lazily** on the first relevant event — not o
 4. **Cold-start recovery** — DO constructor reads D1 match state to rebuild in-memory snapshot
 5. **SSE endpoint** — Worker route that serves current state from D1 then streams from DO
 6. **`Last-Event-ID` replay** — missed event catch-up on reconnect
-7. **Client integration** — replace `useMatch` polling with `EventSource`, remove `useObjectiveTracker`
-8. **Subscription filtering** — matchId and guild scoping on the SSE endpoint
-9. **Browser Notifications** — visibility-aware routing
-10. **Reset detection** — ID change detection, pre-reset summary, wipe
-11. **Lazy loading + pagination** — bounded seed window, backward pagination UI
-12. **Adaptive intervals** — rolling event rate, dynamic alarm interval
+7. **Reset detection** — `end_time` advance detection, `DELETE FROM events`, reset SSE event
+8. **Client SSE integration** — `useMatchSSE`, seed log from SSE on connect, remove `useObjectiveTracker`
+9. **Subscription filtering** — matchId and guild scoping on the SSE endpoint
+10. **REST event log endpoint** — cursor pagination + server-side filtering (mapType, objectiveType, eventType, owner, since)
+11. **REST guild activity endpoint** — offset pagination, server-side sort by any column, objectiveType and mapType filters
+12. **Infinite scroll event log (client)** — Zustand filter state drives REST API params; `useInfiniteQuery` replaces in-memory filter over `objectiveLog`
+13. **Guild activity paging (client)** — `useQuery` replaces client-side aggregate; sort/filter via query params
 
 ---
 
@@ -352,6 +388,8 @@ Request notification permission **lazily** on the first relevant event — not o
 | ------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------- |
 | `apps/gw2w2w/src/lib/wvw/useMatch.ts`            | Polls GW2 API via `useQuery` + `refetchInterval` | Replaced by `EventSource` hook                       |
 | `apps/gw2w2w/src/lib/wvw/useObjectiveTracker.ts` | Client-side diff + event detection               | Logic moves server-side into DO; file removed        |
-| `apps/gw2w2w/src/lib/store/objectiveLog.ts`      | Ephemeral in-memory event log                    | Backed by D1; seeded on connect                      |
+| `apps/gw2w2w/src/lib/store/objectiveLog.ts`      | Ephemeral in-memory event log                    | Backed by D1; seeded on connect; paginated via REST  |
+| `apps/gw2w2w/src/lib/store/logFilters.ts`        | Client-side filter state (persisted)             | Unchanged — filter state now drives REST API params  |
+| `apps/gw2w2w/src/ui/wvw/matchup/GuildActivity.tsx` | Client-side aggregate from `objectiveLog`      | API-backed; sort/filter/page via REST guild endpoint |
 | `apps/gw2w2w/src/lib/api/gw2/`                   | Direct GW2 API client                            | No longer called from client                         |
-| `apps/service-api/`                              | REST proxy to GW2 API                            | Home for MatchupPoller DO, SSE endpoint, D1 bindings |
+| `apps/service-api/`                              | REST proxy to GW2 API                            | MatchupPoller DO, SSE + REST endpoints, D1 bindings  |
