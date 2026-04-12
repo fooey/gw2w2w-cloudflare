@@ -8,7 +8,7 @@
     "deploy:emblem": "pnpm --filter service-emblem run deploy",
     "deploy:app": "pnpm --filter gw2w2w run deploy",
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev dev:seed",
     "preinstall": "npx only-allow pnpm",
     "lint": "turbo run lint --log-order stream",
     "lint:watch": "turbo watch lint",

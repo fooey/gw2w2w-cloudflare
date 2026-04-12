@@ -28,7 +28,7 @@ export interface WvWMatchObjective {
   id: string;
   type: WvWObjective['type'];
   owner: WvWTeamColor;
-  last_flipped: string;
+  last_flipped: string | null | undefined;
   /** Present on claimable objectives (Camp/Tower/Keep/Castle), absent on Spawn/Ruins. Null when unclaimed. */
   claimed_by?: string | null;
   /** Present on claimable objectives (Camp/Tower/Keep/Castle), absent on Spawn/Ruins. Null when unclaimed. */
@@ -64,6 +64,9 @@ export interface WvWMatch {
   skirmishes: WvWMatchSkirmish[];
   maps: WvWMatchMap[];
 }
+
+/** WvWMatch with skirmishes[] omitted — the shape stored in D1 match_state and pushed over SSE */
+export type WvWMatchStripped = Omit<WvWMatch, 'skirmishes'>;
 
 function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
   return apiFetch(env, '/wvw/matches?ids=all').then((response) => {

@@ -2,6 +2,19 @@ name = "service-api"
 main = "src/index.ts"
 compatibility_date = "2026-01-01"
 
+[durable_objects]
+bindings = [{ name = "MATCHUP_POLLER", class_name = "MatchupPoller" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["MatchupPoller"]
+
+[[d1_databases]]
+binding = "WVW_DB"
+database_name = "wvw-events"
+database_id = "c83a8a7e-a642-404a-b44b-e1b59d4b5999"
+migrations_dir = "migrations"
+
 # see https://developers.cloudflare.com/workers/configuration/placement/#specify-a-host-endpoint
 [placement]
 hostname = "api.guildwars2.com"

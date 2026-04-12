@@ -19,12 +19,12 @@ A planned major evolution of the WvW tools — server-driven event tracking with
 
 ```
 GW2 API (/v2/wvw/matches?ids=all)
-   ↓ every ~6s (ETag-gated — 304 = skip all work)
+   ↓ every ~6s (no ETag support — always a full fetch)
 MatchupPoller DO  ← single global instance
-   ├── always (on ETag change):
+   ├── always (on every poll):
    │   ├── INSERT OR REPLACE match_state → D1 (stripped blob + end_time)
    │   └── push match-state SSE → connected clients (scores, kills/deaths, objectives, bonuses, worlds)
-   ├── only when objective snapshot differs (scoped diff, not full JSON):
+   ├── only when objective snapshot differs (scoped in-memory diff):
    │   ├── INSERT OR IGNORE new events → D1 (captures / claims)
    │   └── push capture / claim SSE → subscribed clients
    ├── on end_time advance (weekly reset):
@@ -64,17 +64,13 @@ Interval: **6 seconds** (fixed).
 
 ### ETag / Conditional Requests
 
-The GW2 API returns `ETag` headers. On each alarm, send `If-None-Match` with the previous ETag. A `304 Not Modified` response means nothing changed — skip all work, reschedule and sleep.
-
-Store the last ETag in DO memory (and D1 for cold-start recovery alongside match state).
+The GW2 API does **not** return `ETag` headers on `/v2/wvw/matches`. Conditional requests (`If-None-Match` / `304 Not Modified`) are not supported. Every poll is a full fetch — the response is always compared in-memory against the previous snapshot to detect changes.
 
 ### Scoped Diffing: Objectives Only
 
-The full match payload includes kills, deaths, and skirmish tick scores, which update frequently and cause ETag changes independently of any objective state change. Running the full event diff on every ETag change wastes compute and risks spurious D1 writes.
+The full match payload includes kills, deaths, and skirmish tick scores, which update frequently independently of any objective state change. The alarm handler separates two concerns:
 
-The alarm handler separates two concerns:
-
-1. **Match state** — on every ETag change, store a stripped blob in D1 and push a `match-state` SSE event. The stored blob omits `skirmishes` (per-skirmish tick history). Clients receive:
+1. **Match state** — on every poll, store a stripped blob in D1 and push a `match-state` SSE event. The stored blob omits `skirmishes` (per-skirmish tick history). Clients receive:
    - `scores` — cumulative war score per team
    - `victory_points` — PPT tally
    - `kills` / `deaths` — full-week totals per team
@@ -93,7 +89,7 @@ The alarm handler separates two concerns:
 
    Only when the objective snapshot differs does the DO insert into `events` and fan out capture/claim SSE events.
 
-A score/kill tick (ETag changes, no objective change) results in a `match-state` push with no event work. An objective flip results in both a `match-state` push and event inserts/fanout.
+A score/kill tick (no objective change) results in a `match-state` push with no event work. An objective flip results in both a `match-state` push and event inserts/fanout.
 
 ### Latency Floor
 
@@ -114,15 +110,15 @@ ArenaNet does not publish their WvW API refresh rate. Based on observation it ap
 
 ```sql
 -- Current match state — 9 rows, one per active matchup (IDs are permanent: 1-1..1-4, 2-1..2-5)
--- Upserted when ETag changes, used to seed new SSE clients without a GW2 API call.
+-- Upserted on every poll, used to seed new SSE clients without a GW2 API call.
 -- end_time is stored as a top-level column for cheap reset detection (string equality vs blob parse).
 -- data is WvWMatch with skirmishes[] stripped — skirmish history is excluded from the V2 scope.
 CREATE TABLE match_state (
   match_id   TEXT PRIMARY KEY,
   data       TEXT NOT NULL,    -- WvWMatchStripped JSON blob (WvWMatch minus skirmishes[])
   end_time   TEXT NOT NULL,    -- from WvWMatch.end_time; advances on weekly reset
-  etag       TEXT,
   updated_at TEXT NOT NULL
+);
 );
 
 -- Append-only event log for the current match week
@@ -201,15 +197,17 @@ Both queries use `idx_events_guild` and `idx_events_claims` respectively, scanni
 ### Match State Upsert
 
 ```sql
-INSERT OR REPLACE INTO match_state (match_id, data, etag, updated_at)
-VALUES (?, ?, ?, ?)
+INSERT OR REPLACE INTO match_state (match_id, data, updated_at)
+VALUES (?, ?, ?)
 ```
 
 9 rows. Always a full JSON blob replacement — no partial patching. Reads are always by primary key.
 
 ### Weekly Reset / Wipe
 
-Match IDs are permanent and never change (`1-1` through `1-4` for NA, `2-1` through `2-5` for EU). Reset is detected by comparing the `end_time` (or `start_time`) from the current API response against the value stored in `match_state`. When it advances, a new match week has started. This is more robust than hardcoding Friday/Saturday UTC times since ArenaNet occasionally delays resets.
+Match IDs are permanent and never change (`1-1` through `1-4` for NA, `2-1` through `2-5` for EU). Reset is detected by comparing the `end_time` from the current API response against the value stored in `match_state`. When it advances, a new match week has started.
+
+**NA and EU reset independently** — NA resets Friday ~02:00 UTC, EU resets Saturday ~01:00 UTC. The single global DO handles all 9 matches in one alarm loop and checks each match independently, so a NA reset does not affect EU matches and vice versa. This is more robust than hardcoding day/time logic since ArenaNet occasionally delays resets.
 
 On reset:
 
@@ -390,7 +388,7 @@ Each phase is a self-contained unit of work with a clear verification checkpoint
 The server-side engine. No client changes — pure backend infrastructure.
 
 1. **D1 schema** — create tables and indexes, migration setup in `service-api`
-2. **MatchupPoller DO** — alarm loop, GW2 fetch (`ids=all`), ETag support, in-memory objective diff
+2. **MatchupPoller DO** — alarm loop, GW2 fetch (`ids=all`), in-memory objective diff
 3. **D1 writes** — event inserts (`INSERT OR IGNORE`), match state upserts
 4. **Cold-start recovery** — DO constructor reads D1 match state to rebuild in-memory snapshot
 
@@ -443,6 +441,8 @@ Replace in-memory client-side filtering and aggregation with server-driven pagin
 16. **Guild activity paging** — `useQuery` replaces client-side aggregate; sort/filter/page via REST guild endpoint
 
 **Verify:** Full end-to-end — no outbound GW2 API calls from any client page (check Network tab on both the list view and the individual matchup view). Filter controls update the REST query, infinite scroll loads pages, guild activity table sorts and filters server-side. No client-side array filtering remains.
+
+17. **README + architecture diagram** — Update `README.md` to reflect the V2 architecture: replace the existing Mermaid graph to show the MatchupPoller DO, D1, SSE stream, and the removal of direct GW2 API calls from the client.
 
 ---
 

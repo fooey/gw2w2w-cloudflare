@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "wrangler dev --port 8788 --local --test-scheduled",
+    "dev:seed": "node scripts/dev-seed.mjs",
     "deploy": "wrangler deploy",
     "lint": "eslint ./src",
     "check-types": "tsc --noEmit",

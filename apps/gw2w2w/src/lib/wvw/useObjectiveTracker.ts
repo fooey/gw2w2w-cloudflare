@@ -6,7 +6,7 @@ interface ObjectiveSnapshot {
   mapType: string;
   objectiveType: WvWObjective['type'];
   owner: string;
-  last_flipped: string;
+  last_flipped: string | null | undefined;
   claimed_by?: string | null;
   claimed_at?: string | null;
 }

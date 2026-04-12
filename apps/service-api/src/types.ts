@@ -12,6 +12,7 @@ export type {
   WvWMatchMap,
   WvWMatchObjective,
   WvWMatch,
+  WvWMatchStripped,
 } from '#lib/resources/wvw/matches.ts';
 export type { WvWObjective } from '#lib/resources/wvw/objectives.ts';
 export type { WvWRank } from '#lib/resources/wvw/ranks.ts';

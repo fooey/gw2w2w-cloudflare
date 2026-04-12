@@ -7,7 +7,10 @@ import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { type ContentfulStatusCode } from 'hono/utils/http-status';
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
+import { MatchupPoller } from './durable-objects/MatchupPoller';
 import { apiGw2Route } from './routes/gw2';
+
+export { MatchupPoller };
 
 export interface ErrorPayload {
   message: string;
@@ -21,6 +24,8 @@ export interface CloudflareEnv {
   EMBLEM_ASSETS: R2Bucket;
   GW2_API_BASE: string;
   GW2_API_KEY?: string;
+  WVW_DB: D1Database;
+  MATCHUP_POLLER: DurableObjectNamespace;
 }
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()
@@ -77,5 +82,8 @@ export default {
     if (didInvalidate) {
       ctx.waitUntil(warmStaticCaches(env));
     }
+    // Ensure the MatchupPoller DO is awake. The DO schedules its own alarm loop;
+    // this fetch is only needed if the DO has been evicted and the alarm has lapsed.
+    ctx.waitUntil(env.MATCHUP_POLLER.getByName('global').fetch('https://internal/poller'));
   },
 };
