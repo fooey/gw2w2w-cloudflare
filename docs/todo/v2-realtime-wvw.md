@@ -295,16 +295,16 @@ These endpoints serve historical browsing, sorting, and arbitrary filter combina
 GET /wvw/events?matchId=&limit=&before=&mapType=&objectiveType=&eventType=&owner=&since=
 ```
 
-| Param | Values | Notes |
-| --- | --- | --- |
-| `matchId` | `1-1`…`2-5` | Required |
-| `limit` | 1–100 | Default 50 |
-| `before` | event `id` | Cursor — return rows with `id < before` |
-| `mapType` | `Center` \| `RedHome` \| `BlueHome` \| `GreenHome` | Repeatable |
-| `objectiveType` | `Camp` \| `Tower` \| `Keep` \| `Castle` \| `Ruins` | Repeatable |
-| `eventType` | `capture` \| `claim` | Repeatable |
-| `owner` | `Red` \| `Blue` \| `Green` \| `Neutral` | Repeatable |
-| `since` | ISO 8601 timestamp | Lower bound on `at` |
+| Param           | Values                                             | Notes                                   |
+| --------------- | -------------------------------------------------- | --------------------------------------- |
+| `matchId`       | `1-1`…`2-5`                                        | Required                                |
+| `limit`         | 1–100                                              | Default 50                              |
+| `before`        | event `id`                                         | Cursor — return rows with `id < before` |
+| `mapType`       | `Center` \| `RedHome` \| `BlueHome` \| `GreenHome` | Repeatable                              |
+| `objectiveType` | `Camp` \| `Tower` \| `Keep` \| `Castle` \| `Ruins` | Repeatable                              |
+| `eventType`     | `capture` \| `claim`                               | Repeatable                              |
+| `owner`         | `Red` \| `Blue` \| `Green` \| `Neutral`            | Repeatable                              |
+| `since`         | ISO 8601 timestamp                                 | Lower bound on `at`                     |
 
 Response: `{ events: EventRow[], nextCursor: number | null }`
 
@@ -316,15 +316,15 @@ Response: `{ events: EventRow[], nextCursor: number | null }`
 GET /wvw/guilds?matchId=&limit=&page=&sort=&order=&objectiveType=&mapType=
 ```
 
-| Param | Values | Notes |
-| --- | --- | --- |
-| `matchId` | `1-1`…`2-5` | Required |
-| `limit` | 1–100 | Default 50 |
-| `page` | integer ≥ 0 | Offset pagination — required for arbitrary sort |
-| `sort` | `total` \| `last_seen_at` \| `claims_castle` \| `claims_keep` \| `claims_tower` \| `claims_camp` \| `claims_center` \| `claims_green_home` \| `claims_blue_home` \| `claims_red_home` | Default `total` |
-| `order` | `asc` \| `desc` | Default `desc` |
-| `objectiveType` | `Camp` \| `Tower` \| `Keep` \| `Castle` | Repeatable filter |
-| `mapType` | `Center` \| `RedHome` \| `BlueHome` \| `GreenHome` | Repeatable filter |
+| Param           | Values                                                                                                                                                                                | Notes                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `matchId`       | `1-1`…`2-5`                                                                                                                                                                           | Required                                        |
+| `limit`         | 1–100                                                                                                                                                                                 | Default 50                                      |
+| `page`          | integer ≥ 0                                                                                                                                                                           | Offset pagination — required for arbitrary sort |
+| `sort`          | `total` \| `last_seen_at` \| `claims_castle` \| `claims_keep` \| `claims_tower` \| `claims_camp` \| `claims_center` \| `claims_green_home` \| `claims_blue_home` \| `claims_red_home` | Default `total`                                 |
+| `order`         | `asc` \| `desc`                                                                                                                                                                       | Default `desc`                                  |
+| `objectiveType` | `Camp` \| `Tower` \| `Keep` \| `Castle`                                                                                                                                               | Repeatable filter                               |
+| `mapType`       | `Center` \| `RedHome` \| `BlueHome` \| `GreenHome`                                                                                                                                    | Repeatable filter                               |
 
 Response: `{ guilds: GuildActivityRow[], total: number, page: number, pages: number }`
 
@@ -384,12 +384,12 @@ New client responsibilities:
 
 ## Related Existing Code
 
-| File                                             | Current role                                     | V2 fate                                              |
-| ------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------- |
-| `apps/gw2w2w/src/lib/wvw/useMatch.ts`            | Polls GW2 API via `useQuery` + `refetchInterval` | Replaced by `EventSource` hook                       |
-| `apps/gw2w2w/src/lib/wvw/useObjectiveTracker.ts` | Client-side diff + event detection               | Logic moves server-side into DO; file removed        |
-| `apps/gw2w2w/src/lib/store/objectiveLog.ts`      | Ephemeral in-memory event log                    | Backed by D1; seeded on connect; paginated via REST  |
-| `apps/gw2w2w/src/lib/store/logFilters.ts`        | Client-side filter state (persisted)             | Unchanged — filter state now drives REST API params  |
-| `apps/gw2w2w/src/ui/wvw/matchup/GuildActivity.tsx` | Client-side aggregate from `objectiveLog`      | API-backed; sort/filter/page via REST guild endpoint |
-| `apps/gw2w2w/src/lib/api/gw2/`                   | Direct GW2 API client                            | No longer called from client                         |
-| `apps/service-api/`                              | REST proxy to GW2 API                            | MatchupPoller DO, SSE + REST endpoints, D1 bindings  |
+| File                                               | Current role                                     | V2 fate                                              |
+| -------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------- |
+| `apps/gw2w2w/src/lib/wvw/useMatch.ts`              | Polls GW2 API via `useQuery` + `refetchInterval` | Replaced by `EventSource` hook                       |
+| `apps/gw2w2w/src/lib/wvw/useObjectiveTracker.ts`   | Client-side diff + event detection               | Logic moves server-side into DO; file removed        |
+| `apps/gw2w2w/src/lib/store/objectiveLog.ts`        | Ephemeral in-memory event log                    | Backed by D1; seeded on connect; paginated via REST  |
+| `apps/gw2w2w/src/lib/store/logFilters.ts`          | Client-side filter state (persisted)             | Unchanged — filter state now drives REST API params  |
+| `apps/gw2w2w/src/ui/wvw/matchup/GuildActivity.tsx` | Client-side aggregate from `objectiveLog`        | API-backed; sort/filter/page via REST guild endpoint |
+| `apps/gw2w2w/src/lib/api/gw2/`                     | Direct GW2 API client                            | No longer called from client                         |
+| `apps/service-api/`                                | REST proxy to GW2 API                            | MatchupPoller DO, SSE + REST endpoints, D1 bindings  |

@@ -32,34 +32,38 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
 
   const border = mapTypeBorderClass[map.type] ?? 'border-gray-300';
   const scoreboardTypes = map.type === 'Center' ? SCOREBOARD_TYPES_CENTER : SCOREBOARD_TYPES_BL;
+  const objectivesByOwner = {
+    Green: [] as WvWMatchObjective[],
+    Blue: [] as WvWMatchObjective[],
+    Red: [] as WvWMatchObjective[],
+  };
+  for (const obj of map.objectives) {
+    if (obj.owner !== 'Neutral') objectivesByOwner[obj.owner].push(obj);
+  }
 
   return (
     <li key={map.id} className="shrink-0 grow">
       <section className={clsx('rounded border py-2 shadow', border)}>
         <header className="flex flex-col gap-0.5 p-2 pt-0">
-          {[...TEAM_COLORS]
-            .map((color) => ({
-              color,
-              score: map.scores[colorScoreKey[color]],
-              objectives: map.objectives.filter((o) => o.owner === color),
-            }))
-            .map(({ color, score, objectives }) => {
-              const { bg, text } = teamColorConfig[color];
-              const countByType = (type: WvWMatchObjective['type']) => objectives.filter((o) => o.type === type).length;
-              return (
-                <div key={color} className={clsx(bg, 'flex flex-1 flex-row items-center gap-2 rounded p-2')}>
-                  <p className={clsx(text, 'text-lg leading-none font-semibold')}>{score.toLocaleString()}</p>
-                  <div className="ml-auto flex flex-row gap-2">
-                    {scoreboardTypes.map((type) => (
-                      <div key={type} className="flex items-center gap-0.5" title={type}>
-                        <ObjectiveIcon type={type} owner={color} size={16} />
-                        <span className={clsx(text, 'text-xs')}>{countByType(type)}</span>
-                      </div>
-                    ))}
-                  </div>
+          {TEAM_COLORS.map((color) => {
+            const { bg, text } = teamColorConfig[color];
+            const score = map.scores[colorScoreKey[color]];
+            const objectives = objectivesByOwner[color];
+            const countByType = (type: WvWMatchObjective['type']) => objectives.filter((o) => o.type === type).length;
+            return (
+              <div key={color} className={clsx(bg, 'flex flex-1 flex-row items-center gap-2 rounded p-2')}>
+                <p className={clsx(text, 'text-lg leading-none font-semibold')}>{score.toLocaleString()}</p>
+                <div className="ml-auto flex flex-row gap-2">
+                  {scoreboardTypes.map((type) => (
+                    <div key={type} className="flex items-center gap-0.5" title={type}>
+                      <ObjectiveIcon type={type} owner={color} size={16} />
+                      <span className={clsx(text, 'text-xs')}>{countByType(type)}</span>
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
+              </div>
+            );
+          })}
         </header>
         <div className="flex flex-col gap-4">
           {Object.entries(layout).map(([sectionName, sectionLayout]) => {
