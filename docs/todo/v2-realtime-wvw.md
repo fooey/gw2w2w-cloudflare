@@ -62,9 +62,7 @@ Interval: **6 seconds** (fixed).
 
 `GET /v2/wvw/matches?ids=all` returns all active matchups in one request. One GW2 API call per poll cycle regardless of matchup count.
 
-### ETag / Conditional Requests
-
-The GW2 API does **not** return `ETag` headers on `/v2/wvw/matches`. Conditional requests (`If-None-Match` / `304 Not Modified`) are not supported. Every poll is a full fetch — the response is always compared in-memory against the previous snapshot to detect changes.
+> **Note:** The GW2 API does not return `ETag` headers on `/v2/wvw/matches` — conditional requests are not supported. Every poll is a full fetch compared in-memory against the previous snapshot.
 
 ### Scoped Diffing: Objectives Only
 
