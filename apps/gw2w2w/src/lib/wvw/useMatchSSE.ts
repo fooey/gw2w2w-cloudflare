@@ -1,8 +1,9 @@
 'use client';
 
 import { apiBase } from '#lib/api/client';
-import { type CaptureEvent, type ClaimEvent, useObjectiveLog } from '#lib/store/objectiveLog';
+import { fetchWvwEvents } from '#lib/api/wvw/events';
 import { type WvWMatchStripped, type WvWObjective, type WvWTeamColor } from '@repo/service-api/types';
+import { type EventRow } from '@repo/service-api/types';
 import { useEffect, useState } from 'react';
 
 interface MatchStatePayload {
@@ -36,20 +37,67 @@ interface ResetPayload {
   endTime: string;
 }
 
+function captureToRow(p: CapturePayload): EventRow {
+  return {
+    id: p.id,
+    match_id: p.matchId,
+    type: 'capture',
+    at: p.at,
+    objective_id: p.objectiveId,
+    objective_type: p.objectiveType,
+    map_type: p.mapType,
+    owner: p.owner,
+    claimed_by: null,
+  };
+}
+
+function claimToRow(p: ClaimPayload): EventRow {
+  return {
+    id: p.id,
+    match_id: p.matchId,
+    type: 'claim',
+    at: p.at,
+    objective_id: p.objectiveId,
+    objective_type: p.objectiveType,
+    map_type: p.mapType,
+    owner: p.owner,
+    claimed_by: p.claimedBy,
+  };
+}
+
+interface UseMatchSSEResult {
+  match: WvWMatchStripped;
+  /** All known events: initial D1 history + live SSE events. Newest first. */
+  events: EventRow[];
+  isLoadingEvents: boolean;
+}
+
 /**
- * Opens an SSE connection to /wvw/stream?matchId= and returns live match state.
- * - match-state events update the returned match object
- * - capture/claim events are fed into the objective log store
- * - reset events clear the log for the match
- * The browser automatically reconnects on drop, sending Last-Event-ID so the
- * server can replay any missed events.
+ * Opens an SSE connection to /wvw/stream?matchId= and manages all event state:
+ * - Fetches initial history from REST on mount
+ * - Prepends capture/claim events received over SSE (deduped by id)
+ * - On reset: clears events and re-fetches history
  */
-export function useMatchSSE(matchId: string, initialMatch: WvWMatchStripped): WvWMatchStripped {
+export function useMatchSSE(matchId: string, initialMatch: WvWMatchStripped): UseMatchSSEResult {
   const [match, setMatch] = useState(initialMatch);
+  const [events, setEvents] = useState<EventRow[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
+    function seedHistory(id: string) {
+      void fetchWvwEvents({ matchId: id }).then((data) => {
+        if (!cancelled) {
+          setEvents(data?.events ?? []);
+          setIsLoadingEvents(false);
+        }
+      });
+    }
+
+    seedHistory(matchId);
+
     const es = new EventSource(`${apiBase}/wvw/stream?matchId=${matchId}`);
-    const { _addEvents, clear } = useObjectiveLog.getState();
 
     const onMatchState = (e: MessageEvent) => {
       const payload = JSON.parse(e.data as string) as MatchStatePayload;
@@ -58,36 +106,21 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatchStripped): Wv
 
     const onCapture = (e: MessageEvent) => {
       const p = JSON.parse(e.data as string) as CapturePayload;
-      const event: CaptureEvent = {
-        type: 'capture',
-        at: Temporal.Instant.from(p.at),
-        matchId: p.matchId,
-        objectiveId: p.objectiveId,
-        objectiveType: p.objectiveType,
-        mapType: p.mapType,
-        owner: p.owner,
-      };
-      _addEvents(p.matchId, [event]);
+      const row = captureToRow(p);
+      setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 
     const onClaim = (e: MessageEvent) => {
       const p = JSON.parse(e.data as string) as ClaimPayload;
-      const event: ClaimEvent = {
-        type: 'claim',
-        at: Temporal.Instant.from(p.at),
-        matchId: p.matchId,
-        objectiveId: p.objectiveId,
-        objectiveType: p.objectiveType,
-        mapType: p.mapType,
-        owner: p.owner,
-        claimedBy: p.claimedBy,
-      };
-      _addEvents(p.matchId, [event]);
+      const row = claimToRow(p);
+      setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 
     const onReset = (e: MessageEvent) => {
       const p = JSON.parse(e.data as string) as ResetPayload;
-      clear(p.matchId);
+      setEvents([]);
+      setIsLoadingEvents(true);
+      seedHistory(p.matchId);
     };
 
     es.addEventListener('match-state', onMatchState);
@@ -96,6 +129,7 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatchStripped): Wv
     es.addEventListener('reset', onReset);
 
     return () => {
+      cancelled = true;
       es.removeEventListener('match-state', onMatchState);
       es.removeEventListener('capture', onCapture);
       es.removeEventListener('claim', onClaim);
@@ -104,5 +138,5 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatchStripped): Wv
     };
   }, [matchId]);
 
-  return match;
+  return { match, events, isLoadingEvents };
 }

@@ -18,7 +18,7 @@ export interface MatchupViewProps {
 
 export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupViewProps) {
   const lang = useUserPrefs((s) => s.lang);
-  const match = useMatchSSE(initialMatch.id, initialMatch);
+  const { match, events, isLoadingEvents } = useMatchSSE(initialMatch.id, initialMatch);
 
   const mapsByType = Object.fromEntries(match.maps.map((m) => [m.type, m])) as Record<WvWMapType, WvWMatchMap>;
   const layoutByType = objectivesLayout as Record<WvWMapType, ObjectivesLayoutMap>;
@@ -34,7 +34,7 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
             ))}
           </ul>
         </section>
-        <ObjectiveLogs matchId={match.id} />
+        <ObjectiveLogs events={events} isLoadingEvents={isLoadingEvents} />
         <GuildActivity matchId={match.id} />
       </div>
     </SiteLayoutFullWidth>
