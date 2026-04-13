@@ -1,5 +1,5 @@
 import { useObjectiveLog, type CaptureEvent, type ClaimEvent, type ObjectiveEvent } from '#lib/store/objectiveLog';
-import { type WvWMatch, type WvWObjective } from '@repo/service-api/types';
+import { type WvWMatchStripped, type WvWObjective } from '@repo/service-api/types';
 import { useEffect, useRef } from 'react';
 
 interface ObjectiveSnapshot {
@@ -11,7 +11,7 @@ interface ObjectiveSnapshot {
   claimed_at?: string | null;
 }
 
-export function useObjectiveTracker(match: WvWMatch | null | undefined) {
+export function useObjectiveTracker(match: WvWMatchStripped | null | undefined) {
   const matchId = match?.id;
   const prevRef = useRef(new Map<string, ObjectiveSnapshot>());
 

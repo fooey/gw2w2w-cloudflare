@@ -1,10 +1,10 @@
 import { fetchWvwMatchDirect } from '#lib/api/gw2/wvw/matches';
 import { useObjectiveTracker } from '#lib/wvw/useObjectiveTracker';
 import { withJitter } from '@repo/utils';
-import { type WvWMatch } from '@repo/service-api/types';
+import { type WvWMatchStripped } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
-export type UseMatchResults = WvWMatch | null;
+export type UseMatchResults = WvWMatchStripped | null;
 
 export function useMatch(matchId: string, queryOptions: Partial<UseQueryOptions<UseMatchResults>>) {
   const query = useQuery<UseMatchResults>({

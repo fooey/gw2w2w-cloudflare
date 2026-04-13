@@ -9,10 +9,10 @@ import { MatchMap } from '#ui/wvw/matchup/MatchMap';
 import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
 import { GuildActivity } from '#ui/wvw/matchup/GuildActivity';
 import { ObjectiveLogs } from '#ui/wvw/matchup/ObjectiveLogs';
-import { type WvWMapType, type WvWMatchMap, type WvWMatch } from '@repo/service-api/types';
+import { type WvWMapType, type WvWMatchMap, type WvWMatchStripped } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
-  match: WvWMatch;
+  match: WvWMatchStripped;
   selectedTeamId: string | null;
 }
 
