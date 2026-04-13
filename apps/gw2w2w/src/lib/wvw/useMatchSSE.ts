@@ -2,9 +2,12 @@
 
 import { apiBase } from '#lib/api/client';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
-import { type WvWMatchStripped, type WvWObjective, type WvWTeamColor } from '@repo/service-api/types';
+import { type WvWMatchStripped, type WvWTeamColor, type WvWMapType } from '@repo/service-api/types';
 import { type EventRow } from '@repo/service-api/types';
 import { useEffect, useState } from 'react';
+
+// Narrow types matching what the DO actually inserts — subset of WvWObjective['type']
+type WvWObjectiveType = EventRow['objective_type'];
 
 interface MatchStatePayload {
   matchId: string;
@@ -15,8 +18,8 @@ interface CapturePayload {
   id: number;
   matchId: string;
   objectiveId: string;
-  objectiveType: WvWObjective['type'];
-  mapType: string;
+  objectiveType: WvWObjectiveType;
+  mapType: WvWMapType;
   owner: WvWTeamColor;
   at: string;
 }
@@ -25,8 +28,8 @@ interface ClaimPayload {
   id: number;
   matchId: string;
   objectiveId: string;
-  objectiveType: WvWObjective['type'];
-  mapType: string;
+  objectiveType: WvWObjectiveType;
+  mapType: WvWMapType;
   owner: WvWTeamColor;
   claimedBy: string;
   at: string;
