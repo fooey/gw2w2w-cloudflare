@@ -2,13 +2,13 @@ import { allowedCsrf, allowedOrigin } from '@repo/utils';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
-import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { type ContentfulStatusCode } from 'hono/utils/http-status';
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
 import { MatchupPoller } from './durable-objects/MatchupPoller';
 import { apiGw2Route } from './routes/gw2';
+import { apiWvwRoute } from './routes/wvw';
 
 export { MatchupPoller };
 
@@ -34,7 +34,6 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     await next();
     c.header('Vary', 'Origin', { append: true });
   })
-  .use('*', etag())
   .use('*', secureHeaders())
   .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
   .use(csrf({ origin: (origin, c) => allowedCsrf(origin, c.req.header('host')) }))
@@ -53,6 +52,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   // .get('/gw2/emblem/*', staticCache)
   // .get('*', defaultCache)
   .route('/gw2', apiGw2Route)
+  .route('/wvw', apiWvwRoute)
   .notFound((c) => {
     const payload: ErrorPayload = {
       message: 'Not Found',

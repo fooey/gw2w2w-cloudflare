@@ -37,4 +37,5 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+*.tsbuildinfo
 apps/gw2w2w/.wrangler
