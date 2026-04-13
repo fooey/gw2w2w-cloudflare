@@ -1,19 +1,12 @@
 import { zValidator } from '@hono/zod-validator';
 import { type CloudflareEnv } from '#index.ts';
+import { getDb } from '#db/index.ts';
+import { events } from '#db/schema.ts';
+import { and, desc, eq, gte, inArray, lt } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-export interface EventRow {
-  id: number;
-  match_id: string;
-  type: 'capture' | 'claim';
-  at: string;
-  objective_id: string;
-  objective_type: string;
-  map_type: string;
-  owner: string;
-  claimed_by: string | null;
-}
+export type EventRow = typeof events.$inferSelect;
 
 export interface EventLogResponse {
   events: EventRow[];
@@ -54,55 +47,41 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   async (c) => {
     const { matchId, limit, before, mapType, objectiveType, eventType, owner, maxAge } = c.req.valid('query');
 
-    const conditions: string[] = ['match_id = ?'];
-    const params: (string | number)[] = [matchId];
+    const conditions = [eq(events.match_id, matchId)];
 
-    if (before != null) {
-      conditions.push('id < ?');
-      params.push(before);
-    }
-
-    if (mapType && mapType.length > 0) {
-      conditions.push(`map_type IN (${mapType.map(() => '?').join(', ')})`);
-      params.push(...mapType);
-    }
-
-    if (objectiveType && objectiveType.length > 0) {
-      conditions.push(`objective_type IN (${objectiveType.map(() => '?').join(', ')})`);
-      params.push(...objectiveType);
-    }
-
-    if (eventType && eventType.length > 0) {
-      conditions.push(`type IN (${eventType.map(() => '?').join(', ')})`);
-      params.push(...eventType);
-    }
-
-    if (owner && owner.length > 0) {
-      conditions.push(`owner IN (${owner.map(() => '?').join(', ')})`);
-      params.push(...owner);
-    }
-
+    if (before != null) conditions.push(lt(events.id, before));
+    if (mapType?.length) conditions.push(inArray(events.map_type, [...mapType]));
+    if (objectiveType?.length) conditions.push(inArray(events.objective_type, [...objectiveType]));
+    if (eventType?.length) conditions.push(inArray(events.type, [...eventType]));
+    if (owner?.length) conditions.push(inArray(events.owner, [...owner]));
     if (maxAge != null) {
-      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString();
-      conditions.push('at >= ?');
-      params.push(cutoff);
+      // GW2 stores timestamps as "YYYY-MM-DDTHH:mm:ssZ" (no milliseconds).
+      // Truncate the cutoff to seconds so SQLite's lexicographic comparison is correct.
+      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+      conditions.push(gte(events.at, cutoff));
     }
 
-    params.push(limit);
+    const db = getDb(c.env.WVW_DB);
+    const rows = await db
+      .select({
+        id: events.id,
+        match_id: events.match_id,
+        type: events.type,
+        at: events.at,
+        objective_id: events.objective_id,
+        objective_type: events.objective_type,
+        map_type: events.map_type,
+        owner: events.owner,
+        claimed_by: events.claimed_by,
+      })
+      .from(events)
+      .where(and(...conditions))
+      .orderBy(desc(events.id))
+      .limit(limit);
 
-    const sql = `SELECT id, match_id, type, at, objective_id, objective_type, map_type, owner, claimed_by
-      FROM events
-      WHERE ${conditions.join(' AND ')}
-      ORDER BY id DESC
-      LIMIT ?`;
+    const nextCursor = rows.length === limit ? (rows.at(-1)?.id ?? null) : null;
 
-    const { results } = await c.env.WVW_DB.prepare(sql)
-      .bind(...params)
-      .all<EventRow>();
-
-    const nextCursor = results.length === limit ? (results.at(-1)?.id ?? null) : null;
-
-    const response: EventLogResponse = { events: results, nextCursor };
+    const response: EventLogResponse = { events: rows, nextCursor };
     return c.json(response);
   },
 );

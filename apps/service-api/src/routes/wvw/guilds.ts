@@ -1,5 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
 import { type CloudflareEnv } from '#index.ts';
+import { getDb } from '#db/index.ts';
+import { events } from '#db/schema.ts';
+import { and, asc, count, desc, eq, gte, inArray, sql, type SQL } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -40,6 +43,22 @@ const SORT_COLUMNS = [
   'claims_red_home',
 ] as const;
 
+// Maps each sort key to the SQL expression it represents in the GROUP BY query.
+// Cannot use column aliases in ORDER BY since Drizzle's sql<> templates don't
+// emit AS aliases into SQL — they are TypeScript-only property names.
+const SORT_SQL = {
+  total: sql`COUNT(*)`,
+  last_seen_at: sql`MAX(${events.at})`,
+  claims_castle: sql`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Castle')`,
+  claims_keep: sql`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Keep')`,
+  claims_tower: sql`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Tower')`,
+  claims_camp: sql`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Camp')`,
+  claims_center: sql`COUNT(*) FILTER (WHERE ${events.map_type} = 'Center')`,
+  claims_green_home: sql`COUNT(*) FILTER (WHERE ${events.map_type} = 'GreenHome')`,
+  claims_blue_home: sql`COUNT(*) FILTER (WHERE ${events.map_type} = 'BlueHome')`,
+  claims_red_home: sql`COUNT(*) FILTER (WHERE ${events.map_type} = 'RedHome')`,
+} satisfies Record<(typeof SORT_COLUMNS)[number], SQL>;
+
 const MAP_TYPES = ['Center', 'RedHome', 'BlueHome', 'GreenHome'] as const;
 const OBJECTIVE_TYPES = ['Camp', 'Tower', 'Keep', 'Castle'] as const;
 const OWNER_VALUES = ['Red', 'Blue', 'Green', 'Neutral'] as const;
@@ -71,88 +90,65 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   async (c) => {
     const { matchId, limit, page, sort, order, maxAge, mapType, objectiveType, owner } = c.req.valid('query');
 
-    const havingConditions: string[] = [];
-    const filterConditions: string[] = [];
-    const params: (string | number)[] = [matchId];
+    // Build shared WHERE conditions for both count and data queries.
+    const conditions = [eq(events.match_id, matchId), eq(events.type, 'claim')];
 
     if (maxAge != null) {
-      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString();
-      filterConditions.push('at >= ?');
-      params.push(cutoff);
+      // GW2 stores timestamps as "YYYY-MM-DDTHH:mm:ssZ" (no milliseconds).
+      // Truncate the cutoff to seconds so SQLite's lexicographic comparison is correct.
+      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+      conditions.push(gte(events.at, cutoff));
     }
+    if (mapType?.length) conditions.push(inArray(events.map_type, Array.from(mapType)));
+    if (objectiveType?.length) conditions.push(inArray(events.objective_type, Array.from(objectiveType)));
+    if (owner?.length) conditions.push(inArray(events.owner, Array.from(owner)));
 
-    if (mapType && mapType.length > 0) {
-      filterConditions.push(`map_type IN (${mapType.map(() => '?').join(', ')})`);
-      params.push(...mapType);
-    }
+    const whereExpr: SQL = and(...conditions) ?? eq(events.match_id, matchId);
 
-    if (objectiveType && objectiveType.length > 0) {
-      filterConditions.push(`objective_type IN (${objectiveType.map(() => '?').join(', ')})`);
-      params.push(...objectiveType);
-    }
+    const db = getDb(c.env.WVW_DB);
 
-    if (owner && owner.length > 0) {
-      filterConditions.push(`owner IN (${owner.map(() => '?').join(', ')})`);
-      params.push(...owner);
-    }
+    // Count distinct guilds matching the filters.
+    const subq = db
+      .select({ claimed_by: events.claimed_by })
+      .from(events)
+      .where(whereExpr)
+      .groupBy(events.claimed_by)
+      .as('sub');
 
-    const whereClause =
-      filterConditions.length > 0
-        ? `match_id = ? AND type = 'claim' AND ${filterConditions.join(' AND ')}`
-        : `match_id = ? AND type = 'claim'`;
+    // sort and order are enum-validated and key into SORT_SQL above.
+    const orderExpr = order === 'desc' ? desc(SORT_SQL[sort]) : asc(SORT_SQL[sort]);
 
-    const havingClause = havingConditions.length > 0 ? `HAVING ${havingConditions.join(' AND ')}` : '';
-
-    // Sort column is validated against the enum — safe to interpolate.
-    const orderClause = `ORDER BY ${sort} ${order.toUpperCase()}`;
-
-    const countSql = `
-      SELECT COUNT(*) AS total FROM (
-        SELECT claimed_by
-        FROM events
-        WHERE ${whereClause}
-        GROUP BY claimed_by
-        ${havingClause}
-      )`;
-
-    const dataSql = `
-      SELECT
-        claimed_by                                                        AS guild_id,
-        match_id,
-        COUNT(*) FILTER (WHERE objective_type = 'Castle')                 AS claims_castle,
-        COUNT(*) FILTER (WHERE objective_type = 'Keep')                   AS claims_keep,
-        COUNT(*) FILTER (WHERE objective_type = 'Tower')                  AS claims_tower,
-        COUNT(*) FILTER (WHERE objective_type = 'Camp')                   AS claims_camp,
-        COUNT(*) FILTER (WHERE map_type = 'Center')                       AS claims_center,
-        COUNT(*) FILTER (WHERE map_type = 'GreenHome')                    AS claims_green_home,
-        COUNT(*) FILTER (WHERE map_type = 'BlueHome')                     AS claims_blue_home,
-        COUNT(*) FILTER (WHERE map_type = 'RedHome')                      AS claims_red_home,
-        COUNT(*)                                                          AS total,
-        MAX(at)                                                           AS last_seen_at,
-        owner                                                             AS last_activity_owner,
-        map_type                                                          AS last_activity_map
-      FROM events
-      WHERE ${whereClause}
-      GROUP BY claimed_by, match_id
-      ${havingClause}
-      ${orderClause}
-      LIMIT ? OFFSET ?`;
-
-    // Count query uses same params (no limit/offset); data query adds limit + offset.
-    const [countResult, dataResult] = await c.env.WVW_DB.batch([
-      c.env.WVW_DB.prepare(countSql).bind(...params),
-      c.env.WVW_DB.prepare(dataSql).bind(...params, limit, page * limit),
+    const [countRows, guilds] = await Promise.all([
+      db.select({ total: count() }).from(subq),
+      db
+        .select({
+          guild_id: sql<string>`${events.claimed_by}`,
+          match_id: events.match_id,
+          claims_castle: sql<number>`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Castle')`,
+          claims_keep: sql<number>`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Keep')`,
+          claims_tower: sql<number>`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Tower')`,
+          claims_camp: sql<number>`COUNT(*) FILTER (WHERE ${events.objective_type} = 'Camp')`,
+          claims_center: sql<number>`COUNT(*) FILTER (WHERE ${events.map_type} = 'Center')`,
+          claims_green_home: sql<number>`COUNT(*) FILTER (WHERE ${events.map_type} = 'GreenHome')`,
+          claims_blue_home: sql<number>`COUNT(*) FILTER (WHERE ${events.map_type} = 'BlueHome')`,
+          claims_red_home: sql<number>`COUNT(*) FILTER (WHERE ${events.map_type} = 'RedHome')`,
+          total: sql<number>`COUNT(*)`,
+          last_seen_at: sql<string>`MAX(${events.at})`,
+          last_activity_owner: events.owner,
+          last_activity_map: events.map_type,
+        })
+        .from(events)
+        .where(whereExpr)
+        .groupBy(events.claimed_by, events.match_id)
+        .orderBy(orderExpr)
+        .limit(limit)
+        .offset(page * limit),
     ]);
 
-    if (!countResult || !dataResult) {
-      return c.json({ error: 'Internal Server Error' }, 500);
-    }
-
-    const totalCount = (countResult.results[0] as { total: number } | undefined)?.total ?? 0;
-    const guilds = dataResult.results as GuildActivityRow[];
+    const totalCount = countRows[0]?.total ?? 0;
     const pages = Math.ceil(totalCount / limit);
 
-    const response: GuildActivityResponse = { guilds, total: totalCount, page, pages };
+    const response: GuildActivityResponse = { guilds: guilds as GuildActivityRow[], total: totalCount, page, pages };
     return c.json(response);
   },
 );
