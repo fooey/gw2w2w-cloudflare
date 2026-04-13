@@ -21,10 +21,15 @@
     "ts:clean": "turbo run ts:clean",
     "wrangler:login": "pnpm dlx wrangler login",
     "wrangler:clean": "pnpm -r exec pnpm dlx rimraf .wrangler/state",
+    "tail": "concurrently -n \"app   ,api   ,emblem\" -c blue,green,yellow \"pnpm tail:app\" \"pnpm tail:api\" \"pnpm tail:emblem\"",
+    "tail:app": "wrangler tail gw2w2w-cloudflare --format pretty",
+    "tail:api": "wrangler tail service-api --format pretty",
+    "tail:emblem": "wrangler tail service-emblem --format pretty",
     "update:turbo": "pnpm dlx @turbo/codemod@latest update"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "concurrently": "^9.2.1",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2.9.5",
