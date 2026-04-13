@@ -32,6 +32,7 @@ interface PendingFanout {
 interface MatchStateFanout {
   matchId: string;
   data: WvWMatchStripped;
+  json: string; // pre-computed JSON string — reused for cache update to avoid re-stringify
 }
 
 interface EventRow {
@@ -48,6 +49,9 @@ interface EventRow {
 export class MatchupPoller extends DurableObject<CloudflareEnv> {
   #objectiveSnap: ObjectiveSnapMap = new Map<string, ObjectiveSnap>();
   #matchEndTimes: Map<string, string> = new Map<string, string>();
+  // Tracks the last-seen JSON for each match so we can skip D1 writes and fanout
+  // when match state hasn't changed (common between skirmish score ticks).
+  #matchStateJson: Map<string, string> = new Map<string, string>();
   #subscribers: Map<string, Subscriber> = new Map<string, Subscriber>();
   #encoder = new TextEncoder();
 
@@ -247,17 +251,23 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         pendingFanout.push(null);
       }
 
-      // --- Match state upsert ---
+      // --- Match state upsert (only when changed) ---
       const { skirmishes: _skirmishes, ...stripped } = match;
       const strippedData: WvWMatchStripped = stripped;
-      stmts.push(
-        this.env.WVW_DB.prepare(
-          'INSERT OR REPLACE INTO match_state (match_id, data, end_time, updated_at) VALUES (?, ?, ?, ?)',
-        ).bind(match.id, JSON.stringify(strippedData), match.end_time, now),
-      );
-      pendingFanout.push(null);
+      const strippedJson = JSON.stringify(strippedData);
+      const prevJson = this.#matchStateJson.get(match.id);
+      const matchStateChanged = prevJson !== strippedJson;
 
-      matchStateFanouts.push({ matchId: match.id, data: strippedData });
+      if (matchStateChanged) {
+        stmts.push(
+          this.env.WVW_DB.prepare(
+            'INSERT OR REPLACE INTO match_state (match_id, data, end_time, updated_at) VALUES (?, ?, ?, ?)',
+          ).bind(match.id, strippedJson, match.end_time, now),
+        );
+        pendingFanout.push(null);
+        matchStateFanouts.push({ matchId: match.id, data: strippedData, json: strippedJson });
+      }
+
       endTimeUpdates.push({ matchId: match.id, endTime: match.end_time });
 
       // --- Objective diff ---
@@ -334,10 +344,17 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           this.#objectiveSnap.delete(key);
         }
       }
+      this.#matchStateJson.delete(matchId);
     }
 
     for (const { matchId, endTime } of endTimeUpdates) {
       this.#matchEndTimes.set(matchId, endTime);
+    }
+
+    // Cache current match state JSON for change detection on next poll.
+    // Done after successful batch so we don't cache a state that wasn't written.
+    for (const { matchId, json } of matchStateFanouts) {
+      this.#matchStateJson.set(matchId, json);
     }
 
     for (const { key, snap } of snapUpdates) {
