@@ -127,7 +127,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // chunk size exceeds the TransformStream's internal buffer HWM — nothing is
     // reading the readable yet, so backpressure blocks the write indefinitely.
     this.ctx.waitUntil(
-      this.#seedAndReplay(writer, matchId, matchRow, request.headers.get('last-event-id')).catch((err) => {
+      this.#seedAndReplay(writer, matchId, matchRow, request.headers.get('last-event-id')).catch((err: unknown) => {
         console.error('[MatchupPoller] seed error:', err);
         this.#subscribers.delete(subId);
         void writer.close().catch(() => {
