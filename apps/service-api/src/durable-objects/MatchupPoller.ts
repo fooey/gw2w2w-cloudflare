@@ -54,24 +54,29 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   constructor(ctx: DurableObjectState, env: CloudflareEnv) {
     super(ctx, env);
     void ctx.blockConcurrencyWhile(async () => {
-      await this.#rebuildFromD1();
+      try {
+        await this.#rebuildFromD1();
+      } catch (err) {
+        // If D1 rebuild fails, log and continue — cold-start state will be empty
+        // but the alarm loop must not be disrupted. The next poll will re-seed.
+        console.error('[MatchupPoller] rebuildFromD1 failed, starting cold:', err);
+      }
       // Only set alarm if one isn't already scheduled — avoids interfering with
       // an alarm that fired and is executing right now (constructor runs before alarm handler on wake).
       const existing = await ctx.storage.getAlarm();
       if (existing == null) {
-        void ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
+        await ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
       }
     });
   }
 
   async alarm(): Promise<void> {
+    // Reschedule FIRST — before any work — so eviction after poll can't kill the loop.
+    await this.ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
     try {
       await this.#poll();
     } catch (err) {
       console.error('[MatchupPoller] alarm error:', err);
-    } finally {
-      // Always reschedule — ensures the loop continues even after errors.
-      await this.ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
     }
   }
 
