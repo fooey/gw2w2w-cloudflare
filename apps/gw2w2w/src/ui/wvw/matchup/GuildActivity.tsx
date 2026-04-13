@@ -1,14 +1,16 @@
 'use client';
 
 import { getEmblemSrc } from '#lib/emblems';
-import { getTimeCutoff, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
-import { type ClaimEvent, useObjectiveLog } from '#lib/store/objectiveLog';
+import { OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
+import { fetchWvwGuilds } from '#lib/api/wvw/guilds';
 import { useGuild } from '#lib/wvw/useGuild';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
 import { getMapLabel } from '#ui/wvw/matchup/ObjectiveLogsRow';
+import { type GuildActivityRow } from '@repo/service-api/types';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -21,14 +23,38 @@ type ActivityMapType = (typeof ACTIVITY_MAP_TYPES)[number];
 type SortKey = ActivityObjType | ActivityMapType | 'total' | 'lastActivity';
 type SortDir = 'asc' | 'desc';
 
-interface GuildStats {
-  guildId: string;
-  byType: Record<ActivityObjType, number>;
-  byMap: Record<ActivityMapType, number>;
-  total: number;
-  lastActivity: Temporal.Instant;
-  lastActivityMap: string;
-  lastActivityOwner: string;
+// Maps UI sort keys to API sort column names
+const SORT_API_MAP: Record<SortKey, string> = {
+  lastActivity: 'last_seen_at',
+  total: 'total',
+  Castle: 'claims_castle',
+  Keep: 'claims_keep',
+  Tower: 'claims_tower',
+  Camp: 'claims_camp',
+  Center: 'claims_center',
+  GreenHome: 'claims_green_home',
+  BlueHome: 'claims_blue_home',
+  RedHome: 'claims_red_home',
+};
+
+const OBJ_TO_KEY: Record<ActivityObjType, keyof GuildActivityRow> = {
+  Castle: 'claims_castle',
+  Keep: 'claims_keep',
+  Tower: 'claims_tower',
+  Camp: 'claims_camp',
+};
+
+const MAP_TO_KEY: Record<ActivityMapType, keyof GuildActivityRow> = {
+  Center: 'claims_center',
+  GreenHome: 'claims_green_home',
+  BlueHome: 'claims_blue_home',
+  RedHome: 'claims_red_home',
+};
+
+function timeWindowToMaxAge(tw: string): number | undefined {
+  if (tw === 'all') return undefined;
+  const hours = parseInt(tw, 10);
+  return hours * 3_600;
 }
 
 function SortableHeader({
@@ -67,18 +93,24 @@ function SortableHeader({
   );
 }
 
-function GuildActivityRow({ stats }: { stats: GuildStats }) {
-  const guildQuery = useGuild(stats.guildId);
+function GuildTableRow({ row }: { row: GuildActivityRow }) {
+  const guildQuery = useGuild(row.guild_id);
   const guild = guildQuery.data;
-  const teamText = (teamColorConfig as Record<string, { text: string } | undefined>)[stats.lastActivityOwner]?.text;
-  const guildLink = `/guilds/${guild?.name ? encodeURIComponent(guild.name) : stats.guildId}`;
+  const guildLink = `/guilds/${guild?.name ? encodeURIComponent(guild.name) : row.guild_id}`;
+
+  const ownerColors = (teamColorConfig as Record<string, { text: string }>)[row.last_activity_owner];
 
   return (
-    <tr className="border-t border-gray-100 hover:bg-gray-100 hover:font-semibold">
+    <tr className={cn('border-t border-gray-100 hover:bg-gray-100 hover:font-semibold', ownerColors?.text)}>
       <td className="w-8 p-0 py-1">
-        <Link href={guildLink} title={guild ? `${guild.name} [${guild.tag}]` : stats.guildId}>
+        <Link
+          href={guildLink}
+          title={guild ? `${guild.name} [${guild.tag}]` : row.guild_id}
+          target="_blank"
+          rel="noopener"
+        >
           <img
-            src={getEmblemSrc(stats.guildId)}
+            src={getEmblemSrc(row.guild_id)}
             alt={guild?.name ?? 'Guild Emblem'}
             width={32}
             height={32}
@@ -88,18 +120,22 @@ function GuildActivityRow({ stats }: { stats: GuildStats }) {
           />
         </Link>
       </td>
-      <td className={cn('w-px px-2 py-1 text-sm font-medium', teamText)}>
-        <Link href={guildLink}>[{guild?.tag ?? '…'}]</Link>
+      <td className="w-px px-2 py-1 text-sm font-medium">
+        <Link href={guildLink} target="_blank" rel="noopener">
+          [{guild?.tag ?? '…'}]
+        </Link>
       </td>
-      <td className={cn('px-2 py-1 text-sm font-medium', teamText)}>
-        <Link href={guildLink}>{guild?.name ?? stats.guildId}</Link>
+      <td className="px-2 py-1 text-sm font-medium">
+        <Link href={guildLink} target="_blank" rel="noopener">
+          {guild?.name ?? row.guild_id}
+        </Link>
       </td>
       {ACTIVITY_OBJ_TYPES.map((type) => (
         <td
           key={type}
           className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
         >
-          {stats.byType[type]}
+          {row[OBJ_TO_KEY[type]] as number}
         </td>
       ))}
       {ACTIVITY_MAP_TYPES.map((map) => (
@@ -107,21 +143,20 @@ function GuildActivityRow({ stats }: { stats: GuildStats }) {
           key={map}
           className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
         >
-          {stats.byMap[map]}
+          {row[MAP_TO_KEY[map]] as number}
         </td>
       ))}
       <td className="w-px px-2 py-1 text-center text-sm font-semibold whitespace-nowrap text-gray-800 tabular-nums">
-        {stats.total}
+        {row.total}
       </td>
-      <td className="w-px px-2 py-1 text-right font-mono text-xs whitespace-nowrap text-gray-400">
-        <span>{getMapLabel(stats.lastActivityMap)}</span>
-        <span className="ml-2">
-          {stats.lastActivity.toLocaleString(undefined, {
-            weekday: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </span>
+      <td className="w-px px-2 py-1 text-right font-mono text-xs whitespace-nowrap tabular-nums">
+        {getMapLabel(row.last_activity_map)}
+        {' · '}
+        {Temporal.Instant.from(row.last_seen_at).toLocaleString(undefined, {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
       </td>
     </tr>
   );
@@ -132,67 +167,39 @@ interface GuildActivityProps {
 }
 
 export function GuildActivity({ matchId }: GuildActivityProps) {
-  const allEvents = useObjectiveLog((state) => state.events);
   const { maps, objectiveTypes, owners, timeWindow, toggleMap, toggleObjectiveType, toggleOwner, setTimeWindow } =
     useLogFilters();
 
   const [sortKey, setSortKey] = useState<SortKey>('lastActivity');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
-  const cutoff = getTimeCutoff(timeWindow);
+  // Only pass filter params when they are a proper subset — omitting means "all"
+  const mapTypeParam =
+    maps.length < ACTIVITY_MAP_TYPES.length
+      ? maps.filter((m): m is ActivityMapType => (ACTIVITY_MAP_TYPES as readonly string[]).includes(m))
+      : undefined;
 
-  const claimEvents = allEvents.filter(
-    (e): e is ClaimEvent =>
-      e.type === 'claim' &&
-      e.matchId === matchId &&
-      maps.includes(e.mapType) &&
-      objectiveTypes.includes(e.objectiveType) &&
-      owners.includes(e.owner) &&
-      (cutoff === null || Temporal.Instant.compare(e.at, cutoff) >= 0),
+  const activeClaimableTypes = objectiveTypes.filter((t): t is ActivityObjType =>
+    (ACTIVITY_OBJ_TYPES as readonly string[]).includes(t),
   );
+  const objectiveTypeParam = activeClaimableTypes.length < ACTIVITY_OBJ_TYPES.length ? activeClaimableTypes : undefined;
 
-  // Aggregate by guild
-  const statsByGuild = new Map<string, GuildStats>();
-  for (const event of claimEvents) {
-    const existing = statsByGuild.get(event.claimedBy);
-    const type = event.objectiveType as ActivityObjType;
-    if (!ACTIVITY_OBJ_TYPES.includes(type)) continue;
+  const ownerParam = owners.length < OWNER_TYPES.length ? owners : undefined;
 
-    const mapType = event.mapType as ActivityMapType;
-    if (!existing) {
-      statsByGuild.set(event.claimedBy, {
-        guildId: event.claimedBy,
-        byType: { Castle: 0, Keep: 0, Tower: 0, Camp: 0, [type]: 1 },
-        byMap: { Center: 0, GreenHome: 0, BlueHome: 0, RedHome: 0, [mapType]: 1 },
-        total: 1,
-        lastActivity: event.at,
-        lastActivityMap: event.mapType,
-        lastActivityOwner: event.owner,
-      });
-    } else {
-      existing.byType[type] += 1;
-      if (ACTIVITY_MAP_TYPES.includes(mapType)) existing.byMap[mapType] += 1;
-      existing.total += 1;
-      if (Temporal.Instant.compare(event.at, existing.lastActivity) > 0) {
-        existing.lastActivity = event.at;
-        existing.lastActivityMap = event.mapType;
-        existing.lastActivityOwner = event.owner;
-      }
-    }
-  }
-
-  const rows = [...statsByGuild.values()].sort((a, b) => {
-    let cmp: number;
-    if (sortKey === 'lastActivity') {
-      cmp = Temporal.Instant.compare(a.lastActivity, b.lastActivity);
-    } else if (sortKey === 'total') {
-      cmp = a.total - b.total;
-    } else if ((ACTIVITY_MAP_TYPES as readonly string[]).includes(sortKey)) {
-      cmp = a.byMap[sortKey as ActivityMapType] - b.byMap[sortKey as ActivityMapType];
-    } else {
-      cmp = a.byType[sortKey as ActivityObjType] - b.byType[sortKey as ActivityObjType];
-    }
-    return sortDir === 'desc' ? -cmp : cmp;
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['wvwGuilds', matchId, sortKey, sortDir, maps, objectiveTypes, owners, timeWindow],
+    queryFn: () =>
+      fetchWvwGuilds({
+        matchId,
+        sort: SORT_API_MAP[sortKey],
+        order: sortDir,
+        maxAge: timeWindowToMaxAge(timeWindow),
+        mapType: mapTypeParam,
+        objectiveType: objectiveTypeParam,
+        owner: ownerParam,
+        limit: 100,
+      }),
+    staleTime: 10_000,
   });
 
   function handleSort(key: SortKey) {
@@ -204,6 +211,8 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
     }
   }
 
+  const rows = data?.guilds ?? [];
+
   return (
     <section className="mt-4 rounded p-2 shadow">
       <h2 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Guild Activity</h2>
@@ -213,7 +222,11 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
         <FilterGroup label="Type" options={OBJECTIVE_TYPES} active={objectiveTypes} onToggle={toggleObjectiveType} />
         <FilterGroup label="Owner" options={OWNER_TYPES} active={owners} onToggle={toggleOwner} />
       </div>
-      {rows.length === 0 ? (
+      {isLoading ? (
+        <p className="text-sm text-gray-400">Loading…</p>
+      ) : isError ? (
+        <p className="text-sm text-red-400">Failed to load guild activity.</p>
+      ) : rows.length === 0 ? (
         <p className="text-sm text-gray-400">No claim events match the current filters.</p>
       ) : (
         <div className="overflow-x-auto">
@@ -265,8 +278,8 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((stats) => (
-                <GuildActivityRow key={stats.guildId} stats={stats} />
+              {rows.map((row) => (
+                <GuildTableRow key={row.guild_id} row={row} />
               ))}
             </tbody>
           </table>
