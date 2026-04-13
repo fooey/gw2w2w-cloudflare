@@ -198,7 +198,12 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       'User-Agent': 'gw2w2w.com',
     };
 
-    const response = await fetch(`${this.env.GW2_API_BASE}${GW2_MATCHES_PATH}`, { headers });
+    const response = await fetch(`${this.env.GW2_API_BASE}${GW2_MATCHES_PATH}`, {
+      headers,
+      // Without a timeout, a stalled GW2 API response hangs the alarm handler
+      // indefinitely — the finally block never runs and the loop stops.
+      signal: AbortSignal.timeout(10_000),
+    });
 
     if (!response.ok) {
       throw new Error(`[MatchupPoller] GW2 API error: ${response.status.toString()} ${response.statusText}`);
