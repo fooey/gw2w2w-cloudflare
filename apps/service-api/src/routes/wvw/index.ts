@@ -11,6 +11,10 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .route('/matches', apiWvwMatchesRoute)
   .route('/events', apiWvwEventsRoute)
   .route('/guilds', apiWvwGuildsRoute)
+  .get('/stream/status', async (c) => {
+    const stub = c.env.MATCHUP_POLLER.getByName('global');
+    return stub.fetch(new Request('https://internal/status'));
+  })
   .get('/stream', async (c) => {
     const matchId = c.req.query('matchId');
 

@@ -82,6 +82,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       return this.#handleSubscribe(request);
     }
 
+    if (url.pathname !== '/status') {
+      return new Response('Not found', { status: 404 });
+    }
+
     // Status endpoint
     const alarm = await this.ctx.storage.getAlarm();
     return Response.json({
