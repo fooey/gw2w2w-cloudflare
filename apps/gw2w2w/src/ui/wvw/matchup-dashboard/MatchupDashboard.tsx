@@ -1,10 +1,10 @@
 'use client';
 
-import { fetchWvwMatchesDirect } from '#lib/api/gw2/wvw/matches';
+import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
 import { withJitter } from '@repo/utils';
-import { type WvWMatch } from '@repo/service-api/types';
+import { type WvWMatchStripped } from '@repo/service-api/types';
 import { QueryClient, QueryClientProvider, useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -15,10 +15,10 @@ const matchupRegions = [
   { name: 'Europe', matchPrefix: '2' },
 ];
 
-function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatch[] | null>>) {
+function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatchStripped[] | null>>) {
   return useQuery({
     queryKey: ['wvwMatches'],
-    queryFn: () => fetchWvwMatchesDirect(),
+    queryFn: () => fetchWvwMatchesService(),
     refetchInterval: () => withJitter(60_000, 0.5),
     staleTime: 60_000,
     refetchOnWindowFocus: true,
@@ -28,7 +28,7 @@ function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatch[] | null>>) {
 }
 
 interface MatchupDashboardProps {
-  matches: WvWMatch[] | null;
+  matches: WvWMatchStripped[] | null;
 }
 
 export function MatchupDashboardContainer({ matches }: MatchupDashboardProps) {

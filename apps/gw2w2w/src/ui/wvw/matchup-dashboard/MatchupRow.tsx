@@ -2,10 +2,10 @@
 
 import { type Lang } from '#ui/wvw/config/lang';
 import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
-import { type WvWMatch } from '@repo/service-api/types';
+import { type WvWMatchStripped } from '@repo/service-api/types';
 import Link from 'next/link';
 
-export function MatchupRow({ match, lang }: { match: WvWMatch; lang: Lang }) {
+export function MatchupRow({ match, lang }: { match: WvWMatchStripped; lang: Lang }) {
   return (
     <li className="my-4 flex flex-row items-center">
       <div className="w-10">
