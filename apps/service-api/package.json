@@ -32,6 +32,7 @@
     "@hono/zod-validator": "catalog:",
     "@js-temporal/polyfill": "^0.5.1",
     "@repo/utils": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "hono": "catalog:",
     "zod": "catalog:"
   },
