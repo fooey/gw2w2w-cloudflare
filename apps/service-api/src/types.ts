@@ -17,3 +17,5 @@ export type {
 export type { WvWObjective } from '#lib/resources/wvw/objectives.ts';
 export type { WvWRank } from '#lib/resources/wvw/ranks.ts';
 export type { WvWUpgrade, WvWUpgradeTier, WvWUpgradeEffect } from '#lib/resources/wvw/upgrades.ts';
+export type { EventRow, EventLogResponse } from '#routes/wvw/events.ts';
+export type { GuildActivityRow, GuildActivityResponse } from '#routes/wvw/guilds.ts';
