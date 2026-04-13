@@ -68,7 +68,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       // Only set alarm if one isn't already scheduled — avoids interfering with
       // an alarm that fired and is executing right now (constructor runs before alarm handler on wake).
       const existing = await ctx.storage.getAlarm();
-      if (existing == null) {
+      // Also reschedule if the stored alarm is in the past — this happens when a
+      // CPU kill consumes the alarm invocation before the handler can reschedule.
+      if (existing == null || existing <= Date.now()) {
         await ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
       }
     });
@@ -100,6 +102,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     return Response.json({
       status: 'ok',
       nextAlarmAt: alarm,
+      nextAlarmAtISO: alarm != null ? new Date(alarm).toISOString() : null,
+      alarmIsStale: alarm != null && alarm <= Date.now(),
       matchCount: this.#matchEndTimes.size,
       objectiveCount: this.#objectiveSnap.size,
       subscriberCount: this.#subscribers.size,
