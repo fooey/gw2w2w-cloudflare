@@ -5,55 +5,42 @@ import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { TeamScore } from '#ui/wvw/matchup-dashboard/TeamScore';
 import { type WvWTeamId } from '@repo/service-api/types';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
-import { type WvWMatch } from '@repo/service-api/types';
+import { type WvWMatchStripped } from '@repo/service-api/types';
 import clsx from 'clsx';
-import { keyBy, sortBy } from 'lodash-es';
+
+type TeamColor = 'red' | 'blue' | 'green';
+const TEAM_COLORS_LC = ['red', 'blue', 'green'] as const satisfies TeamColor[];
 
 interface MatchScoreboardProps {
-  match: WvWMatch;
+  match: WvWMatchStripped;
   lang: Lang;
   selectedTeamId?: string | null;
   className?: string;
 }
 
 export function MatchScoreboard({ match, lang, selectedTeamId, className }: MatchScoreboardProps) {
-  const redId = match.all_worlds.red.find((id) => id > 10_000)?.toString() as WvWTeamId | undefined;
-  const blueId = match.all_worlds.blue.find((id) => id > 10_000)?.toString() as WvWTeamId | undefined;
-  const greenId = match.all_worlds.green.find((id) => id > 10_000)?.toString() as WvWTeamId | undefined;
-
-  if (!redId || !blueId || !greenId) return null;
-
-  const teamIds: Record<string, WvWTeamId> = { red: redId, blue: blueId, green: greenId };
   const objectives = match.maps.flatMap((map) => map.objectives);
 
-  const scores = Object.entries(match.scores).map(([color, score]) => ({
-    color,
-    score: score as number,
-    id: teamIds[color],
-    team: WVW_TEAMS[teamIds[color] as WvWTeamId],
-  }));
-
-  const sortedScores = sortBy(scores, ['score'])
-    .reverse()
-    .map((score, i) => ({ ...score, place: i + 1 }));
-
-  const teams = keyBy(sortedScores, 'color');
+  const placeByColor = Object.fromEntries(
+    [...TEAM_COLORS_LC].sort((a, b) => match.scores[b] - match.scores[a]).map((color, i) => [color, i + 1]),
+  ) as Record<TeamColor, number>;
 
   return (
     <div className={clsx('grid grid-cols-3 gap-2 align-baseline', className)}>
       {TEAM_COLORS.map((color) => {
-        const data = teams[color.toLowerCase()];
-        if (!data) return null;
+        const c = color.toLowerCase() as TeamColor;
+        const teamId = match.all_worlds[c].find((id) => id > 10_000)?.toString() as WvWTeamId | undefined;
+        if (!teamId) return null;
         return (
           <TeamScore
             key={color}
-            team={data.team}
+            team={WVW_TEAMS[teamId]}
             color={color}
-            place={data.place}
-            score={data.score}
+            place={placeByColor[c]}
+            score={match.scores[c]}
             objectives={objectives}
             lang={lang}
-            isSelectedTeam={data.id === selectedTeamId}
+            isSelectedTeam={teamId === selectedTeamId}
           />
         );
       })}

@@ -21,7 +21,7 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return withCacheJson(c, CACHE_TTL.static.http, result);
+    return withCacheJson(c, CACHE_TTL.patch.http, result);
   })
   .get('/foreground', async (c) => {
     const result = await getEmblemForeground('all', c.env);
@@ -34,7 +34,7 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
       return c.json(payload, 404);
     }
-    return withCacheJson(c, CACHE_TTL.static.http, result);
+    return withCacheJson(c, CACHE_TTL.patch.http, result);
   })
   .get(
     '/:layer/:emblemId',
@@ -61,6 +61,6 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
         return c.json(payload, 404);
       }
 
-      return withCacheJson(c, CACHE_TTL.static.http, result);
+      return withCacheJson(c, CACHE_TTL.patch.http, result);
     },
   );

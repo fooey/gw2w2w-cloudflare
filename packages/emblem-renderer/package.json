@@ -1,6 +1,6 @@
 {
   "name": "@repo/emblem-renderer",
-  "version": "1.0.4",
+  "version": "2026.4.12",
   "private": true,
   "entry": "src/index.ts",
   "exports": {

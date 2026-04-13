@@ -50,11 +50,14 @@ export function MatchObjectiveRow({
         ownerText,
       )}
     >
-      <ObjectiveGuild claimedBy={matchObjective.claimed_by} />
+      <ObjectiveGuild claimedBy={matchObjective.claimed_by ?? undefined} />
       <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
       <ObjectiveDirection direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
       <ObjectiveName objectiveId={matchObjective.id} />
-      <ObjectiveTimer className={cn('min-w-8', isInRI && ownerBg)} lastFlipped={matchObjective.last_flipped} />
+      <ObjectiveTimer
+        className={cn('min-w-8', isInRI && ownerBg)}
+        lastFlipped={matchObjective.last_flipped ?? undefined}
+      />
     </div>
   );
 }

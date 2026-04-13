@@ -3,14 +3,10 @@ import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
 
-export interface WvWAbilityRankEffect {
-  description: string;
-  icon: string;
-}
-
 export interface WvWAbilityRank {
   cost: number;
-  effect: WvWAbilityRankEffect;
+  /** Plain text description of this rank's effect. */
+  effect: string;
 }
 
 export interface WvWAbility {

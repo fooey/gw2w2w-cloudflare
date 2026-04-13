@@ -20,6 +20,6 @@ function getColorFromApi(env: CloudflareEnv): Promise<Color[] | null> {
 
 export async function getColor(id: number | number[] | 'all', env: CloudflareEnv): Promise<Color[]> {
   return withFilteredObjectCache('colors.json', id, () => getColorFromApi(env), createCacheProviders(env), {
-    ttl: CACHE_TTL.static.kv,
+    ttl: CACHE_TTL.patch.kv,
   });
 }

@@ -1,19 +1,28 @@
 'use client';
 
-import { EVENT_TYPES, getTimeCutoff, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
-import { useObjectiveLog } from '#lib/store/objectiveLog';
+import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
 import { getMapLabel, ObjectiveLogsRow } from '#ui/wvw/matchup/ObjectiveLogsRow';
+import { type EventRow } from '@repo/service-api/types';
 import { useRef, useState } from 'react';
 
+const TIME_WINDOW_TO_MAX_AGE: Record<string, number | undefined> = {
+  '1h': 3_600,
+  '4h': 4 * 3_600,
+  '8h': 8 * 3_600,
+  '24h': 24 * 3_600,
+  'all': undefined,
+};
+
 interface ObjectiveLogsProps {
-  matchId: string;
+  /** All known events from useMatchSSE: initial history + live SSE prepends. */
+  events: EventRow[];
+  isLoadingEvents: boolean;
 }
 
-export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
-  const allEvents = useObjectiveLog((state) => state.events);
+export function ObjectiveLogs({ events, isLoadingEvents }: ObjectiveLogsProps) {
   const {
     maps,
     objectiveTypes,
@@ -29,19 +38,23 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
   const listRef = useRef<HTMLUListElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const cutoff = getTimeCutoff(timeWindow);
+  const maxAge = TIME_WINDOW_TO_MAX_AGE[timeWindow];
 
-  const filtered = allEvents
-    .filter(
-      (e) =>
-        e.matchId === matchId &&
-        maps.includes(e.mapType) &&
-        objectiveTypes.includes(e.objectiveType) &&
-        eventTypes.includes(e.type) &&
-        owners.includes(e.owner) &&
-        (cutoff === null || Temporal.Instant.compare(e.at, cutoff) >= 0),
-    )
-    .sort((a, b) => Temporal.Instant.compare(b.at, a.at));
+  // All filtering is client-side — events array comes pre-loaded from useMatchSSE.
+  const cutoff = maxAge != null ? Temporal.Now.instant().subtract({ seconds: maxAge }) : null;
+
+  function matchesFilters(e: EventRow): boolean {
+    if (cutoff != null && Temporal.Instant.compare(Temporal.Instant.from(e.at), cutoff) < 0) return false;
+    if (maps.length < MAP_TYPES.length && !maps.includes(e.map_type)) return false;
+    if (objectiveTypes.length < OBJECTIVE_TYPES.length && !objectiveTypes.includes(e.objective_type)) return false;
+    if (eventTypes.length < EVENT_TYPES.length && !eventTypes.includes(e.type)) return false;
+    if (owners.length < OWNER_TYPES.length && !owners.includes(e.owner)) return false;
+    return true;
+  }
+
+  // Sort by actual event timestamp descending. ISO 8601 UTC strings are lexicographically comparable.
+  // Use id as tiebreaker for events at the same second.
+  const rows = events.filter(matchesFilters).sort((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
 
   // Update this when adding/removing columns from the event log row.
   // Left group: guild, icon, direction, name | Right group: timer, map, event type, timestamp
@@ -57,7 +70,9 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
         <FilterGroup label="Event" options={EVENT_TYPES} active={eventTypes} onToggle={toggleEventType} />
         <FilterGroup label="Owner" options={OWNER_TYPES} active={owners} onToggle={toggleOwner} />
       </div>
-      {filtered.length === 0 ? (
+      {isLoadingEvents ? (
+        <p className="text-sm text-gray-400">Loading…</p>
+      ) : rows.length === 0 ? (
         <p className="text-sm text-gray-400">No events match the current filters.</p>
       ) : (
         <div className="relative">
@@ -68,8 +83,8 @@ export function ObjectiveLogs({ matchId }: ObjectiveLogsProps) {
             }}
             className={cn('grid max-h-96 gap-x-2 gap-y-1 overflow-y-auto', LOG_COLS)}
           >
-            {filtered.map((event) => (
-              <ObjectiveLogsRow key={`${event.objectiveId}-${event.at.toString()}-${event.type}`} event={event} />
+            {rows.map((event) => (
+              <ObjectiveLogsRow key={event.id} event={event} />
             ))}
           </ul>
           {showScrollTop && (

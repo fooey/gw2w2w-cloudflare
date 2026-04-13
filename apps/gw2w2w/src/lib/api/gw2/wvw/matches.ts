@@ -1,6 +1,10 @@
-import { apiFetch, GW2_API_BASE } from '#lib/api/client';
+import { apiFetch } from '#lib/api/client';
 import { parseResponse } from '#lib/api/utils';
-import { type WvWMatch } from '@repo/service-api/types';
+import { type WvWMatch, type WvWMatchStripped } from '@repo/service-api/types';
+
+export function fetchWvwMatchesService(): Promise<WvWMatchStripped[] | null> {
+  return apiFetch(`/wvw/matches`).then(parseResponse<WvWMatchStripped[]>);
+}
 
 export function fetchWvwMatches(): Promise<WvWMatch[] | null> {
   return apiFetch(`/gw2/wvw/matches`).then(parseResponse<WvWMatch[]>);
@@ -8,14 +12,6 @@ export function fetchWvwMatches(): Promise<WvWMatch[] | null> {
 
 export function fetchWvwMatch(matchId: string): Promise<WvWMatch | null> {
   return apiFetch(`/gw2/wvw/matches/${matchId}`).then(parseResponse<WvWMatch>);
-}
-
-export function fetchWvwMatchesDirect(): Promise<WvWMatch[] | null> {
-  return fetch(`${GW2_API_BASE}/wvw/matches?ids=all`, { cache: 'no-store' }).then(parseResponse<WvWMatch[]>);
-}
-
-export function fetchWvwMatchDirect(matchId: string): Promise<WvWMatch | null> {
-  return fetch(`${GW2_API_BASE}/wvw/matches/${matchId}`, { cache: 'no-store' }).then(parseResponse<WvWMatch>);
 }
 
 export function fetchWvwMatchByTeam(teamId: string): Promise<WvWMatch | null> {

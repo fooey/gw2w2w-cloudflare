@@ -1,0 +1,5 @@
+[
+  { "id": 1, "title": "Invader", "min_rank": 1 },
+  { "id": 2, "title": "Assaulter", "min_rank": 5 },
+  { "id": 3, "title": "Raider", "min_rank": 10 }
+]

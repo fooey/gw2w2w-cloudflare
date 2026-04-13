@@ -2,11 +2,15 @@ import { allowedCsrf, allowedOrigin } from '@repo/utils';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
-import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import { type ContentfulStatusCode } from 'hono/utils/http-status';
+import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
+import { MatchupPoller } from './durable-objects/MatchupPoller';
 import { apiGw2Route } from './routes/gw2';
+import { apiWvwRoute } from './routes/wvw';
+
+export { MatchupPoller };
 
 export interface ErrorPayload {
   message: string;
@@ -20,6 +24,8 @@ export interface CloudflareEnv {
   EMBLEM_ASSETS: R2Bucket;
   GW2_API_BASE: string;
   GW2_API_KEY?: string;
+  WVW_DB: D1Database;
+  MATCHUP_POLLER: DurableObjectNamespace;
 }
 
 const app = new Hono<{ Bindings: CloudflareEnv }>()
@@ -28,7 +34,6 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     await next();
     c.header('Vary', 'Origin', { append: true });
   })
-  .use('*', etag())
   .use('*', secureHeaders())
   .use('*', cors({ origin: (origin, c) => allowedOrigin(origin, c.req.header('host')) }))
   .use(csrf({ origin: (origin, c) => allowedCsrf(origin, c.req.header('host')) }))
@@ -47,6 +52,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   // .get('/gw2/emblem/*', staticCache)
   // .get('*', defaultCache)
   .route('/gw2', apiGw2Route)
+  .route('/wvw', apiWvwRoute)
   .notFound((c) => {
     const payload: ErrorPayload = {
       message: 'Not Found',
@@ -68,4 +74,16 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   });
 
 export type ServiceApiAppType = typeof app;
-export default app;
+
+export default {
+  fetch: app.fetch,
+  async scheduled(_event: ScheduledEvent, env: CloudflareEnv, ctx: ExecutionContext): Promise<void> {
+    const didInvalidate = await checkBuildId(env);
+    if (didInvalidate) {
+      ctx.waitUntil(warmStaticCaches(env));
+    }
+    // Ensure the MatchupPoller DO is awake. The DO schedules its own alarm loop;
+    // this fetch is only needed if the DO has been evicted and the alarm has lapsed.
+    ctx.waitUntil(env.MATCHUP_POLLER.getByName('global').fetch('https://internal/poller'));
+  },
+};

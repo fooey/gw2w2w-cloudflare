@@ -1,0 +1,22 @@
+[
+  {
+    "id": "map_complete",
+    "icon": "https://render.guildwars2.com/file/5A4E663071250EC72668C09E3C082E595A380BF7/528724.png"
+  },
+  {
+    "id": "map_dungeon",
+    "icon": "https://render.guildwars2.com/file/943538394A94A491C8632FBEF6203C2013443555/102478.png"
+  },
+  {
+    "id": "wvw_camp",
+    "icon": "https://render.guildwars2.com/file/015D365A08AAE105287A100AAE04529FDAE14155/102532.png"
+  },
+  {
+    "id": "wvw_tower",
+    "icon": "https://render.guildwars2.com/file/ABEC80C79576A103EA33EC66FCB99B77291A2F0D/102531.png"
+  },
+  {
+    "id": "wvw_keep",
+    "icon": "https://render.guildwars2.com/file/DB580419C8AD9449309A96C8E7C3D61631020EBB/102535.png"
+  }
+]

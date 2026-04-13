@@ -38,6 +38,9 @@
       "cache": false,
       "persistent": true
     },
+    "dev:seed": {
+      "cache": false
+    },
     "transit": {
       "dependsOn": ["^transit"]
     },

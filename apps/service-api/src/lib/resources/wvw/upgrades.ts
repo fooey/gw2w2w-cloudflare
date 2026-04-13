@@ -17,7 +17,6 @@ export interface WvWUpgradeTier {
 
 export interface WvWUpgrade {
   id: number;
-  name: string;
   tiers: WvWUpgradeTier[];
 }
 

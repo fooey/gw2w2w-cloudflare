@@ -23,16 +23,23 @@ graph TD
         GW2W2W["gw2w2w.com<br/>Next.js · OpenNext"]
         Emblem["emblem.gw2w2w.com<br/>service-emblem · Hono"]
         API["api.gw2w2w.com<br/>service-api · Hono"]
+        D1[("D1<br/>match_state<br/>events<br/>guild_activity")]
         KV[("KV<br/>name → id<br/>guild JSON")]
-        R2[("R2<br/>textures<br/>rendered emblems<br/>wvw data")]
+        R2[("R2<br/>textures<br/>rendered emblems")]
+        DO[("MatchupPoller DO<br/>alarm loop · SSE fanout")]
     end
 
     GW2API["api.guildwars2.com"]
 
     User -->|page request| GW2W2W
     User -->|emblem hotlink| Emblem
-    GW2W2W -->|fetch| API
+    User -->|SSE /wvw/stream| API
+    GW2W2W -->|REST /wvw/*| API
     Emblem -->|Service Binding| API
+    API -->|subscribe| DO
+    DO -->|poll every ~6s| GW2API
+    DO -->|write events + match state| D1
+    API -->|read match state + events| D1
     API -->|read / write| KV
     API -->|read / write| R2
     Emblem -->|read / write| R2
@@ -41,11 +48,11 @@ graph TD
 
 ### Applications
 
-| App                   | Domain              | Description                                                                                                        |
-| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 15 frontend, deployed via [OpenNext](https://opennext.js.org/) on Cloudflare Workers (no Node.js required) |
-| `apps/service-emblem` | `emblem.gw2w2w.com` | Hono Worker — renders guild emblems as WebP, caches in R2 (port `8787` locally)                                    |
-| `apps/service-api`    | `api.gw2w2w.com`    | Hono Worker — GW2 API proxy with KV + R2 tiered caching (port `8788` locally)                                      |
+| App                   | Domain              | Description                                                                                                                                               |
+| --------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 15 frontend, deployed via [OpenNext](https://opennext.js.org/) on Cloudflare Workers (no Node.js required)                                        |
+| `apps/service-emblem` | `emblem.gw2w2w.com` | Hono Worker — renders guild emblems as WebP, caches in R2 (port `8787` locally)                                                                           |
+| `apps/service-api`    | `api.gw2w2w.com`    | Hono Worker — GW2 API proxy with KV + R2 tiered caching; MatchupPoller Durable Object for real-time WvW event tracking via D1 + SSE (port `8788` locally) |
 
 ### Packages
 

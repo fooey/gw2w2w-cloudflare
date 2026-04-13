@@ -29,7 +29,7 @@ export async function withKvCache<T>(
 ): Promise<T | null> {
   const { kvStore } = cacheProviders;
   const {
-    ttl = CACHE_TTL.static.kv,
+    ttl = CACHE_TTL.patch.kv,
     notFoundTtl = NOT_FOUND_CACHE_EXPIRATION,
     enableLogging = getEnableCacheLogging,
   } = config;
@@ -93,7 +93,7 @@ export async function withObjectCache<T>(
   config: CacheConfig = {},
 ): Promise<T> {
   const { objectStore } = cacheProviders;
-  const { ttl = CACHE_TTL.static.kv, enableLogging = getEnableCacheLogging } = config;
+  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging } = config;
 
   // 1. Check cache with expiration
   let cachedData: T | null = null;

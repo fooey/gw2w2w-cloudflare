@@ -15,29 +15,37 @@ export interface WvWMatchSkirmish {
   id: number;
   scores: WvWMatchTeams<number>;
   map_scores: {
-    type: string;
+    type: WvWMapType;
     scores: WvWMatchTeams<number>;
   }[];
 }
 
+export type WvWTeamColor = 'Red' | 'Blue' | 'Green' | 'Neutral';
+
+export type WvWMapType = 'Center' | 'RedHome' | 'BlueHome' | 'GreenHome';
+
 export interface WvWMatchObjective {
   id: string;
   type: WvWObjective['type'];
-  owner: string;
-  last_flipped: string;
-  claimed_by?: string;
-  claimed_at?: string;
+  owner: WvWTeamColor;
+  last_flipped: string | null | undefined;
+  /** Present on claimable objectives (Camp/Tower/Keep/Castle), absent on Spawn/Ruins. Null when unclaimed. */
+  claimed_by?: string | null;
+  /** Present on claimable objectives (Camp/Tower/Keep/Castle), absent on Spawn/Ruins. Null when unclaimed. */
+  claimed_at?: string | null;
   points_tick: number;
   points_capture: number;
-  guild_upgrades: number[];
+  /** Absent on unclaimable objectives (Spawn, Ruins). */
+  guild_upgrades?: number[];
+  /** Absent on unclaimable objectives (Spawn, Ruins). */
   yaks_delivered?: number;
 }
 
 export interface WvWMatchMap {
   id: number;
-  type: string;
+  type: WvWMapType;
   scores: WvWMatchTeams<number>;
-  bonuses: { type: string; owner: string }[];
+  bonuses: { type: string; owner: WvWTeamColor }[];
   objectives: WvWMatchObjective[];
   deaths: WvWMatchTeams<number>;
   kills: WvWMatchTeams<number>;
@@ -56,6 +64,9 @@ export interface WvWMatch {
   skirmishes: WvWMatchSkirmish[];
   maps: WvWMatchMap[];
 }
+
+/** WvWMatch with skirmishes[] omitted — the shape stored in D1 match_state and pushed over SSE */
+export type WvWMatchStripped = Omit<WvWMatch, 'skirmishes'>;
 
 function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
   return apiFetch(env, '/wvw/matches?ids=all').then((response) => {
