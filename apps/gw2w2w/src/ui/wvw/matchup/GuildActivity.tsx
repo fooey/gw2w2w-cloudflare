@@ -231,7 +231,7 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
       ) : rows.length === 0 ? (
         <p className="text-sm text-gray-400">No claim events match the current filters.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="h-96 overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-gray-200">

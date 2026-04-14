@@ -79,7 +79,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
             onScroll={(e) => {
               setShowScrollTop(e.currentTarget.scrollTop > 0);
             }}
-            className={cn('grid max-h-96 gap-x-2 gap-y-1 overflow-y-auto', LOG_COLS)}
+            className={cn('grid h-96 gap-x-2 gap-y-1 overflow-y-auto', LOG_COLS)}
           >
             {rows.map((event) => (
               <ObjectiveLogsRow key={event.id} event={event} />
