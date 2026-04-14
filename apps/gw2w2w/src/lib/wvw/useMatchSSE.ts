@@ -4,7 +4,7 @@ import { apiBase } from '#lib/api/client';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
 import { type WvWMatchStripped, type WvWTeamColor, type WvWMapType } from '@repo/service-api/types';
 import { type EventRow } from '@repo/service-api/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Narrow types matching what the DO actually inserts — subset of WvWObjective['type']
 type WvWObjectiveType = EventRow['objective_type'];
@@ -85,14 +85,22 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatchStripped): Us
   const [match, setMatch] = useState(initialMatch);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  // Tracks current match start_time for use as fallback when an event has a
+  // null/invalid `at` (can happen at match start before objectives are flipped).
+  // A ref avoids stale closure issues without adding match to the effect deps.
+  const matchStartTimeRef = useRef(initialMatch.start_time);
 
   useEffect(() => {
     let cancelled = false;
 
+    function coerceAt(at: unknown): string {
+      return typeof at === 'string' ? at : matchStartTimeRef.current;
+    }
+
     function seedHistory(id: string) {
       void fetchWvwEvents({ matchId: id }).then((data) => {
         if (!cancelled) {
-          setEvents(data?.events ?? []);
+          setEvents((data?.events ?? []).map((e) => (typeof e.at === 'string' ? e : { ...e, at: matchStartTimeRef.current })));
           setIsLoadingEvents(false);
         }
       });
@@ -104,18 +112,19 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatchStripped): Us
 
     const onMatchState = (e: MessageEvent) => {
       const payload = JSON.parse(e.data as string) as MatchStatePayload;
+      matchStartTimeRef.current = payload.data.start_time;
       setMatch(payload.data);
     };
 
     const onCapture = (e: MessageEvent) => {
       const p = JSON.parse(e.data as string) as CapturePayload;
-      const row = captureToRow(p);
+      const row = captureToRow({ ...p, at: coerceAt(p.at) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 
     const onClaim = (e: MessageEvent) => {
       const p = JSON.parse(e.data as string) as ClaimPayload;
-      const row = claimToRow(p);
+      const row = claimToRow({ ...p, at: coerceAt(p.at) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 

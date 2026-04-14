@@ -44,6 +44,7 @@ export function ObjectiveLogs({ events, isLoadingEvents }: ObjectiveLogsProps) {
   const cutoff = maxAge != null ? Temporal.Now.instant().subtract({ seconds: maxAge }) : null;
 
   function matchesFilters(e: EventRow): boolean {
+    if (typeof e.at !== 'string') return false;
     if (cutoff != null && Temporal.Instant.compare(Temporal.Instant.from(e.at), cutoff) < 0) return false;
     if (maps.length < MAP_TYPES.length && !maps.includes(e.map_type)) return false;
     if (objectiveTypes.length < OBJECTIVE_TYPES.length && !objectiveTypes.includes(e.objective_type)) return false;

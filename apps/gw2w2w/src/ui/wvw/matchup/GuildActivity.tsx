@@ -152,11 +152,13 @@ function GuildTableRow({ row }: { row: GuildActivityRow }) {
       <td className="w-px px-2 py-1 text-right font-mono text-xs whitespace-nowrap tabular-nums">
         {getMapLabel(row.last_activity_map)}
         {' · '}
-        {Temporal.Instant.from(row.last_seen_at).toLocaleString(undefined, {
-          weekday: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-        })}
+        {row.last_seen_at
+          ? Temporal.Instant.from(row.last_seen_at).toLocaleString(undefined, {
+              weekday: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : null}
       </td>
     </tr>
   );
