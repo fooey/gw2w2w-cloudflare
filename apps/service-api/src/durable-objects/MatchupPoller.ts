@@ -4,6 +4,10 @@ import type { WvWMatch, WvWMatchObjective, WvWMatchStripped } from '#lib/resourc
 
 const POLL_INTERVAL_MS = 20_000;
 const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
+// GW2 API rate limit parameters (per API:Best_practices)
+// Bucket: 300 requests, refill: 5 req/s (300/min)
+const GW2_RATE_LIMIT_BURST = 300;
+const GW2_RATE_LIMIT_REFILL = '5 req/s';
 const GW2_MATCHES_PATH = '/wvw/matches?ids=all';
 // Cap replay to avoid large D1 reads on reconnect after a long disconnect.
 const MAX_REPLAY_EVENTS = 500;
@@ -92,7 +96,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       await this.#poll();
     } catch (err) {
       if (err instanceof RateLimitError) {
-        console.warn(`[MatchupPoller] rate limited — backing off ${err.retryAfterMs}ms`);
+        const resumeAt = new Date(Date.now() + err.retryAfterMs).toISOString();
+        console.warn(
+          `[MatchupPoller] rate limited (burst=${GW2_RATE_LIMIT_BURST}, refill=${GW2_RATE_LIMIT_REFILL})` +
+          ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
+        );
         await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
       } else {
         console.error('[MatchupPoller] alarm error:', err);
@@ -238,6 +246,13 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     if (!response.ok) {
       if (response.status === 429) {
+        const rateLimitHeaders: Record<string, string> = {};
+        for (const [key, value] of response.headers.entries()) {
+          if (key.toLowerCase().startsWith('x-rate-limit') || key.toLowerCase() === 'retry-after') {
+            rateLimitHeaders[key] = value;
+          }
+        }
+        console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders));
         const retryAfter = response.headers.get('Retry-After');
         const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
         throw new RateLimitError(Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS);
