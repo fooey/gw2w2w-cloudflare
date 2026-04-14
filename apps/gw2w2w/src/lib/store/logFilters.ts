@@ -15,7 +15,13 @@ export function getTimeCutoff(timeWindow: TimeWindow): Temporal.Instant | null {
   return Temporal.Now.instant().subtract({ hours });
 }
 
-interface LogFiltersState {
+function toggle<T>(arr: T[], value: T): T[] {
+  return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
+}
+
+// --- Event Log filters (includes eventTypes) ---
+
+interface EventLogFiltersState {
   maps: string[];
   objectiveTypes: WvWObjective['type'][];
   eventTypes: (typeof EVENT_TYPES)[number][];
@@ -28,11 +34,7 @@ interface LogFiltersState {
   setTimeWindow: (value: TimeWindow) => void;
 }
 
-function toggle<T>(arr: T[], value: T): T[] {
-  return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
-}
-
-export const useLogFilters = create<LogFiltersState>()(
+export const useEventLogFilters = create<EventLogFiltersState>()(
   persist(
     (set) => ({
       maps: [...MAP_TYPES],
@@ -56,6 +58,43 @@ export const useLogFilters = create<LogFiltersState>()(
         set({ timeWindow: value });
       },
     }),
-    { name: 'gw2w2w.log-filters' },
+    { name: 'gw2w2w.event-log-filters' },
+  ),
+);
+
+// --- Guild Activity filters (no eventTypes — always "claim" on the API) ---
+
+interface GuildActivityFiltersState {
+  maps: string[];
+  objectiveTypes: WvWObjective['type'][];
+  owners: string[];
+  timeWindow: TimeWindow;
+  toggleMap: (value: string) => void;
+  toggleObjectiveType: (value: WvWObjective['type']) => void;
+  toggleOwner: (value: string) => void;
+  setTimeWindow: (value: TimeWindow) => void;
+}
+
+export const useGuildActivityFilters = create<GuildActivityFiltersState>()(
+  persist(
+    (set) => ({
+      maps: [...MAP_TYPES],
+      objectiveTypes: [...OBJECTIVE_TYPES],
+      owners: [...OWNER_TYPES],
+      timeWindow: 'all',
+      toggleMap: (value) => {
+        set((s) => ({ maps: toggle(s.maps, value) }));
+      },
+      toggleObjectiveType: (value) => {
+        set((s) => ({ objectiveTypes: toggle(s.objectiveTypes, value) }));
+      },
+      toggleOwner: (value) => {
+        set((s) => ({ owners: toggle(s.owners, value) }));
+      },
+      setTimeWindow: (value) => {
+        set({ timeWindow: value });
+      },
+    }),
+    { name: 'gw2w2w.guild-activity-filters' },
   ),
 );

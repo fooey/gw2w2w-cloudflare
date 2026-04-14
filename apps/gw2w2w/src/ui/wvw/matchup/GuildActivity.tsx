@@ -1,7 +1,7 @@
 'use client';
 
 import { getEmblemSrc } from '#lib/emblems';
-import { OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
+import { OBJECTIVE_TYPES, OWNER_TYPES, useGuildActivityFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
 import { fetchWvwGuilds } from '#lib/api/wvw/guilds';
 import { useGuild } from '#lib/wvw/useGuild';
@@ -170,7 +170,7 @@ interface GuildActivityProps {
 
 export function GuildActivity({ matchId }: GuildActivityProps) {
   const { maps, objectiveTypes, owners, timeWindow, toggleMap, toggleObjectiveType, toggleOwner, setTimeWindow } =
-    useLogFilters();
+    useGuildActivityFilters();
 
   const [sortKey, setSortKey] = useState<SortKey>('lastActivity');
   const [sortDir, setSortDir] = useState<SortDir>('desc');

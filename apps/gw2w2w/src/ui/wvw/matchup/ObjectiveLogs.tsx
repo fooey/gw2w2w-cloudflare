@@ -1,6 +1,6 @@
 'use client';
 
-import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useLogFilters } from '#lib/store/logFilters';
+import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useEventLogFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
@@ -33,7 +33,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
     toggleEventType,
     toggleOwner,
     setTimeWindow,
-  } = useLogFilters();
+  } = useEventLogFilters();
   const listRef = useRef<HTMLUListElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
