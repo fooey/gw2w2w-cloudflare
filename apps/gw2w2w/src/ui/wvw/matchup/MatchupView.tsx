@@ -5,12 +5,12 @@ import { useMatchSSE } from '#lib/wvw/useMatchSSE';
 import { SiteLayoutFullWidth } from '#ui/layout/SiteLayout';
 import { objectivesLayout, type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
+import { EventActivityChart } from '#ui/wvw/matchup/EventActivityChart';
+import { GuildActivity } from '#ui/wvw/matchup/GuildActivity';
 import { MatchMap } from '#ui/wvw/matchup/MatchMap';
 import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
-import { GuildActivity } from '#ui/wvw/matchup/GuildActivity';
 import { ObjectiveLogs } from '#ui/wvw/matchup/ObjectiveLogs';
-import { type WvWMapType, type WvWMatchMap, type WvWMatchStripped } from '@repo/service-api/types';
-import { type EventRow } from '@repo/service-api/types';
+import { type EventRow, type WvWMapType, type WvWMatchMap, type WvWMatchStripped } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
   match: WvWMatchStripped;
@@ -38,6 +38,7 @@ export function MatchupView({ match: initialMatch, selectedTeamId, initialEvents
         </section>
         <ObjectiveLogs events={events} />
         <GuildActivity matchId={match.id} />
+        <EventActivityChart events={events} />
       </div>
     </SiteLayoutFullWidth>
   );

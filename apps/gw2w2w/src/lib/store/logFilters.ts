@@ -62,7 +62,58 @@ export const useEventLogFilters = create<EventLogFiltersState>()(
   ),
 );
 
-// --- Guild Activity filters (no eventTypes — always "claim" on the API) ---
+// --- Activity Chart filters (same base filters + granularity) ---
+
+export const GRANULARITIES = ['15m', '1h', '2h', '3h', '4h', '8h', '12h', '1d'] as const;
+export type Granularity = (typeof GRANULARITIES)[number];
+
+interface ActivityChartFiltersState {
+  maps: string[];
+  objectiveTypes: WvWObjective['type'][];
+  eventTypes: (typeof EVENT_TYPES)[number][];
+  owners: string[];
+  timeWindow: TimeWindow;
+  granularity: Granularity;
+  toggleMap: (value: string) => void;
+  toggleObjectiveType: (value: WvWObjective['type']) => void;
+  toggleEventType: (value: (typeof EVENT_TYPES)[number]) => void;
+  toggleOwner: (value: string) => void;
+  setTimeWindow: (value: TimeWindow) => void;
+  setGranularity: (value: Granularity) => void;
+}
+
+export const useActivityChartFilters = create<ActivityChartFiltersState>()(
+  persist(
+    (set) => ({
+      maps: [...MAP_TYPES],
+      objectiveTypes: [...OBJECTIVE_TYPES],
+      eventTypes: [...EVENT_TYPES],
+      owners: [...OWNER_TYPES],
+      timeWindow: '24h',
+      granularity: '1h',
+      toggleMap: (value) => {
+        set((s) => ({ maps: toggle(s.maps, value) }));
+      },
+      toggleObjectiveType: (value) => {
+        set((s) => ({ objectiveTypes: toggle(s.objectiveTypes, value) }));
+      },
+      toggleEventType: (value) => {
+        set((s) => ({ eventTypes: toggle(s.eventTypes, value) }));
+      },
+      toggleOwner: (value) => {
+        set((s) => ({ owners: toggle(s.owners, value) }));
+      },
+      setTimeWindow: (value) => {
+        set({ timeWindow: value });
+      },
+      setGranularity: (value) => {
+        set({ granularity: value });
+      },
+    }),
+    { name: 'gw2w2w.activity-chart-filters' },
+  ),
+);
+
 
 interface GuildActivityFiltersState {
   maps: string[];
