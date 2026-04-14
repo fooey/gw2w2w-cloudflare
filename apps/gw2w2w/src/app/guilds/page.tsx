@@ -4,7 +4,7 @@ import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import SiteLayout from '#ui/layout/SiteLayout';
 import { type Guild } from '@repo/service-api/types';
 import clsx from 'clsx';
-import Link from 'next/link';
+import Link from '#ui/Link';
 
 const demoGuilds: Pick<Guild, 'id' | 'name' | 'tag'>[] = [
   {

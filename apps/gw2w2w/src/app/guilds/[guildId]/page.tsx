@@ -13,7 +13,7 @@ import { type Guild, type WvWTeam } from '@repo/service-api/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import { clsx } from 'clsx';
 import { type Metadata } from 'next';
-import Link from 'next/link';
+import Link from '#ui/Link';
 import { cache } from 'react';
 
 export interface GuildPageProps {

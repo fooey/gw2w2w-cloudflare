@@ -1,6 +1,6 @@
 import { getEmblemSrc } from '#lib/emblems';
 import { type Guild } from '@repo/service-api/types';
-import Link from 'next/link';
+import Link from '#ui/Link';
 
 export function Highlight({ text, query }: { text: string; query: string }) {
   if (!query) return <>{text}</>;

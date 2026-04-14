@@ -1,6 +1,6 @@
 import { homePageAttributes, siteFeatures } from '#lib/definitions/site-sections';
 import SiteLayout from '#ui/layout/SiteLayout';
-import Link from 'next/link';
+import Link from '#ui/Link';
 
 export default function Home() {
   return (

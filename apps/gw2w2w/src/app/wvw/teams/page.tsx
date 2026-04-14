@@ -1,7 +1,7 @@
 import SiteLayout from '#ui/layout/SiteLayout';
 import { type WvWTeam } from '@repo/service-api/types';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
-import Link from 'next/link';
+import Link from '#ui/Link';
 
 const naTeams: WvWTeam[] = Object.values(WVW_TEAMS)
   .filter(({ id }) => id.startsWith('11'))

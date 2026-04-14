@@ -11,7 +11,7 @@ import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
 import { getMapLabel } from '#ui/wvw/matchup/ObjectiveLogsRow';
 import { type GuildActivityRow } from '@repo/service-api/types';
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
+import Link from '#ui/Link';
 import { useState } from 'react';
 
 const ACTIVITY_OBJ_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;

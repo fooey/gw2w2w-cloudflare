@@ -13,7 +13,7 @@ import {
 import { AtSymbolIcon } from '@heroicons/react/20/solid';
 import { Bars3Icon, CodeBracketIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
-import Link from 'next/link';
+import Link from '#ui/Link';
 import { usePathname } from 'next/navigation';
 
 const repoUrl = 'https://github.com/fooey/gw2w2w-cloudflare';

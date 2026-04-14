@@ -3,7 +3,7 @@
 import { Highlight, WvWTeamGuild } from '#app/wvw/teams/[teamName]/WvWTeamGuild';
 import { type Guild } from '@repo/service-api/types';
 import { matchSorter } from 'match-sorter';
-import Link from 'next/link';
+import Link from '#ui/Link';
 import { useState } from 'react';
 
 export function WvWTeamGuildFilter({ guilds }: { guilds: Guild[] }) {

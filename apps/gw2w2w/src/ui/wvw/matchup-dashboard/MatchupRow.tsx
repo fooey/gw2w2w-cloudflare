@@ -3,7 +3,7 @@
 import { type Lang } from '#ui/wvw/config/lang';
 import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
 import { type WvWMatchStripped } from '@repo/service-api/types';
-import Link from 'next/link';
+import Link from '#ui/Link';
 
 export function MatchupRow({ match, lang }: { match: WvWMatchStripped; lang: Lang }) {
   return (

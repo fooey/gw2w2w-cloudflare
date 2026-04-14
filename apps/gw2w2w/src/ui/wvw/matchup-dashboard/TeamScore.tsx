@@ -4,7 +4,7 @@ import { cn } from '#lib/utils/cn';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { type WvWMatchObjective, type WvWTeam } from '@repo/service-api/types';
 import clsx from 'clsx';
-import Link from 'next/link';
+import Link from '#ui/Link';
 import { type Lang } from '../config/lang';
 import { teamColorConfig } from '../config/teamColorConfig';
 
