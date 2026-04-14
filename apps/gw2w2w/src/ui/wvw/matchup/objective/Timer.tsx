@@ -5,7 +5,10 @@ import { cn } from '#lib/utils/cn';
 
 const FLIP_WINDOW_SECONDS = 5 * 60;
 const RI_TIMER = 5 * 60;
-const durationFormatter = new Intl.DurationFormat('en', { style: 'narrow' });
+let durationFormatter: Intl.DurationFormat | undefined;
+function getDurationFormatter(): Intl.DurationFormat {
+  return (durationFormatter ??= new Intl.DurationFormat('en', { style: 'narrow' }));
+}
 
 function getFlippedDisplay(isoString: string, now: Temporal.Instant | null): string | null {
   if (now === null) return null;
@@ -32,7 +35,7 @@ export function ObjectiveTimer({ lastFlipped, className }: { lastFlipped: string
   const isInRI = holdTime < RI_TIMER;
   const timeDisplay = isInRI
     ? getFlippedDisplay(lastFlipped, now)
-    : durationFormatter.format(
+    : getDurationFormatter().format(
         holdTime < 3600 ? { minutes: Math.floor(holdTime / 60) } : { hours: Math.floor(holdTime / 3600) },
       );
 
