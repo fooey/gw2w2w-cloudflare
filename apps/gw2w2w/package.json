@@ -27,6 +27,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
+    "@js-temporal/polyfill": "^0.5.1",
     "@repo/emblem-renderer": "workspace:*",
     "@repo/service-api": "workspace:*",
     "@repo/utils": "workspace:*",
@@ -46,12 +47,12 @@
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
     "@opennextjs/cloudflare": "^1.18.0",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "catalog:",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "catalog:",
     "eslint-config-next": "^16.2.2",
