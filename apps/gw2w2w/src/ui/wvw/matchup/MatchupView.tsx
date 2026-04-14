@@ -10,6 +10,7 @@ import { GuildActivity } from '#ui/wvw/matchup/GuildActivity';
 import { MatchMap } from '#ui/wvw/matchup/MatchMap';
 import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
 import { ObjectiveLogs } from '#ui/wvw/matchup/ObjectiveLogs';
+import { TeamActivity } from '#ui/wvw/matchup/TeamActivity';
 import { type EventRow, type WvWMapType, type WvWMatchMap, type WvWMatchStripped } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
@@ -37,8 +38,9 @@ export function MatchupView({ match: initialMatch, selectedTeamId, initialEvents
           </ul>
         </section>
         <ObjectiveLogs events={events} />
-        <GuildActivity matchId={match.id} />
         <EventActivityChart events={events} />
+        <TeamActivity events={events} />
+        <GuildActivity events={events} />
       </div>
     </SiteLayoutFullWidth>
   );

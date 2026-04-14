@@ -114,7 +114,6 @@ export const useActivityChartFilters = create<ActivityChartFiltersState>()(
   ),
 );
 
-
 interface GuildActivityFiltersState {
   maps: string[];
   objectiveTypes: WvWObjective['type'][];
@@ -147,5 +146,36 @@ export const useGuildActivityFilters = create<GuildActivityFiltersState>()(
       },
     }),
     { name: 'gw2w2w.guild-activity-filters' },
+  ),
+);
+
+// --- Team Activity filters (no owner filter — owners are the rows) ---
+
+interface TeamActivityFiltersState {
+  maps: string[];
+  objectiveTypes: WvWObjective['type'][];
+  timeWindow: TimeWindow;
+  toggleMap: (value: string) => void;
+  toggleObjectiveType: (value: WvWObjective['type']) => void;
+  setTimeWindow: (value: TimeWindow) => void;
+}
+
+export const useTeamActivityFilters = create<TeamActivityFiltersState>()(
+  persist(
+    (set) => ({
+      maps: [...MAP_TYPES],
+      objectiveTypes: [...OBJECTIVE_TYPES],
+      timeWindow: 'all',
+      toggleMap: (value) => {
+        set((s) => ({ maps: toggle(s.maps, value) }));
+      },
+      toggleObjectiveType: (value) => {
+        set((s) => ({ objectiveTypes: toggle(s.objectiveTypes, value) }));
+      },
+      setTimeWindow: (value) => {
+        set({ timeWindow: value });
+      },
+    }),
+    { name: 'gw2w2w.team-activity-filters' },
   ),
 );
