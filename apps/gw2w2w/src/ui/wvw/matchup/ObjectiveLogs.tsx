@@ -71,7 +71,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
         <FilterGroup label="Owner" options={OWNER_TYPES} active={owners} onToggle={toggleOwner} />
       </div>
       {rows.length === 0 ? (
-        <p className="text-sm text-gray-400">No events match the current filters.</p>
+        <p className="h-96 text-sm text-gray-400">No events match the current filters.</p>
       ) : (
         <div className="relative">
           <ul

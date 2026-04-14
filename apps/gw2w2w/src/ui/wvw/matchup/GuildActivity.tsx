@@ -224,69 +224,92 @@ export function GuildActivity({ matchId }: GuildActivityProps) {
         <FilterGroup label="Type" options={OBJECTIVE_TYPES} active={objectiveTypes} onToggle={toggleObjectiveType} />
         <FilterGroup label="Owner" options={OWNER_TYPES} active={owners} onToggle={toggleOwner} />
       </div>
-      {isLoading ? (
-        <p className="text-sm text-gray-400">Loading…</p>
-      ) : isError ? (
-        <p className="text-sm text-red-400">Failed to load guild activity.</p>
-      ) : rows.length === 0 ? (
-        <p className="text-sm text-gray-400">No claim events match the current filters.</p>
-      ) : (
-        <div className="h-96 overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="px-2 py-1 text-xs font-semibold text-gray-500" colSpan={3}>
-                  Guild
-                </th>
-                {ACTIVITY_OBJ_TYPES.map((type) => (
-                  <SortableHeader
-                    key={type}
-                    label={<ObjectiveIcon type={type} owner="Neutral" size={16} className="shrink-0" />}
-                    sortKey={type}
-                    current={sortKey}
-                    dir={sortDir}
-                    onSort={handleSort}
-                    className="w-px text-center whitespace-nowrap"
-                    title={type}
-                  />
-                ))}
-                {ACTIVITY_MAP_TYPES.map((map) => (
-                  <SortableHeader
-                    key={map}
-                    label={getMapLabel(map)}
-                    sortKey={map}
-                    current={sortKey}
-                    dir={sortDir}
-                    onSort={handleSort}
-                    className="w-px text-center whitespace-nowrap"
-                  />
-                ))}
+      <div className="h-96 overflow-x-auto">
+        <table className="w-full table-fixed text-left">
+          <colgroup>
+            <col className="w-8" />
+            <col className="w-12" />
+            <col />
+            {ACTIVITY_OBJ_TYPES.map((type) => (
+              <col key={type} className="w-10" />
+            ))}
+            {ACTIVITY_MAP_TYPES.map((map) => (
+              <col key={map} className="w-10" />
+            ))}
+            <col className="w-12" />
+            <col className="w-36" />
+          </colgroup>
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="px-2 py-1 text-xs font-semibold text-gray-500" colSpan={3}>
+                Guild
+              </th>
+              {ACTIVITY_OBJ_TYPES.map((type) => (
                 <SortableHeader
-                  label="Total"
-                  sortKey="total"
+                  key={type}
+                  label={<ObjectiveIcon type={type} owner="Neutral" size={16} className="shrink-0" />}
+                  sortKey={type}
+                  current={sortKey}
+                  dir={sortDir}
+                  onSort={handleSort}
+                  className="w-px text-center whitespace-nowrap"
+                  title={type}
+                />
+              ))}
+              {ACTIVITY_MAP_TYPES.map((map) => (
+                <SortableHeader
+                  key={map}
+                  label={getMapLabel(map)}
+                  sortKey={map}
                   current={sortKey}
                   dir={sortDir}
                   onSort={handleSort}
                   className="w-px text-center whitespace-nowrap"
                 />
-                <SortableHeader
-                  label="Last Activity"
-                  sortKey="lastActivity"
-                  current={sortKey}
-                  dir={sortDir}
-                  onSort={handleSort}
-                  className="w-px text-right whitespace-nowrap"
-                />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <GuildTableRow key={row.guild_id} row={row} />
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              <SortableHeader
+                label="Total"
+                sortKey="total"
+                current={sortKey}
+                dir={sortDir}
+                onSort={handleSort}
+                className="w-px text-center whitespace-nowrap"
+              />
+              <SortableHeader
+                label="Last Activity"
+                sortKey="lastActivity"
+                current={sortKey}
+                dir={sortDir}
+                onSort={handleSort}
+                className="w-px text-right whitespace-nowrap"
+              />
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td colSpan={13} className="px-2 py-4 text-sm text-gray-400">
+                  Loading…
+                </td>
+              </tr>
+            ) : isError ? (
+              <tr>
+                <td colSpan={13} className="px-2 py-4 text-sm text-red-400">
+                  Failed to load guild activity.
+                </td>
+              </tr>
+            ) : rows.length === 0 ? (
+              <tr>
+                <td colSpan={13} className="px-2 py-4 text-sm text-gray-400">
+                  No claim events match the current filters.
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => <GuildTableRow key={row.guild_id} row={row} />)
+            )}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
