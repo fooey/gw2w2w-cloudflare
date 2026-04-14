@@ -3,12 +3,7 @@
 import SiteLayout from '#ui/layout/SiteLayout';
 import Link from '#ui/Link';
 
-export default function MatchupError({
-  reset,
-}: {
-  error: Error;
-  reset: () => void;
-}) {
+export default function MatchupError({ reset }: { error: Error; reset: () => void }) {
   return (
     <SiteLayout pageHeader={'WvW Matchup'}>
       <div className="space-y-4">
@@ -23,7 +18,10 @@ export default function MatchupError({
           >
             Try again
           </button>
-          <Link href="/wvw/matchups" className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <Link
+            href="/wvw/matchups"
+            className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
             Back to matchups
           </Link>
         </div>
