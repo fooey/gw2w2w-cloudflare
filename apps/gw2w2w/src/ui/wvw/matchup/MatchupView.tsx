@@ -10,15 +10,17 @@ import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
 import { GuildActivity } from '#ui/wvw/matchup/GuildActivity';
 import { ObjectiveLogs } from '#ui/wvw/matchup/ObjectiveLogs';
 import { type WvWMapType, type WvWMatchMap, type WvWMatchStripped } from '@repo/service-api/types';
+import { type EventRow } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
   match: WvWMatchStripped;
   selectedTeamId: string | null;
+  initialEvents?: EventRow[];
 }
 
-export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupViewProps) {
+export function MatchupView({ match: initialMatch, selectedTeamId, initialEvents }: MatchupViewProps) {
   const lang = useUserPrefs((s) => s.lang);
-  const { match, events, isLoadingEvents } = useMatchSSE(initialMatch.id, initialMatch);
+  const { match, events } = useMatchSSE(initialMatch.id, initialMatch, initialEvents ?? []);
 
   const mapsByType = Object.fromEntries(match.maps.map((m) => [m.type, m])) as Record<WvWMapType, WvWMatchMap>;
   const layoutByType = objectivesLayout as Record<WvWMapType, ObjectivesLayoutMap>;
@@ -34,7 +36,7 @@ export function MatchupView({ match: initialMatch, selectedTeamId }: MatchupView
             ))}
           </ul>
         </section>
-        <ObjectiveLogs events={events} isLoadingEvents={isLoadingEvents} />
+        <ObjectiveLogs events={events} />
         <GuildActivity matchId={match.id} />
       </div>
     </SiteLayoutFullWidth>

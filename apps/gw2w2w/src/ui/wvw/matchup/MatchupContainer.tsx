@@ -6,11 +6,11 @@ import { useState } from 'react';
 
 export type { MatchupViewProps };
 
-export function MatchupContainer({ match, selectedTeamId }: MatchupViewProps) {
+export function MatchupContainer({ match, selectedTeamId, initialEvents }: MatchupViewProps) {
   const [queryClient] = useState(() => new QueryClient());
   return (
     <QueryClientProvider client={queryClient}>
-      <MatchupView match={match} selectedTeamId={selectedTeamId} />
+      <MatchupView match={match} selectedTeamId={selectedTeamId} initialEvents={initialEvents} />
     </QueryClientProvider>
   );
 }

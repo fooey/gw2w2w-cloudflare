@@ -19,10 +19,9 @@ const TIME_WINDOW_TO_MAX_AGE: Record<string, number | undefined> = {
 interface ObjectiveLogsProps {
   /** All known events from useMatchSSE: initial history + live SSE prepends. */
   events: EventRow[];
-  isLoadingEvents: boolean;
 }
 
-export function ObjectiveLogs({ events, isLoadingEvents }: ObjectiveLogsProps) {
+export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   const {
     maps,
     objectiveTypes,
@@ -71,9 +70,7 @@ export function ObjectiveLogs({ events, isLoadingEvents }: ObjectiveLogsProps) {
         <FilterGroup label="Event" options={EVENT_TYPES} active={eventTypes} onToggle={toggleEventType} />
         <FilterGroup label="Owner" options={OWNER_TYPES} active={owners} onToggle={toggleOwner} />
       </div>
-      {isLoadingEvents ? (
-        <p className="text-sm text-gray-400">Loading…</p>
-      ) : rows.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="text-sm text-gray-400">No events match the current filters.</p>
       ) : (
         <div className="relative">
