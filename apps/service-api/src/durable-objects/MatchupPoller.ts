@@ -4,10 +4,9 @@ import type { WvWMatch, WvWMatchObjective, WvWMatchStripped } from '#lib/resourc
 
 const POLL_INTERVAL_MS = 20_000;
 const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
-// GW2 API rate limit parameters (per API:Best_practices)
-// Bucket: 300 requests, refill: 5 req/s (300/min)
-const GW2_RATE_LIMIT_BURST = 300;
-const GW2_RATE_LIMIT_REFILL = '5 req/s';
+// GW2 API rate limit parameters (observed from x-rate-limit-limit response header)
+// Bucket: 600 requests, refill: ~5 req/s
+const GW2_RATE_LIMIT_REFILL = '~5 req/s';
 const GW2_MATCHES_PATH = '/wvw/matches?ids=all';
 // Cap replay to avoid large D1 reads on reconnect after a long disconnect.
 const MAX_REPLAY_EVENTS = 500;
@@ -53,9 +52,11 @@ interface EventRow {
 
 class RateLimitError extends Error {
   retryAfterMs: number;
-  constructor(retryAfterMs: number) {
+  rateLimitBurst: number | null;
+  constructor(retryAfterMs: number, rateLimitBurst: number | null = null) {
     super(`[MatchupPoller] GW2 API rate limited — retry after ${retryAfterMs}ms`);
     this.retryAfterMs = retryAfterMs;
+    this.rateLimitBurst = rateLimitBurst;
   }
 }
 
@@ -97,9 +98,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     } catch (err) {
       if (err instanceof RateLimitError) {
         const resumeAt = new Date(Date.now() + err.retryAfterMs).toISOString();
+        const burst = err.rateLimitBurst ?? 'unknown';
         console.warn(
-          `[MatchupPoller] rate limited (burst=${GW2_RATE_LIMIT_BURST}, refill=${GW2_RATE_LIMIT_REFILL})` +
-          ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
+          `[MatchupPoller] rate limited (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL})` +
+            ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
         );
         await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
       } else {
@@ -255,7 +257,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders));
         const retryAfter = response.headers.get('Retry-After');
         const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
-        throw new RateLimitError(Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS);
+        const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
+        const rateLimitBurst = rateLimitBurstRaw != null ? parseInt(rateLimitBurstRaw, 10) : null;
+        throw new RateLimitError(Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS, rateLimitBurst);
       }
       throw new Error(`[MatchupPoller] GW2 API error: ${response.status.toString()} ${response.statusText}`);
     }
