@@ -3,7 +3,7 @@
 import SiteLayout from '#ui/layout/SiteLayout';
 import Link from '#ui/Link';
 
-export default function MatchupError({ reset }: { error: Error; reset: () => void }) {
+export default function MatchupError(_: { error: Error; reset: () => void }) {
   return (
     <SiteLayout pageHeader={'WvW Matchup'}>
       <div className="space-y-4">
@@ -13,8 +13,10 @@ export default function MatchupError({ reset }: { error: Error; reset: () => voi
         </p>
         <div className="flex gap-4">
           <button
-            onClick={reset}
-            className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            onClick={() => {
+              window.location.reload();
+            }}
+            className="cursor-pointer rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
             Try again
           </button>
