@@ -1,8 +1,8 @@
-import { zValidator } from '@hono/zod-validator';
-import { type CloudflareEnv } from '#index.ts';
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
-import { and, desc, eq, gte } from 'drizzle-orm';
+import { type CloudflareEnv } from '#index.ts';
+import { zValidator } from '@hono/zod-validator';
+import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
@@ -10,23 +10,27 @@ export type EventRow = typeof events.$inferSelect;
 
 export interface EventLogResponse {
   events: EventRow[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
-// Safety cap for unbounded queries (timeWindow="all"). 500 events covers ~1–3 days
-// of active WvW; the SSE stream delivers anything newer in real time.
-const UNBOUNDED_LIMIT = 500;
+// Safety cap — clients must page if they need more.
+const MAX_LIMIT = 500;
 
 const querySchema = z.object({
   matchId: z.string().regex(/^\d-\d$/),
   // maxAge in seconds — omit for the "all" time window
   maxAge: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(MAX_LIMIT),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   '/',
   zValidator('query', querySchema),
   async (c) => {
-    const { matchId, maxAge } = c.req.valid('query');
+    const { matchId, maxAge, limit, offset } = c.req.valid('query');
 
     const conditions = [eq(events.match_id, matchId)];
 
@@ -49,13 +53,21 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
         map_type: events.map_type,
         owner: events.owner,
         claimed_by: events.claimed_by,
+        _total: sql<number>`COUNT(*) OVER ()`,
       })
       .from(events)
       .where(and(...conditions))
       .orderBy(desc(events.id))
-      .limit(UNBOUNDED_LIMIT);
+      .limit(limit)
+      .offset(offset);
 
-    const response: EventLogResponse = { events: rows };
+    const total = rows[0]?._total ?? 0;
+    const response: EventLogResponse = {
+      events: rows.map(({ _total: _, ...row }) => row),
+      total,
+      limit,
+      offset,
+    };
     return c.json(response);
   },
 );
