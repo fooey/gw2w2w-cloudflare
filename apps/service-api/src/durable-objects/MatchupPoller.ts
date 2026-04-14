@@ -2,7 +2,8 @@ import { DurableObject } from 'cloudflare:workers';
 import type { CloudflareEnv } from '#index.ts';
 import type { WvWMatch, WvWMatchObjective, WvWMatchStripped } from '#lib/resources/wvw/matches.ts';
 
-const POLL_INTERVAL_MS = 6_000;
+const POLL_INTERVAL_MS = 20_000;
+const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
 const GW2_MATCHES_PATH = '/wvw/matches?ids=all';
 // Cap replay to avoid large D1 reads on reconnect after a long disconnect.
 const MAX_REPLAY_EVENTS = 500;
@@ -46,6 +47,14 @@ interface EventRow {
   claimed_by: string | null;
 }
 
+class RateLimitError extends Error {
+  retryAfterMs: number;
+  constructor(retryAfterMs: number) {
+    super(`[MatchupPoller] GW2 API rate limited — retry after ${retryAfterMs}ms`);
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
 export class MatchupPoller extends DurableObject<CloudflareEnv> {
   #objectiveSnap: ObjectiveSnapMap = new Map<string, ObjectiveSnap>();
   #matchEndTimes: Map<string, string> = new Map<string, string>();
@@ -82,7 +91,12 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     try {
       await this.#poll();
     } catch (err) {
-      console.error('[MatchupPoller] alarm error:', err);
+      if (err instanceof RateLimitError) {
+        console.warn(`[MatchupPoller] rate limited — backing off ${err.retryAfterMs}ms`);
+        await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
+      } else {
+        console.error('[MatchupPoller] alarm error:', err);
+      }
     }
   }
 
@@ -223,6 +237,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After');
+        const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
+        throw new RateLimitError(Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS);
+      }
       throw new Error(`[MatchupPoller] GW2 API error: ${response.status.toString()} ${response.statusText}`);
     }
 
