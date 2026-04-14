@@ -53,10 +53,12 @@ interface EventRow {
 class RateLimitError extends Error {
   retryAfterMs: number;
   rateLimitBurst: number | null;
-  constructor(retryAfterMs: number, rateLimitBurst: number | null = null) {
+  egressIp: string | null;
+  constructor(retryAfterMs: number, rateLimitBurst: number | null = null, egressIp: string | null = null) {
     super(`[MatchupPoller] GW2 API rate limited — retry after ${retryAfterMs}ms`);
     this.retryAfterMs = retryAfterMs;
     this.rateLimitBurst = rateLimitBurst;
+    this.egressIp = egressIp;
   }
 }
 
@@ -99,8 +101,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       if (err instanceof RateLimitError) {
         const resumeAt = new Date(Date.now() + err.retryAfterMs).toISOString();
         const burst = err.rateLimitBurst ?? 'unknown';
+        const ipSuffix = err.egressIp != null ? `, egressIp=${err.egressIp}` : '';
         console.warn(
-          `[MatchupPoller] rate limited (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL})` +
+          `[MatchupPoller] rate limited (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
             ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
         );
         await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
@@ -254,12 +257,21 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
             rateLimitHeaders[key] = value;
           }
         }
-        console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders));
+        // Fetch egress IP to identify which Cloudflare datacenter is being rate-limited.
+        let egressIp: string | null = null;
+        try {
+          const trace = await fetch('https://1.1.1.1/cdn-cgi/trace');
+          const text = await trace.text();
+          egressIp = /^ip=(.+)$/m.exec(text)?.[1] ?? null;
+        } catch {
+          // non-critical — don't let this suppress the RateLimitError
+        }
+        console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders), 'egressIp:', egressIp);
         const retryAfter = response.headers.get('Retry-After');
         const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
         const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
         const rateLimitBurst = rateLimitBurstRaw != null ? parseInt(rateLimitBurstRaw, 10) : null;
-        throw new RateLimitError(Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS, rateLimitBurst);
+        throw new RateLimitError(Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS, rateLimitBurst, egressIp);
       }
       throw new Error(`[MatchupPoller] GW2 API error: ${response.status.toString()} ${response.statusText}`);
     }
