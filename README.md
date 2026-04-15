@@ -7,9 +7,8 @@ An open-source suite of utilities for [Guild Wars 2](https://www.guildwars2.com/
 ## Features
 
 - **Guild Emblem Hotlinks** — Render any guild's emblem (the coat-of-arms-style icon each guild designs in-game) as a WebP image by guild name or ID. Drop a URL into Discord, a forum, or any website. Hosted at `emblem.gw2w2w.com/<guildId>`.
-- **Emblem Designer** — WIP: Interactive client-side editor to build and preview emblems from scratch using official ArenaNet assets.
-- **WvW Objective Status** — WIP: Real-time tracking of WvW map objectives (towers, keeps, castles) across all active matchups.
-- **WvW Teams** — Directory of which guilds are registered to each WvW team.
+- **Emblem Designer** — Interactive client-side editor to build and preview emblems from scratch using official ArenaNet assets.
+- **WvW Matchup Tracker** — Real-time tracking of WvW map objectives (towers, keeps, castles) and guild claims across all active matchups. Live event log streamed via SSE from a Durable Object polling the GW2 API every 20 seconds.
 
 ## Architecture
 
@@ -23,7 +22,7 @@ graph TD
         GW2W2W["gw2w2w.com<br/>Next.js · OpenNext"]
         Emblem["emblem.gw2w2w.com<br/>service-emblem · Hono"]
         API["api.gw2w2w.com<br/>service-api · Hono"]
-        D1[("D1<br/>match_state<br/>events<br/>guild_activity")]
+        D1[("D1<br/>match_state<br/>events")]
         KV[("KV<br/>name → id<br/>guild JSON")]
         R2[("R2<br/>textures<br/>rendered emblems")]
         DO[("MatchupPoller DO<br/>alarm loop · SSE fanout")]
@@ -37,7 +36,7 @@ graph TD
     GW2W2W -->|REST /wvw/*| API
     Emblem -->|Service Binding| API
     API -->|subscribe| DO
-    DO -->|poll every ~6s| GW2API
+    DO -->|poll every 20s| GW2API
     DO -->|write events + match state| D1
     API -->|read match state + events| D1
     API -->|read / write| KV
@@ -160,6 +159,14 @@ Cloudflare Workers enforce a **50ms CPU time limit**. The WASM-based pixel compo
 **One-time browser texture download**
 The Emblem Designer requires textures to be downloaded to the browser's Cache API before it can render previews. The designer blocks on first visit until the user explicitly triggers the download (~650 textures, ~30 MB). Completion is recorded in `localStorage` so subsequent visits skip the gate. A "Re-download / verify" option is provided for cache invalidation. The Photon WASM module is also loaded in parallel during this download phase so it is ready by the time the user starts designing.
 
+**Durable Object as a singleton polling coordinator with SSE fan-out**
+Real-time WvW data requires polling `api.guildwars2.com/v2/wvw/matches?ids=all` on a fixed cadence and pushing changes to all connected browsers. A single `MatchupPoller` Durable Object handles all 9 active matchups in one alarm loop:
+
+- **Alarm loop** — `ctx.storage.setAlarm()` is rescheduled at the _start_ of each handler (before any I/O) so a CPU kill or eviction after the poll cannot stop the loop. On cold start, `blockConcurrencyWhile` rebuilds in-memory state from D1 before the first alarm fires.
+- **Objective diffing** — The DO keeps a snapshot of every objective's `last_flipped`, `owner`, `claimed_by`, and `claimed_at` in memory. On each poll it compares against the GW2 API response and emits only changed objectives as `capture` or `claim` events, written to D1 via `INSERT OR IGNORE` and fanned out over SSE.
+- **SSE fan-out** — Browsers subscribe to `/wvw/stream?matchId=` on `service-api`, which forwards the request to the DO via stub. The DO holds the `WritableStreamDefaultWriter` for each subscriber and writes SSE frames directly. On disconnect the browser's native `EventSource` reconnects automatically, sending `Last-Event-ID` so the DO can replay missed events from D1 (capped at 500 rows).
+- **Weekly reset detection** — Each match's `end_time` is stored in D1. When it advances, the DO deletes that match's event rows and sends a `reset` SSE event so clients clear their local state.
+
 ## Tech Stack
 
 ### Platform
@@ -171,6 +178,8 @@ The Emblem Designer requires textures to be downloaded to the browser's Cache AP
 
 - **[Next.js 15](https://nextjs.org/) + [React 19](https://react.dev/)** — Frontend framework. Deployed to Cloudflare Workers via [@opennextjs/cloudflare](https://github.com/opennextjs/opennextjs-cloudflare), which adapts Next.js to run without Node.js.
 - **[Tailwind CSS v4](https://tailwindcss.com/)** — Utility-first CSS framework.
+- **[TanStack Query v5](https://tanstack.com/query)** — Async state management for guild data fetching. Deduplicates concurrent requests by key and caches results in-memory across components.
+- **[TanStack Virtual v3](https://tanstack.com/virtual)** — Virtualizes the WvW event log and guild activity tables, rendering only the visible rows out of potentially thousands.
 - **[Headless UI](https://headlessui.com/) + [Heroicons](https://heroicons.com/)** — Accessible UI components and icons.
 
 ### Backend / Workers
