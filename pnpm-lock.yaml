@@ -162,9 +162,6 @@ importers:
 
   apps/service-api:
     dependencies:
-      '@henrygd/queue':
-        specifier: ^1.2.0
-        version: 1.2.0
       '@hono/zod-validator':
         specifier: 'catalog:'
         version: 0.7.6(hono@4.12.10)(zod@4.3.6)
@@ -1187,9 +1184,6 @@ packages:
     peerDependencies:
       react: ^18 || ^19 || ^19.0.0-rc
       react-dom: ^18 || ^19 || ^19.0.0-rc
-
-  '@henrygd/queue@1.2.0':
-    resolution: {integrity: sha512-jW/BLSTpcvExDhqJGxtIPgGr2O0IFF8XUNDwEbfCfhrXT8a4xztQ9Lv6U/vbYzYC0xVWn+3zv6YnLUh3bEFUKA==}
 
   '@heroicons/react@2.2.0':
     resolution: {integrity: sha512-LMcepvRaS9LYHJGsF0zzmgKCUim/X3N/DQKc4jepAXJ7l8QxJ1PmxJzqplF2Z3FE4PqBAIGyJAQ/w4B5dsqbtQ==}
@@ -5691,8 +5685,6 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       use-sync-external-store: 1.6.0(react@19.2.4)
-
-  '@henrygd/queue@1.2.0': {}
 
   '@heroicons/react@2.2.0(react@19.2.4)':
     dependencies:

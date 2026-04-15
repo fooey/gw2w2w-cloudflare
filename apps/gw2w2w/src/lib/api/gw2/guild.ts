@@ -10,10 +10,6 @@ export function fetchGuildDirect(guildId: string): Promise<Guild | null> {
   return fetch(`${GW2_API_BASE}/guild/${guildId}`).then(parseResponse<Guild>);
 }
 
-export function fetchGuildsBatch(ids: string[]): Promise<Guild[] | null> {
-  return apiFetch(`/gw2/guild?ids=${ids.join(',')}`).then(parseResponse<Guild[]>);
-}
-
 export function fetchGuildByName(name: string): Promise<Guild | null> {
   return apiFetch(`/gw2/guild/search?name=${name.toLocaleLowerCase()}`).then(parseResponse<Guild>);
 }

@@ -1,6 +1,16 @@
 import { type CloudflareEnv } from '#index.ts';
 
-export function apiFetch(env: CloudflareEnv, path: string, init?: RequestInit) {
+export class GW2RateLimitError extends Error {
+  retryAfterMs: number;
+
+  constructor(retryAfterMs: number) {
+    super(`GW2 API rate limited — retry after ${retryAfterMs}ms`);
+    this.name = 'GW2RateLimitError';
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
+export async function apiFetch(env: CloudflareEnv, path: string, init?: RequestInit): Promise<Response> {
   if (!env.GW2_API_BASE || !env.GW2_API_KEY) {
     throw new Error('GW2_API_BASE and GW2_API_KEY must be set in environment variables');
   }
@@ -13,5 +23,13 @@ export function apiFetch(env: CloudflareEnv, path: string, init?: RequestInit) {
   headers.set('User-Agent', 'gw2w2w.com');
   init = { ...init, headers };
 
-  return fetch(requestUrl, init);
+  const response = await fetch(requestUrl, init);
+
+  if (response.status === 429) {
+    const retryAfter = response.headers.get('retry-after');
+    const retryAfterMs = retryAfter ? parseFloat(retryAfter) * 1000 : 60_000;
+    throw new GW2RateLimitError(retryAfterMs);
+  }
+
+  return response;
 }

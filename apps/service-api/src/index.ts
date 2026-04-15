@@ -7,6 +7,7 @@ import { secureHeaders } from 'hono/secure-headers';
 import { type ContentfulStatusCode } from 'hono/utils/http-status';
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
 import { MatchupPoller } from './durable-objects/MatchupPoller';
+import { GW2RateLimitError } from './lib/resources/api';
 import { apiGw2Route } from './routes/gw2';
 import { apiWvwRoute } from './routes/wvw';
 
@@ -63,6 +64,17 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     return c.json(payload, payload.statusCode);
   })
   .onError((err, c) => {
+    if (err instanceof GW2RateLimitError) {
+      const retryAfter = Math.ceil(err.retryAfterMs / 1000);
+      c.header('Retry-After', String(retryAfter));
+      const payload: ErrorPayload = {
+        message: 'GW2 API rate limited — try again later',
+        statusCode: 503,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api',
+      };
+      return c.json(payload, 503);
+    }
     console.error(err);
     const payload: ErrorPayload = {
       message: 'Internal Server Error',

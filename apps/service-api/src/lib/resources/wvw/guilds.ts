@@ -1,6 +1,7 @@
 import { type CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
 
 export type WvWTeamId = string;
@@ -50,5 +51,7 @@ function getWvWGuildFromApi(env: CloudflareEnv): Promise<WvWGuild[] | null> {
 }
 
 export async function getWvwGuild(id: string | string[], env: CloudflareEnv): Promise<WvWGuild[] | null> {
-  return withFilteredObjectCache('wvw-guilds', id, () => getWvWGuildFromApi(env), createCacheProviders(env));
+  return withFilteredObjectCache('wvw-guilds', id, () => getWvWGuildFromApi(env), createCacheProviders(env), {
+    ttl: CACHE_TTL.user.kv,
+  });
 }

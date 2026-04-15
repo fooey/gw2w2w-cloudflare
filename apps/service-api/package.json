@@ -28,7 +28,6 @@
     "./lib/resources/constants": "./src/lib/resources/constants.ts"
   },
   "dependencies": {
-    "@henrygd/queue": "^1.2.0",
     "@hono/zod-validator": "catalog:",
     "@js-temporal/polyfill": "^0.5.1",
     "@repo/utils": "workspace:*",

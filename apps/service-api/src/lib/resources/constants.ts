@@ -1,5 +1,3 @@
-export const NOT_FOUND_CACHE_EXPIRATION = 60 * 60; // 1 hour
-
 const seconds = (s: number) => s;
 const minutes = (m: number) => m * 60;
 const hours = (h: number) => h * 60 * 60;

@@ -20,7 +20,7 @@ export function getGuildFromApi(guildId: string, env: CloudflareEnv): Promise<Gu
 }
 
 export function searchGuildFromApi(name: string, env: CloudflareEnv): Promise<Guild['id'] | null> {
-  return apiFetch(env, `/guild/search?name=${name}`)
+  return apiFetch(env, `/guild/search?name=${encodeURIComponent(name)}`)
     .then((response) => {
       if (!response.ok) {
         if (response.status === 404) {
@@ -73,6 +73,7 @@ export async function getGuild(guildId: string, env: CloudflareEnv): Promise<Gui
       return freshGuild;
     },
     cacheProviders,
+    { ttl: CACHE_TTL.user.kv },
   );
 }
 

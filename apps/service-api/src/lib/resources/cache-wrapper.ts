@@ -1,13 +1,12 @@
 import { Temporal } from '@js-temporal/polyfill';
 import { withJitter } from '@repo/utils';
 import { type CacheProviders } from '#lib/resources/index.ts';
-import { CACHE_TTL, getEnableCacheLogging, NOT_FOUND_CACHE_EXPIRATION, NOT_FOUND_CACHE_VALUE } from './constants';
+import { GW2RateLimitError } from '#lib/resources/api.ts';
+import { CACHE_TTL, getEnableCacheLogging, NOT_FOUND_CACHE_VALUE } from './constants';
 
 export interface CacheConfig {
   /** TTL for successful cache entries (seconds) */
   ttl?: number;
-  /** TTL for NOT_FOUND cache entries (seconds) */
-  notFoundTtl?: number;
   /** Enable/disable cache logging for this operation */
   enableLogging?: boolean;
 }
@@ -28,11 +27,7 @@ export async function withKvCache<T>(
   config: CacheConfig = {},
 ): Promise<T | null> {
   const { kvStore } = cacheProviders;
-  const {
-    ttl = CACHE_TTL.patch.kv,
-    notFoundTtl = NOT_FOUND_CACHE_EXPIRATION,
-    enableLogging = getEnableCacheLogging,
-  } = config;
+  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging } = config;
 
   // 1. Check cache
   const cached = await kvStore.get(key, 'text');
@@ -63,16 +58,15 @@ export async function withKvCache<T>(
     });
 
     return freshData;
-  } catch (_error) {
-    // API returned an error, cache NOT_FOUND
-    if (enableLogging) {
-      console.info(`Caching NOT_FOUND for [${key}]`);
+  } catch (error) {
+    if (error instanceof GW2RateLimitError) {
+      console.warn(`Rate limited by GW2 API, skipping cache write for [${key}]`);
+    } else {
+      // Transient API errors (5xx, network failures) — do not poison the cache.
+      // The next request will retry. Caching NOT_FOUND here would silently drop
+      // valid resources for up to notFoundTtl (e.g. 1 hour) on patch day.
+      console.warn(`API error for [${key}], skipping cache write:`, error);
     }
-
-    await kvStore.put(key, NOT_FOUND_CACHE_VALUE, {
-      expirationTtl: withJitter(notFoundTtl),
-    });
-
     return null;
   }
 }
@@ -97,6 +91,7 @@ export async function withObjectCache<T>(
 
   // 1. Check cache with expiration
   let cachedData: T | null = null;
+  let staleData: T | null = null;
   const object = await objectStore.get(objectKey);
 
   if (object !== null) {
@@ -110,6 +105,8 @@ export async function withObjectCache<T>(
       if (enableLogging) {
         console.info(`object STALE for ${objectKey}`);
       }
+      // Retain stale data as fallback in case the API is rate-limited.
+      staleData = await object.json<T>();
     }
   } else {
     if (enableLogging) {
@@ -119,7 +116,16 @@ export async function withObjectCache<T>(
 
   // 2. Fetch fresh data if cache miss or stale
   if (cachedData === null) {
-    cachedData = await apiCall();
+    try {
+      cachedData = await apiCall();
+    } catch (error) {
+      if (error instanceof GW2RateLimitError && staleData !== null) {
+        // Serve stale data rather than letting the request fail.
+        console.warn(`Rate limited by GW2 API, serving stale data for [${objectKey}]`);
+        return staleData;
+      }
+      throw error;
+    }
 
     // 3. Store with expiration metadata
     await objectStore.put(objectKey, JSON.stringify(cachedData), {
