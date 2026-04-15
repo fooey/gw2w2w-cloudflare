@@ -71,6 +71,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   #subscribers: Map<string, Subscriber> = new Map<string, Subscriber>();
   #encoder = new TextEncoder();
 
+  // Observability counters — reset on cold start, exposed via /status.
+  #consecutiveRateLimits = 0;
+  #lastRateLimitAt: string | null = null;
+  #lastSuccessfulPollAt: string | null = null;
+
   constructor(ctx: DurableObjectState, env: CloudflareEnv) {
     super(ctx, env);
     void ctx.blockConcurrencyWhile(async () => {
@@ -99,11 +104,13 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       await this.#poll();
     } catch (err) {
       if (err instanceof RateLimitError) {
+        this.#consecutiveRateLimits++;
+        this.#lastRateLimitAt = new Date().toISOString();
         const resumeAt = new Date(Date.now() + err.retryAfterMs).toISOString();
         const burst = err.rateLimitBurst ?? 'unknown';
         const ipSuffix = err.egressIp != null ? `, egressIp=${err.egressIp}` : '';
         console.warn(
-          `[MatchupPoller] rate limited (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
+          `[MatchupPoller] rate limited #${this.#consecutiveRateLimits} (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
             ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
         );
         await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
@@ -134,6 +141,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       matchCount: this.#matchEndTimes.size,
       objectiveCount: this.#objectiveSnap.size,
       subscriberCount: this.#subscribers.size,
+      consecutiveRateLimits: this.#consecutiveRateLimits,
+      lastRateLimitAt: this.#lastRateLimitAt,
+      lastSuccessfulPollAt: this.#lastSuccessfulPollAt,
     });
   }
 
@@ -282,6 +292,31 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     const matches = await response.json<WvWMatch[]>();
     const now = new Date().toISOString();
+
+    // Log all x-rate-limit-* headers on success so we can discover which ones GW2 actually sends.
+    const rateLimitHeaders: Record<string, string> = {};
+    for (const [key, value] of response.headers.entries()) {
+      if (key.toLowerCase().startsWith('x-rate-limit')) {
+        rateLimitHeaders[key] = value;
+      }
+    }
+    if (Object.keys(rateLimitHeaders).length > 0) {
+      const remaining = rateLimitHeaders['x-rate-limit-remaining'];
+      const limit = rateLimitHeaders['x-rate-limit-limit'];
+      if (remaining != null && limit != null && parseInt(remaining, 10) < parseInt(limit, 10) * 0.2) {
+        // Budget low — log as warning so it stands out.
+        console.warn('[MatchupPoller] rate limit budget low:', JSON.stringify(rateLimitHeaders));
+      } else {
+        console.info('[MatchupPoller] rate limit headers:', JSON.stringify(rateLimitHeaders));
+      }
+    }
+
+    // Reset consecutive counter on successful poll.
+    if (this.#consecutiveRateLimits > 0) {
+      console.info(`[MatchupPoller] recovered after ${this.#consecutiveRateLimits} consecutive 429s`);
+      this.#consecutiveRateLimits = 0;
+    }
+    this.#lastSuccessfulPollAt = now;
 
     // Collect all D1 write statements and in-memory updates to apply after a successful batch.
     // pendingFanout is a parallel array to stmts — null for non-event statements so we can
