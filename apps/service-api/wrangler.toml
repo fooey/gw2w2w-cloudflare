@@ -16,8 +16,8 @@ database_id = "c83a8a7e-a642-404a-b44b-e1b59d4b5999"
 migrations_dir = "migrations"
 
 # see https://developers.cloudflare.com/workers/configuration/placement/#specify-a-host-endpoint
-[placement]
-hostname = "api.guildwars2.com"
+# [placement]
+# hostname = "api.guildwars2.com"
 
 # Map the worker to a specific path on your main domain
 [[routes]]
