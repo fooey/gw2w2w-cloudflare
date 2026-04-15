@@ -1,6 +1,4 @@
 import { fetchGuild, fetchGuildByName } from '#lib/api/gw2/guild';
-import { fetchWvwGuild } from '#lib/api/gw2/wvw/guilds';
-import { fetchWvwTeam } from '#lib/api/gw2/wvw/teams';
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { getDesignerSrc, getEmblemSrc } from '#lib/emblems';
 import { Card } from '#ui/Card';
@@ -9,7 +7,7 @@ import { CopyToClipboardInput } from '#ui/controls/CopyToClipboardInput';
 import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import SiteLayout from '#ui/layout/SiteLayout';
 import { MagnifyingGlassIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
-import { type Guild, type WvWTeam } from '@repo/service-api/types';
+import { type Guild } from '@repo/service-api/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import { clsx } from 'clsx';
 import { type Metadata } from 'next';
@@ -20,27 +18,10 @@ export interface GuildPageProps {
   params: Promise<{ guildId: string }>;
 }
 
-function getGuildTeam(guildId: string): Promise<WvWTeam | null> {
-  return fetchWvwGuild(guildId).then((data) => {
-    if (!data) {
-      return null;
-    }
-    return fetchWvwTeam(data.teamId);
-  });
-}
-
-const getData = cache(async (guildId: string): Promise<{ guild: Guild; team: WvWTeam | null } | null> => {
+const getData = cache(async (guildId: string): Promise<Guild | null> => {
   const isUuid = validateArenaNetUuid(guildId);
-
   const fn = isUuid ? fetchGuild : fetchGuildByName;
-
-  return fn(guildId).then(async (guild) => {
-    if (!guild) {
-      return null;
-    }
-
-    return getGuildTeam(guild.id).then((team) => ({ guild, team }));
-  });
+  return fn(guildId);
 });
 
 export async function generateMetadata({ params }: GuildPageProps): Promise<Metadata> {
@@ -55,7 +36,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
       };
     }
 
-    const { guild } = guildData;
+    const guild = guildData;
 
     const canonical = `https://gw2w2w.com/guild/${guild.id}`;
     const emblemUrl = guild.emblem ? getEmblemSrc(guild.id) : undefined;
@@ -114,13 +95,11 @@ function GuildNotFound({ guildId }: { guildId: string }) {
 
 export default async function GuildPage({ params }: GuildPageProps) {
   const { guildId } = await params;
-  const guildData = await getData(guildId);
+  const guild = await getData(guildId);
 
-  if (!guildData) {
+  if (!guild) {
     return <GuildNotFound guildId={guildId} />;
   }
-
-  const { guild, team } = guildData;
 
   return (
     <SiteLayout pageHeader={'Guild Emblems'} headerActions={<GuildSearch />}>
@@ -133,7 +112,6 @@ export default async function GuildPage({ params }: GuildPageProps) {
           </h2>
           <h3 className="flex flex-col">
             <GuildId guildId={guild.id} />
-            <GuildWvWTeam guildId={guild.id} />
           </h3>
         </header>
 
@@ -215,7 +193,6 @@ export default async function GuildPage({ params }: GuildPageProps) {
 
         <Card title="Guild Data (Debug)">
           <CodePreview code={JSON.stringify({ guild }, null, 2)} />
-          <CodePreview code={JSON.stringify({ team }, null, 2)} />
         </Card>
       </div>
     </SiteLayout>
@@ -229,24 +206,6 @@ function GuildId({ guildId }: { guildId: string }) {
       <Link href={`/guilds/${guildId}`} className="text-rose-900">
         {guildId}
       </Link>
-    </p>
-  );
-}
-
-function GuildWvWTeam({ guildId }: { guildId: string }) {
-  return (
-    <p className="text-sm text-gray-700">
-      <span>WvW Team: </span>
-      {getGuildTeam(guildId).then((team) => {
-        if (!team) {
-          return 'N/A';
-        }
-        return (
-          <Link href={`/wvw/matchups/${team.en}`} className="text-rose-900">
-            {team.en}
-          </Link>
-        );
-      })}
     </p>
   );
 }
