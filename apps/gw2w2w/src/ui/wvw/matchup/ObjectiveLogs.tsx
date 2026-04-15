@@ -1,12 +1,12 @@
 'use client';
 
 import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useEventLogFilters } from '#lib/store/logFilters';
-import { cn } from '#lib/utils/cn';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
 import { getMapLabel, ObjectiveLogsRow } from '#ui/wvw/matchup/ObjectiveLogsRow';
 import { type EventRow } from '@repo/service-api/types';
-import { useRef, useState } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useRef } from 'react';
 
 const TIME_WINDOW_TO_MAX_AGE: Record<string, number | undefined> = {
   '1h': 3_600,
@@ -21,6 +21,8 @@ interface ObjectiveLogsProps {
   events: EventRow[];
 }
 
+const ROW_HEIGHT_PX = 32;
+
 export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   const {
     maps,
@@ -34,8 +36,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
     toggleOwner,
     setTimeWindow,
   } = useEventLogFilters();
-  const listRef = useRef<HTMLUListElement>(null);
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const maxAge = TIME_WINDOW_TO_MAX_AGE[timeWindow];
 
@@ -56,9 +57,18 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   // Use id as tiebreaker for events at the same second.
   const rows = events.filter(matchesFilters).sort((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
 
-  // Update this when adding/removing columns from the event log row.
-  // Left group: guild, icon, direction, name | Right group: timer, map, event type, timestamp
-  const LOG_COLS = 'grid-cols-[auto_auto_auto_1fr_auto_auto_auto_auto]';
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ROW_HEIGHT_PX,
+    overscan: 5,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+  const totalSize = virtualizer.getTotalSize();
+  const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0;
+  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0;
 
   return (
     <section className="mt-8 rounded p-2 shadow">
@@ -73,26 +83,36 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
       {rows.length === 0 ? (
         <p className="h-96 text-sm text-gray-400">No events match the current filters.</p>
       ) : (
-        <div className="relative">
-          <ul
-            ref={listRef}
-            onScroll={(e) => {
-              setShowScrollTop(e.currentTarget.scrollTop > 0);
-            }}
-            className={cn('grid h-96 gap-x-2 gap-y-1 overflow-y-auto', LOG_COLS)}
-          >
-            {rows.map((event) => (
-              <ObjectiveLogsRow key={event.id} event={event} />
-            ))}
-          </ul>
-          {showScrollTop && (
-            <button
-              onClick={() => listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="absolute right-1 bottom-1 rounded bg-gray-700/80 px-2 py-0.5 text-xs text-white transition-opacity hover:bg-gray-600"
-            >
-              ↑ top
-            </button>
-          )}
+        <div ref={scrollRef} className="h-96 overflow-y-auto">
+          <table className="w-full table-fixed text-left">
+            <colgroup>
+              <col className="w-14" />
+              <col className="w-8" />
+              <col className="w-6" />
+              <col />
+              <col className="w-16" />
+              <col className="w-10" />
+              <col className="w-14" />
+              <col className="w-24" />
+            </colgroup>
+            <tbody>
+              {paddingTop > 0 && (
+                <tr>
+                  <td style={{ height: paddingTop }} />
+                </tr>
+              )}
+              {virtualItems.map((vItem) => {
+                const row = rows[vItem.index];
+                if (!row) return null;
+                return <ObjectiveLogsRow key={row.id} event={row} />;
+              })}
+              {paddingBottom > 0 && (
+                <tr>
+                  <td style={{ height: paddingBottom }} />
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
     </section>

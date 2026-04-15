@@ -15,8 +15,8 @@ export interface EventLogResponse {
   offset: number;
 }
 
-// Safety cap — clients must page if they need more.
-const MAX_LIMIT = 500;
+// Safety cap — sized to hold a full match week with room to spare.
+const MAX_LIMIT = 10_000;
 
 const querySchema = z.object({
   matchId: z.string().regex(/^\d-\d$/),

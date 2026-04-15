@@ -18,7 +18,7 @@ export function ObjectiveGuild({ claimedBy, className }: { claimedBy: string | u
   return (
     <Link
       href={`/guilds/${guildQuery.data?.name ? encodeURIComponent(guildQuery.data.name) : claimedBy}`}
-      className={cn('flex items-center justify-between', className)}
+      className={cn('flex w-full items-center justify-between gap-1', className)}
       title={`${guildQuery.data?.name} (${guildQuery.data?.tag})`}
     >
       <span className="w-6 text-[8px]">{guildQuery.data?.tag}</span>

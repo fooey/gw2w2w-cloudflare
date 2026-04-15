@@ -1,8 +1,8 @@
 'use client';
 
 import { apiBase } from '#lib/api/client';
-import { type WvWMatchStripped, type WvWTeamColor, type WvWMapType } from '@repo/service-api/types';
-import { type EventRow } from '@repo/service-api/types';
+import { fetchWvwEvents } from '#lib/api/wvw/events';
+import { type EventRow, type WvWMapType, type WvWMatchStripped, type WvWTeamColor } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
 
 // Narrow types matching what the DO actually inserts — subset of WvWObjective['type']
@@ -128,6 +128,27 @@ export function useMatchSSE(
       es.removeEventListener('claim', onClaim);
       es.removeEventListener('reset', onReset);
       es.close();
+    };
+  }, [matchId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void fetchWvwEvents({ matchId }).then((data) => {
+      if (cancelled || !data) return;
+      const startTime = matchStartTimeRef.current;
+      setEvents((prev) => {
+        const prevIds = new Set(prev.map((e) => e.id));
+        const history = data.events
+          .filter((e) => !prevIds.has(e.id))
+          .map((e) => (typeof e.at === 'string' ? e : { ...e, at: startTime }));
+        // SSE events that arrived before history loaded stay at the front (they're newer)
+        return [...prev, ...history];
+      });
+    });
+
+    return () => {
+      cancelled = true;
     };
   }, [matchId]);
 

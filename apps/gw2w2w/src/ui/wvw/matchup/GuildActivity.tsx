@@ -11,7 +11,8 @@ import { getMapLabel } from '#ui/wvw/matchup/ObjectiveLogsRow';
 import { type GuildActivityRow } from '@repo/service-api/types';
 import { type EventRow } from '@repo/service-api/types';
 import Link from '#ui/Link';
-import { useMemo, useState } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useMemo, useRef, useState } from 'react';
 
 const ACTIVITY_OBJ_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 type ActivityObjType = (typeof ACTIVITY_OBJ_TYPES)[number];
@@ -261,6 +262,22 @@ export function GuildActivity({ events }: GuildActivityProps) {
     }
   }
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 36,
+    overscan: 5,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+  const totalSize = virtualizer.getTotalSize();
+  // Pad top/bottom so the table body scrolls correctly
+  const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0;
+  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0;
+
   return (
     <section className="mt-4 rounded p-2 shadow">
       <h2 className="mb-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">Guild Activity</h2>
@@ -270,7 +287,7 @@ export function GuildActivity({ events }: GuildActivityProps) {
         <FilterGroup label="Type" options={OBJECTIVE_TYPES} active={objectiveTypes} onToggle={toggleObjectiveType} />
         <FilterGroup label="Owner" options={OWNER_TYPES} active={owners} onToggle={toggleOwner} />
       </div>
-      <div className="h-96 overflow-x-auto">
+      <div ref={scrollRef} className="h-96 overflow-auto">
         <table className="w-full table-fixed text-left">
           <colgroup>
             <col className="w-8" />
@@ -285,7 +302,7 @@ export function GuildActivity({ events }: GuildActivityProps) {
             <col className="w-12" />
             <col className="w-36" />
           </colgroup>
-          <thead>
+          <thead className="sticky top-0 z-10 bg-white">
             <tr className="border-b border-gray-200">
               <th className="px-2 py-1 text-xs font-semibold text-gray-500" colSpan={3}>
                 Guild
@@ -339,7 +356,23 @@ export function GuildActivity({ events }: GuildActivityProps) {
                 </td>
               </tr>
             ) : (
-              rows.map((row) => <GuildTableRow key={row.guild_id} row={row} />)
+              <>
+                {paddingTop > 0 && (
+                  <tr>
+                    <td style={{ height: paddingTop }} />
+                  </tr>
+                )}
+                {virtualItems.map((vItem) => {
+                  const row = rows[vItem.index];
+                  if (!row) return null;
+                  return <GuildTableRow key={row.guild_id} row={row} />;
+                })}
+                {paddingBottom > 0 && (
+                  <tr>
+                    <td style={{ height: paddingBottom }} />
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>

@@ -42,28 +42,31 @@ export function ObjectiveLogsRow({ event }: ObjectiveLogsRowProps) {
   const teamConfig = teamColorConfig[event.owner as TeamColorConfigKey];
 
   return (
-    <li
-      className={cn(
-        'animate-grow-in col-span-full grid grid-cols-subgrid items-center text-sm text-gray-500',
-        'hover:font-semibold',
-        freshCapture && teamConfig.bg,
-        teamConfig.text,
-      )}
-    >
-      <ObjectiveGuild claimedBy={claimedBy} />
-      <ObjectiveIcon type={event.objective_type} owner={event.owner} size={24} />
-      <ObjectiveDirection direction={direction} width={12} height={12} />
-      <ObjectiveName objectiveId={event.objective_id} />
-      <ObjectiveTimer lastFlipped={event.at} />
-      <span className="min-w-8 text-center text-xs">{getMapLabel(event.map_type)}</span>
-      <span className="min-w-12 text-xs">{event.type === 'capture' ? 'Capture' : 'Claim'}</span>
-      <span className="min-w-24 text-right font-mono text-xs text-gray-400">
+    <tr className={cn('text-sm text-gray-500 hover:font-semibold', freshCapture && teamConfig.bg, teamConfig.text)}>
+      <td className="px-1 py-0.5">
+        <ObjectiveGuild claimedBy={claimedBy} />
+      </td>
+      <td className="px-1 py-0.5">
+        <ObjectiveIcon type={event.objective_type} owner={event.owner} size={24} />
+      </td>
+      <td className="w-4 px-1 py-0.5">
+        <ObjectiveDirection direction={direction} width={12} height={12} />
+      </td>
+      <td className="px-1 py-0.5">
+        <ObjectiveName objectiveId={event.objective_id} />
+      </td>
+      <td className="w-16 px-1 py-0.5 text-right">
+        <ObjectiveTimer lastFlipped={event.at} />
+      </td>
+      <td className="w-10 px-1 py-0.5 text-center text-xs">{getMapLabel(event.map_type)}</td>
+      <td className="w-14 px-1 py-0.5 text-xs">{event.type === 'capture' ? 'Capture' : 'Claim'}</td>
+      <td className="w-24 px-1 py-0.5 text-right font-mono text-xs text-gray-400">
         {Temporal.Instant.from(event.at).toLocaleString(undefined, {
           weekday: 'short',
           hour: '2-digit',
           minute: '2-digit',
         })}
-      </span>
-    </li>
+      </td>
+    </tr>
   );
 }

@@ -1,4 +1,4 @@
-import { fetchGuildDirect } from '#lib/api/gw2/guild';
+import { fetchGuild } from '#lib/api/gw2/guild';
 import { type Guild } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
@@ -9,7 +9,7 @@ export function useGuild(guildId: string | null | undefined, queryOptions?: Part
     queryKey: ['guild', guildId],
     queryFn: () => {
       if (!guildId) throw new Error('guildId is required');
-      return fetchGuildDirect(guildId);
+      return fetchGuild(guildId);
     },
     enabled: !!guildId,
     staleTime: 5 * 60_000,
