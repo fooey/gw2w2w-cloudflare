@@ -1,6 +1,6 @@
-import { DurableObject } from 'cloudflare:workers';
 import type { CloudflareEnv } from '#index.ts';
 import type { WvWMatch, WvWMatchObjective, WvWMatchStripped } from '#lib/resources/wvw/matches.ts';
+import { DurableObject } from 'cloudflare:workers';
 
 const POLL_INTERVAL_MS = 20_000;
 const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
@@ -271,7 +271,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
         const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
         const rateLimitBurst = rateLimitBurstRaw != null ? parseInt(rateLimitBurstRaw, 10) : null;
-        throw new RateLimitError(Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS, rateLimitBurst, egressIp);
+        throw new RateLimitError(
+          Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS,
+          rateLimitBurst,
+          egressIp,
+        );
       }
       throw new Error(`[MatchupPoller] GW2 API error: ${response.status.toString()} ${response.statusText}`);
     }
