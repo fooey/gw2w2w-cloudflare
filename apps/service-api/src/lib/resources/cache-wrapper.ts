@@ -49,8 +49,15 @@ export async function withKvCache<T>(
   }
 
   // 2. Fetch from API
+  if (enableLogging) {
+    console.info(`kv fetching [${key}]`);
+  }
   try {
     const freshData = await apiCall();
+
+    if (enableLogging) {
+      console.info(`kv fetch [${key}] → ok`);
+    }
 
     // 3. Store in cache
     await kvStore.put(key, JSON.stringify(freshData), {
@@ -60,12 +67,12 @@ export async function withKvCache<T>(
     return freshData;
   } catch (error) {
     if (error instanceof GW2RateLimitError) {
-      console.warn(`Rate limited by GW2 API, skipping cache write for [${key}]`);
+      console.warn(`kv fetch [${key}] → 429: skipping cache write`);
     } else {
       // Transient API errors (5xx, network failures) — do not poison the cache.
       // The next request will retry. Caching NOT_FOUND here would silently drop
       // valid resources for up to notFoundTtl (e.g. 1 hour) on patch day.
-      console.warn(`API error for [${key}], skipping cache write:`, error);
+      console.warn(`kv fetch [${key}] → error: skipping cache write:`, error);
     }
     return null;
   }
@@ -116,13 +123,22 @@ export async function withObjectCache<T>(
 
   // 2. Fetch fresh data if cache miss or stale
   if (cachedData === null) {
+    if (enableLogging) {
+      console.info(`object fetching [${objectKey}]`);
+    }
     try {
       cachedData = await apiCall();
+      if (enableLogging) {
+        console.info(`object fetch [${objectKey}] → ok`);
+      }
     } catch (error) {
       if (error instanceof GW2RateLimitError && staleData !== null) {
         // Serve stale data rather than letting the request fail.
-        console.warn(`Rate limited by GW2 API, serving stale data for [${objectKey}]`);
+        console.warn(`object fetch [${objectKey}] → 429: serving stale data`);
         return staleData;
+      }
+      if (enableLogging) {
+        console.warn(`object fetch [${objectKey}] → error:`, error);
       }
       throw error;
     }
