@@ -21,7 +21,7 @@ export async function apiFetch(env: CloudflareEnv, path: string, init?: RequestI
   const headers = new Headers(init?.headers);
   headers.set('Authorization', `Bearer ${env.GW2_API_KEY}`);
   headers.set('User-Agent', 'gw2w2w.com');
-  init = { ...init, headers };
+  init = { ...init, headers, signal: AbortSignal.timeout(20_000) };
 
   const response = await fetch(requestUrl, init);
 

@@ -1,8 +1,17 @@
+import { GW2RateLimitError } from '#lib/resources/api.ts';
+import { type CacheProviders } from '#lib/resources/index.ts';
 import { Temporal } from '@js-temporal/polyfill';
 import { withJitter } from '@repo/utils';
-import { type CacheProviders } from '#lib/resources/index.ts';
-import { GW2RateLimitError } from '#lib/resources/api.ts';
 import { CACHE_TTL, getEnableCacheLogging, NOT_FOUND_CACHE_VALUE } from './constants';
+
+// Module-scope in-flight registries for request coalescing.
+// Within a single Worker isolate, concurrent requests for the same cache key
+// share one in-flight Promise rather than each racing to call the upstream API.
+// Entries are deleted as soon as the shared Promise settles (hit or miss).
+const kvInflight = new Map<string, Promise<unknown>>();
+const kvInflightWaiters = new Map<string, number>();
+const objectInflight = new Map<string, Promise<unknown>>();
+const objectInflightWaiters = new Map<string, number>();
 
 export interface CacheConfig {
   /** TTL for successful cache entries (seconds) */
@@ -48,34 +57,53 @@ export async function withKvCache<T>(
     console.info(`kv MISS for [${key}]`);
   }
 
-  // 2. Fetch from API
+  // 2. Fetch from API — coalesce concurrent misses so only one call goes upstream.
   if (enableLogging) {
     console.info(`kv fetching [${key}]`);
   }
-  try {
-    const freshData = await apiCall();
 
-    if (enableLogging) {
-      console.info(`kv fetch [${key}] → ok`);
-    }
-
-    // 3. Store in cache
-    await kvStore.put(key, JSON.stringify(freshData), {
-      expirationTtl: withJitter(ttl),
-    });
-
-    return freshData;
-  } catch (error) {
-    if (error instanceof GW2RateLimitError) {
-      console.warn(`kv fetch [${key}] → 429: skipping cache write`);
-    } else {
-      // Transient API errors (5xx, network failures) — do not poison the cache.
-      // The next request will retry. Caching NOT_FOUND here would silently drop
-      // valid resources for up to notFoundTtl (e.g. 1 hour) on patch day.
-      console.warn(`kv fetch [${key}] → error: skipping cache write:`, error);
-    }
-    return null;
+  // coalesce concurrent misses per key to prevent thundering herd
+  const existing = kvInflight.get(key);
+  if (existing) {
+    kvInflightWaiters.set(key, (kvInflightWaiters.get(key) ?? 0) + 1);
+    if (enableLogging) console.info(`kv coalesced [${key}]`);
+    return (await existing) as T | null;
   }
+
+  const inflight = (async () => {
+    try {
+      const freshData = await apiCall();
+
+      if (enableLogging) {
+        console.info(`kv fetch [${key}] → ok`);
+      }
+
+      // 3. Store in cache
+      await kvStore.put(key, JSON.stringify(freshData), {
+        expirationTtl: withJitter(ttl),
+      });
+
+      return freshData;
+    } catch (error) {
+      const waiters = kvInflightWaiters.get(key) ?? 0;
+      const coalition = waiters > 0 ? ` (+ ${waiters} coalesced)` : '';
+      if (error instanceof GW2RateLimitError) {
+        console.warn(`kv fetch [${key}] → 429: skipping cache write${coalition}`);
+      } else {
+        // Transient API errors (5xx, network failures) — do not poison the cache.
+        // The next request will retry. Caching NOT_FOUND here would silently drop
+        // valid resources for up to notFoundTtl (e.g. 1 hour) on patch day.
+        console.warn(`kv fetch [${key}] → error: skipping cache write${coalition}:`, error);
+      }
+      return null;
+    } finally {
+      kvInflight.delete(key);
+      kvInflightWaiters.delete(key);
+    }
+  })();
+
+  kvInflight.set(key, inflight);
+  return inflight;
 }
 
 /**
@@ -121,36 +149,55 @@ export async function withObjectCache<T>(
     }
   }
 
-  // 2. Fetch fresh data if cache miss or stale
+  // 2. Fetch fresh data if cache miss or stale — coalesce concurrent misses.
   if (cachedData === null) {
     if (enableLogging) {
       console.info(`object fetching [${objectKey}]`);
     }
-    try {
-      cachedData = await apiCall();
-      if (enableLogging) {
-        console.info(`object fetch [${objectKey}] → ok`);
-      }
-    } catch (error) {
-      if (error instanceof GW2RateLimitError && staleData !== null) {
-        // Serve stale data rather than letting the request fail.
-        console.warn(`object fetch [${objectKey}] → 429: serving stale data`);
-        return staleData;
-      }
-      if (enableLogging) {
-        console.warn(`object fetch [${objectKey}] → error:`, error);
-      }
-      throw error;
-    }
 
-    // 3. Store with expiration metadata
-    await objectStore.put(objectKey, JSON.stringify(cachedData), {
-      customMetadata: {
-        expiresAt: Temporal.Now.instant()
-          .add({ seconds: withJitter(ttl) })
-          .toString(),
-      },
-    });
+    // coalesce concurrent misses per key to prevent thundering herd
+    const existing = objectInflight.get(objectKey);
+    if (existing) {
+      objectInflightWaiters.set(objectKey, (objectInflightWaiters.get(objectKey) ?? 0) + 1);
+      if (enableLogging) console.info(`object coalesced [${objectKey}]`);
+      cachedData = (await existing) as T;
+    } else {
+      const inflight = (async () => {
+        try {
+          const data = await apiCall();
+          if (enableLogging) {
+            console.info(`object fetch [${objectKey}] → ok`);
+          }
+          // 3. Store with expiration metadata
+          await objectStore.put(objectKey, JSON.stringify(data), {
+            customMetadata: {
+              expiresAt: Temporal.Now.instant()
+                .add({ seconds: withJitter(ttl) })
+                .toString(),
+            },
+          });
+          return data;
+        } catch (error) {
+          const waiters = objectInflightWaiters.get(objectKey) ?? 0;
+          const coalition = waiters > 0 ? ` (+ ${waiters} coalesced)` : '';
+          if (error instanceof GW2RateLimitError && staleData !== null) {
+            // Serve stale data rather than letting the request fail.
+            console.warn(`object fetch [${objectKey}] → 429: serving stale data${coalition}`);
+            return staleData;
+          }
+          if (enableLogging) {
+            console.warn(`object fetch [${objectKey}] → error${coalition}:`, error);
+          }
+          throw error;
+        } finally {
+          objectInflight.delete(objectKey);
+          objectInflightWaiters.delete(objectKey);
+        }
+      })();
+
+      objectInflight.set(objectKey, inflight);
+      cachedData = await inflight;
+    }
   }
 
   return cachedData;
