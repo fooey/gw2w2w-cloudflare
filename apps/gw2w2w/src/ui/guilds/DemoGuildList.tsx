@@ -26,7 +26,7 @@ export function DemoGuildList() {
                   <img
                     className={clsx(backgroundClass, 'rounded-xl')}
                     src={getEmblemSrc(guild.id)}
-                    alt="Emblem"
+                    alt={`${guild.name} Emblem`}
                     width={128}
                     height={128}
                   />
