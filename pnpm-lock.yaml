@@ -19,8 +19,8 @@ catalogs:
       specifier: ^10.2.0
       version: 10.2.0
     hono:
-      specifier: ^4.12.10
-      version: 4.12.10
+      specifier: ^4.12.14
+      version: 4.12.14
     typescript:
       specifier: ^6
       version: 6.0.2
@@ -167,7 +167,7 @@ importers:
     dependencies:
       '@hono/zod-validator':
         specifier: 'catalog:'
-        version: 0.7.6(hono@4.12.10)(zod@4.3.6)
+        version: 0.7.6(hono@4.12.14)(zod@4.3.6)
       '@js-temporal/polyfill':
         specifier: ^0.5.1
         version: 0.5.1
@@ -179,7 +179,7 @@ importers:
         version: 0.45.2(@cloudflare/workers-types@4.20260404.1)
       hono:
         specifier: 'catalog:'
-        version: 4.12.10
+        version: 4.12.14
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -207,7 +207,7 @@ importers:
     dependencies:
       '@hono/zod-validator':
         specifier: 'catalog:'
-        version: 0.7.6(hono@4.12.10)(zod@4.3.6)
+        version: 0.7.6(hono@4.12.14)(zod@4.3.6)
       '@repo/emblem-renderer':
         specifier: workspace:*
         version: link:../../packages/emblem-renderer
@@ -219,7 +219,7 @@ importers:
         version: link:../../packages/utils
       hono:
         specifier: 'catalog:'
-        version: 4.12.10
+        version: 4.12.14
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -3168,8 +3168,8 @@ packages:
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
-  hono@4.12.10:
-    resolution: {integrity: sha512-mx/p18PLy5og9ufies2GOSUqep98Td9q4i/EF6X7yJgAiIopxqdfIO3jbqsi3jRgTgw88jMDEzVKi+V2EF+27w==}
+  hono@4.12.14:
+    resolution: {integrity: sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w==}
     engines: {node: '>=16.9.0'}
 
   http-errors@2.0.1:
@@ -5693,9 +5693,9 @@ snapshots:
     dependencies:
       react: 19.2.4
 
-  '@hono/zod-validator@0.7.6(hono@4.12.10)(zod@4.3.6)':
+  '@hono/zod-validator@0.7.6(hono@4.12.14)(zod@4.3.6)':
     dependencies:
-      hono: 4.12.10
+      hono: 4.12.14
       zod: 4.3.6
 
   '@humanfs/core@0.19.1': {}
@@ -7898,7 +7898,7 @@ snapshots:
     dependencies:
       hermes-estree: 0.25.1
 
-  hono@4.12.10: {}
+  hono@4.12.14: {}
 
   http-errors@2.0.1:
     dependencies:
