@@ -38,6 +38,8 @@ export function MatchScoreboard({ match, lang, selectedTeamId, className }: Matc
             color={color}
             place={placeByColor[c]}
             score={match.scores[c]}
+            kills={match.kills[c]}
+            deaths={match.deaths[c]}
             objectives={objectives}
             lang={lang}
             isSelectedTeam={teamId === selectedTeamId}
