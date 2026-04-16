@@ -428,7 +428,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // --- Execute all writes atomically ---
     const batchResults = stmts.length > 0 ? await this.env.WVW_DB.batch(stmts) : [];
 
-    console.info(`[MatchupPoller] poll complete — ${matches.length} matches, ${newEventCount} new events`);
+    console.info(
+      `[MatchupPoller] poll complete — ${matches.length} matches, ${newEventCount} new events, ${this.#subscribers.size} subscribers`,
+    );
 
     // --- Update in-memory state after successful batch ---
     for (const matchId of resetMatchIds) {
