@@ -176,7 +176,7 @@ Real-time WvW data requires polling `api.guildwars2.com/v2/wvw/matches?ids=all` 
 
 ### Frontend
 
-- **[Next.js 15](https://nextjs.org/) + [React 19](https://react.dev/)** — Frontend framework. Deployed to Cloudflare Workers via [@opennextjs/cloudflare](https://github.com/opennextjs/opennextjs-cloudflare), which adapts Next.js to run without Node.js.
+- **[Next.js 16](https://nextjs.org/) + [React 19](https://react.dev/)** — Frontend framework. Deployed to Cloudflare Workers via [@opennextjs/cloudflare](https://github.com/opennextjs/opennextjs-cloudflare), which adapts Next.js to run without Node.js.
 - **[Tailwind CSS v4](https://tailwindcss.com/)** — Utility-first CSS framework.
 - **[TanStack Query v5](https://tanstack.com/query)** — Async state management for guild data fetching. Deduplicates concurrent requests by key and caches results in-memory across components.
 - **[TanStack Virtual v3](https://tanstack.com/virtual)** — Virtualizes the WvW event log and guild activity tables, rendering only the visible rows out of potentially thousands.
