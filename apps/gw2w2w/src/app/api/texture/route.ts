@@ -7,7 +7,7 @@ const ALLOWED_PATH_PREFIX = '/file/';
 const R2_KEY_PREFIX = 'textures:';
 const UPSTREAM_BASE_URL = `https://${ALLOWED_HOSTNAME}`;
 
-function parseAllowedTextureUrl(raw: string): string | null {
+function parseAllowedTexturePath(raw: string): string | null {
   let url: URL;
   try {
     url = new URL(raw);
@@ -39,7 +39,7 @@ function parseAllowedTextureUrl(raw: string): string | null {
 
 export async function GET(request: NextRequest) {
   const textureUrl = request.nextUrl.searchParams.get('url');
-  const safePath = textureUrl ? parseAllowedTextureUrl(textureUrl) : null;
+  const safePath = textureUrl ? parseAllowedTexturePath(textureUrl) : null;
 
   if (!safePath) {
     return NextResponse.json({ error: 'Invalid url parameter' }, { status: 400 });
