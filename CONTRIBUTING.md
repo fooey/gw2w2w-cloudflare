@@ -6,7 +6,7 @@ Thanks for your interest in contributing to gw2w2w.com!
 
 - [Node.js](https://nodejs.org/) 24+
 - [pnpm](https://pnpm.io/) — enable via `corepack enable`
-- A [GW2 API key](https://account.arena.net/applications) — the setup script will prompt you for this
+- A [GW2 API key](https://account.arena.net/applications) — the setup script will scaffold a placeholder you'll need to fill in
 
 A Cloudflare account is **not** required for local development. Wrangler simulates KV, R2, D1, and Durable Objects locally in `.wrangler/state/`. A Cloudflare account is only needed to deploy to production or use `pnpm tail`.
 
