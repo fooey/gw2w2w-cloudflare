@@ -6,25 +6,32 @@ const ALLOWED_HOSTNAME = 'render.guildwars2.com';
 const ALLOWED_PATH_PREFIX = '/file/';
 const R2_KEY_PREFIX = 'textures:';
 
-function isAllowedTextureUrl(raw: string): boolean {
+function parseAllowedTextureUrl(raw: string): URL | null {
   let url: URL;
   try {
     url = new URL(raw);
   } catch {
-    return false;
+    return null;
   }
-  return url.protocol === 'https:' && url.hostname === ALLOWED_HOSTNAME && url.pathname.startsWith(ALLOWED_PATH_PREFIX);
+  if (url.protocol === 'https:' && url.hostname === ALLOWED_HOSTNAME && url.pathname.startsWith(ALLOWED_PATH_PREFIX)) {
+    return url;
+  }
+  return null;
 }
 
 export async function GET(request: NextRequest) {
   const textureUrl = request.nextUrl.searchParams.get('url');
+  const parsedTextureUrl = textureUrl ? parseAllowedTextureUrl(textureUrl) : null;
 
-  if (!textureUrl || !isAllowedTextureUrl(textureUrl)) {
+  if (!parsedTextureUrl) {
     return NextResponse.json({ error: 'Invalid url parameter' }, { status: 400 });
   }
 
+  // Reconstruct from validated components — never pass raw user input to fetch()
+  const safeUrl = `https://${ALLOWED_HOSTNAME}${parsedTextureUrl.pathname}`;
+
   const { env } = await getCloudflareContext({ async: true });
-  const r2Key = R2_KEY_PREFIX + encodeURIComponent(textureUrl);
+  const r2Key = R2_KEY_PREFIX + encodeURIComponent(safeUrl);
 
   // Check R2 cache first (shared with service-emblem)
   const cached = await env.EMBLEM_ASSETS.get(r2Key);
@@ -39,7 +46,7 @@ export async function GET(request: NextRequest) {
   }
 
   // R2 miss — fetch from GW2 CDN and populate cache
-  const upstream = await fetch(textureUrl, { headers: { 'User-Agent': 'gw2w2w.com' } });
+  const upstream = await fetch(safeUrl, { headers: { 'User-Agent': 'gw2w2w.com' } });
   if (!upstream.ok) {
     return NextResponse.json({ error: 'Texture not found' }, { status: 404 });
   }
