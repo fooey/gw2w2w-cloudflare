@@ -11,7 +11,7 @@ allowBuilds:
 catalog:
   '@cloudflare/workers-types': '^4.20260416.2'
   '@hono/zod-validator': '^0.7.6'
-  '@types/node': '^24.12.2'
+  '@types/node': '^25.6.0'
   eslint: '^10.2.0'
   hono: '^4.12.14'
   typescript: '^6.0.2'
