@@ -36,10 +36,6 @@ export function GuildDetail({ guild }: GuildDetailProps) {
       {guild.emblem && <GuildOpenInDesigner emblem={guild.emblem} />}
 
       <GuildEmblemUsage guildId={guild.id} guildName={guild.name} />
-
-      <Card title="Guild Data (Debug)">
-        <CodePreview code={JSON.stringify({ guild }, null, 2)} />
-      </Card>
     </div>
   );
 }
