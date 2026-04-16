@@ -1,5 +1,4 @@
 import { Card } from '#ui/Card';
-import { CodePreview } from '#ui/CodePreview';
 import { GuildEmblemGrid } from '#ui/guilds/GuildEmblemGrid';
 import { GuildEmblemUsage } from '#ui/guilds/GuildEmblemUsage';
 import { GuildId } from '#ui/guilds/GuildId';
