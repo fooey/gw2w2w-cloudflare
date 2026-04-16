@@ -2,6 +2,8 @@
 
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
+import { useWvwObjective } from '#lib/wvw/objectives';
+import { useWvwUpgradeTier } from '#lib/wvw/upgrades';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
@@ -9,6 +11,7 @@ import { ObjectiveDirection } from '#ui/wvw/matchup/objective/Direction';
 import { ObjectiveGuild } from '#ui/wvw/matchup/objective/Guild';
 import { ObjectiveName } from '#ui/wvw/matchup/objective/Name';
 import { ObjectiveTimer } from '#ui/wvw/matchup/objective/Timer';
+import { UpgradeTier } from '#ui/wvw/matchup/objective/UpgradeTier';
 import { type WvWMatchObjective } from '@repo/service-api/types';
 
 const RI_TIMER = 5 * 60;
@@ -21,6 +24,9 @@ export function MatchObjectiveRow({
   direction: Direction;
 }) {
   const ICON_SIZE = 24 as const;
+
+  const { data: objectiveDef } = useWvwObjective(matchObjective.id);
+  const upgradeTier = useWvwUpgradeTier(objectiveDef?.upgrade_id, matchObjective.yaks_delivered);
 
   const now = useClockStore((s) => {
     if (!matchObjective.last_flipped || s.nowMinute === null) return s.nowSecond;
@@ -51,7 +57,10 @@ export function MatchObjectiveRow({
       )}
     >
       <ObjectiveGuild claimedBy={matchObjective.claimed_by ?? undefined} />
-      <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
+      <span className="relative inline-flex">
+        <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
+        {upgradeTier != null && <UpgradeTier tier={upgradeTier} />}
+      </span>
       <ObjectiveDirection direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
       <ObjectiveName objectiveId={matchObjective.id} />
       <ObjectiveTimer
