@@ -203,18 +203,25 @@ Real-time WvW data requires polling `api.guildwars2.com/v2/wvw/matches?ids=all` 
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 20+
+- [Node.js](https://nodejs.org/) 24+
 - [pnpm](https://pnpm.io/) (via `corepack enable`)
-- A [Cloudflare account](https://dash.cloudflare.com/sign-up) with `wrangler` authenticated (`pnpm wrangler:login`)
-- A [GW2 API key](https://account.arena.net/applications) — add as `GW2_API_KEY=<your-key>` in `apps/service-api/.dev.vars`
+- A [GW2 API key](https://account.arena.net/applications)
+
+A Cloudflare account is **not** required for local development — wrangler simulates KV, R2, D1, and Durable Objects locally. It is only needed to deploy to production.
 
 ### Steps
 
 1. Clone the repo.
 2. Enable pnpm: `corepack enable`
 3. Install dependencies: `pnpm install`
-4. Authenticate with Cloudflare: `pnpm wrangler:login`
-5. Run all services in parallel: `pnpm dev`
+4. Run the one-time setup script: `pnpm setup:dev`
+   - Scaffolds `apps/service-api/.dev.vars` with a `GW2_API_KEY` placeholder
+   - Applies D1 migrations to the local wrangler simulation database
+5. Fill in your GW2 API key in `apps/service-api/.dev.vars` — get one at [account.arena.net/applications](https://account.arena.net/applications)
+6. Authenticate with Cloudflare _(deployment only, not required for local dev)_: `pnpm wrangler:login`
+7. Run all services in parallel: `pnpm dev`
+
+`pnpm dev` also runs `dev:seed`, which bootstraps the `MatchupPoller` Durable Object on startup so WvW data is available immediately without waiting for the first cron tick.
 
 The three services will be available at:
 
