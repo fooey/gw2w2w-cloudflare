@@ -3,7 +3,7 @@
 import SiteLayout from '#ui/layout/SiteLayout';
 import Link from '#ui/Link';
 
-export default function MatchupError(_: { error: Error; reset: () => void }) {
+export default function MatchupError() {
   return (
     <SiteLayout pageHeader={'WvW Matchup'}>
       <div className="space-y-4">
