@@ -1,8 +1,8 @@
 'use client';
 
-import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
-import { TEAM_COLORS, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
+import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
+import { MatchMapTeamScore } from '#ui/wvw/matchup/MatchMapTeamScore';
 import { MatchObjectiveRow } from '#ui/wvw/matchup/MatchObjectiveRow';
 import { type WvWMatchMap, type WvWMatchObjective, type WvWObjective } from '@repo/service-api/types';
 import clsx from 'clsx';
@@ -13,8 +13,6 @@ const mapTypeBorderClass: Record<string, string> = {
   BlueHome: 'border-blue-500',
   RedHome: 'border-red-500',
 };
-
-const colorScoreKey = { Green: 'green', Blue: 'blue', Red: 'red' } as const;
 
 const SCOREBOARD_TYPES_CENTER = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 const SCOREBOARD_TYPES_BL = ['Keep', 'Tower', 'Camp'] as const;
@@ -44,24 +42,19 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
   return (
     <li key={map.id} className="shrink-0 grow">
       <section className={clsx('rounded border py-2 shadow', border)}>
-        <header className="flex flex-col gap-0.5 p-2 pt-0">
+        <header className="grid grid-cols-[auto_1fr] gap-y-0.5 p-2 pt-0">
           {TEAM_COLORS.map((color) => {
-            const { bg, text } = teamColorConfig[color];
-            const score = map.scores[colorScoreKey[color]];
-            const objectives = objectivesByOwner[color];
-            const countByType = (type: WvWMatchObjective['type']) => objectives.filter((o) => o.type === type).length;
+            const c = color.toLowerCase() as 'green' | 'blue' | 'red';
             return (
-              <div key={color} className={clsx(bg, 'flex flex-1 flex-row items-center gap-2 rounded p-2')}>
-                <p className={clsx(text, 'text-lg leading-none font-semibold')}>{score.toLocaleString()}</p>
-                <div className="ml-auto flex flex-row gap-2">
-                  {scoreboardTypes.map((type) => (
-                    <div key={type} className="flex items-center gap-0.5" title={type}>
-                      <ObjectiveIcon type={type} owner={color} size={16} />
-                      <span className={clsx(text, 'text-xs')}>{countByType(type)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <MatchMapTeamScore
+                key={color}
+                color={color}
+                score={map.scores[c]}
+                kills={map.kills[c]}
+                deaths={map.deaths[c]}
+                objectives={objectivesByOwner[color]}
+                visibleObjectiveTypes={scoreboardTypes}
+              />
             );
           })}
         </header>
