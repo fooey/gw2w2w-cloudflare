@@ -16,18 +16,17 @@
  */
 
 import { execSync } from 'node:child_process';
-import { existsSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('..', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 // ── 1. Scaffold .dev.vars ─────────────────────────────────────────────────────
 
 const devVarsPath = resolve(ROOT, 'apps/service-api/.dev.vars');
 
-if (existsSync(devVarsPath)) {
-  console.log('✓  apps/service-api/.dev.vars already exists — skipping');
-} else {
+try {
   writeFileSync(
     devVarsPath,
     [
@@ -36,8 +35,15 @@ if (existsSync(devVarsPath)) {
       'GW2_API_KEY=<your-api-key-here>',
       '',
     ].join('\n'),
+    { flag: 'wx', mode: 0o600 },
   );
   console.log('✓  Created apps/service-api/.dev.vars — add your GW2_API_KEY before running pnpm dev');
+} catch (err) {
+  if (err.code === 'EEXIST') {
+    console.log('✓  apps/service-api/.dev.vars already exists — skipping');
+  } else {
+    throw err;
+  }
 }
 
 // ── 2. Apply D1 migrations (local) ───────────────────────────────────────────
