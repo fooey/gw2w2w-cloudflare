@@ -42,6 +42,9 @@ updates:
           - 'tailwindcss'
           - '@tailwindcss/*'
           - 'prettier-plugin-tailwindcss'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
 
   - package-ecosystem: github-actions
     directory: /

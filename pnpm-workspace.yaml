@@ -2,18 +2,18 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
-catalog:
-  wrangler: '^4.83.0'
-  eslint: '^10.2.0'
-  typescript: '^6'
-  hono: '^4.12.14'
-  '@hono/zod-validator': '^0.7.6'
-  zod: '^4.3.6'
-  '@cloudflare/workers-types': '^4.20260416.2'
-  '@types/node': '^25.5.2'
-
 allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
   workerd: true
+
+catalog:
+  '@cloudflare/workers-types': '^4.20260416.2'
+  '@hono/zod-validator': '^0.7.6'
+  '@types/node': '^24.12.2'
+  eslint: '^10.2.0'
+  hono: '^4.12.14'
+  typescript: '^6.0.2'
+  wrangler: '^4.83.0'
+  zod: '^4.3.6'
