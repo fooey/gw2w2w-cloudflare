@@ -4,7 +4,6 @@ import { cn } from '#lib/utils/cn';
 import Link from '#ui/Link';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { type WvWMatchObjective, type WvWTeam } from '@repo/service-api/types';
-import clsx from 'clsx';
 import { type Lang } from '../config/lang';
 import { teamColorConfig } from '../config/teamColorConfig';
 
@@ -70,7 +69,7 @@ export function TeamScore({
                     </div>
                   ))}
                 </div>
-                <div className={clsx(text, 'flex flex-row items-center gap-1 text-xs tabular-nums')}>
+                <div className={cn(text, 'flex flex-row items-center gap-1 text-xs tabular-nums')}>
                   <span title="Kills">{kills.toLocaleString()}</span>
                   <span className="opacity-50">/</span>
                   <span title="Deaths">{deaths.toLocaleString()}</span>
