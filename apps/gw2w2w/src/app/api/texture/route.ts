@@ -21,7 +21,12 @@ function parseAllowedTextureUrl(raw: string): string | null {
   if (!pathname.startsWith(ALLOWED_PATH_PREFIX)) {
     return null;
   }
-  const decodedPath = decodeURIComponent(pathname).toLowerCase();
+  let decodedPath: string;
+  try {
+    decodedPath = decodeURIComponent(pathname).toLowerCase();
+  } catch {
+    return null;
+  }
   if (decodedPath.includes('/../') || decodedPath.endsWith('/..') || decodedPath.includes('/./')) {
     return null;
   }
