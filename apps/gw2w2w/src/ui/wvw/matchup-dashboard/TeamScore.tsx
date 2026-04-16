@@ -1,10 +1,10 @@
 'use client';
 
 import { cn } from '#lib/utils/cn';
+import Link from '#ui/Link';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { type WvWMatchObjective, type WvWTeam } from '@repo/service-api/types';
 import clsx from 'clsx';
-import Link from '#ui/Link';
 import { type Lang } from '../config/lang';
 import { teamColorConfig } from '../config/teamColorConfig';
 
@@ -21,37 +21,64 @@ export interface TeamScoreProps {
   color: keyof typeof teamColorConfig;
   place: number;
   score: number;
+  kills: number;
+  deaths: number;
   objectives: WvWMatchObjective[];
   lang: Lang;
   isSelectedTeam: boolean;
 }
 
-export function TeamScore({ team, color, place, score, objectives, lang, isSelectedTeam }: TeamScoreProps) {
+export function TeamScore({
+  team,
+  color,
+  place,
+  score,
+  kills,
+  deaths,
+  objectives,
+  lang,
+  isSelectedTeam,
+}: TeamScoreProps) {
   const { bg, text } = teamColorConfig[color];
 
   const teamObjectives = objectives.filter((o) => o.owner === color);
   const countByType = (type: WvWMatchObjective['type']) => teamObjectives.filter((o) => o.type === type).length;
+  const kdr = deaths > 0 ? (kills / deaths).toFixed(2) : kills > 0 ? '∞' : '—';
 
   return (
-    <div className="flex flex-col justify-end">
+    <div className={cn('flex flex-col justify-end')}>
       <Link
-        className={clsx(bg, 'block overflow-hidden rounded-lg shadow-sm')}
+        className={cn(bg, 'block overflow-hidden rounded-lg shadow-sm')}
         href={`/wvw/matchups/${encodeURIComponent(team[lang])}`}
       >
-        <div className="flex flex-row">
-          <div className={clsx(placeBadgeConfig[place], 'p-2 text-3xl leading-none font-extralight')}>{place}</div>
-          <div className="flex flex-col gap-2 p-2 px-4">
-            <p className={cn(text, 'truncate text-sm font-semibold', isSelectedTeam && 'text-2xl')}>{team[lang]}</p>
-            <div className={clsx(text)}>
-              <p className={cn('text-2xl font-semibold', isSelectedTeam && 'text-4xl')}>{score.toLocaleString()}</p>
-            </div>
-            <div className="flex flex-row gap-4">
-              {OBJECTIVE_TYPES.map((type) => (
-                <div key={type} className="flex items-center gap-1" title={type}>
-                  <ObjectiveIcon type={type} owner={color} size={24} />
-                  {countByType(type)}
+        <div className="flex flex-row transition-all duration-300 ease-in-out">
+          <div className={cn(placeBadgeConfig[place], 'p-2 text-3xl leading-none font-extralight')}>{place}</div>
+          <div className={cn('flex w-full min-w-0 flex-col gap-4 p-2 px-4')}>
+            <p className={cn(text, 'truncate text-lg font-light', isSelectedTeam && 'text-3xl')}>{team[lang]}</p>
+            <div className={cn(text, 'flex w-full flex-row items-center justify-between gap-1')}>
+              <div className={cn(text)}>
+                <p className={cn('text-2xl font-semibold tabular-nums', isSelectedTeam && 'text-4xl')}>
+                  {score.toLocaleString()}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex flex-row gap-1">
+                  {OBJECTIVE_TYPES.map((type) => (
+                    <div key={type} className="flex items-center gap-1 text-xs" title={type}>
+                      <ObjectiveIcon type={type} owner={color} size={16} />
+                      {countByType(type)}
+                    </div>
+                  ))}
                 </div>
-              ))}
+                <div className={clsx(text, 'flex flex-row items-center gap-1 text-xs tabular-nums')}>
+                  <span title="Kills">{kills.toLocaleString()}</span>
+                  <span className="opacity-50">/</span>
+                  <span title="Deaths">{deaths.toLocaleString()}</span>
+                  <span className="font-semibold" title="Kill/Death Ratio">
+                    {kdr}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
