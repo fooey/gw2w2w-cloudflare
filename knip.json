@@ -1,7 +1,0 @@
-{
-  "$schema": "./node_modules/knip/schema.json",
-  "tags": ["-lintignore"],
-  "eslint": false,
-  "ignore": ["**/eslint.config.ts", "**/postcss.config.mjs"],
-  "ignoreBinaries": ["only-allow"]
-}

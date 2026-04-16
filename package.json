@@ -21,6 +21,7 @@
     "ts:clean": "turbo run ts:clean",
     "wrangler:login": "pnpm dlx wrangler login",
     "wrangler:clean": "pnpm -r exec pnpm dlx rimraf .wrangler/state",
+    "setup:dev": "node scripts/setup.mjs",
     "tail": "concurrently -n \"app   ,api   ,emblem\" -c blue,green,yellow \"pnpm tail:app\" \"pnpm tail:api\" \"pnpm tail:emblem\"",
     "tail:app": "wrangler tail gw2w2w-cloudflare --format pretty",
     "tail:api": "wrangler tail service-api --format pretty",
