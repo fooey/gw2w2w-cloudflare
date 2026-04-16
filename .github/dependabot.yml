@@ -1,0 +1,49 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      cloudflare:
+        patterns:
+          - "@cloudflare/*"
+          - "@opennextjs/*"
+          - "wrangler"
+      hono:
+        patterns:
+          - "hono"
+          - "@hono/*"
+      next:
+        patterns:
+          - "next"
+          - "@next/*"
+          - "eslint-config-next"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "babel-plugin-react-compiler"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "@eslint-react/*"
+          - "typescript-eslint"
+          - "eslint-plugin-*"
+          - "eslint-config-prettier"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "prettier-plugin-tailwindcss"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
