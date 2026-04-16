@@ -49,7 +49,7 @@ graph TD
 
 | App                   | Domain              | Description                                                                                                                                               |
 | --------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 15 frontend, deployed via [OpenNext](https://opennext.js.org/) on Cloudflare Workers (no Node.js required)                                        |
+| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 16 frontend, deployed via [OpenNext](https://opennext.js.org/) on Cloudflare Workers (no Node.js required)                                        |
 | `apps/service-emblem` | `emblem.gw2w2w.com` | Hono Worker — renders guild emblems as WebP, caches in R2 (port `8787` locally)                                                                           |
 | `apps/service-api`    | `api.gw2w2w.com`    | Hono Worker — GW2 API proxy with KV + R2 tiered caching; MatchupPoller Durable Object for real-time WvW event tracking via D1 + SSE (port `8788` locally) |
 
