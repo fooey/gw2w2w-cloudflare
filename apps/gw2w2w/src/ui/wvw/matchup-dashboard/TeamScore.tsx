@@ -12,8 +12,8 @@ const OBJECTIVE_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 
 const placeBadgeConfig: Record<number, string> = {
   1: 'bg-yellow-400 text-yellow-900',
-  2: 'bg-gray-300 text-gray-700 opacity-50',
-  3: 'bg-amber-700 text-gray-100 opacity-30',
+  2: 'bg-slate-400 text-slate-900',
+  3: 'bg-amber-800 text-amber-100',
 };
 
 export interface TeamScoreProps {
