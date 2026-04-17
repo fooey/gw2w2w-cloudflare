@@ -10,6 +10,7 @@
     "dev": "wrangler dev --port 8788 --local --test-scheduled",
     "dev:seed": "node scripts/dev-seed.mjs",
     "db:replicate": "node scripts/replicate-prod-db.mjs",
+    "db:query": "wrangler d1 execute wvw-events --remote --command",
     "deploy": "wrangler deploy",
     "lint": "eslint ./src",
     "check-types": "tsc --noEmit",
