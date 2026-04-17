@@ -361,7 +361,7 @@ importers:
   packages/vitest-config:
     dependencies:
       vitest:
-        specifier: '*'
+        specifier: 'catalog:'
         version: 4.1.4(@types/node@24.12.2)(vite@7.3.2(@types/node@24.12.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))
 
 packages:
