@@ -9,7 +9,6 @@ allowBuilds:
   workerd: true
 
 catalog:
-  '@cloudflare/vitest-pool-workers': '^0.8.0'
   '@cloudflare/workers-types': '^4.20260416.2'
   '@hono/zod-validator': '^0.7.6'
   '@types/node': '^24.12.2'
