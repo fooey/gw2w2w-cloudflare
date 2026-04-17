@@ -49,4 +49,12 @@ export const config = defineConfig(
   {
     ignores: ['dist/**'],
   },
+  // Stub/mock files used in tests don't need the same strictness as production code.
+  {
+    files: ['src/__mocks__/**', 'src/**/__mocks__/**'],
+    rules: {
+      '@typescript-eslint/no-extraneous-class': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+    },
+  },
 );

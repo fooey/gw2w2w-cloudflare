@@ -1,7 +1,7 @@
 {
   "$schema": "https://v2-9-5.turborepo.dev/schema.json",
   "ui": "tui",
-  "globalEnv": ["NODE_ENV"],
+  "globalEnv": ["CI", "NODE_ENV"],
   "boundaries": {
     "tags": {
       "app": {
@@ -50,6 +50,13 @@
     },
     "format": {
       "inputs": ["**/*.{ts,tsx,md,json,mjs,mts,cjs}"]
+    },
+    "test": {
+      "inputs": ["$TURBO_DEFAULT$", "src/**/*.{ts,tsx}", "vitest.config.*", "wrangler.toml"]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

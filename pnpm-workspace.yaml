@@ -15,5 +15,6 @@ catalog:
   eslint: '^10.2.0'
   hono: '^4.12.14'
   typescript: '^6.0.2'
+  vitest: '^4.0.0'
   wrangler: '^4.83.0'
   zod: '^4.3.6'

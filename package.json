@@ -27,7 +27,9 @@
     "tail:app": "wrangler tail gw2w2w-cloudflare --format pretty",
     "tail:api": "wrangler tail service-api --format pretty",
     "tail:emblem": "wrangler tail service-emblem --format pretty",
-    "update:turbo": "pnpm dlx @turbo/codemod@latest update"
+    "update:turbo": "pnpm dlx @turbo/codemod@latest update",
+    "test": "turbo run test --log-order stream",
+    "test:watch": "turbo run test:watch"
   },
   "devDependencies": {
     "@types/node": "catalog:",
