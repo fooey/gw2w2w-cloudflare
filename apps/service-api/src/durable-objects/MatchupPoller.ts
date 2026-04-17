@@ -10,6 +10,10 @@ const GW2_RATE_LIMIT_REFILL = '~5 req/s';
 const GW2_MATCHES_PATH = '/wvw/matches?ids=all';
 // Cap replay to avoid large D1 reads on reconnect after a long disconnect.
 const MAX_REPLAY_EVENTS = 500;
+// Maximum time to wait for a single SSE subscriber write before treating the
+// connection as a zombie and dropping it. Without this, a stalled write in
+// #fanout() will block the alarm handler indefinitely.
+const SSE_WRITE_TIMEOUT_MS = 500;
 
 interface ObjectiveSnap {
   owner: string;
@@ -205,7 +209,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     lastEventId: string | null,
   ): Promise<void> {
     // Always send current match state first so the client has fresh data.
-    await writer.write(this.#sseChunk('match-state', { matchId, data: JSON.parse(matchRow.data) as WvWMatchStripped }));
+    // Embed matchRow.data (already-serialized JSON) directly to avoid a
+    // parse + re-stringify roundtrip on a potentially large payload.
+    const seedMsg = `event: match-state\ndata: {"matchId":${JSON.stringify(matchId)},"data":${matchRow.data}}\n\n`;
+    await writer.write(this.#encoder.encode(seedMsg));
 
     if (!lastEventId) return;
 
@@ -234,11 +241,15 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       .bind(matchId, lastId, MAX_REPLAY_EVENTS)
       .all<EventRow>();
 
+    if (results.length === 0) return;
+
+    // Build all replay messages and send in a single write to minimise CPU time
+    // spent on repeated TextEncoder.encode() calls and backpressure checks.
+    let payload = '';
     for (const row of results) {
-      await writer.write(
-        this.#sseChunk(row.type, this.#eventRowToPayload(matchId, row), `${row.id}:${matchRow.end_time}`),
-      );
+      payload += `id: ${row.id}:${matchRow.end_time}\nevent: ${row.type}\ndata: ${JSON.stringify(this.#eventRowToPayload(matchId, row))}\n\n`;
     }
+    await writer.write(this.#encoder.encode(payload));
   }
 
   async #poll(): Promise<void> {
@@ -268,9 +279,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           }
         }
         // Fetch egress IP to identify which Cloudflare datacenter is being rate-limited.
+        // Guarded by ENABLE_EGRESS_IP_CHECK — enable when diagnosing rate-limit issues.
         let egressIp: string | null = null;
         try {
-          const trace = await fetch('https://1.1.1.1/cdn-cgi/trace');
+          // very short timeout since this is just for observability and shouldn't delay the alarm handler significantly
+          const trace = await fetch('https://1.1.1.1/cdn-cgi/trace', { signal: AbortSignal.timeout(200) });
           const text = await trace.text();
           egressIp = /^ip=(.+)$/m.exec(text)?.[1] ?? null;
         } catch {
@@ -488,19 +501,34 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
   async #fanout(matchId: string, event: string, data: unknown, id?: string): Promise<void> {
     const chunk = this.#sseChunk(event, data, id);
-    const dead: string[] = [];
 
-    for (const [subId, sub] of this.#subscribers) {
-      if (sub.matchId !== matchId) continue;
-      try {
-        await sub.writer.write(chunk);
-      } catch {
-        dead.push(subId);
+    const writes = [...this.#subscribers.entries()]
+      .filter(([, sub]) => sub.matchId === matchId)
+      .map(async ([subId, sub]) => {
+        // desiredSize is null when the writer is already closed or errored.
+        if (sub.writer.desiredSize === null) return subId;
+        try {
+          // Race the write against a timeout so a zombie subscriber (client gone
+          // but no TCP FIN/RST) cannot stall the alarm handler indefinitely.
+          await Promise.race([
+            sub.writer.write(chunk),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => {
+                reject(new Error('SSE write timeout'));
+              }, SSE_WRITE_TIMEOUT_MS),
+            ),
+          ]);
+          return null;
+        } catch {
+          return subId;
+        }
+      });
+
+    const results = await Promise.allSettled(writes);
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value !== null) {
+        this.#subscribers.delete(result.value);
       }
-    }
-
-    for (const subId of dead) {
-      this.#subscribers.delete(subId);
     }
   }
 
