@@ -50,6 +50,13 @@
     },
     "format": {
       "inputs": ["**/*.{ts,tsx,md,json,mjs,mts,cjs}"]
+    },
+    "test": {
+      "inputs": ["src/**/*.{ts,tsx}", "vitest.config.*", "wrangler.toml"]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

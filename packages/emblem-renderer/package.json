@@ -10,7 +10,9 @@
   "scripts": {
     "lint": "eslint ./src",
     "check-types": "tsc --noEmit",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@cf-wasm/photon": "^0.3.4",
@@ -19,7 +21,9 @@
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
     "@repo/eslint-config": "workspace:*",
+    "@repo/vitest-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "eslint": "catalog:"
+    "eslint": "catalog:",
+    "vitest": "catalog:"
   }
 }
