@@ -118,6 +118,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
             ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
         );
         await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
+      } else if (err instanceof DOMException && err.name === 'TimeoutError') {
+        console.error('[MatchupPoller] alarm timed out — GW2 API fetch exceeded 10s deadline');
       } else {
         console.error('[MatchupPoller] alarm error:', err);
       }
@@ -172,9 +174,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const subId = crypto.randomUUID();
 
     this.#subscribers.set(subId, { matchId, writer });
+    console.info(`[MatchupPoller] subscriber connected: ${subId} (${matchId}), total=${this.#subscribers.size}`);
 
     request.signal.addEventListener('abort', () => {
       this.#subscribers.delete(subId);
+      console.info(`[MatchupPoller] subscriber disconnected: ${subId} (${matchId}), total=${this.#subscribers.size}`);
       void writer.close().catch(() => {
         /* already closed */
       });
@@ -243,6 +247,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     if (results.length === 0) return;
 
+    console.info(`[MatchupPoller] replaying ${results.length} missed events for ${matchId} (since id=${lastId})`);
+
     // Build all replay messages and send in a single write to minimise CPU time
     // spent on repeated TextEncoder.encode() calls and backpressure checks.
     let payload = '';
@@ -279,7 +285,6 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           }
         }
         // Fetch egress IP to identify which Cloudflare datacenter is being rate-limited.
-        // Guarded by ENABLE_EGRESS_IP_CHECK — enable when diagnosing rate-limit issues.
         let egressIp: string | null = null;
         try {
           // very short timeout since this is just for observability and shouldn't delay the alarm handler significantly
@@ -506,7 +511,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       .filter(([, sub]) => sub.matchId === matchId)
       .map(async ([subId, sub]) => {
         // desiredSize is null when the writer is already closed or errored.
-        if (sub.writer.desiredSize === null) return subId;
+        if (sub.writer.desiredSize === null) {
+          console.warn(`[MatchupPoller] dropping subscriber ${subId} (${sub.matchId}): writer already closed`);
+          return subId;
+        }
         try {
           // Race the write against a timeout so a zombie subscriber (client gone
           // but no TCP FIN/RST) cannot stall the alarm handler indefinitely.
@@ -519,7 +527,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
             ),
           ]);
           return null;
-        } catch {
+        } catch (err) {
+          const reason = err instanceof Error ? err.message : String(err);
+          console.warn(`[MatchupPoller] dropping subscriber ${subId} (${sub.matchId}): ${reason}`);
           return subId;
         }
       });
