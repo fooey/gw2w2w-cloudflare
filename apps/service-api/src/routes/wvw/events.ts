@@ -68,6 +68,6 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
       limit,
       offset,
     };
-    return c.json(response);
+    return c.json(response, 200, { 'Cache-Control': 'no-store' });
   },
 );
