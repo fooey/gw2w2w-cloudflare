@@ -79,6 +79,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   #consecutiveRateLimits = 0;
   #lastRateLimitAt: string | null = null;
   #lastSuccessfulPollAt: string | null = null;
+  #consecutiveD1Errors = 0;
+  #lastD1ErrorAt: string | null = null;
+  #totalD1Writes = 0;
 
   constructor(ctx: DurableObjectState, env: CloudflareEnv) {
     super(ctx, env);
@@ -158,6 +161,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       consecutiveRateLimits: this.#consecutiveRateLimits,
       lastRateLimitAt: this.#lastRateLimitAt,
       lastSuccessfulPollAt: this.#lastSuccessfulPollAt,
+      consecutiveD1Errors: this.#consecutiveD1Errors,
+      lastD1ErrorAt: this.#lastD1ErrorAt,
+      totalD1Writes: this.#totalD1Writes,
     });
   }
 
@@ -456,7 +462,28 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
 
     // --- Execute all writes atomically ---
-    const batchResults = stmts.length > 0 ? await this.env.WVW_DB.batch(stmts) : [];
+    let batchResults: D1Result[] = [];
+    if (stmts.length > 0) {
+      const stmtSummary = `${resetMatchIds.length} resets, ${matchStateFanouts.length} match_state upserts, ${newEventCount} events`;
+      console.info(`[MatchupPoller] D1 batch: ${stmts.length} statements (${stmtSummary})`);
+      try {
+        batchResults = await this.env.WVW_DB.batch(stmts);
+        this.#totalD1Writes += stmts.length;
+        if (this.#consecutiveD1Errors > 0) {
+          console.info(`[MatchupPoller] D1 recovered after ${this.#consecutiveD1Errors} consecutive errors`);
+          this.#consecutiveD1Errors = 0;
+        }
+      } catch (err) {
+        this.#consecutiveD1Errors++;
+        this.#lastD1ErrorAt = now;
+        console.error(
+          `[MatchupPoller] D1 batch failed (consecutive=${this.#consecutiveD1Errors}, stmts=${stmts.length}, ${stmtSummary}):`,
+          err,
+        );
+        // Re-throw so in-memory state is not updated and the next poll retries.
+        throw err;
+      }
+    }
 
     console.info(
       `[MatchupPoller] poll complete — ${matches.length} matches, ${newEventCount} new events, ${this.#subscribers.size} subscribers`,
