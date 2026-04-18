@@ -363,7 +363,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const snapUpdates: { key: string; snap: ObjectiveSnap }[] = [];
     const endTimeUpdates: { matchId: string; endTime: string }[] = [];
     const resetMatchIds: string[] = [];
-    let newEventCount = 0;
+    const newEventsByMatch = new Map<string, number>();
 
     for (const match of matches) {
       // --- Reset detection ---
@@ -406,7 +406,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           const prev = this.#objectiveSnap.get(snapKey);
 
           if (this.#shouldEmitCapture(obj, prev)) {
-            newEventCount++;
+            newEventsByMatch.set(match.id, (newEventsByMatch.get(match.id) ?? 0) + 1);
             stmts.push(
               this.env.WVW_DB.prepare(
                 'INSERT OR IGNORE INTO events (match_id, type, at, objective_id, objective_type, map_type, owner, claimed_by) VALUES (?, ?, ?, ?, ?, ?, ?, NULL)',
@@ -427,7 +427,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           }
 
           if (this.#shouldEmitClaim(obj, prev)) {
-            newEventCount++;
+            newEventsByMatch.set(match.id, (newEventsByMatch.get(match.id) ?? 0) + 1);
             stmts.push(
               this.env.WVW_DB.prepare(
                 'INSERT OR IGNORE INTO events (match_id, type, at, objective_id, objective_type, map_type, owner, claimed_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -462,10 +462,15 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
 
     // --- Execute all writes atomically ---
+    const newEventCount = [...newEventsByMatch.values()].reduce((a, b) => a + b, 0);
     let batchResults: D1Result[] = [];
     if (stmts.length > 0) {
-      const stmtSummary = `${resetMatchIds.length} resets, ${matchStateFanouts.length} match_state upserts, ${newEventCount} events`;
-      console.info(`[MatchupPoller] D1 batch: ${stmts.length} statements (${stmtSummary})`);
+      const upsertedMatchIds = matchStateFanouts.map((f) => f.matchId);
+      const stmtSummary =
+        `resets=[${resetMatchIds.join(',')}]` +
+        ` upserts=[${upsertedMatchIds.join(',')}]` +
+        ` events={${[...newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')}}`;
+      console.info(`[MatchupPoller] D1 batch: ${stmts.length} statements — ${stmtSummary}`);
       try {
         batchResults = await this.env.WVW_DB.batch(stmts);
         this.#totalD1Writes += stmts.length;
@@ -485,8 +490,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       }
     }
 
+    const eventSummary =
+      newEventsByMatch.size > 0 ? ` (${[...newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')})` : '';
     console.info(
-      `[MatchupPoller] poll complete — ${matches.length} matches, ${newEventCount} new events, ${this.#subscribers.size} subscribers`,
+      `[MatchupPoller] poll complete — ${matches.length} matches, ${newEventCount} new events${eventSummary}, ${this.#subscribers.size} subscribers`,
     );
 
     // --- Update in-memory state after successful batch ---
