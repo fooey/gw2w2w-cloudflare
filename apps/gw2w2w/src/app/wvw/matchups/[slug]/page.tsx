@@ -6,6 +6,8 @@ import { WVW_TEAMS } from '@repo/service-api/definitions';
 import SiteLayout from '#ui/layout/SiteLayout';
 import Link from '#ui/Link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function WvwMatchupPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { matchId, selectedTeamId } = resolveSlug(slug);
