@@ -7,7 +7,7 @@ const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
 // GW2 API rate limit parameters (observed from x-rate-limit-limit response header)
 // Bucket: 600 requests, refill: ~5 req/s
 const GW2_RATE_LIMIT_REFILL = '~5 req/s';
-const GW2_MATCHES_PATH = '/wvw/matches?ids=all';
+const GW2_MATCHES_PATH = '/v2/wvw/matches';
 // Cap replay to avoid large D1 reads on reconnect after a long disconnect.
 const MAX_REPLAY_EVENTS = 500;
 // Maximum time to wait for a single SSE subscriber write before treating the
@@ -171,6 +171,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const url = new URL(request.url);
     const matchId = url.searchParams.get('matchId');
 
+    console.log(`🚀 ~ MatchupPoller.ts ~ MatchupPoller ~ matchId:`, matchId);
+
     if (!matchId) {
       return new Response('matchId required', { status: 400 });
     }
@@ -186,6 +188,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
     const writer = writable.getWriter();
     const subId = crypto.randomUUID();
+
+    console.log(`🚀 ~ MatchupPoller.ts ~ MatchupPoller ~ subId:`, subId);
 
     this.#subscribers.set(subId, { matchId, writer });
     console.info(`[MatchupPoller] subscriber connected: ${subId} (${matchId}), total=${this.#subscribers.size}`);
@@ -278,17 +282,26 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       return;
     }
 
+    const fetchUrl = new URL(GW2_MATCHES_PATH, this.env.GW2_API_BASE);
+
+    const fetchParams = new URLSearchParams({
+      ids: 'all',
+      t: Date.now().toString(),
+    });
+    fetchUrl.search = fetchParams.toString();
+
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.env.GW2_API_KEY}`,
       'User-Agent': 'gw2w2w.com',
-      // Bypass Cloudflare's subrequest cache so each poll sees fresh GW2 API data.
-      // Without this, CF may serve a cached response for the Cache-Control max-age
-      // duration, causing the DO to miss end_time changes at weekly reset.
       'Cache-Control': 'no-cache',
     };
 
-    const response = await fetch(`${this.env.GW2_API_BASE}${GW2_MATCHES_PATH}`, {
+    const response = await fetch(fetchUrl.toString(), {
       headers,
+      cf: {
+        cacheTtl: 0,
+        cacheEverything: false,
+      },
       // Without a timeout, a stalled GW2 API response hangs the alarm handler
       // indefinitely — the finally block never runs and the loop stops.
       signal: AbortSignal.timeout(10_000),

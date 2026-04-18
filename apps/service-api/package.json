@@ -36,6 +36,7 @@
     "@repo/utils": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "hono": "catalog:",
+    "lodash-es": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -43,6 +44,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/lodash-es": "catalog:",
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "vitest": "catalog:",
