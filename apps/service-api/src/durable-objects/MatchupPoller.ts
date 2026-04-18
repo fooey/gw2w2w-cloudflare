@@ -171,8 +171,6 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const url = new URL(request.url);
     const matchId = url.searchParams.get('matchId');
 
-    console.log(`🚀 ~ MatchupPoller.ts ~ MatchupPoller ~ matchId:`, matchId);
-
     if (!matchId) {
       return new Response('matchId required', { status: 400 });
     }
@@ -188,8 +186,6 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
     const writer = writable.getWriter();
     const subId = crypto.randomUUID();
-
-    console.log(`🚀 ~ MatchupPoller.ts ~ MatchupPoller ~ subId:`, subId);
 
     this.#subscribers.set(subId, { matchId, writer });
     console.info(`[MatchupPoller] subscriber connected: ${subId} (${matchId}), total=${this.#subscribers.size}`);
@@ -283,11 +279,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
 
     const fetchUrl = new URL(GW2_MATCHES_PATH, this.env.GW2_API_BASE);
-
-    const fetchParams = new URLSearchParams({
-      ids: 'all',
-      t: Date.now().toString(),
-    });
+    const fetchParams = new URLSearchParams({ ids: 'all', t: Date.now().toString() });
     fetchUrl.search = fetchParams.toString();
 
     const headers: Record<string, string> = {
