@@ -139,14 +139,22 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     // Status endpoint
     const alarm = await this.ctx.storage.getAlarm();
+    const subscribersByMatch: Record<string, number> = {};
+    for (const { matchId } of this.#subscribers.values()) {
+      subscribersByMatch[matchId] = (subscribersByMatch[matchId] ?? 0) + 1;
+    }
+
     return Response.json({
       status: 'ok',
       nextAlarmAt: alarm,
       nextAlarmAtISO: alarm != null ? new Date(alarm).toISOString() : null,
       alarmIsStale: alarm != null && alarm <= Date.now(),
       matchCount: this.#matchEndTimes.size,
+      matchEndTimes: Object.fromEntries(this.#matchEndTimes),
+      cachedMatchStateKeys: [...this.#matchStateJson.keys()],
       objectiveCount: this.#objectiveSnap.size,
       subscriberCount: this.#subscribers.size,
+      subscribersByMatch,
       consecutiveRateLimits: this.#consecutiveRateLimits,
       lastRateLimitAt: this.#lastRateLimitAt,
       lastSuccessfulPollAt: this.#lastSuccessfulPollAt,
@@ -271,6 +279,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     const response = await fetch(`${this.env.GW2_API_BASE}${GW2_MATCHES_PATH}`, {
       headers,
+      // Bypass Cloudflare's subrequest cache so each poll sees fresh GW2 API data.
+      // Without this, CF may serve a cached response for the cache-control max-age
+      // duration, causing the DO to miss end_time changes at weekly reset.
+      cache: 'no-store',
       // Without a timeout, a stalled GW2 API response hangs the alarm handler
       // indefinitely — the finally block never runs and the loop stops.
       signal: AbortSignal.timeout(10_000),
