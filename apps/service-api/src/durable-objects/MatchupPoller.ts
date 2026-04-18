@@ -275,14 +275,14 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.env.GW2_API_KEY}`,
       'User-Agent': 'gw2w2w.com',
+      // Bypass Cloudflare's subrequest cache so each poll sees fresh GW2 API data.
+      // Without this, CF may serve a cached response for the Cache-Control max-age
+      // duration, causing the DO to miss end_time changes at weekly reset.
+      'Cache-Control': 'no-cache',
     };
 
     const response = await fetch(`${this.env.GW2_API_BASE}${GW2_MATCHES_PATH}`, {
       headers,
-      // Bypass Cloudflare's subrequest cache so each poll sees fresh GW2 API data.
-      // Without this, CF may serve a cached response for the cache-control max-age
-      // duration, causing the DO to miss end_time changes at weekly reset.
-      cache: 'no-store',
       // Without a timeout, a stalled GW2 API response hangs the alarm handler
       // indefinitely — the finally block never runs and the loop stops.
       signal: AbortSignal.timeout(10_000),
