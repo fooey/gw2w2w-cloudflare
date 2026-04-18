@@ -1,6 +1,7 @@
 import type { CloudflareEnv } from '#index.ts';
-import type { WvWMatch, WvWMatchObjective, WvWMatchStripped } from '#lib/resources/wvw/matches.ts';
+import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
 import { DurableObject } from 'cloudflare:workers';
+import { isEqual } from 'lodash-es';
 
 const POLL_INTERVAL_MS = 20_000;
 const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
@@ -37,12 +38,6 @@ interface PendingFanout {
   data: Record<string, unknown>;
 }
 
-interface MatchStateFanout {
-  matchId: string;
-  data: WvWMatchStripped;
-  json: string; // pre-computed JSON string — reused for cache update to avoid re-stringify
-}
-
 interface EventRow {
   id: number;
   type: string;
@@ -71,7 +66,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   #matchEndTimes: Map<string, string> = new Map<string, string>();
   // Tracks the last-seen JSON for each match so we can skip D1 writes and fanout
   // when match state hasn't changed (common between skirmish score ticks).
-  #matchStateJson: Map<string, string> = new Map<string, string>();
+  #matchState: Map<string, WvWMatch> = new Map<string, WvWMatch>();
   #subscribers: Map<string, Subscriber> = new Map<string, Subscriber>();
   #encoder = new TextEncoder();
 
@@ -154,7 +149,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       alarmIsStale: alarm != null && alarm <= Date.now(),
       matchCount: this.#matchEndTimes.size,
       matchEndTimes: Object.fromEntries(this.#matchEndTimes),
-      cachedMatchStateKeys: [...this.#matchStateJson.keys()],
+      cachedMatchStateKeys: [...this.#matchState.keys()],
       objectiveCount: this.#objectiveSnap.size,
       subscriberCount: this.#subscribers.size,
       subscribersByMatch,
@@ -272,101 +267,99 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     await writer.write(this.#encoder.encode(payload));
   }
 
-  async #poll(): Promise<void> {
+  async #fetchMatches(requestId: string, requestTime: Date): Promise<Response | null> {
     if (!this.env.GW2_API_KEY) {
-      console.warn('[MatchupPoller] GW2_API_KEY not set — skipping poll');
-      return;
+      console.warn(`[MatchupPoller] GW2_API_KEY not set — skipping poll: requestId=${requestId}`);
+      return null;
     }
 
     const fetchUrl = new URL(GW2_MATCHES_PATH, this.env.GW2_API_BASE);
-    const fetchParams = new URLSearchParams({ ids: 'all', t: Date.now().toString() });
+
+    const fetchParams = new URLSearchParams({
+      ids: 'all',
+      ts: requestTime.getTime().toString(),
+      request_id: requestId,
+    });
     fetchUrl.search = fetchParams.toString();
 
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.env.GW2_API_KEY}`,
       'User-Agent': 'gw2w2w.com',
       'Cache-Control': 'no-cache',
+      'X-Request-Id': requestId,
     };
 
     const response = await fetch(fetchUrl.toString(), {
       headers,
-      cf: {
-        cacheTtl: 0,
-        cacheEverything: false,
-      },
-      // Without a timeout, a stalled GW2 API response hangs the alarm handler
-      // indefinitely — the finally block never runs and the loop stops.
+      cf: { cacheTtl: 0, cacheEverything: false },
       signal: AbortSignal.timeout(10_000),
     });
+    console.info(`[MatchupPoller] fetch ${fetchUrl.toString()}`);
 
     if (!response.ok) {
       if (response.status === 429) {
-        const rateLimitHeaders: Record<string, string> = {};
-        for (const [key, value] of response.headers.entries()) {
-          if (key.toLowerCase().startsWith('x-rate-limit') || key.toLowerCase() === 'retry-after') {
-            rateLimitHeaders[key] = value;
-          }
-        }
-        // Fetch egress IP to identify which Cloudflare datacenter is being rate-limited.
-        let egressIp: string | null = null;
-        try {
-          // very short timeout since this is just for observability and shouldn't delay the alarm handler significantly
-          const trace = await fetch('https://1.1.1.1/cdn-cgi/trace', { signal: AbortSignal.timeout(200) });
-          const text = await trace.text();
-          egressIp = /^ip=(.+)$/m.exec(text)?.[1] ?? null;
-        } catch {
-          // non-critical — don't let this suppress the RateLimitError
-        }
-        console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders), 'egressIp:', egressIp);
-        const retryAfter = response.headers.get('Retry-After');
-        const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
-        const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
-        const rateLimitBurst = rateLimitBurstRaw != null ? parseInt(rateLimitBurstRaw, 10) : null;
-        throw new RateLimitError(
-          Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS,
-          rateLimitBurst,
-          egressIp,
-        );
+        await this.#handleRateLimit(response);
       }
       throw new Error(`[MatchupPoller] GW2 API error: ${response.status.toString()} ${response.statusText}`);
     }
 
-    const matches = await response.json<WvWMatch[]>();
-    const now = new Date().toISOString();
+    return response;
+  }
 
-    // Log all x-rate-limit-* headers on success so we can discover which ones GW2 actually sends.
+  async #handleRateLimit(response: Response): Promise<never> {
     const rateLimitHeaders: Record<string, string> = {};
     for (const [key, value] of response.headers.entries()) {
-      if (key.toLowerCase().startsWith('x-rate-limit')) {
+      if (key.toLowerCase().startsWith('x-rate-limit') || key.toLowerCase() === 'retry-after') {
         rateLimitHeaders[key] = value;
       }
     }
-    if (Object.keys(rateLimitHeaders).length > 0) {
-      const remaining = rateLimitHeaders['x-rate-limit-remaining'];
-      const limit = rateLimitHeaders['x-rate-limit-limit'];
-      if (remaining != null && limit != null && parseInt(remaining, 10) < parseInt(limit, 10) * 0.2) {
-        // Budget low — log as warning so it stands out.
-        console.warn('[MatchupPoller] rate limit budget low:', JSON.stringify(rateLimitHeaders));
-      } else {
-        console.info('[MatchupPoller] rate limit headers:', JSON.stringify(rateLimitHeaders));
-      }
+    // Fetch egress IP to identify which Cloudflare datacenter is being rate-limited.
+    let egressIp: string | null = null;
+    try {
+      // very short timeout since this is just for observability and shouldn't delay the alarm handler significantly
+      const trace = await fetch('https://1.1.1.1/cdn-cgi/trace', { signal: AbortSignal.timeout(200) });
+      const text = await trace.text();
+      egressIp = /^ip=(.+)$/m.exec(text)?.[1] ?? null;
+    } catch {
+      // non-critical — don't let this suppress the RateLimitError
     }
+    // console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders), 'egressIp:', egressIp);
+    const retryAfter = response.headers.get('Retry-After');
+    const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
+    const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
+    const rateLimitBurst = rateLimitBurstRaw != null ? parseInt(rateLimitBurstRaw, 10) : null;
+    throw new RateLimitError(
+      Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS,
+      rateLimitBurst,
+      egressIp,
+    );
+  }
+
+  async #poll(): Promise<void> {
+    const requestId = crypto.randomUUID();
+    const requestStartTime = new Date();
+
+    console.info(`[MatchupPoller] poll started ${requestStartTime.toISOString()}: requestId=${requestId}`);
+    const response = await this.#fetchMatches(requestId, requestStartTime);
+    if (response === null) return;
+
+    const matches = await response.json<WvWMatch[]>();
 
     // Reset consecutive counter on successful poll.
     if (this.#consecutiveRateLimits > 0) {
       console.info(`[MatchupPoller] recovered after ${this.#consecutiveRateLimits} consecutive 429s`);
       this.#consecutiveRateLimits = 0;
     }
-    this.#lastSuccessfulPollAt = now;
+
+    this.#lastSuccessfulPollAt = requestStartTime.toISOString();
 
     // Collect all D1 write statements and in-memory updates to apply after a successful batch.
     // pendingFanout is a parallel array to stmts — null for non-event statements so we can
     // correlate batch results (meta.changes / last_row_id) back to their fanout data.
     const stmts: D1PreparedStatement[] = [];
     const pendingFanout: (PendingFanout | null)[] = [];
-    const matchStateFanouts: MatchStateFanout[] = [];
+    const matchStateFanouts: WvWMatch[] = [];
     const snapUpdates: { key: string; snap: ObjectiveSnap }[] = [];
-    const endTimeUpdates: { matchId: string; endTime: string }[] = [];
     const resetMatchIds: string[] = [];
     const newEventsByMatch = new Map<string, number>();
 
@@ -386,23 +379,18 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       }
 
       // --- Match state upsert (only when changed) ---
-      const { skirmishes: _skirmishes, ...stripped } = match;
-      const strippedData: WvWMatchStripped = stripped;
-      const strippedJson = JSON.stringify(strippedData);
-      const prevJson = this.#matchStateJson.get(match.id);
-      const matchStateChanged = prevJson !== strippedJson;
+      const prevMatchState = this.#matchState.get(match.id);
+      const matchStateChanged = !isEqual(prevMatchState, match);
 
       if (matchStateChanged) {
         stmts.push(
           this.env.WVW_DB.prepare(
             'INSERT OR REPLACE INTO match_state (match_id, data, end_time, updated_at) VALUES (?, ?, ?, ?)',
-          ).bind(match.id, strippedJson, match.end_time, now),
+          ).bind(match.id, JSON.stringify(match), match.end_time, requestStartTime.toISOString()),
         );
         pendingFanout.push(null);
-        matchStateFanouts.push({ matchId: match.id, data: strippedData, json: strippedJson });
+        matchStateFanouts.push(match);
       }
-
-      endTimeUpdates.push({ matchId: match.id, endTime: match.end_time });
 
       // --- Objective diff ---
       for (const map of match.maps) {
@@ -470,7 +458,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const newEventCount = [...newEventsByMatch.values()].reduce((a, b) => a + b, 0);
     let batchResults: D1Result[] = [];
     if (stmts.length > 0) {
-      const upsertedMatchIds = matchStateFanouts.map((f) => f.matchId);
+      const upsertedMatchIds = matchStateFanouts.map((m) => m.id);
       const stmtSummary =
         `resets=[${resetMatchIds.join(',')}]` +
         ` upserts=[${upsertedMatchIds.join(',')}]` +
@@ -485,7 +473,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         }
       } catch (err) {
         this.#consecutiveD1Errors++;
-        this.#lastD1ErrorAt = now;
+        this.#lastD1ErrorAt = requestStartTime.toISOString();
         console.error(
           `[MatchupPoller] D1 batch failed (consecutive=${this.#consecutiveD1Errors}, stmts=${stmts.length}, ${stmtSummary}):`,
           err,
@@ -508,17 +496,14 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           this.#objectiveSnap.delete(key);
         }
       }
-      this.#matchStateJson.delete(matchId);
+      this.#matchState.delete(matchId);
     }
 
-    for (const { matchId, endTime } of endTimeUpdates) {
-      this.#matchEndTimes.set(matchId, endTime);
-    }
-
-    // Cache current match state JSON for change detection on next poll.
+    // Cache current match end times and state for change detection on next poll.
     // Done after successful batch so we don't cache a state that wasn't written.
-    for (const { matchId, json } of matchStateFanouts) {
-      this.#matchStateJson.set(matchId, json);
+    for (const match of matches) {
+      this.#matchEndTimes.set(match.id, match.end_time);
+      this.#matchState.set(match.id, match);
     }
 
     for (const { key, snap } of snapUpdates) {
@@ -536,8 +521,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     // 2. Match state — full snapshot pushed every poll so display stays current.
     //    No id: field — match-state events don't advance the Last-Event-ID cursor.
-    for (const { matchId, data } of matchStateFanouts) {
-      await this.#fanout(matchId, 'match-state', { matchId, data });
+    for (const match of matchStateFanouts) {
+      await this.#fanout(match.id, 'match-state', { matchId: match.id, data: match });
     }
 
     // 3. Capture / claim events — only rows that were actually inserted (changes > 0).
@@ -553,6 +538,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         await this.#fanout(pending.matchId, pending.type, { ...pending.data, id: result.meta.last_row_id }, id);
       }
     }
+
+    const requestEndTime = new Date();
+    const durationMs = requestEndTime.getTime() - requestStartTime.getTime();
+    console.info(`[MatchupPoller] requestId=${requestId} duration=${durationMs}ms`);
   }
 
   async #fanout(matchId: string, event: string, data: unknown, id?: string): Promise<void> {
@@ -635,8 +624,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       this.#matchEndTimes.set(row.match_id, row.end_time);
       // Restore the JSON cache so the first post-cold-start poll skips redundant
       // match_state upserts for matches that haven't changed since the last write.
-      this.#matchStateJson.set(row.match_id, row.data);
-      const match = JSON.parse(row.data) as WvWMatchStripped;
+      const match = JSON.parse(row.data) as WvWMatch;
+      this.#matchState.set(row.match_id, match);
       for (const map of match.maps) {
         for (const obj of map.objectives) {
           this.#objectiveSnap.set(`${row.match_id}:${obj.id}`, {
