@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 const ICON_SIZE = 24;
 
-export function ObjectiveGuild({ claimedBy, className }: { claimedBy: string | undefined; className?: string }) {
+export function Guild({ claimedBy, className }: { claimedBy: string | undefined; className?: string }) {
   const guildQuery = useGuild(claimedBy);
   const [emblemError, setEmblemError] = useState(false);
 

@@ -22,7 +22,7 @@ function getFlippedDisplay(isoString: string, now: Temporal.Instant | null): str
   return null;
 }
 
-export function ObjectiveTimer({ lastFlipped, className }: { lastFlipped: string | undefined; className?: string }) {
+export function Timer({ lastFlipped, className }: { lastFlipped: string | undefined; className?: string }) {
   const now = useClockStore((s) => {
     if (!lastFlipped || s.nowMinute === null) return s.nowMinute;
     const holdSeconds = Math.floor(Temporal.Instant.from(lastFlipped).until(s.nowMinute).total('seconds'));

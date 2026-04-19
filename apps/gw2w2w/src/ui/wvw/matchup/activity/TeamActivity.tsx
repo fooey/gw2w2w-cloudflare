@@ -4,8 +4,8 @@ import { OBJECTIVE_TYPES, useTeamActivityFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
-import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
-import { getMapLabel } from '#ui/wvw/matchup/ObjectiveLogsRow';
+import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import { type EventRow } from '@repo/service-api/types';
 import { useMemo } from 'react';
 

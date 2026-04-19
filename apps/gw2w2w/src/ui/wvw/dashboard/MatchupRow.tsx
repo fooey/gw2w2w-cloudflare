@@ -1,7 +1,7 @@
 'use client';
 
 import { type Lang } from '#ui/wvw/config/lang';
-import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
+import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
 import { type WvWMatchStripped } from '@repo/service-api/types';
 import Link from '#ui/Link';
 

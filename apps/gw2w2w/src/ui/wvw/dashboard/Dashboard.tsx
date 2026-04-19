@@ -5,9 +5,8 @@ import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
 import { withJitter } from '@repo/utils';
 import { type WvWMatchStripped } from '@repo/service-api/types';
-import { QueryClient, QueryClientProvider, useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { useState } from 'react';
 import { MatchupRow } from './MatchupRow';
 
 const matchupRegions = [
@@ -27,20 +26,11 @@ function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatchStripped[] | n
   });
 }
 
-interface MatchupDashboardProps {
+interface DashboardProps {
   matches: WvWMatchStripped[] | null;
 }
 
-export function MatchupDashboardContainer({ matches }: MatchupDashboardProps) {
-  const [queryClient] = useState(() => new QueryClient());
-  return (
-    <QueryClientProvider client={queryClient}>
-      <MatchupDashboard matches={matches} />
-    </QueryClientProvider>
-  );
-}
-
-export function MatchupDashboard({ matches }: MatchupDashboardProps) {
+export function Dashboard({ matches }: DashboardProps) {
   const lang = useUserPrefs((s) => s.lang);
   const setLang = useUserPrefs((s) => s.setLang);
 

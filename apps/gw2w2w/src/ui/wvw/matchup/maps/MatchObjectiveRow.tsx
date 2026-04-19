@@ -7,11 +7,11 @@ import { useWvwUpgradeTier } from '#lib/wvw/upgrades';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
-import { ObjectiveDirection } from '#ui/wvw/matchup/objective/Direction';
-import { ObjectiveGuild } from '#ui/wvw/matchup/objective/Guild';
-import { ObjectiveName } from '#ui/wvw/matchup/objective/Name';
-import { ObjectiveTimer } from '#ui/wvw/matchup/objective/Timer';
-import { UpgradeTier } from '#ui/wvw/matchup/objective/UpgradeTier';
+import { ObjectiveDirection } from '#ui/wvw/matchup/maps/objective/Direction';
+import { Guild } from '#ui/wvw/matchup/maps/objective/Guild';
+import { Name } from '#ui/wvw/matchup/maps/objective/Name';
+import { Timer } from '#ui/wvw/matchup/maps/objective/Timer';
+import { UpgradeTier } from '#ui/wvw/matchup/maps/objective/UpgradeTier';
 import { type WvWMatchObjective } from '@repo/service-api/types';
 
 const RI_TIMER = 5 * 60;
@@ -56,17 +56,14 @@ export function MatchObjectiveRow({
         ownerText,
       )}
     >
-      <ObjectiveGuild claimedBy={matchObjective.claimed_by ?? undefined} />
+      <Guild claimedBy={matchObjective.claimed_by ?? undefined} />
       <span className="relative inline-flex">
         <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
         {upgradeTier != null && <UpgradeTier tier={upgradeTier} />}
       </span>
       <ObjectiveDirection direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
-      <ObjectiveName objectiveId={matchObjective.id} />
-      <ObjectiveTimer
-        className={cn('min-w-8', isInRI && ownerBg)}
-        lastFlipped={matchObjective.last_flipped ?? undefined}
-      />
+      <Name objectiveId={matchObjective.id} />
+      <Timer className={cn('min-w-8', isInRI && ownerBg)} lastFlipped={matchObjective.last_flipped ?? undefined} />
     </div>
   );
 }
