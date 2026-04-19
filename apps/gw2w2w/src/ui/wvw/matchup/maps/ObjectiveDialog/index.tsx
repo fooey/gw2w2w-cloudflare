@@ -13,7 +13,7 @@ import { getDirectionLabel, type Direction } from '#ui/wvw/config/objectivesLayo
 import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
 import { ClipboardIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { type WvWMapType, type WvWMatchObjective } from '@repo/service-api/types';
-import { useEffect, useRef } from 'react';
+import { type MouseEvent, useEffect, useRef } from 'react';
 import { formatLocalized, formatRelative, getEtaDisplay } from './utils';
 
 const TIER_ROMAN: Record<number, string> = { 1: 'I', 2: 'II', 3: 'III' };
@@ -63,7 +63,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
   const guild = guildQuery.data;
   const isClaimed = !!matchObjective.claimed_by;
 
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
+  function handleBackdropClick(e: MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) onClose();
   }
 
