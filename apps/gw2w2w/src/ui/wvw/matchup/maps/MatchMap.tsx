@@ -1,6 +1,6 @@
 'use client';
 
-import { type ObjectivesLayoutMap, type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
+import { type Direction, type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
 import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { MatchMapTeamScore } from '#ui/wvw/matchup/maps/MatchMapTeamScore';
 import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
@@ -23,6 +23,9 @@ const VISIBLE_OBJECTIVE_TYPES: readonly WvWObjective['type'][] = ['Castle', 'Kee
 
 export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: ObjectivesLayoutMap }) {
   const [selected, setSelected] = useState<{ objective: WvWMatchObjective; direction: Direction } | null>(null);
+  const handleClose = useCallback(() => {
+    setSelected(null);
+  }, []);
 
   const objectivesById = new Map<string, WvWMatchObjective>();
   for (const obj of map.objectives) {
@@ -90,7 +93,7 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
           matchObjective={selected.objective}
           mapType={map.type}
           direction={selected.direction}
-          onClose={useCallback(() => setSelected(null), [])}
+          onClose={handleClose}
         />
       )}
     </li>
