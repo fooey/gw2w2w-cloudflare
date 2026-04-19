@@ -3,9 +3,9 @@
 import { cn } from '#lib/utils/cn';
 import Link from '#ui/Link';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
+import { type Lang } from '#ui/wvw/config/lang';
+import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { type WvWMatchObjective, type WvWTeam } from '@repo/service-api/types';
-import { type Lang } from '../config/lang';
-import { teamColorConfig } from '../config/teamColorConfig';
 
 const OBJECTIVE_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 

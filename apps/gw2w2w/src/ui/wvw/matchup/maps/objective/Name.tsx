@@ -1,7 +1,7 @@
 import { useWvwObjective } from '#lib/wvw/objectives';
 import { cn } from '#lib/utils/cn';
 
-export function ObjectiveName({ objectiveId, className }: { objectiveId: string; className?: string }) {
+export function Name({ objectiveId, className }: { objectiveId: string; className?: string }) {
   const { data: objectiveLabels } = useWvwObjective(objectiveId);
 
   return (

@@ -2,8 +2,9 @@
 
 import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useEventLogFilters } from '#lib/store/logFilters';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
-import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
-import { getMapLabel, ObjectiveLogsRow } from '#ui/wvw/matchup/ObjectiveLogsRow';
+import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
+import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
 import { type EventRow } from '@repo/service-api/types';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';

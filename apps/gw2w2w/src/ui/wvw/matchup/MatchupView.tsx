@@ -5,12 +5,12 @@ import { useMatchSSE } from '#lib/wvw/useMatchSSE';
 import { SiteLayoutFullWidth } from '#ui/layout/SiteLayout';
 import { objectivesLayout, type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
-import { EventActivityChart } from '#ui/wvw/matchup/EventActivityChart';
-import { GuildActivity } from '#ui/wvw/matchup/GuildActivity';
-import { MatchMap } from '#ui/wvw/matchup/MatchMap';
-import { MatchScoreboard } from '#ui/wvw/matchup/MatchScoreboard';
-import { ObjectiveLogs } from '#ui/wvw/matchup/ObjectiveLogs';
-import { TeamActivity } from '#ui/wvw/matchup/TeamActivity';
+import { EventActivityChart } from '#ui/wvw/matchup/activity/EventActivityChart';
+import { GuildActivity } from '#ui/wvw/matchup/activity/GuildActivity';
+import { ObjectiveLogs } from '#ui/wvw/matchup/activity/ObjectiveLogs';
+import { TeamActivity } from '#ui/wvw/matchup/activity/TeamActivity';
+import { MatchMap } from '#ui/wvw/matchup/maps/MatchMap';
+import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
 import { type EventRow, type WvWMapType, type WvWMatchMap, type WvWMatchStripped } from '@repo/service-api/types';
 
 export interface MatchupViewProps {

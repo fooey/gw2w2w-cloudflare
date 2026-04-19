@@ -3,7 +3,7 @@ import { type WvWObjective } from '@repo/service-api/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export const OBJECTIVE_TYPES: WvWObjective['type'][] = ['Camp', 'Tower', 'Keep', 'Castle', 'Ruins'];
+export const OBJECTIVE_TYPES: WvWObjective['type'][] = ['Castle', 'Keep', 'Tower', 'Camp', 'Ruins'];
 export const EVENT_TYPES = ['capture', 'claim'] as const;
 export const OWNER_TYPES = ['Neutral', ...TEAM_COLORS] as const;
 export const TIME_WINDOWS = ['1h', '4h', '8h', '24h', 'all'] as const;

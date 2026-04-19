@@ -1,5 +1,5 @@
 import { fetchWvwMatch, fetchWvwMatchByTeam } from '#lib/api/gw2/wvw/matches';
-import { MatchupContainer } from '#ui/wvw/matchup/MatchupContainer';
+import { MatchupView } from '#ui/wvw/matchup/MatchupView';
 import { resolveSlug } from '#lib/wvw/matchup';
 import { notFound } from 'next/navigation';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
@@ -52,5 +52,5 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
     );
   }
 
-  return <MatchupContainer match={match} selectedTeamId={selectedTeamId} />;
+  return <MatchupView match={match} selectedTeamId={selectedTeamId} />;
 }

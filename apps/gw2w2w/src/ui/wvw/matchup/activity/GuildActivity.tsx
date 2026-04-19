@@ -6,8 +6,8 @@ import { cn } from '#lib/utils/cn';
 import { useGuild } from '#lib/wvw/useGuild';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
-import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/LogFilterGroup';
-import { getMapLabel } from '#ui/wvw/matchup/ObjectiveLogsRow';
+import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import { type GuildActivityRow } from '@repo/service-api/types';
 import { type EventRow } from '@repo/service-api/types';
 import Link from '#ui/Link';
@@ -274,7 +274,6 @@ export function GuildActivity({ events }: GuildActivityProps) {
 
   const virtualItems = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
-  // Pad top/bottom so the table body scrolls correctly
   const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0;
   const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0;
 

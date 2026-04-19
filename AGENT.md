@@ -61,6 +61,15 @@ If `check-boundaries` reports a violation, fix the dependency or the package tag
 
 - **Check boundaries**: `pnpm check-boundaries`
 
+## Testing
+
+**Always run `pnpm test` after making code changes** to verify all unit tests pass across the monorepo.
+
+- **Run all tests**: `pnpm test`
+- **Run tests for a specific package**: `pnpm --filter <package-name> test`
+
+Run `pnpm test` after type-checking and before considering a task complete. Fix any failing tests before finishing. If you add or change logic covered by tests, update the tests to match.
+
 ## Documentation Maintenance
 
 **Always keep `README.md` up to date.** When you add, remove, or significantly change a feature, architecture decision, or package, update the relevant sections of `README.md` in the same change. This includes:

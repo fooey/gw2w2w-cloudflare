@@ -1,6 +1,6 @@
 import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
 import SiteLayout from '#ui/layout/SiteLayout';
-import { MatchupDashboardContainer } from '#ui/wvw/matchup-dashboard/MatchupDashboard';
+import { Dashboard } from '#ui/wvw/dashboard/Dashboard';
 
 export function getData() {
   return fetchWvwMatchesService();
@@ -11,7 +11,7 @@ export default async function WvwMatchupsPage() {
 
   return (
     <SiteLayout pageHeader={'WvW Matchups'}>
-      <MatchupDashboardContainer matches={matches} />
+      <Dashboard matches={matches} />
     </SiteLayout>
   );
 }
