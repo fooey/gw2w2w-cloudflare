@@ -2,11 +2,26 @@ import { zValidator } from '@hono/zod-validator';
 import { type CloudflareEnv, type ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
 import { getGuild, searchGuild } from '#lib/resources/guild.ts';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
 export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
+  .get('/upgrades', zValidator('query', z.object({ ids: z.string().regex(/^[\d,]+$/) })), async (c) => {
+    const ids = c.req.valid('query').ids.split(',').map(Number);
+    const upgrades = await getGuildUpgrades(ids, c.env);
+    if (!upgrades) {
+      const payload: ErrorPayload = {
+        message: 'Guild Upgrades Not Found',
+        statusCode: 404,
+        url: new URL(c.req.url).pathname,
+        service: 'service-api/guild/upgrades',
+      };
+      return c.json(payload, 404);
+    }
+    return withCacheJson(c, CACHE_TTL.patch.http, upgrades);
+  })
   .get('/search', zValidator('query', z.object({ name: z.string() })), async (c) => {
     const name = c.req.query('name')?.replace(/-/g, ' ');
 

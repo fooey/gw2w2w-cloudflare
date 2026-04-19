@@ -1,5 +1,3 @@
-'use client';
-
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { useWvwObjective } from '#lib/wvw/objectives';
@@ -19,9 +17,11 @@ const RI_TIMER = 5 * 60;
 export function MatchObjectiveRow({
   matchObjective,
   direction,
+  onClick,
 }: {
   matchObjective: WvWMatchObjective;
   direction: Direction;
+  onClick?: () => void;
 }) {
   const ICON_SIZE = 24 as const;
 
@@ -48,9 +48,11 @@ export function MatchObjectiveRow({
 
   return (
     <div
+      onClick={onClick}
       className={cn(
         'grid w-full items-center px-2 transition-all duration-200',
         'grid-cols-[52px_24px_12px_1fr_32px] gap-1',
+        onClick && 'cursor-pointer',
         'hover:font-semibold',
         isInRI && ownerBg,
         ownerText,
