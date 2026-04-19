@@ -22,7 +22,7 @@ const SCOREBOARD_TYPES_BL = ['Keep', 'Tower', 'Camp'] as const;
 const VISIBLE_OBJECTIVE_TYPES: readonly WvWObjective['type'][] = ['Castle', 'Keep', 'Camp', 'Tower'] as const;
 
 export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: ObjectivesLayoutMap }) {
-  const [selected, setSelected] = useState<{ objective: WvWMatchObjective; direction: Direction } | null>(null);
+  const [selected, setSelected] = useState<{ objectiveId: string; direction: Direction } | null>(null);
   const handleClose = useCallback(() => {
     setSelected(null);
   }, []);
@@ -45,6 +45,9 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
   for (const obj of map.objectives) {
     if (obj.owner !== 'Neutral') objectivesByOwner[obj.owner].push(obj);
   }
+
+  const selectedObj = selected ? map.objectives.find((o) => o.id === selected.objectiveId) : null;
+  const selectedDirection = selected?.direction;
 
   return (
     <li key={map.id} className="shrink-0 grow">
@@ -78,7 +81,7 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
                       matchObjective={matchObj}
                       direction={obj.direction}
                       onClick={() => {
-                        setSelected({ objective: matchObj, direction: obj.direction });
+                        setSelected({ objectiveId: matchObj.id, direction: obj.direction });
                       }}
                     />
                   );
@@ -88,11 +91,11 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
           })}
         </div>
       </section>
-      {selected && (
+      {selectedObj && selectedDirection && (
         <ObjectiveDialog
-          matchObjective={selected.objective}
+          matchObjective={selectedObj}
           mapType={map.type}
-          direction={selected.direction}
+          direction={selectedDirection}
           onClose={handleClose}
         />
       )}
