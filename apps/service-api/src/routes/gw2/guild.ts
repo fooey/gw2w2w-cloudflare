@@ -8,20 +8,39 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
-  .get('/upgrades', zValidator('query', z.object({ ids: z.string().regex(/^[\d,]+$/) })), async (c) => {
-    const ids = c.req.valid('query').ids.split(',').map(Number);
-    const upgrades = await getGuildUpgrades(ids, c.env);
-    if (!upgrades) {
-      const payload: ErrorPayload = {
-        message: 'Guild Upgrades Not Found',
-        statusCode: 404,
-        url: new URL(c.req.url).pathname,
-        service: 'service-api/guild/upgrades',
-      };
-      return c.json(payload, 404);
-    }
-    return withCacheJson(c, CACHE_TTL.patch.http, upgrades);
-  })
+  .get(
+    '/upgrades',
+    zValidator(
+      'query',
+      z.object({
+        ids: z.string().transform((value, ctx) => {
+          const segments = value.split(',');
+          if (segments.some((id) => !/^[1-9]\d*$/.test(id))) {
+            ctx.addIssue({
+              code: 'custom',
+              message: 'ids must be a comma-separated list of positive integers',
+            });
+            return z.NEVER;
+          }
+          return segments.map(Number);
+        }),
+      }),
+    ),
+    async (c) => {
+      const ids = c.req.valid('query').ids;
+      const upgrades = await getGuildUpgrades(ids, c.env);
+      if (!upgrades) {
+        const payload: ErrorPayload = {
+          message: 'Guild Upgrades Not Found',
+          statusCode: 404,
+          url: new URL(c.req.url).pathname,
+          service: 'service-api/guild/upgrades',
+        };
+        return c.json(payload, 404);
+      }
+      return withCacheJson(c, CACHE_TTL.patch.http, upgrades);
+    },
+  )
   .get('/search', zValidator('query', z.object({ name: z.string() })), async (c) => {
     const name = c.req.query('name')?.replace(/-/g, ' ');
 
