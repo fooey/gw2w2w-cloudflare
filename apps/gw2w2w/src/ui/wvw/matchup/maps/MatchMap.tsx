@@ -7,7 +7,7 @@ import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
 import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog';
 import { type WvWMatchMap, type WvWMatchObjective, type WvWObjective } from '@repo/service-api/types';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 const mapTypeBorderClass: Record<string, string> = {
   Center: 'border-gray-300',
@@ -90,9 +90,7 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
           matchObjective={selected.objective}
           mapType={map.type}
           direction={selected.direction}
-          onClose={() => {
-            setSelected(null);
-          }}
+          onClose={useCallback(() => setSelected(null), [])}
         />
       )}
     </li>
