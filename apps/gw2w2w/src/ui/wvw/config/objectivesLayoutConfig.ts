@@ -6,6 +6,22 @@ export interface LayoutObjective {
 }
 export type Direction = 'C' | 'N' | 'S' | 'E' | 'W' | 'NE' | 'NW' | 'SE' | 'SW';
 
+const DIRECTION_LABELS: Record<Direction, string> = {
+  C: 'Center',
+  N: 'North',
+  S: 'South',
+  E: 'East',
+  W: 'West',
+  NE: 'North East',
+  NW: 'North West',
+  SE: 'South East',
+  SW: 'South West',
+};
+
+export function getDirectionLabel(direction: Direction): string {
+  return DIRECTION_LABELS[direction];
+}
+
 const objectivesLayoutEB: ObjectivesLayoutMap = {
   'Castle': {
     objectives: [

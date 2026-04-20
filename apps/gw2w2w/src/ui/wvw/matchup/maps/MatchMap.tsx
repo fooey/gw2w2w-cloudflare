@@ -1,11 +1,13 @@
 'use client';
 
-import { type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
+import { type Direction, type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
 import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { MatchMapTeamScore } from '#ui/wvw/matchup/maps/MatchMapTeamScore';
 import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
+import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog';
 import { type WvWMatchMap, type WvWMatchObjective, type WvWObjective } from '@repo/service-api/types';
 import clsx from 'clsx';
+import { useState } from 'react';
 
 const mapTypeBorderClass: Record<string, string> = {
   Center: 'border-gray-300',
@@ -20,6 +22,11 @@ const SCOREBOARD_TYPES_BL = ['Keep', 'Tower', 'Camp'] as const;
 const VISIBLE_OBJECTIVE_TYPES: readonly WvWObjective['type'][] = ['Castle', 'Keep', 'Camp', 'Tower'] as const;
 
 export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: ObjectivesLayoutMap }) {
+  const [selected, setSelected] = useState<{ objectiveId: string; direction: Direction } | null>(null);
+  const handleClose = () => {
+    setSelected(null);
+  };
+
   const objectivesById = new Map<string, WvWMatchObjective>();
   for (const obj of map.objectives) {
     if (VISIBLE_OBJECTIVE_TYPES.includes(obj.type)) {
@@ -38,6 +45,9 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
   for (const obj of map.objectives) {
     if (obj.owner !== 'Neutral') objectivesByOwner[obj.owner].push(obj);
   }
+
+  const selectedObj = selected ? map.objectives.find((o) => o.id === selected.objectiveId) : null;
+  const selectedDirection = selected?.direction;
 
   return (
     <li key={map.id} className="shrink-0 grow">
@@ -70,6 +80,9 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
                       key={`${matchObj.id}:${matchObj.last_flipped}`}
                       matchObjective={matchObj}
                       direction={obj.direction}
+                      onClick={() => {
+                        setSelected({ objectiveId: matchObj.id, direction: obj.direction });
+                      }}
                     />
                   );
                 })}
@@ -78,6 +91,14 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
           })}
         </div>
       </section>
+      {selectedObj && selectedDirection && (
+        <ObjectiveDialog
+          matchObjective={selectedObj}
+          mapType={map.type}
+          direction={selectedDirection}
+          onClose={handleClose}
+        />
+      )}
     </li>
   );
 }

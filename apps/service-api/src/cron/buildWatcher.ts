@@ -5,6 +5,7 @@ import { getWvWAbility } from '#lib/resources/wvw/abilities.ts';
 import { getWvWObjective } from '#lib/resources/wvw/objectives.ts';
 import { getWvWRank } from '#lib/resources/wvw/ranks.ts';
 import { getWvWUpgrade } from '#lib/resources/wvw/upgrades.ts';
+import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
 
 const GW2_BUILD_URL = 'https://api.guildwars2.com/v2/build';
 const BUILD_ID_KV_KEY = 'meta:build_id';
@@ -21,6 +22,7 @@ export const STATIC_CACHE_KEYS: string[] = [
   'wvw-abilities.json',
   'wvw-ranks.json',
   'wvw-upgrades.json',
+  'guild-upgrades.json',
   'backgrounds.json',
   'foregrounds.json',
 ];
@@ -38,6 +40,7 @@ const WARM_CACHE_FNS: ((env: CloudflareEnv) => Promise<unknown>)[] = [
   (env) => getWvWAbility('all', env),
   (env) => getWvWRank('all', env),
   (env) => getWvWUpgrade('all', env),
+  (env) => getGuildUpgrades('all', env),
   (env) => getEmblemBackground('all', env),
   (env) => getEmblemForeground('all', env),
 ];

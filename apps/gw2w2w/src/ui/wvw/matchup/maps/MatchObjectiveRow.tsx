@@ -1,5 +1,3 @@
-'use client';
-
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { useWvwObjective } from '#lib/wvw/objectives';
@@ -19,9 +17,11 @@ const RI_TIMER = 5 * 60;
 export function MatchObjectiveRow({
   matchObjective,
   direction,
+  onClick,
 }: {
   matchObjective: WvWMatchObjective;
   direction: Direction;
+  onClick: () => void;
 }) {
   const ICON_SIZE = 24 as const;
 
@@ -47,10 +47,13 @@ export function MatchObjectiveRow({
     matchObjective.owner !== 'Neutral' ? teamColorConfig[matchObjective.owner as TeamColorConfigKey].text : null;
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={objectiveDef ? `Open details for ${objectiveDef.name}` : undefined}
       className={cn(
-        'grid w-full items-center px-2 transition-all duration-200',
-        'grid-cols-[52px_24px_12px_1fr_32px] gap-1',
+        'grid w-full items-center px-2 text-left transition-all duration-200',
+        'cursor-pointer grid-cols-[52px_24px_12px_1fr_32px] gap-1',
         'hover:font-semibold',
         isInRI && ownerBg,
         ownerText,
@@ -64,6 +67,6 @@ export function MatchObjectiveRow({
       <ObjectiveDirection direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
       <Name objectiveId={matchObjective.id} />
       <Timer className={cn('min-w-8', isInRI && ownerBg)} lastFlipped={matchObjective.last_flipped ?? undefined} />
-    </div>
+    </button>
   );
 }

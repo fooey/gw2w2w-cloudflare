@@ -1,3 +1,4 @@
+export type { GuildUpgrade } from '#lib/resources/guild/upgrades.ts';
 export type { Color } from '#lib/types/Color.ts';
 export type { Emblem } from '#lib/types/Emblem.ts';
 export type { Guild } from '#lib/types/Guild.ts';

@@ -34,7 +34,7 @@ export function ObjectiveLogsRow({ event }: ObjectiveLogsRowProps) {
   return (
     <tr className={cn('text-sm text-gray-500 hover:font-semibold', freshCapture && teamConfig.bg, teamConfig.text)}>
       <td className="px-1 py-0.5">
-        <Guild claimedBy={claimedBy} />
+        <Guild claimedBy={claimedBy} linkable />
       </td>
       <td className="px-1 py-0.5">
         <ObjectiveIcon type={event.objective_type} owner={event.owner} size={24} />
