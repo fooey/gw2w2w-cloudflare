@@ -112,6 +112,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
         </div>
         <button
           onClick={onClose}
+          aria-label="Close dialog"
           className={cn('shrink-0 cursor-pointer rounded p-1 hover:bg-black/10', ownerConfig.text)}
         >
           <XMarkIcon className="size-5" />
