@@ -21,8 +21,8 @@ function getGuildUpgradesFromApi(env: CloudflareEnv): Promise<GuildUpgrade[] | n
   });
 }
 
-export async function getGuildUpgrades(ids: number[], env: CloudflareEnv): Promise<GuildUpgrade[] | null> {
-  if (ids.length === 0) return [];
+export async function getGuildUpgrades(ids: number[] | 'all', env: CloudflareEnv): Promise<GuildUpgrade[] | null> {
+  if (ids !== 'all' && ids.length === 0) return [];
   const results = await withFilteredObjectCache(
     'guild-upgrades.json',
     ids,
