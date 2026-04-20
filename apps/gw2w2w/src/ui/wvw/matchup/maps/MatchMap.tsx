@@ -7,7 +7,7 @@ import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
 import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog';
 import { type WvWMatchMap, type WvWMatchObjective, type WvWObjective } from '@repo/service-api/types';
 import clsx from 'clsx';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 const mapTypeBorderClass: Record<string, string> = {
   Center: 'border-gray-300',
@@ -23,9 +23,9 @@ const VISIBLE_OBJECTIVE_TYPES: readonly WvWObjective['type'][] = ['Castle', 'Kee
 
 export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: ObjectivesLayoutMap }) {
   const [selected, setSelected] = useState<{ objectiveId: string; direction: Direction } | null>(null);
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setSelected(null);
-  }, []);
+  };
 
   const objectivesById = new Map<string, WvWMatchObjective>();
   for (const obj of map.objectives) {
