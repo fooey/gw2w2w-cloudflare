@@ -6,12 +6,14 @@ export function useGuildUpgrades(
   ids: number[] | null | undefined,
   queryOptions?: Partial<UseQueryOptions<GuildUpgrade[] | null>>,
 ) {
-  const key = ids?.slice().sort().join(',') ?? '';
+  const uniqueIds = ids ? [...new Set(ids)].sort() : [];
+  const key = uniqueIds.join(',');
+
   return useQuery<GuildUpgrade[] | null>({
-    ...queryOptions,
     queryKey: ['guildUpgrades', key],
-    queryFn: () => fetchGuildUpgrades(ids ?? []),
-    enabled: !!ids && ids.length > 0,
+    queryFn: () => fetchGuildUpgrades(uniqueIds),
+    enabled: uniqueIds.length > 0,
     staleTime: Infinity,
+    ...queryOptions,
   });
 }
