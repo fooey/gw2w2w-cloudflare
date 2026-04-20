@@ -3,8 +3,8 @@
 import { getEmblemSrc } from '#lib/emblems';
 import { cn } from '#lib/utils/cn';
 import { useGuild } from '#lib/wvw/useGuild';
-import { NoSymbolIcon } from '@heroicons/react/20/solid';
 import Link from '#ui/Link';
+import { NoSymbolIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 
 const ICON_SIZE = 24;
@@ -47,7 +47,7 @@ export function Guild({
       <Link
         href={`/guilds/${guildQuery.data?.name ? encodeURIComponent(guildQuery.data.name) : claimedBy}`}
         className={cn('flex w-full items-center justify-between gap-1', className)}
-        title={`${guildQuery.data?.name} (${guildQuery.data?.tag})`}
+        title={`${guildQuery.data?.name ?? ''} (${guildQuery.data?.tag ?? ''})`}
       >
         {inner}
       </Link>
