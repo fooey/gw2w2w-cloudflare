@@ -137,8 +137,12 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
               <div className="flex justify-between">
                 <span className="text-gray-400">Captured</span>
                 <span className="text-gray-600">
-                  {formatRelative(matchObjective.last_flipped, now)}
-                  {' · '}
+                  {now && (
+                    <>
+                      {formatRelative(matchObjective.last_flipped, now)}
+                      {' · '}
+                    </>
+                  )}
                   {formatLocalized(matchObjective.last_flipped)}
                 </span>
               </div>
@@ -147,8 +151,12 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
               <div className="flex justify-between">
                 <span className="text-gray-400">Claimed</span>
                 <span className="text-gray-600">
-                  {formatRelative(matchObjective.claimed_at, now)}
-                  {' · '}
+                  {now && (
+                    <>
+                      {formatRelative(matchObjective.claimed_at, now)}
+                      {' · '}
+                    </>
+                  )}
                   {formatLocalized(matchObjective.claimed_at)}
                 </span>
               </div>
