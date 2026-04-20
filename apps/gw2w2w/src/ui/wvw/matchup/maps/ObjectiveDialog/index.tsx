@@ -42,7 +42,9 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    dialog.showModal();
+    if (!dialog.open) {
+      dialog.showModal();
+    }
     dialog.addEventListener('cancel', onClose);
     return () => {
       dialog.removeEventListener('cancel', onClose);
