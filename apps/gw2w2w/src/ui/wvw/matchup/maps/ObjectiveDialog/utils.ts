@@ -5,12 +5,12 @@ export function getEtaDisplay(
   now: Temporal.Instant | null | undefined,
 ): string | null {
   if (!now || !lastFlipped || yaksDelivered === 0) return null;
-  const elapsedSeconds = Math.max(1, Math.floor(Temporal.Instant.from(lastFlipped).until(now).total('seconds')));
-  const yaksPerSecond = yaksDelivered / elapsedSeconds;
+  const elapsedSeconds = Math.max(0, Math.floor(Temporal.Instant.from(lastFlipped).until(now).total('seconds')));
   const remaining = yaksRequired - yaksDelivered;
-  if (remaining <= 0) return null;
+  if (remaining <= 0 || elapsedSeconds === 0) return null;
+  const yaksPerSecond = yaksDelivered / elapsedSeconds;
   const etaSeconds = Math.ceil(remaining / yaksPerSecond);
-  const totalMins = Math.round(etaSeconds / 60);
+  const totalMins = Math.ceil(etaSeconds / 60);
   const hours = Math.floor(totalMins / 60);
   const mins = totalMins % 60;
   return hours > 0 ? `~${hours.toString()}h ${mins.toString()}m` : `~${totalMins.toString()}m`;
