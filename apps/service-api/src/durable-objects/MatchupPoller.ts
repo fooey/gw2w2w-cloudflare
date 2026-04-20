@@ -100,10 +100,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   }
 
   async alarm(): Promise<void> {
+    const requestId = crypto.randomUUID();
     // Reschedule FIRST — before any work — so eviction after poll can't kill the loop.
     await this.ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
     try {
-      await this.#poll();
+      await this.#poll(requestId);
     } catch (err) {
       if (err instanceof RateLimitError) {
         this.#consecutiveRateLimits++;
@@ -112,14 +113,14 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         const burst = err.rateLimitBurst ?? 'unknown';
         const ipSuffix = err.egressIp != null ? `, egressIp=${err.egressIp}` : '';
         console.warn(
-          `[MatchupPoller] rate limited #${this.#consecutiveRateLimits} (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
+          `[MatchupPoller] [${requestId}] rate limited #${this.#consecutiveRateLimits} (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
             ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
         );
         await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
       } else if (err instanceof DOMException && err.name === 'TimeoutError') {
-        console.error('[MatchupPoller] alarm timed out — GW2 API fetch exceeded 10s deadline');
+        console.error(`[MatchupPoller] [${requestId}] alarm timed out — GW2 API fetch exceeded 10s deadline`);
       } else {
-        console.error('[MatchupPoller] alarm error:', err);
+        console.error(`[MatchupPoller] [${requestId}] alarm error:`, err);
       }
     }
   }
@@ -269,7 +270,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
   async #fetchMatches(requestId: string, requestTime: Date): Promise<Response | null> {
     if (!this.env.GW2_API_KEY) {
-      console.warn(`[MatchupPoller] GW2_API_KEY not set — skipping poll: requestId=${requestId}`);
+      console.warn(`[MatchupPoller] [${requestId}] GW2_API_KEY not set — skipping poll`);
       return null;
     }
 
@@ -294,19 +295,21 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       cf: { cacheTtl: 0, cacheEverything: false },
       signal: AbortSignal.timeout(10_000),
     });
-    console.info(`[MatchupPoller] fetch ${fetchUrl.toString()}`);
+    console.info(`[MatchupPoller] [${requestId}] fetch ${fetchUrl.toString()}`);
 
     if (!response.ok) {
       if (response.status === 429) {
-        await this.#handleRateLimit(response);
+        await this.#handleRateLimit(response, requestId);
       }
-      throw new Error(`[MatchupPoller] GW2 API error: ${response.status.toString()} ${response.statusText}`);
+      throw new Error(
+        `[MatchupPoller] [${requestId}] GW2 API error: ${response.status.toString()} ${response.statusText}`,
+      );
     }
 
     return response;
   }
 
-  async #handleRateLimit(response: Response): Promise<never> {
+  async #handleRateLimit(response: Response, _requestId: string): Promise<never> {
     const rateLimitHeaders: Record<string, string> = {};
     for (const [key, value] of response.headers.entries()) {
       if (key.toLowerCase().startsWith('x-rate-limit') || key.toLowerCase() === 'retry-after') {
@@ -335,11 +338,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     );
   }
 
-  async #poll(): Promise<void> {
-    const requestId = crypto.randomUUID();
+  async #poll(requestId: string): Promise<void> {
     const requestStartTime = new Date();
 
-    console.info(`[MatchupPoller] poll started ${requestStartTime.toISOString()}: requestId=${requestId}`);
+    console.info(`[MatchupPoller] [${requestId}] poll started ${requestStartTime.toISOString()}`);
     const response = await this.#fetchMatches(requestId, requestStartTime);
     if (response === null) return;
 
@@ -347,7 +349,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     // Reset consecutive counter on successful poll.
     if (this.#consecutiveRateLimits > 0) {
-      console.info(`[MatchupPoller] recovered after ${this.#consecutiveRateLimits} consecutive 429s`);
+      console.info(`[MatchupPoller] [${requestId}] recovered after ${this.#consecutiveRateLimits} consecutive 429s`);
       this.#consecutiveRateLimits = 0;
     }
 
@@ -372,7 +374,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       // and avoids hardcoding day/time logic.
       const prevEndTime = this.#matchEndTimes.get(match.id);
       if (prevEndTime != null && prevEndTime !== match.end_time) {
-        console.info(`[MatchupPoller] Weekly reset detected for match ${match.id}`);
+        console.info(`[MatchupPoller] [${requestId}] Weekly reset detected for match ${match.id}`);
         resetMatchIds.push(match.id);
         stmts.push(this.env.WVW_DB.prepare('DELETE FROM events WHERE match_id = ?').bind(match.id));
         pendingFanout.push(null);
@@ -463,19 +465,21 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         `resets=[${resetMatchIds.join(',')}]` +
         ` upserts=[${upsertedMatchIds.join(',')}]` +
         ` events={${[...newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')}}`;
-      console.info(`[MatchupPoller] D1 batch: ${stmts.length} statements — ${stmtSummary}`);
+      console.info(`[MatchupPoller] [${requestId}] D1 batch: ${stmts.length} statements — ${stmtSummary}`);
       try {
         batchResults = await this.env.WVW_DB.batch(stmts);
         this.#totalD1Writes += stmts.length;
         if (this.#consecutiveD1Errors > 0) {
-          console.info(`[MatchupPoller] D1 recovered after ${this.#consecutiveD1Errors} consecutive errors`);
+          console.info(
+            `[MatchupPoller] [${requestId}] D1 recovered after ${this.#consecutiveD1Errors} consecutive errors`,
+          );
           this.#consecutiveD1Errors = 0;
         }
       } catch (err) {
         this.#consecutiveD1Errors++;
         this.#lastD1ErrorAt = requestStartTime.toISOString();
         console.error(
-          `[MatchupPoller] D1 batch failed (consecutive=${this.#consecutiveD1Errors}, stmts=${stmts.length}, ${stmtSummary}):`,
+          `[MatchupPoller] [${requestId}] D1 batch failed (consecutive=${this.#consecutiveD1Errors}, stmts=${stmts.length}, ${stmtSummary}):`,
           err,
         );
         // Re-throw so in-memory state is not updated and the next poll retries.
@@ -486,7 +490,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const eventSummary =
       newEventsByMatch.size > 0 ? ` (${[...newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')})` : '';
     console.info(
-      `[MatchupPoller] poll complete — ${matches.length} matches, ${newEventCount} new events${eventSummary}, ${this.#subscribers.size} subscribers`,
+      `[MatchupPoller] [${requestId}] poll complete — ${matches.length} matches, ${newEventCount} new events${eventSummary}, ${this.#subscribers.size} subscribers`,
     );
 
     // --- Update in-memory state after successful batch ---
@@ -516,13 +520,13 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // 1. Reset events — client clears its local log for the affected match.
     for (const matchId of resetMatchIds) {
       const newEndTime = this.#matchEndTimes.get(matchId) ?? '';
-      await this.#fanout(matchId, 'reset', { matchId, endTime: newEndTime }, `0:${newEndTime}`);
+      await this.#fanout(matchId, 'reset', { matchId, endTime: newEndTime }, `0:${newEndTime}`, requestId);
     }
 
     // 2. Match state — full snapshot pushed every poll so display stays current.
     //    No id: field — match-state events don't advance the Last-Event-ID cursor.
     for (const match of matchStateFanouts) {
-      await this.#fanout(match.id, 'match-state', { matchId: match.id, data: match });
+      await this.#fanout(match.id, 'match-state', { matchId: match.id, data: match }, undefined, requestId);
     }
 
     // 3. Capture / claim events — only rows that were actually inserted (changes > 0).
@@ -535,24 +539,31 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       if (result.meta.changes > 0 && result.meta.last_row_id > 0) {
         const endTime = this.#matchEndTimes.get(pending.matchId) ?? '';
         const id = `${result.meta.last_row_id}:${endTime}`;
-        await this.#fanout(pending.matchId, pending.type, { ...pending.data, id: result.meta.last_row_id }, id);
+        await this.#fanout(
+          pending.matchId,
+          pending.type,
+          { ...pending.data, id: result.meta.last_row_id },
+          id,
+          requestId,
+        );
       }
     }
 
     const requestEndTime = new Date();
     const durationMs = requestEndTime.getTime() - requestStartTime.getTime();
-    console.info(`[MatchupPoller] requestId=${requestId} duration=${durationMs}ms`);
+    console.info(`[MatchupPoller] [${requestId}] duration=${durationMs}ms`);
   }
 
-  async #fanout(matchId: string, event: string, data: unknown, id?: string): Promise<void> {
+  async #fanout(matchId: string, event: string, data: unknown, id?: string, requestId?: string): Promise<void> {
     const chunk = this.#sseChunk(event, data, id);
+    const pfx = requestId ? `[MatchupPoller] [${requestId}]` : '[MatchupPoller]';
 
     const writes = [...this.#subscribers.entries()]
       .filter(([, sub]) => sub.matchId === matchId)
       .map(async ([subId, sub]) => {
         // desiredSize is null when the writer is already closed or errored.
         if (sub.writer.desiredSize === null) {
-          console.warn(`[MatchupPoller] dropping subscriber ${subId} (${sub.matchId}): writer already closed`);
+          console.warn(`${pfx} dropping subscriber ${subId} (${sub.matchId}): writer already closed`);
           return subId;
         }
         try {
@@ -569,7 +580,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           return null;
         } catch (err) {
           const reason = err instanceof Error ? err.message : String(err);
-          console.warn(`[MatchupPoller] dropping subscriber ${subId} (${sub.matchId}): ${reason}`);
+          console.warn(`${pfx} dropping subscriber ${subId} (${sub.matchId}): ${reason}`);
           return subId;
         }
       });
