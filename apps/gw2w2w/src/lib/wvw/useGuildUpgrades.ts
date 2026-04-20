@@ -6,7 +6,7 @@ export function useGuildUpgrades(
   ids: number[] | null | undefined,
   queryOptions?: Partial<UseQueryOptions<GuildUpgrade[] | null>>,
 ) {
-  const uniqueIds = ids ? [...new Set(ids)].sort() : [];
+  const uniqueIds = ids ? [...new Set(ids)].sort((a, b) => a - b) : [];
   const key = uniqueIds.join(',');
 
   return useQuery<GuildUpgrade[] | null>({
