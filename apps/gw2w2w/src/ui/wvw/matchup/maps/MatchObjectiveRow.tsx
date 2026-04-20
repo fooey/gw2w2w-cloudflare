@@ -21,7 +21,7 @@ export function MatchObjectiveRow({
 }: {
   matchObjective: WvWMatchObjective;
   direction: Direction;
-  onClick?: () => void;
+  onClick: () => void;
 }) {
   const ICON_SIZE = 24 as const;
 
@@ -53,8 +53,7 @@ export function MatchObjectiveRow({
       aria-label={objectiveDef ? `Open details for ${objectiveDef.name}` : undefined}
       className={cn(
         'grid w-full items-center px-2 text-left transition-all duration-200',
-        'grid-cols-[52px_24px_12px_1fr_32px] gap-1',
-        onClick && 'cursor-pointer',
+        'cursor-pointer grid-cols-[52px_24px_12px_1fr_32px] gap-1',
         'hover:font-semibold',
         isInRI && ownerBg,
         ownerText,
