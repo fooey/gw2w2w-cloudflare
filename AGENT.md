@@ -14,7 +14,7 @@ This repo uses **pnpm catalogs** for shared dependency versions. The catalog is 
 
 **To upgrade a cataloged dependency**, update the version in `pnpm-workspace.yaml` and run `pnpm install`. Do not update individual `package.json` files.
 
-Current catalog entries: `wrangler`, `eslint`, `typescript`, `hono`, `@hono/zod-validator`, `zod`, `@cloudflare/workers-types`, `@types/node`.
+Current catalog entries: `wrangler`, `eslint`, `typescript`, `@typescript/native-preview`, `hono`, `@hono/zod-validator`, `zod`, `@cloudflare/workers-types`, `@types/node`.
 
 ## React Compiler
 
@@ -32,43 +32,49 @@ Adhere to the following rules strictly:
 3. **CLEAN CODE OVER PREMATURE OPTIMIZATION:** Write standard, readable, idiomatic JavaScript. Do not create intermediary variables or abstract functions solely for the sake of "performance" or "reference stability." The compiler will handle reference stability.
 4. **OPT-OUT DIRECTIVE:** If there is a highly specific, proven edge case where the compiler is breaking third-party integration or causing an issue, you may use the `"use no memo"` directive at the top of a component or hook to opt it out of compilation. Explain exactly why you are opting out if you do so.
 
+## Post-Change Verification
+
+**After making any code changes, run the single verification script:**
+
+```sh
+pnpm format && pnpm ci:all
+```
+
+This formats all files, then runs all CI checks in order: format (verify) → lint → type-check → boundary-check → test. Fix any errors before finishing. Individual commands are also available as `ci:format`, `ci:lint`, `ci:types`, `ci:boundaries`, and `ci:test`. Individual commands are documented below for reference.
+
 ## Code Formatting
 
-**Always run `pnpm format` after making code changes.** This repo uses Prettier with `prettier-plugin-tailwindcss` for consistent formatting across all `.ts`, `.tsx`, `.md`, `.json`, and other source files.
+This repo uses Prettier with `prettier-plugin-tailwindcss`.
 
 - **Format all files**: `pnpm format`
-- **Check without writing**: `pnpm format:check`
-
-Run `pnpm format` on every file you create or modify before considering a task complete. Never leave formatting as a manual follow-up step.
+- **Check without writing**: `pnpm ci:format`
 
 ## Type Checking
 
-**Always run `pnpm check-types` after making code changes** to verify there are no TypeScript errors across the monorepo.
-
-- **Check all packages**: `pnpm check-types`
-
-Run `pnpm check-types` after formatting and before considering a task complete. Fix any type errors before finishing.
+- **Check all packages**: `pnpm ci:types` (uses `tsgo` from `@typescript/native-preview`)
 
 ## Package Boundaries
 
-**Always run `pnpm check-boundaries` after adding or changing any `@repo/*` import.** This enforces architectural rules across the monorepo:
+Architectural rules enforced across the monorepo:
 
 - `app` packages (`gw2w2w`) — nothing may import them
 - `service` packages (`service-api`, `service-emblem`) — cannot import `app` packages
 - `library` packages (`emblem-renderer`, `utils`) — cannot import `app` packages
 
-If `check-boundaries` reports a violation, fix the dependency or the package tag before finishing. Do not suppress the rule.
+Do not suppress boundary violations — fix the dependency or the package tag.
 
-- **Check boundaries**: `pnpm check-boundaries`
+- **Check boundaries**: `pnpm ci:boundaries`
 
 ## Testing
 
-**Always run `pnpm test` after making code changes** to verify all unit tests pass across the monorepo.
+Tests use [Vitest](https://vitest.dev/). All Vitest CLI flags are available after the package filter.
 
-- **Run all tests**: `pnpm test`
+- **Run all tests**: `pnpm ci:test`
 - **Run tests for a specific package**: `pnpm --filter <package-name> test`
+- **Run a specific test file**: `pnpm --filter <package-name> test <filename>`
+- **Run tests matching a name**: `pnpm --filter <package-name> test -t "<test name>"`
 
-Run `pnpm test` after type-checking and before considering a task complete. Fix any failing tests before finishing. If you add or change logic covered by tests, update the tests to match.
+If you add or change logic covered by tests, update the tests to match.
 
 ## Documentation Maintenance
 

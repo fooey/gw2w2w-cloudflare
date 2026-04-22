@@ -13,7 +13,7 @@
     "test:watch": "vitest",
     "lint": "eslint ./src",
     "check-types": "tsgo --noEmit",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
+    "format": "prettier --write .",
     "ts:clean": "tsc --build --clean",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },

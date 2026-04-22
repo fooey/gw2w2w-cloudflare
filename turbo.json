@@ -48,9 +48,6 @@
       "inputs": ["**/*.{ts,tsx}"],
       "dependsOn": ["transit"]
     },
-    "format": {
-      "inputs": ["**/*.{ts,tsx,md,json,mjs,mts,cjs}"]
-    },
     "test": {
       "inputs": ["$TURBO_DEFAULT$", "src/**/*.{ts,tsx}", "vitest.config.*", "wrangler.toml"]
     },
