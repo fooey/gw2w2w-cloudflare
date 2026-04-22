@@ -17,7 +17,7 @@
     "start": "next start",
     "lint": "eslint ./src",
     "check-types": "tsgo --noEmit",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
+    "format": "prettier --write .",
     "ts:clean": "tsc --build --clean",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",

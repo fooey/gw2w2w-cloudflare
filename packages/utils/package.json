@@ -14,7 +14,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "lint": "eslint src/",
     "check-types": "tsgo --noEmit",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
+    "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest"
   },
