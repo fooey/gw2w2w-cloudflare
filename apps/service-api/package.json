@@ -13,7 +13,7 @@
     "db:query": "wrangler d1 execute wvw-events --remote --command",
     "deploy": "wrangler deploy",
     "lint": "eslint ./src",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsgo --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@repo/vitest-config": "workspace:*",
+    "@typescript/native-preview": "catalog:",
     "@cloudflare/workers-types": "catalog:",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",

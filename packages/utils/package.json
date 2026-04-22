@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "lint": "eslint src/",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsgo --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,mts,cjs}\"",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -22,6 +22,7 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/vitest-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@typescript/native-preview": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
