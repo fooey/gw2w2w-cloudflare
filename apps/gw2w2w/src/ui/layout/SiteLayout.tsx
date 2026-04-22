@@ -32,8 +32,13 @@ function SiteFooter() {
         <p className="text-xs text-gray-500">
           Guild Wars 2 and all related content, artwork, and trademarks are the property of ArenaNet, LLC.
         </p>
-        <p className="mt-3 font-mono text-xs text-gray-400">
-          {process.env.NEXT_PUBLIC_BUILD_TIMESTAMP ?? 'dev'} &middot; {process.env.NEXT_PUBLIC_BUILD_HASH ?? 'dev'}
+        <p className="mt-3 font-mono text-xs text-gray-400" suppressHydrationWarning>
+          {process.env.NEXT_PUBLIC_BUILD_TIMESTAMP
+            ? Temporal.Instant.from(process.env.NEXT_PUBLIC_BUILD_TIMESTAMP).toString({
+                timeZone: Temporal.Now.timeZoneId(),
+              })
+            : 'dev'}{' '}
+          &middot; {process.env.NEXT_PUBLIC_BUILD_HASH ?? 'dev'}
         </p>
       </div>
     </footer>
