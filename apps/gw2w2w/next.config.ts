@@ -10,6 +10,10 @@ void initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+
+  typescript: {
+    ignoreBuildErrors: true, // We will check them ourselves with the faster engine
+  },
   env: {
     NEXT_PUBLIC_BUILD_HASH: (() => {
       try {

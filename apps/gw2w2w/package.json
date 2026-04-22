@@ -13,10 +13,10 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsgo --noEmit --checkers 4 && next build",
     "start": "next start",
     "lint": "eslint ./src",
-    "check-types": "tsgo --noEmit",
+    "check-types": "tsgo --noEmit --checkers 4",
     "format": "prettier --write .",
     "ts:clean": "tsc --build --clean",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",

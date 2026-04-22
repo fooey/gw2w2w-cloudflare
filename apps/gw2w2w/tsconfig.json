@@ -1,12 +1,26 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
-    "target": "esnext",
-    "lib": ["dom", "esnext"],
-    "types": ["node"],
-    "noUncheckedSideEffectImports": false,
-    "jsx": "react-jsx",
-    "incremental": true
+    "plugins": [{ "name": "next" }],
+
+    /* Modernize the Engine */
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ESNext",
+    "lib": ["esnext", "dom", "dom.iterable"],
+
+    /* Enable TS 7 Performance Boosts */
+    "incremental": true, // Overrides base.json (CRITICAL for TS 7 cache)
+    "checkers": 4, // Optimized for Cloudflare's 4 vCPU runners
+
+    /* High-Fidelity Type Safety (TS 7 Flags) */
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noUncheckedSideEffectImports": true,
+
+    "allowJs": true,
+    "jsx": "preserve",
+    "noEmit": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts"],
   "exclude": ["node_modules"]

@@ -99,7 +99,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     });
   }
 
-  async alarm(): Promise<void> {
+  override async alarm(): Promise<void> {
     const requestId = crypto.randomUUID();
     // Reschedule FIRST — before any work — so eviction after poll can't kill the loop.
     await this.ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
@@ -125,7 +125,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
   }
 
-  async fetch(request: Request): Promise<Response> {
+  override async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === '/subscribe') {
