@@ -153,7 +153,14 @@ export function EventActivityChart({ events }: EventActivityChartProps) {
             <Tooltip />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             {ACTIVE_OWNERS.filter((o) => owners.includes(o)).map((owner) => (
-              <Line key={owner} type="monotone" dataKey={owner} stroke={OWNER_HEX[owner] ?? '#000000'} dot={false} strokeWidth={2} />
+              <Line
+                key={owner}
+                type="monotone"
+                dataKey={owner}
+                stroke={OWNER_HEX[owner] ?? '#000000'}
+                dot={false}
+                strokeWidth={2}
+              />
             ))}
           </LineChart>
         </ResponsiveContainer>
