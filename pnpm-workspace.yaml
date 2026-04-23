@@ -9,7 +9,7 @@ allowBuilds:
   workerd: true
 
 catalog:
-  '@cloudflare/workers-types': '^4.20260416.2'
+  '@cloudflare/workers-types': '^4.20260423.1'
   '@hono/zod-validator': '^0.7.6'
   '@types/lodash-es': '^4.17.12'
   '@types/node': '^24.12.2'
@@ -19,5 +19,5 @@ catalog:
   typescript: '^6.0.2'
   '@typescript/native-preview': 'beta'
   vitest: '^4.0.0'
-  wrangler: '^4.83.0'
+  wrangler: '^4.84.1'
   zod: '^4.3.6'
