@@ -134,8 +134,9 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
           </div>
           {previewSize !== DEFAULT_EMBLEM_SIZE && (
             <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-              <strong>Note:</strong> 128px is the native resolution and will look the sharpest. Larger sizes are scaled
-              up and may appear blurry.
+              <strong>Note:</strong> 128px is the native resolution and will look the sharpest. If you just need a
+              larger display size, request 128px and let the browser scale it with CSS — only choose a larger size if
+              you specifically need more pixels (e.g. for a forum that ignores width/height attributes).
             </p>
           )}
           <div className="flex flex-wrap gap-3 overflow-auto" style={{ maxHeight: '60vh' }}>
