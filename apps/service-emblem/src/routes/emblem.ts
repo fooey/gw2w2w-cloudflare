@@ -1,4 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from '@repo/emblem-renderer';
+import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
 import type { CloudflareEnv } from '#index.ts';
@@ -6,11 +8,18 @@ import { getApiClient, getEmblemBytes, getEmblemBytesByGuildId, HttpError, searc
 import { Hono } from 'hono';
 import z from 'zod';
 
-const R2_TTL = 86400; // 24 hours
 const getEnableCacheLogging = () => true;
 
 const redirectFileExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
 const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|')})$`);
+
+const sizeQuery = z.coerce
+  .number()
+  .int()
+  .refine((n): n is EmblemSize => (EMBLEM_SIZES as readonly number[]).includes(n), {
+    message: `Size must be one of: ${EMBLEM_SIZES.join(', ')}`,
+  })
+  .default(DEFAULT_EMBLEM_SIZE);
 
 export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(
@@ -27,10 +36,12 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
         flags_flip_bg_vertical: z.string().optional(),
         flags_flip_fg_horizontal: z.string().optional(),
         flags_flip_fg_vertical: z.string().optional(),
+        size: sizeQuery,
       }),
     ),
     async (c) => {
       const query = c.req.valid('query');
+      const size = query.size;
       const cacheProviders = createCacheProviders(c.env);
       const apiClient = getApiClient(c);
 
@@ -60,7 +71,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       };
 
       try {
-        const bytes = await getEmblemBytes(apiClient, emblem, cacheProviders);
+        const bytes = await getEmblemBytes(apiClient, emblem, cacheProviders, size);
         return new Response(bytes, {
           headers: {
             'Content-Type': 'image/webp',
@@ -78,62 +89,82 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       }
     },
   )
-  .get('/:guildId', zValidator('param', z.object({ guildId: z.string() })), async (c) => {
-    const cacheProviders = createCacheProviders(c.env);
-    let guildId = c.req.param('guildId');
+  .get('/:guildId/:sizeExt', (c) => {
+    const guildId = c.req.param('guildId');
+    const sizeExt = c.req.param('sizeExt');
+    const sizeStr = sizeExt.replace(/\.\w+$/, '');
+    const sizeNum = Number(sizeStr);
 
-    if (redirectFileExtensions.some((ext) => guildId.endsWith(ext))) {
-      // pop the file extension off the end of the guildId
-      guildId = guildId.replace(replaceFileExtensionRegex, '');
+    if (!Number.isInteger(sizeNum) || !(EMBLEM_SIZES as readonly number[]).includes(sizeNum)) {
+      return c.json({ error: { message: `Size must be one of: ${EMBLEM_SIZES.join(', ')}`, status: 400 } }, 400);
     }
 
-    const { objectStore } = cacheProviders;
-    const apiClient = getApiClient(c);
+    const size = sizeNum as EmblemSize;
+    const url = size === DEFAULT_EMBLEM_SIZE ? `/${guildId}` : `/${guildId}?size=${size}`;
+    return c.redirect(url, 301);
+  })
+  .get(
+    '/:guildId',
+    zValidator('param', z.object({ guildId: z.string() })),
+    zValidator('query', z.object({ size: sizeQuery })),
+    async (c) => {
+      const cacheProviders = createCacheProviders(c.env);
+      let guildId = c.req.param('guildId');
+      const size = c.req.valid('query').size;
 
-    if (!validateArenaNetUuid(guildId)) {
-      try {
-        const guild = await searchGuild(apiClient, guildId);
-
-        guildId = guild.id;
-      } catch (_error) {
-        return c.json({ error: { message: 'Guild not found', status: 404 } }, 404);
+      if (redirectFileExtensions.some((ext) => guildId.endsWith(ext))) {
+        // pop the file extension off the end of the guildId
+        guildId = guildId.replace(replaceFileExtensionRegex, '');
       }
-    }
 
-    const cacheKey = `emblems:${guildId}`;
+      const { objectStore } = cacheProviders;
+      const apiClient = getApiClient(c);
 
-    let bytes: Uint8Array | null;
+      if (!validateArenaNetUuid(guildId)) {
+        try {
+          const guild = await searchGuild(apiClient, guildId);
 
-    const object = await objectStore.get(cacheKey);
-    if (object !== null) {
-      if (getEnableCacheLogging()) console.info(`r2 HIT for ${cacheKey}`);
-      bytes = new Uint8Array(await object.arrayBuffer());
-    } else {
-      if (getEnableCacheLogging()) console.info(`r2 MISS for ${cacheKey}`);
-      try {
-        bytes = await getEmblemBytesByGuildId(apiClient, guildId, cacheProviders);
-      } catch (error: unknown) {
-        if (error instanceof HttpError) {
-          return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
-            status: error.status,
-            headers: { 'Content-Type': 'application/json' },
-          });
+          guildId = guild.id;
+        } catch (_error) {
+          return c.json({ error: { message: 'Guild not found', status: 404 } }, 404);
         }
-
-        throw error;
       }
-    }
 
-    await objectStore.put(cacheKey, bytes, {
-      customMetadata: {
-        expiresAt: new Date(Date.now() + R2_TTL * 1000).toISOString(),
-      },
-      httpMetadata: {
-        contentType: 'image/webp',
-      },
-    });
+      const cacheKey = `emblems:${guildId}:${size}`;
 
-    return new Response(bytes, {
-      headers: { 'Content-Type': 'image/webp' },
-    });
-  });
+      let bytes: Uint8Array | null;
+
+      const object = await objectStore.get(cacheKey);
+      if (object !== null) {
+        if (getEnableCacheLogging()) console.info(`r2 HIT for ${cacheKey}`);
+        bytes = new Uint8Array(await object.arrayBuffer());
+      } else {
+        if (getEnableCacheLogging()) console.info(`r2 MISS for ${cacheKey}`);
+        try {
+          bytes = await getEmblemBytesByGuildId(apiClient, guildId, cacheProviders, size);
+        } catch (error: unknown) {
+          if (error instanceof HttpError) {
+            return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
+              status: error.status,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+
+          throw error;
+        }
+      }
+
+      await objectStore.put(cacheKey, bytes, {
+        customMetadata: {
+          expiresAt: new Date(Date.now() + CACHE_TTL.user.kv * 1000).toISOString(),
+        },
+        httpMetadata: {
+          contentType: 'image/webp',
+        },
+      });
+
+      return new Response(bytes, {
+        headers: { 'Content-Type': 'image/webp' },
+      });
+    },
+  );
