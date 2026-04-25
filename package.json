@@ -19,8 +19,9 @@
     "ci:lint": "pnpm lint",
     "ci:types": "pnpm check-types",
     "ci:boundaries": "pnpm check-boundaries",
+    "ci:audit": "pnpm audit",
     "ci:test": "pnpm test",
-    "ci:all": "pnpm ci:format && pnpm ci:lint && pnpm ci:types && pnpm ci:boundaries && pnpm ci:test",
+    "ci:all": "pnpm ci:format && pnpm ci:lint && pnpm ci:types && pnpm ci:boundaries && pnpm ci:test && pnpm ci:audit",
     "devtools": "turbo devtools",
     "ts:clean": "turbo run ts:clean",
     "wrangler": "wrangler",
@@ -46,6 +47,11 @@
     "turbo": "^2.9.6",
     "typescript": "catalog:",
     "wrangler": "catalog:"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.10"
+    }
   },
   "engines": {
     "node": ">=24",
