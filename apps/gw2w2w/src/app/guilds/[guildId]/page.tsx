@@ -4,9 +4,9 @@ import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import { GuildDetail } from '#ui/guilds/GuildDetail';
 import { GuildNotFound } from '#ui/guilds/GuildNotFound';
 import SiteLayout from '#ui/layout/SiteLayout';
-import { type Guild } from '@repo/service-api/types';
+import type { Guild } from '@repo/service-api/types';
 import { validateArenaNetUuid } from '@repo/utils';
-import { type Metadata } from 'next';
+import type { Metadata } from 'next';
 import { cache } from 'react';
 
 export interface GuildPageProps {

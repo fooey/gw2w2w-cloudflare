@@ -6,7 +6,7 @@ import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import { type EventRow } from '@repo/service-api/types';
+import type { EventRow } from '@repo/service-api/types';
 import { useMemo } from 'react';
 
 const ACTIVITY_OBJ_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
@@ -94,6 +94,9 @@ function buildTeamRows(
         row.claims_camp++;
         overall.claims_camp++;
         break;
+      case 'Ruins':
+        // Ruins are not claimable
+        break;
     }
     switch (e.map_type) {
       case 'Center':
@@ -118,7 +121,7 @@ function buildTeamRows(
   }
 
   const teams = TEAM_OWNERS.map((o) => ({ owner: o, ...(byOwner.get(o) ?? empty()) }));
-  return { teams, overall: { owner: 'Green' as TeamOwner, ...overall } };
+  return { teams, overall: { owner: 'Green', ...overall } };
 }
 
 function TeamTableRow({

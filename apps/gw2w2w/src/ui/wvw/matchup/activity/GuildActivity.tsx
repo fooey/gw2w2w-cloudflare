@@ -8,8 +8,8 @@ import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import { type GuildActivityRow } from '@repo/service-api/types';
-import { type EventRow } from '@repo/service-api/types';
+import type { GuildActivityRow } from '@repo/service-api/types';
+import type { EventRow } from '@repo/service-api/types';
 import Link from '#ui/Link';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMemo, useRef, useState } from 'react';
@@ -102,6 +102,9 @@ function buildGuildRows(
       case 'Camp':
         row.claims_camp++;
         break;
+      case 'Ruins':
+        // Ruins are not claimable
+        break;
     }
     switch (e.map_type) {
       case 'Center':
@@ -187,7 +190,7 @@ function GuildTableRow({ row }: { row: GuildActivityRow }) {
             width={32}
             height={32}
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.visibility = 'hidden';
+              e.currentTarget.style.visibility = 'hidden';
             }}
           />
         </Link>

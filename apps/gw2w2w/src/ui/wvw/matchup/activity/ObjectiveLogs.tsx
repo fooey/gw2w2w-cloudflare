@@ -5,7 +5,7 @@ import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
-import { type EventRow } from '@repo/service-api/types';
+import type { EventRow } from '@repo/service-api/types';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 

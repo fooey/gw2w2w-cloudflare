@@ -1,6 +1,6 @@
 import { apiFetch } from '#lib/api/client';
 import { parseResponse } from '#lib/api/utils';
-import { type GuildActivityResponse } from '@repo/service-api/types';
+import type { GuildActivityResponse } from '@repo/service-api/types';
 
 export interface FetchWvwGuildsParams {
   matchId: string;

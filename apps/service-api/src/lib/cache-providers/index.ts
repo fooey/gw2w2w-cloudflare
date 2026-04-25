@@ -1,4 +1,4 @@
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 
 type CacheEnv = Pick<CloudflareEnv, 'EMBLEM_ASSETS' | 'EMBLEM_ENGINE_GUILD_LOOKUP'>;
 

@@ -2,13 +2,13 @@ import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { getObjectiveDirection } from '#ui/wvw/config/objectivesLayoutConfig';
-import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
+import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { ObjectiveDirection } from '#ui/wvw/matchup/maps/objective/Direction';
 import { Guild } from '#ui/wvw/matchup/maps/objective/Guild';
 import { Name } from '#ui/wvw/matchup/maps/objective/Name';
 import { Timer } from '#ui/wvw/matchup/maps/objective/Timer';
-import { type EventRow } from '@repo/service-api/types';
+import type { EventRow } from '@repo/service-api/types';
 
 const RI_TIMER = 5 * 60;
 
@@ -29,7 +29,7 @@ export function ObjectiveLogsRow({ event }: ObjectiveLogsRowProps) {
   const holdSeconds = now ? Math.floor(Temporal.Instant.from(event.at).until(now).total('seconds')) : null;
   const freshCapture = holdSeconds !== null && holdSeconds <= 60;
 
-  const teamConfig = teamColorConfig[event.owner as TeamColorConfigKey];
+  const teamConfig = teamColorConfig[event.owner];
 
   return (
     <tr className={cn('text-sm text-gray-500 hover:font-semibold', freshCapture && teamConfig.bg, teamConfig.text)}>

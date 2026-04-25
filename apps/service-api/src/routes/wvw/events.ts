@@ -1,6 +1,6 @@
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 import { zValidator } from '@hono/zod-validator';
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import { Hono } from 'hono';

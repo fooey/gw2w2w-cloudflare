@@ -1,4 +1,4 @@
-import { type DecodedLayer } from '@repo/emblem-renderer/pixels';
+import type { DecodedLayer } from '@repo/emblem-renderer/pixels';
 
 import { getPhoton } from '../TextureCacheManager/photon';
 

@@ -4,7 +4,7 @@ import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
 import { withJitter } from '@repo/utils';
-import { type WvWMatchStripped } from '@repo/service-api/types';
+import type { WvWMatchStripped } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { MatchupRow } from './MatchupRow';

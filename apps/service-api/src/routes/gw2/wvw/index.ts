@@ -1,4 +1,4 @@
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 import { Hono } from 'hono';
 import { apiWvwAbilitiesRoute } from './abilities';
 import { apiWvwGuildsRoute } from './guilds';

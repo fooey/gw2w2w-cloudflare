@@ -1,5 +1,5 @@
 import { fetchWvwUpgrades } from '#lib/api/gw2/wvw/upgrades';
-import { type WvWUpgrade } from '@repo/service-api/types';
+import type { WvWUpgrade } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 type WvwUpgradesQueryOptions = Partial<

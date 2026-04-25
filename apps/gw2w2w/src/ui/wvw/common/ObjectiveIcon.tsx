@@ -1,7 +1,7 @@
 'use client';
 
 import { useWvWObjectIcon } from '#lib/wvw/objectives';
-import { type WvWMatchObjective, type WvWObjective } from '@repo/service-api/types';
+import type { WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
 
 interface ObjectiveIconProps {
   type: WvWObjective['type'];

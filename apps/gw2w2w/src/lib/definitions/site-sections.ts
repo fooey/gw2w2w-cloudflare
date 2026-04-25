@@ -65,4 +65,4 @@ export const pageAttributes: readonly SiteSections[] = [
   // wvwTeamsPageAttributes,
 ] as const;
 
-export const siteFeatures: readonly SiteSections[] = filter(pageAttributes, 'isFeature') as readonly SiteSections[];
+export const siteFeatures: readonly SiteSections[] = filter(pageAttributes, 'isFeature');

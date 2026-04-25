@@ -1,4 +1,4 @@
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 import { getColor } from '#lib/resources/color.ts';
 import { getEmblemBackground, getEmblemForeground } from '#lib/resources/emblem.ts';
 import { getWvWAbility } from '#lib/resources/wvw/abilities.ts';

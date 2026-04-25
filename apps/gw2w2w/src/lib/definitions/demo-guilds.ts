@@ -1,4 +1,4 @@
-import { type Guild } from '@repo/service-api/types';
+import type { Guild } from '@repo/service-api/types';
 
 export const demoGuilds: Pick<Guild, 'id' | 'name' | 'tag'>[] = [
   {
