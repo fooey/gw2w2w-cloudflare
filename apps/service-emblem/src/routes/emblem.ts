@@ -135,7 +135,11 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       let bytes: Uint8Array | null;
 
       const object = await objectStore.get(cacheKey);
-      if (object !== null) {
+      const expiresAt = object?.customMetadata?.expiresAt;
+      const expiresAtTimestamp = expiresAt ? Date.parse(expiresAt) : Number.NaN;
+      const hasValidExpiry = Number.isFinite(expiresAtTimestamp) && expiresAtTimestamp > Date.now();
+
+      if (object !== null && hasValidExpiry) {
         if (getEnableCacheLogging()) console.info(`r2 HIT for ${cacheKey}`);
         bytes = new Uint8Array(await object.arrayBuffer());
       } else {
@@ -152,16 +156,16 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
           throw error;
         }
-      }
 
-      await objectStore.put(cacheKey, bytes, {
-        customMetadata: {
-          expiresAt: new Date(Date.now() + CACHE_TTL.user.kv * 1000).toISOString(),
-        },
-        httpMetadata: {
-          contentType: 'image/webp',
-        },
-      });
+        await objectStore.put(cacheKey, bytes, {
+          customMetadata: {
+            expiresAt: new Date(Date.now() + CACHE_TTL.user.kv * 1000).toISOString(),
+          },
+          httpMetadata: {
+            contentType: 'image/webp',
+          },
+        });
+      }
 
       return new Response(bytes, {
         headers: { 'Content-Type': 'image/webp' },
