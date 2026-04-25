@@ -5,7 +5,8 @@
   "entry": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./pixels": "./src/pixels.ts"
+    "./pixels": "./src/pixels.ts",
+    "./sizes": "./src/sizes.ts"
   },
   "scripts": {
     "lint": "eslint ./src",

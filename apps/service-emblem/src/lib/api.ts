@@ -1,9 +1,9 @@
-import { renderEmblem } from '@repo/emblem-renderer';
+import type { CloudflareEnv } from '#index.ts';
+import { DEFAULT_EMBLEM_SIZE, renderEmblem, resizeEmblemImage, type EmblemSize } from '@repo/emblem-renderer';
 import type { ServiceApiAppType } from '@repo/service-api';
 import type { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
 import type { Color, Emblem, Guild } from '@repo/service-api/types';
-import type { CloudflareEnv } from '#index.ts';
 import type { Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
 
@@ -63,6 +63,7 @@ export async function getEmblemBytesByGuildId(
   apiClient: ApiClient,
   guildId: string,
   cacheProviders: ReturnType<typeof createCacheProviders>,
+  size: EmblemSize = DEFAULT_EMBLEM_SIZE,
 ): Promise<Uint8Array> {
   let guild: Guild;
 
@@ -79,7 +80,7 @@ export async function getEmblemBytesByGuildId(
     throw new HttpError(404, 'Guild emblem not found');
   }
 
-  return getEmblemBytes(apiClient, guild.emblem, cacheProviders);
+  return getEmblemBytes(apiClient, guild.emblem, cacheProviders, size);
 }
 
 function fetchLayerTextures(
@@ -98,6 +99,7 @@ export async function getEmblemBytes(
   apiClient: ApiClient,
   guildEmblem: NonNullable<Guild['emblem']>,
   cacheProviders: ReturnType<typeof createCacheProviders>,
+  size: EmblemSize = DEFAULT_EMBLEM_SIZE,
 ): Promise<Uint8Array> {
   const { objectStore } = cacheProviders;
   const backgroundId = guildEmblem.background.id;
@@ -119,6 +121,7 @@ export async function getEmblemBytes(
   const fgBuf2 = fgBufs?.[1] ?? null;
 
   const emblem = renderEmblem(guildEmblem, colors, bgBuf, fgBuf1, fgBuf2);
+  const output = resizeEmblemImage(emblem, size);
 
-  return emblem.get_bytes_webp();
+  return output.get_bytes_webp();
 }

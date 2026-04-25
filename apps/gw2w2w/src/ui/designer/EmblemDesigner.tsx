@@ -1,8 +1,10 @@
 'use client';
 
 import { ArrowsRightLeftIcon, ArrowsUpDownIcon } from '@heroicons/react/20/solid';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
 import { getCustomEmblemSrc } from '#lib/emblems';
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
+import { useUserPrefs } from '#lib/store/userPrefs';
 import type { Color, Emblem } from '@repo/service-api/types';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -80,6 +82,8 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   const mountSearchParamsSizeRef = useRef(searchParams.size);
 
   const [emblem, setEmblem] = useState<EmblemState>(() => stateFromParams(searchParams));
+  const previewSize = useUserPrefs((s) => s.emblemSize);
+  const setPreviewSize = useUserPrefs((s) => s.setEmblemSize);
 
   // Clear URL params after reading initial state once on mount
   useEffect(() => {
@@ -102,7 +106,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
     const qs = params.toString();
     return `${window.location.origin}${pathname}${qs ? `?${qs}` : ''}`;
   })();
-  const emblemSrc = getCustomEmblemSrc(emblem);
+  const emblemSrc = getCustomEmblemSrc(emblem, previewSize);
 
   const isEmpty = emblem.background.id == null && emblem.foreground.id == null;
   const previewEmblem = isEmpty ? defaultState : emblem;
@@ -111,9 +115,31 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
     <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr_1fr]">
         {/* Preview */}
-        <section className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
-          <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
-          <div className="grid grid-cols-3 gap-3">
+        <section className="flex min-h-0 flex-col gap-3 overflow-hidden rounded-xl border border-gray-100 bg-gray-50 p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">Preview</h3>
+            <select
+              value={previewSize}
+              onChange={(e) => {
+                setPreviewSize(Number(e.target.value) as Parameters<typeof setPreviewSize>[0]);
+              }}
+              className="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-600"
+            >
+              {EMBLEM_SIZES.map((s) => (
+                <option key={s} value={s}>
+                  {s}px
+                </option>
+              ))}
+            </select>
+          </div>
+          {previewSize !== DEFAULT_EMBLEM_SIZE && (
+            <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+              <strong>Note:</strong> 128px is the native resolution and will look the sharpest. If you just need a
+              larger display size, request 128px and let the browser scale it with CSS — only choose a larger size if
+              you specifically need more pixels (e.g. for a forum that ignores width/height attributes).
+            </p>
+          )}
+          <div className="flex flex-wrap gap-3 overflow-auto" style={{ maxHeight: '60vh' }}>
             {emblemBackgroundClasses.map((bgClass) => (
               <EmblemPreview
                 key={bgClass}
@@ -121,6 +147,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
                 colors={colors}
                 backgrounds={backgrounds}
                 foregrounds={foregrounds}
+                size={previewSize}
                 tileClassName={bgClass}
               />
             ))}

@@ -69,10 +69,12 @@ ArenaNet's API provides emblem layers as grayscale textures. Each layer is color
 The rendering pipeline is split across three files in `packages/emblem-renderer`:
 
 - **`pixels.ts`** — Pure, platform-independent compositing loop. Operates entirely on `Uint32Array` pixel buffers. Used by both server and browser. Accepts pre-decoded `DecodedLayer` objects and `ColorRGB` options. Supports rendering individual layers in isolation (e.g. bg-only or fg-only previews).
-- **`index.ts`** (server-only) — Wraps `pixels.ts` with [Photon](https://github.com/silvia-odwyer/photon) WASM (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon)) for PNG decoding and flip transforms. Returns a `PhotonImage` ready for WebP encoding via `get_bytes_webp()`. Used exclusively by `service-emblem`.
+- **`index.ts`** (server-only) — Wraps `pixels.ts` with [Photon](https://github.com/silvia-odwyer/photon) WASM (via [`@cf-wasm/photon`](https://www.npmjs.com/package/@cf-wasm/photon)) for PNG decoding and flip transforms. Returns a `PhotonImage` ready for WebP encoding via `get_bytes_webp()`. Includes `resizeEmblemImage()` for post-composite scaling. Used exclusively by `service-emblem`.
 - **`decodeLayer.ts`** (browser, in `apps/gw2w2w`) — Wraps `pixels.ts` with [`@silvia-odwyer/photon`](https://www.npmjs.com/package/@silvia-odwyer/photon) WASM for PNG decoding and flip transforms in the browser. The WASM module is lazy-loaded once when the user initiates the texture download and reused for all subsequent renders.
 
-**Server path** (`service-emblem`): Photon decodes PNGs → `pixels.ts` composites → Photon encodes WebP → cached in R2.
+**Server path** (`service-emblem`): Photon decodes PNGs → `pixels.ts` composites at 128×128px → optional Photon resize → Photon encodes WebP → cached in R2.
+
+**Resize strategy**: Emblems are always composited at the native 128×128px resolution (the texture source size). When a non-default size is requested (via `?size=N`), the composited image is resized _after_ compositing using Photon's CatmullRom filter. This means upscaled emblems are interpolated from the 128px composite rather than rendered natively at the target size — they will appear softer at large sizes. Each unique `guildId:size` combination is cached separately in R2. 128px is the sharpest option and the default.
 
 **Browser path** (designer preview): textures fetched via `/api/texture` Next.js route (reads from the shared R2 cache) → `@silvia-odwyer/photon` WASM decodes PNGs and applies flip transforms → `pixels.ts` composites → `ImageData` painted to `<canvas>`. Colors re-composite instantly without re-fetching or re-decoding. The Photon WASM module (~1.8 MB) is loaded once in the browser when the user initiates the texture download.
 
@@ -129,9 +131,10 @@ From the layer definitions, `service-emblem` resolves the actual grayscale textu
 - Layers are alpha-composited in order (background → foreground primary → foreground secondary) using Porter-Duff "over" via a single-pass `Uint32Array` loop
 - Flip flags (`FlipForegroundHorizontal`, etc.) are applied via Photon WASM transforms
 - Result is encoded to WebP via `get_bytes_webp()`
+- If a non-default `size` was requested, the composited image is resized via `resizeEmblemImage()` (CatmullRom filter) before encoding
 
 **8. Cache and respond**
-The rendered WebP bytes are written to R2 under `emblems:4BBB52AA-…` (24h TTL) and returned as `Content-Type: image/webp`. Future requests for the same guild skip steps 2–7 entirely.
+The rendered WebP bytes are written to R2 under `emblems:4BBB52AA-…:128` (or the requested size) (24h TTL) and returned as `Content-Type: image/webp`. Future requests for the same guild skip steps 2–7 entirely.
 
 ## Key Design Decisions
 

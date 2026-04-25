@@ -1,9 +1,16 @@
-import { fliph, flipv, PhotonImage } from '@cf-wasm/photon';
+import { fliph, flipv, PhotonImage, resize, SamplingFilter } from '@cf-wasm/photon';
 import type { Color, Guild } from '@repo/service-api/types';
 import { type ColorRGB, getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
+import type { EmblemSize } from './sizes';
 
-export { renderEmblemPixels, type ColorRGB };
 export type { DecodedLayer, RenderOptions } from './pixels';
+export { type ColorRGB, renderEmblemPixels };
+export { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from './sizes';
+
+export function resizeEmblemImage(image: PhotonImage, size: EmblemSize): PhotonImage {
+  if (size === IMAGE_DIMENSION) return image;
+  return resize(image, size, size, SamplingFilter.CatmullRom);
+}
 
 export function renderEmblem(
   emblem: Guild['emblem'],
