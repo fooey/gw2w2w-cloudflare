@@ -1,4 +1,4 @@
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 
 export class GW2RateLimitError extends Error {
   retryAfterMs: number;

@@ -12,7 +12,7 @@ import { getMapLabelFull } from '#ui/wvw/config/mapLabels';
 import { getDirectionLabel, type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
 import { ClipboardIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { type WvWMapType, type WvWMatchObjective } from '@repo/service-api/types';
+import type { WvWMapType, WvWMatchObjective } from '@repo/service-api/types';
 import { type MouseEvent, useEffect, useRef } from 'react';
 import { formatLocalized, formatRelative, getEtaDisplay } from './utils';
 

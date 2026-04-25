@@ -1,4 +1,4 @@
-import { type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
+import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 import {
   ArrowDownIcon,
   ArrowDownLeftIcon,

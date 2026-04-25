@@ -1,4 +1,4 @@
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 import { Hono } from 'hono';
 import { etag } from 'hono/etag';
 import { apiColorRoute } from './color';

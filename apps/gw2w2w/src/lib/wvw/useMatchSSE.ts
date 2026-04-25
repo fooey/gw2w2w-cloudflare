@@ -2,7 +2,7 @@
 
 import { apiBase } from '#lib/api/client';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
-import { type EventRow, type WvWMapType, type WvWMatchStripped, type WvWTeamColor } from '@repo/service-api/types';
+import type { EventRow, WvWMapType, WvWMatchStripped, WvWTeamColor } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
 
 // Narrow types matching what the DO actually inserts — subset of WvWObjective['type']

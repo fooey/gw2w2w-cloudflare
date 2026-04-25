@@ -1,11 +1,11 @@
 'use client';
 
-import { type Direction, type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
+import type { Direction, ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
 import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { MatchMapTeamScore } from '#ui/wvw/matchup/maps/MatchMapTeamScore';
 import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
 import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog';
-import { type WvWMatchMap, type WvWMatchObjective, type WvWObjective } from '@repo/service-api/types';
+import type { WvWMatchMap, WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
 import clsx from 'clsx';
 import { useState } from 'react';
 

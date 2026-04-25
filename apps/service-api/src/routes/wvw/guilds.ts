@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
 import { and, asc, count, desc, eq, gte, inArray, sql, type SQL } from 'drizzle-orm';
@@ -148,7 +148,7 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     const totalCount = countRows[0]?.total ?? 0;
     const pages = Math.ceil(totalCount / limit);
 
-    const response: GuildActivityResponse = { guilds: guilds as GuildActivityRow[], total: totalCount, page, pages };
+    const response: GuildActivityResponse = { guilds, total: totalCount, page, pages };
     return c.json(response);
   },
 );

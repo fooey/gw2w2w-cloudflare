@@ -1,6 +1,6 @@
 import { apiFetch } from '#lib/api/client';
 import { parseResponse } from '#lib/api/utils';
-import { type WvWMatch, type WvWMatchStripped } from '@repo/service-api/types';
+import type { WvWMatch, WvWMatchStripped } from '@repo/service-api/types';
 
 export function fetchWvwMatchesService(): Promise<WvWMatchStripped[] | null> {
   return apiFetch(`/wvw/matches`).then(parseResponse<WvWMatchStripped[]>);

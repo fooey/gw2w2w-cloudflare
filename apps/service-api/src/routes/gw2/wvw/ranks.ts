@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import { type CloudflareEnv, type ErrorPayload } from '#index.ts';
+import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { getWvWRank } from '#lib/resources/wvw/ranks.ts';

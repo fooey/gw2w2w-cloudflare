@@ -1,5 +1,5 @@
 import { fetchWvwObjectives } from '#lib/api/gw2/wvw/objectives';
-import { type WvWObjective } from '@repo/service-api/types';
+import type { WvWObjective } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 type WvwObjectivesQueryOptions = Partial<

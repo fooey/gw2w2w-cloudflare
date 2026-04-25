@@ -1,5 +1,5 @@
 import { WVW_TEAMS, type WvWTeam } from '#definitions/wvw-teams.ts';
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
 

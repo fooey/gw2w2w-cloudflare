@@ -1,4 +1,4 @@
-import { type CloudflareEnv } from '#index.ts';
+import type { CloudflareEnv } from '#index.ts';
 import { getDb } from '#db/index.ts';
 import { matchState } from '#db/schema.ts';
 import { asc } from 'drizzle-orm';

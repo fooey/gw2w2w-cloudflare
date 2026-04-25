@@ -4,7 +4,7 @@ import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
-import { type ContentfulStatusCode } from 'hono/utils/http-status';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
 import { MatchupPoller } from './durable-objects/MatchupPoller';
 import { GW2RateLimitError } from './lib/resources/api';

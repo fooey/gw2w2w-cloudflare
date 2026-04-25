@@ -1,5 +1,5 @@
-import { type ContentfulStatusCode } from 'hono/utils/http-status';
-import { type Context, type TypedResponse } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import type { Context, TypedResponse } from 'hono';
 
 export async function withCache(c: Context, ttl: number, handler: () => Promise<Response>): Promise<Response> {
   const cache = await caches.open('service-api');

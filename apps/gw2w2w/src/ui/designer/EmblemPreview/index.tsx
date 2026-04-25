@@ -1,11 +1,11 @@
 'use client';
 
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
-import { type Color, type Emblem } from '@repo/service-api/types';
+import type { Color, Emblem } from '@repo/service-api/types';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { fetchTexture } from '../TextureCacheManager/textureCache';
-import { type EmblemState } from '../types';
+import type { EmblemState } from '../types';
 import { decodeLayer } from './decodeLayer';
 
 interface EmblemPreviewProps {
@@ -45,7 +45,7 @@ export function EmblemPreview({
 
     const myId = ++renderIdRef.current;
 
-    const colorMap = new Map<number, ColorRGB>(colors.map((c) => [c.id, c.cloth.rgb as ColorRGB]));
+    const colorMap = new Map<number, ColorRGB>(colors.map((c) => [c.id, c.cloth.rgb]));
     const bgRGB = colorMap.get(bgColorId ?? -1) ?? [0, 0, 0];
     const fg1RGB = colorMap.get(fg1ColorId ?? -1) ?? [0, 0, 0];
     const fg2RGB = colorMap.get(fg2ColorId ?? -1) ?? [0, 0, 0];

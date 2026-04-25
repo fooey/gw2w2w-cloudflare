@@ -3,14 +3,14 @@ import { cn } from '#lib/utils/cn';
 import { useWvwObjective } from '#lib/wvw/objectives';
 import { useWvwUpgradeTier } from '#lib/wvw/upgrades';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
-import { type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
+import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
 import { ObjectiveDirection } from '#ui/wvw/matchup/maps/objective/Direction';
 import { Guild } from '#ui/wvw/matchup/maps/objective/Guild';
 import { Name } from '#ui/wvw/matchup/maps/objective/Name';
 import { Timer } from '#ui/wvw/matchup/maps/objective/Timer';
 import { UpgradeTier } from '#ui/wvw/matchup/maps/objective/UpgradeTier';
-import { type WvWMatchObjective } from '@repo/service-api/types';
+import type { WvWMatchObjective } from '@repo/service-api/types';
 
 const RI_TIMER = 5 * 60;
 

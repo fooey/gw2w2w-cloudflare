@@ -1,10 +1,10 @@
 import { renderEmblem } from '@repo/emblem-renderer';
-import { type ServiceApiAppType } from '@repo/service-api';
-import { type createCacheProviders } from '@repo/service-api/lib/cache-providers';
+import type { ServiceApiAppType } from '@repo/service-api';
+import type { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
-import { type Color, type Emblem, type Guild } from '@repo/service-api/types';
-import { type CloudflareEnv } from '#index.ts';
-import { type Context } from 'hono';
+import type { Color, Emblem, Guild } from '@repo/service-api/types';
+import type { CloudflareEnv } from '#index.ts';
+import type { Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
 
 export type ApiClient = ReturnType<typeof hc<ServiceApiAppType>>;

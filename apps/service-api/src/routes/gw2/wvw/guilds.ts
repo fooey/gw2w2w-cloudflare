@@ -1,6 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
 import { WVW_TEAMS } from '#definitions/index.ts';
-import { type CloudflareEnv, type ErrorPayload } from '#index.ts';
+import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { getWvwGuild } from '#lib/resources/wvw/guilds.ts';

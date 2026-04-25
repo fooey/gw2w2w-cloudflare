@@ -9,10 +9,10 @@ import {
   SparklesIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
-import { type Color, type Emblem } from '@repo/service-api/types';
+import type { Color, Emblem } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
 import { EmblemPreview } from '../EmblemPreview';
-import { type EmblemState } from '../types';
+import type { EmblemState } from '../types';
 
 interface LayerPickerProps {
   layers: Emblem[];
