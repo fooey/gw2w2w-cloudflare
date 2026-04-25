@@ -41,6 +41,7 @@ export function GuildEmblemUsage({ guildId, guildName }: GuildEmblemUsageProps) 
             {EMBLEM_SIZES.map((s) => (
               <button
                 key={s}
+                type="button"
                 onClick={() => {
                   setEmblemSize(s);
                 }}
