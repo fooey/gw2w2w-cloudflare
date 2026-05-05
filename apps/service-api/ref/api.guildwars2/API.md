@@ -33,7 +33,7 @@ This file was built by:
 
 1. Add a section here following the existing pattern (wiki link, TypeScript schema, sample file link)
 2. Fetch a real response and save it to `samples/<name>.json`
-3. Add the endpoint to `AGENT.md` under "GW2 API Endpoints"
+3. Add the endpoint to `AGENTS.md` under "GW2 API Endpoints"
 
 **When the service-api adds a new internal endpoint** (e.g. a new timer sub-type):
 
@@ -41,7 +41,7 @@ This file was built by:
 
 ### Splitting considerations
 
-Currently ~590 lines across ~22 endpoints — comfortable as a single file. If WvW coverage grows significantly (guild upgrade detail, skirmish breakdowns, EotM) consider splitting into `WvW.md` + `Guild.md` and updating `AGENT.md` to point to both.
+Currently ~590 lines across ~22 endpoints — comfortable as a single file. If WvW coverage grows significantly (guild upgrade detail, skirmish breakdowns, EotM) consider splitting into `WvW.md` + `Guild.md` and updating `AGENTS.md` to point to both.
 
 ---
 

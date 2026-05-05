@@ -47,20 +47,20 @@ graph TD
 
 ### Applications
 
-| App                   | Domain              | Description                                                                                                                                               |
-| --------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/gw2w2w`         | `gw2w2w.com`        | Next.js 16 frontend, deployed via [OpenNext](https://opennext.js.org/) on Cloudflare Workers (no Node.js required)                                        |
-| `apps/service-emblem` | `emblem.gw2w2w.com` | Hono Worker — renders guild emblems as WebP, caches in R2 (port `8787` locally)                                                                           |
-| `apps/service-api`    | `api.gw2w2w.com`    | Hono Worker — GW2 API proxy with KV + R2 tiered caching; MatchupPoller Durable Object for real-time WvW event tracking via D1 + SSE (port `8788` locally) |
+| App                                                      | Domain              | Description                                                                                                                                               |
+| -------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`apps/gw2w2w`](./apps/gw2w2w/README.md)                 | `gw2w2w.com`        | Next.js 16 frontend, deployed via [OpenNext](https://opennext.js.org/) on Cloudflare Workers (no Node.js required)                                        |
+| [`apps/service-emblem`](./apps/service-emblem/README.md) | `emblem.gw2w2w.com` | Hono Worker — renders guild emblems as WebP, caches in R2 (port `8787` locally)                                                                           |
+| [`apps/service-api`](./apps/service-api/README.md)       | `api.gw2w2w.com`    | Hono Worker — GW2 API proxy with KV + R2 tiered caching; MatchupPoller Durable Object for real-time WvW event tracking via D1 + SSE (port `8788` locally) |
 
 ### Packages
 
-| Package                      | Description                                                                                                                                                                      |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/emblem-renderer`   | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
-| `packages/utils`             | Shared routing, validation, and string utilities                                                                                                                                 |
-| `packages/eslint-config`     | Shared ESLint configuration                                                                                                                                                      |
-| `packages/typescript-config` | Shared TypeScript configuration                                                                                                                                                  |
+| Package                                                            | Description                                                                                                                                                                      |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`packages/emblem-renderer`](./packages/emblem-renderer/README.md) | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
+| [`packages/utils`](./packages/utils/README.md)                     | Shared routing, validation, and string utilities                                                                                                                                 |
+| `packages/eslint-config`                                           | Shared ESLint configuration                                                                                                                                                      |
+| `packages/typescript-config`                                       | Shared TypeScript configuration                                                                                                                                                  |
 
 ### Rendering Engine
 

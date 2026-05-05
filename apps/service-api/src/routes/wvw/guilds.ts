@@ -1,9 +1,9 @@
-import { zValidator } from '@hono/zod-validator';
 import type { CloudflareEnv } from '#index.ts';
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
 import { and, asc, count, desc, eq, gte, inArray, sql, type SQL } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { describeRoute, validator } from 'hono-openapi';
 import { z } from 'zod';
 
 export interface GuildActivityRow {
@@ -86,7 +86,14 @@ const querySchema = z.object({
 
 export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   '/',
-  zValidator('query', querySchema),
+  describeRoute({
+    summary: 'Query WvW guild activity',
+    description:
+      'Returns paginated guild claim activity for a match with filtering by map type, objective type, owner, and time window.',
+    tags: ['WvW Guilds'],
+    responses: { 200: { description: 'Paginated guild activity response' } },
+  }),
+  validator('query', querySchema),
   async (c) => {
     const { matchId, limit, page, sort, order, maxAge, mapType, objectiveType, owner } = c.req.valid('query');
 

@@ -1,9 +1,9 @@
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
 import type { CloudflareEnv } from '#index.ts';
-import { zValidator } from '@hono/zod-validator';
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { describeRoute, validator } from 'hono-openapi';
 import { z } from 'zod';
 
 export type EventRow = typeof events.$inferSelect;
@@ -28,7 +28,14 @@ const querySchema = z.object({
 
 export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
   '/',
-  zValidator('query', querySchema),
+  describeRoute({
+    summary: 'Query WvW events',
+    description:
+      'Returns paginated WvW objective events (captures, claims) for a match. Supports time-based filtering via maxAge.',
+    tags: ['WvW Events'],
+    responses: { 200: { description: 'Paginated event log response' } },
+  }),
+  validator('query', querySchema),
   async (c) => {
     const { matchId, maxAge, limit, offset } = c.req.valid('query');
 

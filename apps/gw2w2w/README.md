@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# gw2w2w
 
-## Getting Started
+Next.js 16 frontend for [gw2w2w.com](https://gw2w2w.com). Guild Wars 2 utilities including guild emblem rendering, an interactive emblem designer, and real-time WvW match tracking.
 
-First, run the development server:
+Deployed on Cloudflare Workers via [OpenNext](https://opennext.js.org/).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**Production:** `gw2w2w.com`
+
+## Local Development
+
+```sh
+pnpm dev       # starts Next.js on port 3000
+pnpm preview   # builds and previews via OpenNext/Cloudflare locally
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires `service-api` running on port 8788 for API calls during development.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Guild Emblem Hotlinks
 
-## Learn More
+Look up any guild by name or ID.
 
-To learn more about Next.js, take a look at the following resources:
+- `/guilds` — guild search + demo guild list
+- `/guilds/:guildId` — guild detail with emblem, metadata, and designer link
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Emblem Designer
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Interactive client-side emblem builder with color pickers, layer selectors, and live preview.
 
-## Deploy on Vercel
+- `/designer` — full emblem editor with URL state serialization (shareable `?s=` shortlinks)
+- Uses Photon WASM for client-side image compositing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### WvW Match Tracker
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Real-time WvW objective tracking with SSE updates.
+
+- `/wvw/matchups` — dashboard of all active matches
+- `/wvw/matchups/:slug` — live match view with objective maps, score tracking, event logs, and guild activity charts
+
+### API Routes
+
+| Route          | Purpose                                              |
+| -------------- | ---------------------------------------------------- |
+| `/api/texture` | Proxies GW2 render textures via R2 cache (SSRF-safe) |
+| `/api/version` | Returns current build hash                           |
+
+## Architecture
+
+### Project Structure
+
+Route files (`src/app/**/page.tsx`, `layout.tsx`) are kept thin — they handle data fetching and compose components but contain minimal UI markup. All substantive UI lives in `src/ui/` (shared components) and `src/lib/ui/` (feature-specific components).
+
+### Cloudflare Bindings
+
+| Binding                      | Type    | Purpose                             |
+| ---------------------------- | ------- | ----------------------------------- |
+| `SERVICE_API`                | Service | Bound to `service-api` Worker       |
+| `SERVICE_EMBLEM`             | Service | Bound to `service-emblem` Worker    |
+| `WORKER_SELF_REFERENCE`      | Service | Self-reference for internal routing |
+| `EMBLEM_ASSETS`              | R2      | Cached GW2 render textures          |
+| `EMBLEM_ENGINE_GUILD_LOOKUP` | KV      | Guild emblem spec cache             |
+| `ASSETS`                     | Assets  | Static assets from OpenNext build   |
+
+### Key Tech
+
+- **React 19** with **React Compiler** enabled — no manual memoization
+- **Tailwind CSS v4** via `@tailwindcss/postcss`
+- **TanStack Query** for client-side data fetching
+- **Zustand** for client-side state (user preferences, clock)
+- **Recharts** for WvW activity charts
+- **Photon WASM** for client-side emblem compositing
+
+### SSE Integration
+
+`useMatchSSE` hook connects to `service-api`'s `/wvw/stream` endpoint via `EventSource`. Handles `matchState`, `capture`, and `claim` events to update live match views.
+
+## Testing
+
+```sh
+pnpm test         # run once
+pnpm test:watch   # watch mode
+```

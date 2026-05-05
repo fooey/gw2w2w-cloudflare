@@ -157,14 +157,16 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
           throw error;
         }
 
-        await objectStore.put(cacheKey, bytes, {
-          customMetadata: {
-            expiresAt: new Date(Date.now() + CACHE_TTL.user.kv * 1000).toISOString(),
-          },
-          httpMetadata: {
-            contentType: 'image/webp',
-          },
-        });
+        c.executionCtx.waitUntil(
+          objectStore.put(cacheKey, bytes, {
+            customMetadata: {
+              expiresAt: new Date(Date.now() + CACHE_TTL.user.kv * 1000).toISOString(),
+            },
+            httpMetadata: {
+              contentType: 'image/webp',
+            },
+          }),
+        );
       }
 
       return new Response(bytes, {

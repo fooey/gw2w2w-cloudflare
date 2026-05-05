@@ -14,7 +14,7 @@ This repo uses **pnpm catalogs** for shared dependency versions. The catalog is 
 
 **To upgrade a cataloged dependency**, update the version in `pnpm-workspace.yaml` and run `pnpm install`. Do not update individual `package.json` files.
 
-Current catalog entries: `wrangler`, `eslint`, `typescript`, `@typescript/native-preview`, `hono`, `@hono/zod-validator`, `zod`, `@cloudflare/workers-types`, `@types/node`.
+Current catalog entries: `wrangler`, `eslint`, `typescript`, `@typescript/native-preview`, `hono`, `zod`, `vitest`, `lodash-es`, `@types/lodash-es`, `@cloudflare/workers-types`, `@types/node`.
 
 ## React Compiler
 
