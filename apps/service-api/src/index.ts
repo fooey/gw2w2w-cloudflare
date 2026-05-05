@@ -9,6 +9,7 @@ import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
 import { MatchupPoller } from './durable-objects/MatchupPoller';
 import { GW2RateLimitError } from './lib/resources/api';
 import { apiGw2Route } from './routes/gw2';
+import { createOpenAPIRoutes } from './routes/openapi';
 import { apiWvwRoute } from './routes/wvw';
 
 export { MatchupPoller };
@@ -76,6 +77,8 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     };
     return c.json(payload, payload.statusCode);
   });
+
+app.route('', createOpenAPIRoutes(app));
 
 export type ServiceApiAppType = typeof app;
 
