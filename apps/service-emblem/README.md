@@ -14,13 +14,13 @@ Requires `service-api` running on port 8788 (accessed via Service Binding in pro
 
 ## Endpoints
 
-| Route                  | Description                                                      |
-| ---------------------- | ---------------------------------------------------------------- |
-| `/:guildId`            | Render emblem by guild ID (UUID) or guild name                   |
-| `/:guildId/:size.webp` | Redirects to canonical URL with `?size=` query param             |
-| `/custom?bg=&fg=&...`  | Render custom emblem from explicit parts, colors, and flip flags |
-| `/guilds/*`            | Legacy redirect to `/:guildId`                                   |
-| `/short/:guildId`      | Short URL redirect                                               |
+| Route                  | Description                                                                                                                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/:guildId`            | Render emblem by guild ID (UUID) or guild name                                                                                                                                          |
+| `/:guildId/:size.webp` | Redirects to canonical URL with `?size=` query param                                                                                                                                    |
+| `/custom`              | Render custom emblem from query params: `background_id`, `background_color_id`, `foreground_id`, `foreground_primary_color_id`, `foreground_secondary_color_id`, `flags_flip_*`, `size` |
+| `/guilds/*`            | Legacy redirect to `/:guildId`                                                                                                                                                          |
+| `/short/:guildId`      | Short URL redirect                                                                                                                                                                      |
 
 ## Architecture
 
@@ -30,7 +30,7 @@ Requires `service-api` running on port 8788 (accessed via Service Binding in pro
 2. Check R2 cache (`EMBLEM_ASSETS`) by key `emblems:{guildId}:{size}` with TTL in `customMetadata.expiresAt`
 3. On miss: fetch guild spec + emblem layers + colors from `service-api`
 4. Composite layers using `@repo/emblem-renderer` + Photon WASM
-5. Write rendered WebP to R2 asynchronously, return to client
+5. Write rendered WebP to R2 via `waitUntil` (non-blocking), return to client immediately
 
 ### Bindings
 
