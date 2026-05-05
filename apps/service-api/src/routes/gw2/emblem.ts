@@ -66,7 +66,7 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       'param',
       z.object({
         layer: layerSlugSchema,
-        emblemId: z.coerce.number().nonnegative().max(999),
+        emblemId: z.coerce.number().nonnegative().max(999).nonoptional(),
       }),
     ),
     async (c) => {

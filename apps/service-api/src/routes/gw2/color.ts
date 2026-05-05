@@ -33,7 +33,7 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
         404: { description: 'Color not found' },
       },
     }),
-    validator('param', z.object({ colorId: z.coerce.number().nonnegative() })),
+    validator('param', z.object({ colorId: z.coerce.number().nonnegative().nonoptional() })),
     async (c) => {
       const colorId = Number(c.req.param('colorId'));
 
