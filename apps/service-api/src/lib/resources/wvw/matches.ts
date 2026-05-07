@@ -30,15 +30,15 @@ export interface WvWMatchObjective {
   owner: WvWTeamColor;
   last_flipped: string | null | undefined;
   /** Present on claimable objectives (Camp/Tower/Keep/Castle), absent on Spawn/Ruins. Null when unclaimed. */
-  claimed_by?: string | null;
+  claimed_by?: string | null | undefined;
   /** Present on claimable objectives (Camp/Tower/Keep/Castle), absent on Spawn/Ruins. Null when unclaimed. */
-  claimed_at?: string | null;
+  claimed_at?: string | null | undefined;
   points_tick: number;
   points_capture: number;
   /** Absent on unclaimable objectives (Spawn, Ruins). */
-  guild_upgrades?: number[];
+  guild_upgrades?: number[] | undefined;
   /** Absent on unclaimable objectives (Spawn, Ruins). */
-  yaks_delivered?: number;
+  yaks_delivered?: number | undefined;
 }
 
 export interface WvWMatchMap {
