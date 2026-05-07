@@ -14,9 +14,10 @@ export interface GuildPageProps {
 }
 
 const getData = cache(async (guildId: string): Promise<Guild | null> => {
-  const isUuid = validateArenaNetUuid(guildId);
+  const decoded = decodeURIComponent(guildId);
+  const isUuid = validateArenaNetUuid(decoded);
   const fn = isUuid ? fetchGuild : fetchGuildByName;
-  return fn(guildId);
+  return fn(decoded);
 });
 
 export async function generateMetadata({ params }: GuildPageProps): Promise<Metadata> {
