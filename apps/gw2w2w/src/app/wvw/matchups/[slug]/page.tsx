@@ -1,3 +1,4 @@
+import { getApi } from '#lib/api/api.server.ts';
 import { fetchWvwMatch, fetchWvwMatchByTeam } from '#lib/api/gw2/wvw/matches';
 import { MatchupView } from '#ui/wvw/matchup/MatchupView';
 import { resolveSlug } from '#lib/wvw/matchup';
@@ -12,10 +13,11 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const { matchId, selectedTeamId } = resolveSlug(slug);
 
+  const api = await getApi();
   const match = matchId
-    ? await fetchWvwMatch(matchId)
+    ? await fetchWvwMatch(api, matchId)
     : selectedTeamId
-      ? await fetchWvwMatchByTeam(selectedTeamId)
+      ? await fetchWvwMatchByTeam(api, selectedTeamId)
       : null;
 
   if (!match) {

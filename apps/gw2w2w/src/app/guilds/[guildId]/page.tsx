@@ -1,3 +1,4 @@
+import { getApi } from '#lib/api/api.server.ts';
 import { fetchGuild, fetchGuildByName } from '#lib/api/gw2/guild';
 import { getEmblemSrc } from '#lib/emblems';
 import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
@@ -16,8 +17,9 @@ export interface GuildPageProps {
 const getData = cache(async (guildId: string): Promise<Guild | null> => {
   const decoded = decodeURIComponent(guildId);
   const isUuid = validateArenaNetUuid(decoded);
+  const api = await getApi();
   const fn = isUuid ? fetchGuild : fetchGuildByName;
-  return fn(decoded);
+  return fn(api, decoded);
 });
 
 export async function generateMetadata({ params }: GuildPageProps): Promise<Metadata> {

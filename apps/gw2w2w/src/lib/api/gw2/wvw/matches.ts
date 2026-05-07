@@ -1,26 +1,22 @@
-import { getApi } from '#lib/api/api.server.ts';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
-export async function fetchWvwMatchesService() {
-  const api = await getApi();
+export async function fetchWvwMatchesService(api: ServiceApiClient) {
   const res = await api.wvw.matches.$get();
   return res.json();
 }
 
-export async function fetchWvwMatches() {
-  const api = await getApi();
+export async function fetchWvwMatches(api: ServiceApiClient) {
   const res = await api.gw2.wvw.matches.$get();
   return res.json();
 }
 
-export async function fetchWvwMatch(matchId: string) {
-  const api = await getApi();
+export async function fetchWvwMatch(api: ServiceApiClient, matchId: string) {
   const res = await api.gw2.wvw.matches[':id'].$get({ param: { id: matchId } });
   if (!res.ok) return null;
   return res.json();
 }
 
-export async function fetchWvwMatchByTeam(teamId: string) {
-  const api = await getApi();
+export async function fetchWvwMatchByTeam(api: ServiceApiClient, teamId: string) {
   const res = await api.gw2.wvw.matches.world[':worldId'].$get({ param: { worldId: teamId } });
   if (!res.ok) return null;
   return res.json();
