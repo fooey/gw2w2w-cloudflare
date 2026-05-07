@@ -1,10 +1,9 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
-import type { GuildUpgrade } from '@repo/service-api/types';
+import { getApi } from '#lib/api/api.server.ts';
 
-export function fetchGuildUpgrades(ids: number[]): Promise<GuildUpgrade[] | null> {
-  if (ids.length === 0) {
-    return Promise.resolve([]);
-  }
-  return apiFetch(`/gw2/guild/upgrades?ids=${ids.join(',')}`).then(parseResponse<GuildUpgrade[]>);
+export async function fetchGuildUpgrades(ids: number[]) {
+  if (ids.length === 0) return [];
+  const api = await getApi();
+  const res = await api.gw2.guild.upgrades.$get({ query: { ids: ids.join(',') } });
+  if (!res.ok) return null;
+  return res.json();
 }

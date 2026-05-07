@@ -15,7 +15,7 @@ export default async function DesignerPage() {
     <SiteLayout pageHeader={'Emblem Designer'}>
       <main>
         <Suspense>
-          <EmblemDesigner colors={colors ?? []} backgrounds={backgrounds ?? []} foregrounds={foregrounds ?? []} />
+          <EmblemDesigner colors={colors} backgrounds={backgrounds ?? []} foregrounds={foregrounds ?? []} />
         </Suspense>
       </main>
     </SiteLayout>

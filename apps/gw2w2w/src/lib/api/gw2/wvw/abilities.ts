@@ -1,11 +1,14 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
-import type { WvWAbility } from '@repo/service-api/types';
+import { getApi } from '#lib/api/api.server.ts';
 
-export function fetchWvwAbilities(): Promise<WvWAbility[] | null> {
-  return apiFetch(`/gw2/wvw/abilities`).then(parseResponse<WvWAbility[]>);
+export async function fetchWvwAbilities() {
+  const api = await getApi();
+  const res = await api.gw2.wvw.abilities.$get();
+  return res.json();
 }
 
-export function fetchWvwAbility(id: number): Promise<WvWAbility | null> {
-  return apiFetch(`/gw2/wvw/abilities/${id}`).then(parseResponse<WvWAbility>);
+export async function fetchWvwAbility(id: number) {
+  const api = await getApi();
+  const res = await api.gw2.wvw.abilities[':id'].$get({ param: { id: String(id) } });
+  if (!res.ok) return null;
+  return res.json();
 }

@@ -1,7 +1,7 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
-import type { Color } from '@repo/service-api/types';
+import { getApi } from '#lib/api/api.server.ts';
 
-export function fetchAllColors(): Promise<Color[] | null> {
-  return apiFetch('/gw2/color').then(parseResponse<Color[]>);
+export async function fetchAllColors() {
+  const api = await getApi();
+  const res = await api.gw2.color.$get();
+  return res.json();
 }

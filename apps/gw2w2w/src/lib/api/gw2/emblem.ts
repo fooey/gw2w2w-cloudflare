@@ -1,11 +1,15 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
-import type { Emblem } from '@repo/service-api/types';
+import { getApi } from '#lib/api/api.server.ts';
 
-export function fetchAllBackgrounds(): Promise<Emblem[] | null> {
-  return apiFetch('/gw2/emblem/background').then(parseResponse<Emblem[]>);
+export async function fetchAllBackgrounds() {
+  const api = await getApi();
+  const res = await api.gw2.emblem.background.$get();
+  if (!res.ok) return null;
+  return res.json();
 }
 
-export function fetchAllForegrounds(): Promise<Emblem[] | null> {
-  return apiFetch('/gw2/emblem/foreground').then(parseResponse<Emblem[]>);
+export async function fetchAllForegrounds() {
+  const api = await getApi();
+  const res = await api.gw2.emblem.foreground.$get();
+  if (!res.ok) return null;
+  return res.json();
 }

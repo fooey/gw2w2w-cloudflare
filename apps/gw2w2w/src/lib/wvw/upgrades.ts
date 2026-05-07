@@ -26,7 +26,6 @@ function useWvwUpgradesMap() {
     staleTime: Infinity,
     select: (data): Map<number, number[]> => {
       const map = new Map<number, number[]>();
-      if (!data) return map;
       for (const upgrade of data) {
         map.set(
           upgrade.id,

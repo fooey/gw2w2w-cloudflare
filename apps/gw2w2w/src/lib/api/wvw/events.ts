@@ -1,5 +1,4 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
+import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 import type { EventLogResponse } from '@repo/service-api/types';
 
 export interface FetchWvwEventsParams {
@@ -13,5 +12,7 @@ export async function fetchWvwEvents(params: FetchWvwEventsParams): Promise<Even
   qs.set('matchId', params.matchId);
   if (params.maxAge != null) qs.set('maxAge', String(params.maxAge));
 
-  return apiFetch(`/wvw/events?${qs.toString()}`).then(parseResponse<EventLogResponse>);
+  const res = await fetch(`${GW2W2W_API_BASE}/wvw/events?${qs.toString()}`);
+  if (!res.ok) return null;
+  return res.json();
 }

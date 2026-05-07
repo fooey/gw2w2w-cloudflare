@@ -1,6 +1,6 @@
 'use client';
 
-import { apiBase } from '#lib/api/apiClient.ts';
+import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
 import type { EventRow, WvWMapType, WvWMatchStripped, WvWTeamColor } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
@@ -93,7 +93,7 @@ export function useMatchSSE(
       return typeof at === 'string' ? at : matchStartTimeRef.current;
     }
 
-    const es = new EventSource(`${apiBase}/wvw/stream?matchId=${matchId}`);
+    const es = new EventSource(`${GW2W2W_API_BASE}/wvw/stream?matchId=${matchId}`);
 
     const onMatchState = (e: MessageEvent) => {
       const payload = JSON.parse(e.data as string) as MatchStatePayload;

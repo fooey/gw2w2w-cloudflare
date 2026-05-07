@@ -1,11 +1,15 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
-import type { Guild } from '@repo/service-api/types';
+import { getApi } from '#lib/api/api.server.ts';
 
-export function fetchGuild(guildId: string): Promise<Guild | null> {
-  return apiFetch(`/gw2/guild/${guildId}`).then(parseResponse<Guild>);
+export async function fetchGuild(guildId: string) {
+  const api = await getApi();
+  const res = await api.gw2.guild[':guildId'].$get({ param: { guildId } });
+  if (!res.ok) return null;
+  return res.json();
 }
 
-export function fetchGuildByName(name: string): Promise<Guild | null> {
-  return apiFetch(`/gw2/guild/search?name=${name.toLocaleLowerCase()}`).then(parseResponse<Guild>);
+export async function fetchGuildByName(name: string) {
+  const api = await getApi();
+  const res = await api.gw2.guild.search.$get({ query: { name: name.toLocaleLowerCase() } });
+  if (!res.ok) return null;
+  return res.json();
 }

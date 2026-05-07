@@ -1,11 +1,14 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
-import type { WvWObjective } from '@repo/service-api/types';
+import { getApi } from '#lib/api/api.server.ts';
 
-export function fetchWvwObjectives(): Promise<WvWObjective[] | null> {
-  return apiFetch(`/gw2/wvw/objectives`).then(parseResponse<WvWObjective[]>);
+export async function fetchWvwObjectives() {
+  const api = await getApi();
+  const res = await api.gw2.wvw.objectives.$get();
+  return res.json();
 }
 
-export function fetchWvwObjective(id: string): Promise<WvWObjective | null> {
-  return apiFetch(`/gw2/wvw/objectives/${id}`).then(parseResponse<WvWObjective>);
+export async function fetchWvwObjective(id: string) {
+  const api = await getApi();
+  const res = await api.gw2.wvw.objectives[':id'].$get({ param: { id } });
+  if (!res.ok) return null;
+  return res.json();
 }

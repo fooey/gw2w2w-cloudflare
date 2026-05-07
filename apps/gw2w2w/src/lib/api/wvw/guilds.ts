@@ -1,5 +1,4 @@
-import { apiFetch } from '#lib/api/apiClient.ts';
-import { parseResponse } from '#lib/api/utils';
+import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 import type { GuildActivityResponse } from '@repo/service-api/types';
 
 export interface FetchWvwGuildsParams {
@@ -14,7 +13,7 @@ export interface FetchWvwGuildsParams {
   page?: number;
 }
 
-export function fetchWvwGuilds(params: FetchWvwGuildsParams): Promise<GuildActivityResponse | null> {
+export async function fetchWvwGuilds(params: FetchWvwGuildsParams): Promise<GuildActivityResponse | null> {
   const qs = new URLSearchParams();
   qs.set('matchId', params.matchId);
   if (params.sort) qs.set('sort', params.sort);
@@ -26,5 +25,7 @@ export function fetchWvwGuilds(params: FetchWvwGuildsParams): Promise<GuildActiv
   for (const v of params.objectiveType ?? []) qs.append('objectiveType', v);
   for (const v of params.owner ?? []) qs.append('owner', v);
 
-  return apiFetch(`/wvw/guilds?${qs.toString()}`).then(parseResponse<GuildActivityResponse>);
+  const res = await fetch(`${GW2W2W_API_BASE}/wvw/guilds?${qs.toString()}`);
+  if (!res.ok) return null;
+  return res.json();
 }
