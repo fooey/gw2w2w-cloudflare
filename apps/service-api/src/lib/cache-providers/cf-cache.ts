@@ -17,13 +17,13 @@ export async function withCache(c: Context, ttl: number, handler: () => Promise<
   return response;
 }
 
-export function withCacheJson<T>(
+export function withCacheJson<T, S extends ContentfulStatusCode = 200>(
   c: Context,
   ttl: number,
   data: T,
-  status: ContentfulStatusCode = 200,
-): Promise<TypedResponse<T, ContentfulStatusCode, 'json'>> {
+  status: S = 200 as S,
+): Promise<TypedResponse<T, S, 'json'>> {
   return withCache(c, ttl, () => Promise.resolve(c.json(data, status))) as unknown as Promise<
-    TypedResponse<T, ContentfulStatusCode, 'json'>
+    TypedResponse<T, S, 'json'>
   >;
 }
