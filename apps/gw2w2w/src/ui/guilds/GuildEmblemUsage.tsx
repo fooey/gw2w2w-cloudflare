@@ -17,13 +17,11 @@ export function GuildEmblemUsage({ guildId, guildName }: GuildEmblemUsageProps) 
   const size = useUserPrefs((s) => s.emblemSize);
   const setEmblemSize = useUserPrefs((s) => s.setEmblemSize);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isFirstRenderRef = useRef(true);
+  const userClickedRef = useRef(false);
 
   useEffect(() => {
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false;
-      return;
-    }
+    if (!userClickedRef.current) return;
+    userClickedRef.current = false;
     sectionRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
   }, [size]);
 
@@ -43,6 +41,7 @@ export function GuildEmblemUsage({ guildId, guildName }: GuildEmblemUsageProps) 
                 key={s}
                 type="button"
                 onClick={() => {
+                  userClickedRef.current = true;
                   setEmblemSize(s);
                 }}
                 className={clsx(
