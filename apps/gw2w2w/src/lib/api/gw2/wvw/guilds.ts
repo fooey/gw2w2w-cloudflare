@@ -1,4 +1,4 @@
-import { apiFetch } from '#lib/api/client';
+import { apiFetch } from '#lib/api/apiClient.ts';
 import { parseResponse } from '#lib/api/utils';
 import type { WvWGuild } from '@repo/service-api/types';
 

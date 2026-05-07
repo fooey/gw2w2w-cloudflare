@@ -1,6 +1,6 @@
 'use client';
 
-import { apiBase } from '#lib/api/client';
+import { apiBase } from '#lib/api/apiClient.ts';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
 import type { EventRow, WvWMapType, WvWMatchStripped, WvWTeamColor } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
