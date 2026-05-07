@@ -168,6 +168,12 @@ curl "http://localhost:8788/__scheduled?cron=*/15+*+*+*+*"
 
 (Requires `--test-scheduled` flag in wrangler dev — already set in `package.json`)
 
+### Cache Namespace Versioning
+
+`withCache` in `apps/service-api/src/lib/cache-providers/cf-cache.ts` uses a **named Workers Cache** (`caches.open('service-api-v2')`). Named caches **cannot** be purged from the dashboard, API, or CLI — only from within the Worker via `cache.delete()`.
+
+**When you change the JSON response shape of any cached route**, bump the version suffix (e.g. `service-api-v2` → `service-api-v3`). This instantly invalidates all stale entries across every Cloudflare colo.
+
 ### Server-side (R2 key format)
 
 - `textures:<encodeURIComponent(gw2RenderUrl)>` — raw PNG ArrayBuffers, 1-year TTL
