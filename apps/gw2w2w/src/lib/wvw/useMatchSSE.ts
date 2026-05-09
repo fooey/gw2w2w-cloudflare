@@ -1,5 +1,6 @@
 'use client';
 
+import { getClientApi } from '#lib/api/api.client.ts';
 import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
 import type { EventRow, WvWMapType, WvWMatchStripped, WvWTeamColor } from '@repo/service-api/types';
@@ -134,7 +135,7 @@ export function useMatchSSE(
   useEffect(() => {
     let cancelled = false;
 
-    void fetchWvwEvents({ matchId }).then((data) => {
+    void fetchWvwEvents(getClientApi(), { matchId }).then((data) => {
       if (cancelled || !data) return;
       const startTime = matchStartTimeRef.current;
       setEvents((prev) => {

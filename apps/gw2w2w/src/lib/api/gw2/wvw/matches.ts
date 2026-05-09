@@ -2,6 +2,7 @@ import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
 export async function fetchWvwMatchesService(api: ServiceApiClient) {
   const res = await api.wvw.matches.$get();
+  if (!res.ok) return null;
   return res.json();
 }
 

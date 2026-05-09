@@ -15,7 +15,12 @@ export interface GuildPageProps {
 }
 
 const getData = cache(async (guildId: string): Promise<Guild | null> => {
-  const decoded = decodeURIComponent(guildId);
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(guildId);
+  } catch {
+    return null;
+  }
   const isUuid = validateArenaNetUuid(decoded);
   const api = await getApi();
   const fn = isUuid ? fetchGuild : fetchGuildByName;
