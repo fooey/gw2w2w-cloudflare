@@ -5,6 +5,8 @@ import { EmblemDesigner } from '#ui/designer/EmblemDesigner';
 import SiteLayout from '#ui/layout/SiteLayout';
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DesignerPage() {
   const api = await getApi();
   const [colors, backgrounds, foregrounds] = await Promise.all([

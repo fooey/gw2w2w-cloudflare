@@ -3,6 +3,8 @@ import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
 import SiteLayout from '#ui/layout/SiteLayout';
 import { Dashboard } from '#ui/wvw/dashboard/Dashboard';
 
+export const dynamic = 'force-dynamic';
+
 export async function getData() {
   return fetchWvwMatchesService(await getApi());
 }
