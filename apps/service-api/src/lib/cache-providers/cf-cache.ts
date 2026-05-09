@@ -2,7 +2,10 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Context, TypedResponse } from 'hono';
 
 export async function withCache(c: Context, ttl: number, handler: () => Promise<Response>): Promise<Response> {
-  const cache = await caches.open('service-api');
+  // Bump the version suffix when a route's JSON response shape changes.
+  // Named caches cannot be purged externally — a new name is the only way
+  // to invalidate stale entries across all Cloudflare colos.
+  const cache = await caches.open('service-api-v2');
   const cached = await cache.match(c.req.raw);
   // CF cache responses have immutable headers — wrap in a new Response so
   // downstream middleware (etag, cors, etc.) can mutate headers freely.
@@ -17,13 +20,13 @@ export async function withCache(c: Context, ttl: number, handler: () => Promise<
   return response;
 }
 
-export function withCacheJson<T>(
+export function withCacheJson<T, S extends ContentfulStatusCode = 200>(
   c: Context,
   ttl: number,
   data: T,
-  status: ContentfulStatusCode = 200,
-): Promise<TypedResponse<T, ContentfulStatusCode, 'json'>> {
+  status: S = 200 as S,
+): Promise<TypedResponse<T, S, 'json'>> {
   return withCache(c, ttl, () => Promise.resolve(c.json(data, status))) as unknown as Promise<
-    TypedResponse<T, ContentfulStatusCode, 'json'>
+    TypedResponse<T, S, 'json'>
   >;
 }

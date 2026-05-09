@@ -1,3 +1,4 @@
+import { getClientApi } from '#lib/api/api.client.ts';
 import { fetchWvwObjectives } from '#lib/api/gw2/wvw/objectives';
 import type { WvWObjective } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
@@ -10,7 +11,7 @@ export function useWvwObjectives(queryOptions?: WvwObjectivesQueryOptions) {
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwObjectives'],
-    queryFn: () => fetchWvwObjectives(),
+    queryFn: () => fetchWvwObjectives(getClientApi()),
     staleTime: Infinity,
   });
 }
@@ -19,7 +20,7 @@ export function useWvwObjective(objectiveId: string, queryOptions?: Omit<WvwObje
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwObjectives'],
-    queryFn: () => fetchWvwObjectives(),
+    queryFn: () => fetchWvwObjectives(getClientApi()),
     staleTime: Infinity,
     select: (data) => data?.find((obj) => obj.id === objectiveId) ?? null,
   });
@@ -29,7 +30,7 @@ export function useWvWObjectIcon(type: WvWObjective['type'], queryOptions?: Omit
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwObjectives'],
-    queryFn: () => fetchWvwObjectives(),
+    queryFn: () => fetchWvwObjectives(getClientApi()),
     staleTime: Infinity,
     select: (data) => data?.find((obj) => obj.type === type)?.marker,
   });

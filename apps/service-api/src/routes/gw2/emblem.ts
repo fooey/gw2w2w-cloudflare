@@ -74,8 +74,9 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
       const getEmblemLayer = layer === 'background' ? getEmblemBackground : getEmblemForeground;
 
-      const result = await getEmblemLayer(Number(emblemId), c.env);
-      if (!result) {
+      const results = await getEmblemLayer(Number(emblemId), c.env);
+      const emblem = results?.[0];
+      if (!emblem) {
         const payload: ErrorPayload = {
           message: 'Emblem Not Found',
           statusCode: 404,
@@ -85,6 +86,6 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
         return c.json(payload, 404);
       }
 
-      return withCacheJson(c, CACHE_TTL.patch.http, result);
+      return withCacheJson(c, CACHE_TTL.patch.http, emblem);
     },
   );

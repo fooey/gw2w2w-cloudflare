@@ -1,3 +1,4 @@
+import { getClientApi } from '#lib/api/api.client.ts';
 import { fetchGuild } from '#lib/api/gw2/guild';
 import type { Guild } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
@@ -9,7 +10,7 @@ export function useGuild(guildId: string | null | undefined, queryOptions?: Part
     queryKey: ['guild', guildId],
     queryFn: () => {
       if (!guildId) throw new Error('guildId is required');
-      return fetchGuild(guildId);
+      return fetchGuild(getClientApi(), guildId);
     },
     enabled: !!guildId,
     staleTime: 5 * 60_000,

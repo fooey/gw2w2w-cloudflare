@@ -1,11 +1,12 @@
-import { apiFetch } from '#lib/api/client';
-import { parseResponse } from '#lib/api/utils';
-import type { WvWRank } from '@repo/service-api/types';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
-export function fetchWvwRanks(): Promise<WvWRank[] | null> {
-  return apiFetch(`/gw2/wvw/ranks`).then(parseResponse<WvWRank[]>);
+export async function fetchWvwRanks(api: ServiceApiClient) {
+  const res = await api.gw2.wvw.ranks.$get();
+  return res.json();
 }
 
-export function fetchWvwRank(id: number): Promise<WvWRank | null> {
-  return apiFetch(`/gw2/wvw/ranks/${id}`).then(parseResponse<WvWRank>);
+export async function fetchWvwRank(api: ServiceApiClient, id: number) {
+  const res = await api.gw2.wvw.ranks[':id'].$get({ param: { id: String(id) } });
+  if (!res.ok) return null;
+  return res.json();
 }

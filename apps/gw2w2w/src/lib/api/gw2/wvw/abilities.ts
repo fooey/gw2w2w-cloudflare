@@ -1,11 +1,12 @@
-import { apiFetch } from '#lib/api/client';
-import { parseResponse } from '#lib/api/utils';
-import type { WvWAbility } from '@repo/service-api/types';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
-export function fetchWvwAbilities(): Promise<WvWAbility[] | null> {
-  return apiFetch(`/gw2/wvw/abilities`).then(parseResponse<WvWAbility[]>);
+export async function fetchWvwAbilities(api: ServiceApiClient) {
+  const res = await api.gw2.wvw.abilities.$get();
+  return res.json();
 }
 
-export function fetchWvwAbility(id: number): Promise<WvWAbility | null> {
-  return apiFetch(`/gw2/wvw/abilities/${id}`).then(parseResponse<WvWAbility>);
+export async function fetchWvwAbility(api: ServiceApiClient, id: number) {
+  const res = await api.gw2.wvw.abilities[':id'].$get({ param: { id: String(id) } });
+  if (!res.ok) return null;
+  return res.json();
 }

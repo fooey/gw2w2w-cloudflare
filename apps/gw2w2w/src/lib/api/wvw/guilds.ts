@@ -1,5 +1,4 @@
-import { apiFetch } from '#lib/api/client';
-import { parseResponse } from '#lib/api/utils';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 import type { GuildActivityResponse } from '@repo/service-api/types';
 
 export interface FetchWvwGuildsParams {
@@ -14,17 +13,23 @@ export interface FetchWvwGuildsParams {
   page?: number;
 }
 
-export function fetchWvwGuilds(params: FetchWvwGuildsParams): Promise<GuildActivityResponse | null> {
-  const qs = new URLSearchParams();
-  qs.set('matchId', params.matchId);
-  if (params.sort) qs.set('sort', params.sort);
-  if (params.order) qs.set('order', params.order);
-  if (params.maxAge != null) qs.set('maxAge', String(params.maxAge));
-  if (params.limit != null) qs.set('limit', String(params.limit));
-  if (params.page != null) qs.set('page', String(params.page));
-  for (const v of params.mapType ?? []) qs.append('mapType', v);
-  for (const v of params.objectiveType ?? []) qs.append('objectiveType', v);
-  for (const v of params.owner ?? []) qs.append('owner', v);
-
-  return apiFetch(`/wvw/guilds?${qs.toString()}`).then(parseResponse<GuildActivityResponse>);
+export async function fetchWvwGuilds(
+  api: ServiceApiClient,
+  params: FetchWvwGuildsParams,
+): Promise<GuildActivityResponse | null> {
+  const res = await api.wvw.guilds.$get({
+    query: {
+      matchId: params.matchId,
+      ...(params.sort && { sort: params.sort }),
+      ...(params.order && { order: params.order }),
+      ...(params.maxAge != null && { maxAge: String(params.maxAge) }),
+      ...(params.limit != null && { limit: String(params.limit) }),
+      ...(params.page != null && { page: String(params.page) }),
+      ...(params.mapType?.length && { mapType: params.mapType }),
+      ...(params.objectiveType?.length && { objectiveType: params.objectiveType }),
+      ...(params.owner?.length && { owner: params.owner }),
+    },
+  });
+  if (!res.ok) return null;
+  return res.json();
 }

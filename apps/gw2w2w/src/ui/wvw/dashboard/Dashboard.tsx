@@ -1,5 +1,6 @@
 'use client';
 
+import { getClientApi } from '#lib/api/api.client.ts';
 import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
@@ -17,7 +18,7 @@ const matchupRegions = [
 function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatchStripped[] | null>>) {
   return useQuery({
     queryKey: ['wvwMatches'],
-    queryFn: () => fetchWvwMatchesService(),
+    queryFn: () => fetchWvwMatchesService(getClientApi()),
     refetchInterval: () => withJitter(60_000, 0.5),
     staleTime: 60_000,
     refetchOnWindowFocus: true,

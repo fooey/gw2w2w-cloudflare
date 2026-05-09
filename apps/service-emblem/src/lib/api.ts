@@ -39,13 +39,13 @@ export function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> 
   return parseResponse(guildApi.$get({ query: { name } }));
 }
 
-export function getColor(apiClient: ApiClient, colorId: number): Promise<Color[]> {
+export function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
   const colorApi = apiClient.gw2.color[':colorId'];
   return parseResponse(colorApi.$get({ param: { colorId: colorId.toString() } }));
 }
 
 export function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
-  return Promise.all(colorIds.map((id) => getColor(apiClient, id))).then((results) => results.flat());
+  return Promise.all(colorIds.map((id) => getColor(apiClient, id)));
 }
 
 export function getEmblemLayer(
@@ -54,9 +54,7 @@ export function getEmblemLayer(
   emblemId: number,
 ): Promise<Emblem> {
   const emblemLayerApi = apiClient.gw2.emblem[':layer'][':emblemId'];
-  return parseResponse(emblemLayerApi.$get({ param: { layer, emblemId: emblemId.toString() } })).then(
-    ([result]) => result as unknown as Emblem,
-  );
+  return parseResponse(emblemLayerApi.$get({ param: { layer, emblemId: emblemId.toString() } }));
 }
 
 export async function getEmblemBytesByGuildId(

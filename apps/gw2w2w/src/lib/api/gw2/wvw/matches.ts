@@ -1,19 +1,24 @@
-import { apiFetch } from '#lib/api/client';
-import { parseResponse } from '#lib/api/utils';
-import type { WvWMatch, WvWMatchStripped } from '@repo/service-api/types';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
-export function fetchWvwMatchesService(): Promise<WvWMatchStripped[] | null> {
-  return apiFetch(`/wvw/matches`).then(parseResponse<WvWMatchStripped[]>);
+export async function fetchWvwMatchesService(api: ServiceApiClient) {
+  const res = await api.wvw.matches.$get();
+  if (!res.ok) return null;
+  return res.json();
 }
 
-export function fetchWvwMatches(): Promise<WvWMatch[] | null> {
-  return apiFetch(`/gw2/wvw/matches`).then(parseResponse<WvWMatch[]>);
+export async function fetchWvwMatches(api: ServiceApiClient) {
+  const res = await api.gw2.wvw.matches.$get();
+  return res.json();
 }
 
-export function fetchWvwMatch(matchId: string): Promise<WvWMatch | null> {
-  return apiFetch(`/gw2/wvw/matches/${matchId}`).then(parseResponse<WvWMatch>);
+export async function fetchWvwMatch(api: ServiceApiClient, matchId: string) {
+  const res = await api.gw2.wvw.matches[':id'].$get({ param: { id: matchId } });
+  if (!res.ok) return null;
+  return res.json();
 }
 
-export function fetchWvwMatchByTeam(teamId: string): Promise<WvWMatch | null> {
-  return apiFetch(`/gw2/wvw/matches/world/${teamId}`).then(parseResponse<WvWMatch>);
+export async function fetchWvwMatchByTeam(api: ServiceApiClient, teamId: string) {
+  const res = await api.gw2.wvw.matches.world[':worldId'].$get({ param: { worldId: teamId } });
+  if (!res.ok) return null;
+  return res.json();
 }

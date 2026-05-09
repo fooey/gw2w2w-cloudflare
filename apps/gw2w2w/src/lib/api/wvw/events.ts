@@ -1,5 +1,4 @@
-import { apiFetch } from '#lib/api/client';
-import { parseResponse } from '#lib/api/utils';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 import type { EventLogResponse } from '@repo/service-api/types';
 
 export interface FetchWvwEventsParams {
@@ -8,10 +7,15 @@ export interface FetchWvwEventsParams {
   maxAge?: number;
 }
 
-export async function fetchWvwEvents(params: FetchWvwEventsParams): Promise<EventLogResponse | null> {
-  const qs = new URLSearchParams();
-  qs.set('matchId', params.matchId);
-  if (params.maxAge != null) qs.set('maxAge', String(params.maxAge));
-
-  return apiFetch(`/wvw/events?${qs.toString()}`).then(parseResponse<EventLogResponse>);
+export async function fetchWvwEvents(
+  api: ServiceApiClient,
+  params: FetchWvwEventsParams,
+): Promise<EventLogResponse | null> {
+  const res = await api.wvw.events.$get({
+    query: {
+      matchId: params.matchId,
+      ...(params.maxAge != null && { maxAge: String(params.maxAge) }),
+    },
+  });
+  return res.json();
 }

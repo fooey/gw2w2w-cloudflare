@@ -1,11 +1,12 @@
-import { apiFetch } from '#lib/api/client';
-import { parseResponse } from '#lib/api/utils';
-import type { WvWUpgrade } from '@repo/service-api/types';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
-export function fetchWvwUpgrades(): Promise<WvWUpgrade[] | null> {
-  return apiFetch(`/gw2/wvw/upgrades`).then(parseResponse<WvWUpgrade[]>);
+export async function fetchWvwUpgrades(api: ServiceApiClient) {
+  const res = await api.gw2.wvw.upgrades.$get();
+  return res.json();
 }
 
-export function fetchWvwUpgrade(id: number): Promise<WvWUpgrade | null> {
-  return apiFetch(`/gw2/wvw/upgrades/${id}`).then(parseResponse<WvWUpgrade>);
+export async function fetchWvwUpgrade(api: ServiceApiClient, id: number) {
+  const res = await api.gw2.wvw.upgrades[':id'].$get({ param: { id: String(id) } });
+  if (!res.ok) return null;
+  return res.json();
 }

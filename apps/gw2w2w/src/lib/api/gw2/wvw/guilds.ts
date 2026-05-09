@@ -1,7 +1,7 @@
-import { apiFetch } from '#lib/api/client';
-import { parseResponse } from '#lib/api/utils';
-import type { WvWGuild } from '@repo/service-api/types';
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
-export function fetchWvwGuild(guildId: string): Promise<WvWGuild | null> {
-  return apiFetch(`/gw2/wvw/guilds/guild/${guildId}`).then(parseResponse<WvWGuild>);
+export async function fetchWvwGuild(api: ServiceApiClient, guildId: string) {
+  const res = await api.gw2.wvw.guilds.guild[':guildId'].$get({ param: { guildId } });
+  if (!res.ok) return null;
+  return res.json();
 }
