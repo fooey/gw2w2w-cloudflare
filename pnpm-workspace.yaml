@@ -15,7 +15,7 @@ overrides:
 catalog:
   '@cloudflare/workers-types': '^4.20260509.1'
   '@types/lodash-es': '^4.17.12'
-  '@types/node': '^25.6.2'
+  '@types/node': '^24.12.4'
   '@typescript/native-preview': '7.0.0-dev.20260509.2'
   eslint: '^10.3.0'
   hono: '^4.12.16'
