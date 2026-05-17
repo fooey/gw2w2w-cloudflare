@@ -45,6 +45,9 @@ updates:
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
+      # Managed via pnpm catalog in pnpm-workspace.yaml — Dependabot cannot
+      # resolve "catalog:" version aliases and generates spurious PRs.
+      - dependency-name: '@types/node'
 
   - package-ecosystem: github-actions
     directory: /
