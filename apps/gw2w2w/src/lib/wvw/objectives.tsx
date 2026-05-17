@@ -26,12 +26,15 @@ export function useWvwObjective(objectiveId: string, queryOptions?: Omit<WvwObje
   });
 }
 
-export function useWvWObjectIcon(type: WvWObjective['type'], queryOptions?: Omit<WvwObjectivesQueryOptions, 'select'>) {
+export function useWvWObjectiveIcon(
+  type: WvWObjective['type'],
+  queryOptions?: Omit<WvwObjectivesQueryOptions, 'select'>,
+) {
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwObjectives'],
     queryFn: () => fetchWvwObjectives(getClientApi()),
     staleTime: Infinity,
-    select: (data) => data?.find((obj) => obj.type === type)?.marker,
+    select: (data) => data?.find((obj) => obj.type === type && obj.map_type !== 'EdgeOfTheMists')?.marker,
   });
 }
