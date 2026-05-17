@@ -1,6 +1,6 @@
 'use client';
 
-import { useWvWObjectIcon } from '#lib/wvw/objectives';
+import { useWvWObjectiveIcon } from '#lib/wvw/objectives';
 import type { WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
 
 interface ObjectiveIconProps {
@@ -18,7 +18,7 @@ const ownerFilter: Record<WvWMatchObjective['owner'], string | undefined> = {
 };
 
 export function ObjectiveIcon({ type, owner, size = 32, className }: ObjectiveIconProps) {
-  const { data: iconUrl } = useWvWObjectIcon(type);
+  const { data: iconUrl } = useWvWObjectiveIcon(type);
 
   if (!iconUrl) return <span style={{ display: 'inline-block', width: size, height: size }} className={className} />;
 
