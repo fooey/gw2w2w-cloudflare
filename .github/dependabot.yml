@@ -1,55 +1,62 @@
-version: 2
-updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    groups:
-      cloudflare:
-        patterns:
-          - '@cloudflare/*'
-          - '@opennextjs/*'
-          - 'wrangler'
-      hono:
-        patterns:
-          - 'hono'
-          - '@hono/*'
-      next:
-        patterns:
-          - 'next'
-          - '@next/*'
-          - 'eslint-config-next'
-      react:
-        patterns:
-          - 'react'
-          - 'react-dom'
-          - '@types/react'
-          - '@types/react-dom'
-          - 'babel-plugin-react-compiler'
-      tanstack:
-        patterns:
-          - '@tanstack/*'
-      eslint:
-        patterns:
-          - 'eslint'
-          - '@eslint/*'
-          - '@eslint-react/*'
-          - 'typescript-eslint'
-          - 'eslint-plugin-*'
-          - 'eslint-config-prettier'
-      tailwind:
-        patterns:
-          - 'tailwindcss'
-          - '@tailwindcss/*'
-          - 'prettier-plugin-tailwindcss'
-    ignore:
-      - dependency-name: '*'
-        update-types: ['version-update:semver-patch']
-      # Managed via pnpm catalog in pnpm-workspace.yaml — Dependabot cannot
-      # resolve "catalog:" version aliases and generates spurious PRs.
-      - dependency-name: '@types/node'
+# Dependabot version updates are disabled — project is in maintenance mode.
+# Security vulnerability PRs are still handled automatically by GitHub's
+# Dependabot security updates feature (repo Settings > Security > Dependabot).
+#
+# To re-enable version updates, uncomment the block below and remove `updates: []`.
+#
+# updates:
+#   - package-ecosystem: npm
+#     directory: /
+#     schedule:
+#       interval: weekly
+#     groups:
+#       cloudflare:
+#         patterns:
+#           - '@cloudflare/*'
+#           - '@opennextjs/*'
+#           - 'wrangler'
+#       hono:
+#         patterns:
+#           - 'hono'
+#           - '@hono/*'
+#       next:
+#         patterns:
+#           - 'next'
+#           - '@next/*'
+#           - 'eslint-config-next'
+#       react:
+#         patterns:
+#           - 'react'
+#           - 'react-dom'
+#           - '@types/react'
+#           - '@types/react-dom'
+#           - 'babel-plugin-react-compiler'
+#       tanstack:
+#         patterns:
+#           - '@tanstack/*'
+#       eslint:
+#         patterns:
+#           - 'eslint'
+#           - '@eslint/*'
+#           - '@eslint-react/*'
+#           - 'typescript-eslint'
+#           - 'eslint-plugin-*'
+#           - 'eslint-config-prettier'
+#       tailwind:
+#         patterns:
+#           - 'tailwindcss'
+#           - '@tailwindcss/*'
+#           - 'prettier-plugin-tailwindcss'
+#     ignore:
+#       - dependency-name: '*'
+#         update-types: ['version-update:semver-patch']
+#       # Managed via pnpm catalog in pnpm-workspace.yaml — Dependabot cannot
+#       # resolve "catalog:" version aliases and generates spurious PRs.
+#       - dependency-name: '@types/node'
+#   - package-ecosystem: github-actions
+#     directory: /
+#     schedule:
+#       interval: weekly
 
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
+version: 2
+updates: []
