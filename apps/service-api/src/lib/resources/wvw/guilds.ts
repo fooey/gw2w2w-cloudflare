@@ -3,14 +3,20 @@ import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
+import { z } from 'zod';
 
 export type WvWTeamId = string;
 export type WvWGuildApiResponse = Record<string, WvWTeamId>;
-export interface WvWGuild {
-  id: string;
-  teamId: WvWTeamId;
-  region: 'na' | 'eu';
-}
+
+export const WvWGuildSchema = z
+  .object({
+    id: z.string(),
+    teamId: z.string().describe('WvW world team ID this guild is registered with'),
+    region: z.enum(['na', 'eu']).describe("WvW region: 'na' (North America) or 'eu' (Europe)"),
+  })
+  .describe('Guild entry in the WvW guild directory');
+
+export type WvWGuild = z.infer<typeof WvWGuildSchema>;
 
 function getWvWGuildFromApi(env: CloudflareEnv): Promise<WvWGuild[] | null> {
   return Promise.all([apiFetch(env, '/wvw/guilds/na'), apiFetch(env, '/wvw/guilds/eu')]).then(

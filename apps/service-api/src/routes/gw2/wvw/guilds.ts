@@ -2,9 +2,9 @@ import { WVW_TEAMS } from '#definitions/index.ts';
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { getWvwGuild } from '#lib/resources/wvw/guilds.ts';
+import { WvWGuildSchema, getWvwGuild } from '#lib/resources/wvw/guilds.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 const regions = ['na', 'eu'] as const;
@@ -14,9 +14,16 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/guild/:guildId',
     describeRoute({
       summary: 'Get WvW guild by ID',
-      description: 'Returns WvW participation data for a specific guild.',
+      description:
+        'Returns WvW participation data for a specific guild. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Guilds'],
-      responses: { 200: { description: 'WvW guild object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWGuildSchema) } },
+          description: 'WvW guild object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ guildId: z.string() })),
     async (c) => {
@@ -41,9 +48,16 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/region/:region',
     describeRoute({
       summary: 'List WvW guilds by region',
-      description: 'Returns all WvW guilds in a region (na or eu).',
+      description:
+        'Returns all WvW guilds in a region (na or eu). Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Guilds'],
-      responses: { 200: { description: 'Array of WvW guild objects' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWGuildSchema)) } },
+          description: 'Array of WvW guild objects',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ region: z.enum(regions) })),
     async (c) => {
@@ -69,9 +83,16 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/team/:teamId',
     describeRoute({
       summary: 'List WvW guilds by team',
-      description: 'Returns all WvW guilds on a specific team.',
+      description:
+        'Returns all WvW guilds on a specific team. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Guilds'],
-      responses: { 200: { description: 'Array of WvW guild objects' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWGuildSchema)) } },
+          description: 'Array of WvW guild objects',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ teamId: z.enum(Object.keys(WVW_TEAMS)) })),
     async (c) => {

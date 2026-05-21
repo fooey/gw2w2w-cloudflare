@@ -1,5 +1,5 @@
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
-import type { WvWMatchStripped } from '#lib/resources/wvw/matches.ts';
+import type { WvWMatch } from '#lib/resources/wvw/matches.ts';
 import type { WvWTeamColor, WvWMapType } from '#lib/resources/wvw/matches.ts';
 
 type WvWEventType = 'capture' | 'claim';
@@ -10,7 +10,7 @@ type WvWObjectiveType = 'Camp' | 'Tower' | 'Keep' | 'Castle' | 'Ruins';
 
 export const matchState = sqliteTable('match_state', {
   match_id: text('match_id').primaryKey(),
-  data: text('data', { mode: 'json' }).$type<WvWMatchStripped>().notNull(),
+  data: text('data', { mode: 'json' }).$type<WvWMatch>().notNull(),
   end_time: text('end_time').notNull(),
   updated_at: text('updated_at').notNull(),
 });

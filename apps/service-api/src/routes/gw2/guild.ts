@@ -1,10 +1,12 @@
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
+import { GuildUpgradeSchema } from '#lib/resources/guild/upgrades.ts';
 import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
 import { getGuild, searchGuild } from '#lib/resources/guild.ts';
+import { GuildSchema } from '#lib/types/Guild.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
@@ -12,9 +14,16 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/upgrades',
     describeRoute({
       summary: 'Batch get guild upgrades',
-      description: 'Returns guild upgrade definitions for the given IDs.',
+      description:
+        'Returns guild upgrade definitions for the given IDs. Proxied from [GW2 API v2/guild/upgrades](https://wiki.guildwars2.com/wiki/API:2/guild/upgrades).',
       tags: ['GW2 Guilds'],
-      responses: { 200: { description: 'Array of guild upgrade objects' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(GuildUpgradeSchema)) } },
+          description: 'Array of guild upgrade objects',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator(
       'query',
@@ -52,9 +61,15 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     describeRoute({
       summary: 'Search guild by name',
       description:
-        'Searches for a guild by name and returns guild details. Sets Content-Location header to the canonical guild endpoint.',
+        'Searches for a guild by name and returns guild details. Sets Content-Location header to the canonical guild endpoint. Proxied from [GW2 API v2/guild/search](https://wiki.guildwars2.com/wiki/API:2/guild/search).',
       tags: ['GW2 Guilds'],
-      responses: { 200: { description: 'Guild object' }, 404: { description: 'Guild not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(GuildSchema) } },
+          description: 'Guild object',
+        },
+        404: { description: 'Guild not found' },
+      },
     }),
     validator('query', z.object({ name: z.string() })),
     async (c) => {
@@ -101,9 +116,16 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:guildId',
     describeRoute({
       summary: 'Get guild by ID',
-      description: 'Returns guild details including emblem specification.',
+      description:
+        'Returns guild details including emblem specification. Proxied from [GW2 API v2/guild/:id](https://wiki.guildwars2.com/wiki/API:2/guild/:id).',
       tags: ['GW2 Guilds'],
-      responses: { 200: { description: 'Guild object' }, 404: { description: 'Guild not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(GuildSchema) } },
+          description: 'Guild object',
+        },
+        404: { description: 'Guild not found' },
+      },
     }),
     validator('param', z.object({ guildId: z.string() })),
     async (c) => {

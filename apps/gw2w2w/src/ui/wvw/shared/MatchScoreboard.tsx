@@ -5,14 +5,14 @@ import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { TeamScore } from '#ui/wvw/shared/TeamScore';
 import type { WvWTeamId } from '@repo/service-api/types';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
-import type { WvWMatchStripped } from '@repo/service-api/types';
+import type { WvWMatch } from '@repo/service-api/types';
 import clsx from 'clsx';
 
 type TeamColor = 'red' | 'blue' | 'green';
 const TEAM_COLORS_LC = ['red', 'blue', 'green'] as const satisfies TeamColor[];
 
 interface MatchScoreboardProps {
-  match: WvWMatchStripped;
+  match: WvWMatch;
   lang: Lang;
   selectedTeamId?: string | null;
   className?: string;

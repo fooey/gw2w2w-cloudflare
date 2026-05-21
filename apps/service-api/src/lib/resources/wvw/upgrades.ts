@@ -2,23 +2,34 @@ import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
+import { z } from 'zod';
 
-export interface WvWUpgradeEffect {
-  name: string;
-  description: string;
-  icon: string;
-}
+export const WvWUpgradeEffectSchema = z
+  .object({
+    name: z.string(),
+    description: z.string(),
+    icon: z.string().describe('CDN URL to the upgrade effect icon'),
+  })
+  .describe('Individual buff or effect gained within an upgrade tier');
 
-export interface WvWUpgradeTier {
-  name: string;
-  yaks_required: number;
-  upgrades: WvWUpgradeEffect[];
-}
+export const WvWUpgradeTierSchema = z
+  .object({
+    name: z.string(),
+    yaks_required: z.number().describe('Number of dolyak deliveries needed to unlock this tier'),
+    upgrades: z.array(WvWUpgradeEffectSchema),
+  })
+  .describe('A tier within a WvW objective upgrade track');
 
-export interface WvWUpgrade {
-  id: number;
-  tiers: WvWUpgradeTier[];
-}
+export const WvWUpgradeSchema = z
+  .object({
+    id: z.number(),
+    tiers: z.array(WvWUpgradeTierSchema),
+  })
+  .describe('WvW objective upgrade track from /v2/wvw/upgrades');
+
+export type WvWUpgradeEffect = z.infer<typeof WvWUpgradeEffectSchema>;
+export type WvWUpgradeTier = z.infer<typeof WvWUpgradeTierSchema>;
+export type WvWUpgrade = z.infer<typeof WvWUpgradeSchema>;
 
 function getWvWUpgradesFromApi(env: CloudflareEnv): Promise<WvWUpgrade[] | null> {
   return apiFetch(env, '/wvw/upgrades?ids=all').then((response) => {

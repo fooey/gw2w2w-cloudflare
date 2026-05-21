@@ -11,10 +11,10 @@ import { ObjectiveLogs } from '#ui/wvw/matchup/activity/ObjectiveLogs';
 import { TeamActivity } from '#ui/wvw/matchup/activity/TeamActivity';
 import { MatchMap } from '#ui/wvw/matchup/maps/MatchMap';
 import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
-import type { EventRow, WvWMapType, WvWMatchMap, WvWMatchStripped } from '@repo/service-api/types';
+import type { EventRow, WvWMapType, WvWMatchMap, WvWMatch } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
-  match: WvWMatchStripped;
+  match: WvWMatch;
   selectedTeamId: string | null;
   initialEvents?: EventRow[];
 }

@@ -1,20 +1,40 @@
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { getWvWMatchByWorld, getWvWMatches } from '#lib/resources/wvw/matches.ts';
+import { WvWMatchSchema, getWvWMatchByWorld, getWvWMatches } from '#lib/resources/wvw/matches.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 const TEAM_COLORS = ['red', 'blue', 'green'] as const;
+
+const WvWTeamStatsSchema = z
+  .object({
+    matchId: z.string().describe('Match ID in region-number format (e.g. "1-1")'),
+    color: z.enum(['red', 'blue', 'green']).describe('Team colour slot in this match'),
+    worldId: z.number().describe('Primary linked world ID for this team'),
+    worldIds: z.array(z.number()).describe('All world IDs linked to this team, including guest worlds'),
+    score: z.number().describe('Current map score for this team'),
+    kills: z.number().describe('Total kills across all maps for this team'),
+    deaths: z.number().describe('Total deaths across all maps for this team'),
+    victoryPoints: z.number().describe('Cumulative victory points for this team'),
+  })
+  .describe('Flattened per-team stats for a single team slot within a WvW match');
 
 export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(
     '/',
     describeRoute({
       summary: 'List all WvW matches',
+      description:
+        'Returns all active WvW matches with scores, kills, deaths, and world assignments. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'Array of WvW match objects' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWMatchSchema)) } },
+          description: 'Array of WvW match objects',
+        },
+      },
     }),
     async (c) => {
       const matches = await getWvWMatches('all', c.env);
@@ -25,9 +45,15 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/stats/teams',
     describeRoute({
       summary: 'Get team stats for all matches',
-      description: 'Returns flattened per-team stats (scores, kills, deaths, victory points) for all active matches.',
+      description:
+        'Returns flattened per-team stats (scores, kills, deaths, victory points) for all active matches. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'Array of team stat objects' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWTeamStatsSchema)) } },
+          description: 'Array of team stat objects',
+        },
+      },
     }),
     async (c) => {
       const matches = await getWvWMatches('all', c.env);
@@ -50,8 +76,16 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:id',
     describeRoute({
       summary: 'Get WvW match by ID',
+      description:
+        'Returns a single WvW match by ID (format: `region-tier`, e.g. `1-1`). Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'WvW match object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
+          description: 'WvW match object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ id: z.string() })),
     async (c) => {
@@ -74,9 +108,16 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/world/:worldId',
     describeRoute({
       summary: 'Get WvW match by world ID',
-      description: 'Finds the current WvW match that a given world is participating in.',
+      description:
+        'Finds the current WvW match that a given world is participating in. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'WvW match object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
+          description: 'WvW match object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ worldId: z.coerce.number().int().positive() })),
     async (c) => {

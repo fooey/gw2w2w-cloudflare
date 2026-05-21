@@ -2,8 +2,9 @@ import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { getEmblemBackground, getEmblemForeground } from '#lib/resources/emblem.ts';
+import { EmblemSchema } from '#lib/types/Emblem.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 const layerSlugs = ['background', 'foreground'] as const;
@@ -14,9 +15,16 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/background',
     describeRoute({
       summary: 'List all backgrounds',
-      description: 'Returns all emblem background layer definitions.',
+      description:
+        'Returns all emblem background layer definitions. Proxied from [GW2 API v2/emblem/backgrounds](https://wiki.guildwars2.com/wiki/API:2/emblem/backgrounds).',
       tags: ['GW2 Emblems'],
-      responses: { 200: { description: 'Array of background layers' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(EmblemSchema)) } },
+          description: 'Array of background layers',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     async (c) => {
       const result = await getEmblemBackground('all', c.env);
@@ -36,9 +44,16 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/foreground',
     describeRoute({
       summary: 'List all foregrounds',
-      description: 'Returns all emblem foreground layer definitions.',
+      description:
+        'Returns all emblem foreground layer definitions. Proxied from [GW2 API v2/emblem/foregrounds](https://wiki.guildwars2.com/wiki/API:2/emblem/foregrounds).',
       tags: ['GW2 Emblems'],
-      responses: { 200: { description: 'Array of foreground layers' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(EmblemSchema)) } },
+          description: 'Array of foreground layers',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     async (c) => {
       const result = await getEmblemForeground('all', c.env);
@@ -58,9 +73,16 @@ export const apiEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:layer/:emblemId',
     describeRoute({
       summary: 'Get emblem layer by ID',
-      description: 'Returns a specific background or foreground emblem layer.',
+      description:
+        'Returns a specific background or foreground emblem layer. Proxied from [GW2 API v2/emblem](https://wiki.guildwars2.com/wiki/API:2/emblem).',
       tags: ['GW2 Emblems'],
-      responses: { 200: { description: 'Emblem layer object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(EmblemSchema) } },
+          description: 'Emblem layer object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator(
       'param',

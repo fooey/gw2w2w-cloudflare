@@ -5,7 +5,7 @@ import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
 import { withJitter } from '@repo/utils';
-import type { WvWMatchStripped } from '@repo/service-api/types';
+import type { WvWMatch } from '@repo/service-api/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { MatchupRow } from './MatchupRow';
@@ -15,7 +15,7 @@ const matchupRegions = [
   { name: 'Europe', matchPrefix: '2' },
 ];
 
-function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatchStripped[] | null>>) {
+function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatch[] | null>>) {
   return useQuery({
     queryKey: ['wvwMatches'],
     queryFn: () => fetchWvwMatchesService(getClientApi()),
@@ -28,7 +28,7 @@ function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatchStripped[] | n
 }
 
 interface DashboardProps {
-  matches: WvWMatchStripped[] | null;
+  matches: WvWMatch[] | null;
 }
 
 export function Dashboard({ matches }: DashboardProps) {

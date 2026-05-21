@@ -1,9 +1,9 @@
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { getWvWObjective } from '#lib/resources/wvw/objectives.ts';
+import { WvWObjectiveSchema, getWvWObjective } from '#lib/resources/wvw/objectives.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
@@ -11,8 +11,15 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all WvW objectives',
+      description:
+        'Returns all WvW objective definitions (camps, towers, keeps, castles). Proxied from [GW2 API v2/wvw/objectives](https://wiki.guildwars2.com/wiki/API:2/wvw/objectives).',
       tags: ['GW2 WvW Reference'],
-      responses: { 200: { description: 'Array of WvW objective objects' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWObjectiveSchema)) } },
+          description: 'Array of WvW objective objects',
+        },
+      },
     }),
     async (c) => {
       const objectives = await getWvWObjective('all', c.env);
@@ -24,8 +31,16 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:id',
     describeRoute({
       summary: 'Get WvW objective by ID',
+      description:
+        'Returns a single WvW objective by ID. Proxied from [GW2 API v2/wvw/objectives](https://wiki.guildwars2.com/wiki/API:2/wvw/objectives).',
       tags: ['GW2 WvW Reference'],
-      responses: { 200: { description: 'WvW objective object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWObjectiveSchema) } },
+          description: 'WvW objective object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ id: z.string() })),
     async (c) => {

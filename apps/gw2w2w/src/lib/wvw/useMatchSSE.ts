@@ -3,7 +3,7 @@
 import { getClientApi } from '#lib/api/api.client.ts';
 import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
-import type { EventRow, WvWMapType, WvWMatchStripped, WvWTeamColor } from '@repo/service-api/types';
+import type { EventRow, WvWMapType, WvWMatch, WvWTeamColor } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
 
 // Narrow types matching what the DO actually inserts — subset of WvWObjective['type']
@@ -11,7 +11,7 @@ type WvWObjectiveType = EventRow['objective_type'];
 
 interface MatchStatePayload {
   matchId: string;
-  data: WvWMatchStripped;
+  data: WvWMatch;
 }
 
 interface CapturePayload {
@@ -64,7 +64,7 @@ function claimToRow(p: ClaimPayload): EventRow {
 }
 
 interface UseMatchSSEResult {
-  match: WvWMatchStripped;
+  match: WvWMatch;
   /** All known events: initial D1 history + live SSE events. Newest first. */
   events: EventRow[];
 }
@@ -75,11 +75,7 @@ interface UseMatchSSEResult {
  * - Prepends capture/claim events received over SSE (deduped by id)
  * - On reset: reloads the page so the server re-fetches fresh match + event data
  */
-export function useMatchSSE(
-  matchId: string,
-  initialMatch: WvWMatchStripped,
-  initialEvents: EventRow[],
-): UseMatchSSEResult {
+export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEvents: EventRow[]): UseMatchSSEResult {
   const [match, setMatch] = useState(initialMatch);
   const [events, setEvents] = useState<EventRow[]>(() =>
     initialEvents.map((e) => (typeof e.at === 'string' ? e : { ...e, at: initialMatch.start_time })),

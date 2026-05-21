@@ -3,6 +3,21 @@ import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { openAPIRouteHandler } from 'hono-openapi';
 
+const OPENAPI_DESCRIPTION = `
+REST API for **gw2w2w.com**.
+
+## Proxied Routes (\`/gw2\`)
+Thin cache layer over the official [Guild Wars 2 API](https://wiki.guildwars2.com/wiki/API:Main).
+Responses are aggressively cached to reduce upstream calls and improve latency.
+
+## Custom Routes
+Built specifically for gw2w2w.com, backed by **D1** and **Durable Objects**:
+- WvW event history (objective captures and claims)
+- Guild activity aggregation per match
+- Match state snapshots
+- Real-time SSE streaming of match updates
+`.trim();
+
 const OPENAPI_TAGS = [
   // Proxied — data sourced from the official Guild Wars 2 API
   { name: 'GW2 Colors', description: 'Proxied from GW2 API (v2/colors). Dye color definitions.' },
@@ -44,9 +59,12 @@ export function createOpenAPIRoutes(app: Hono<{ Bindings: CloudflareEnv }>) {
           info: {
             title: 'gw2w2w service-api',
             version: '1.0.0',
-            description: 'GW2 API proxy with tiered caching and real-time WvW event streaming',
+            description: OPENAPI_DESCRIPTION,
           },
-          servers: [{ url: 'https://api.gw2w2w.com', description: 'Production' }],
+          servers: [
+            { url: 'https://api.gw2w2w.com', description: 'Production' },
+            { url: 'http://localhost:8788', description: 'Development' },
+          ],
           tags: OPENAPI_TAGS,
         },
       }),

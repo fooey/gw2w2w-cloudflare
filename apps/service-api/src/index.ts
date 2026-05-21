@@ -5,6 +5,7 @@ import { csrf } from 'hono/csrf';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import { z } from 'zod';
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
 import { MatchupPoller } from './durable-objects/MatchupPoller';
 import { GW2RateLimitError } from './lib/resources/api';
@@ -14,12 +15,14 @@ import { apiWvwRoute } from './routes/wvw';
 
 export { MatchupPoller };
 
-export interface ErrorPayload {
-  message: string;
-  statusCode: ContentfulStatusCode;
-  url: string;
-  service: string;
-}
+export const ErrorPayloadSchema = z.object({
+  message: z.string(),
+  statusCode: z.number().int().min(100).max(599) as z.ZodType<ContentfulStatusCode>,
+  url: z.string(),
+  service: z.string(),
+});
+
+export type ErrorPayload = z.infer<typeof ErrorPayloadSchema>;
 
 export interface CloudflareEnv {
   EMBLEM_ENGINE_GUILD_LOOKUP: KVNamespace;

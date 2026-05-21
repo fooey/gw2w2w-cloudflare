@@ -2,12 +2,17 @@ import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
+import { z } from 'zod';
 
-export interface WvWRank {
-  id: number;
-  title: string;
-  min_rank: number;
-}
+export const WvWRankSchema = z
+  .object({
+    id: z.number(),
+    title: z.string().describe('Rank title unlocked at this tier'),
+    min_rank: z.number().describe('Minimum WvW rank score required to reach this title'),
+  })
+  .describe('WvW rank milestone from /v2/wvw/ranks');
+
+export type WvWRank = z.infer<typeof WvWRankSchema>;
 
 function getWvWRanksFromApi(env: CloudflareEnv): Promise<WvWRank[] | null> {
   return apiFetch(env, '/wvw/ranks?ids=all').then((response) => {
