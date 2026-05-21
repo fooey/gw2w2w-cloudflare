@@ -17,7 +17,7 @@ export { MatchupPoller };
 
 export const ErrorPayloadSchema = z.object({
   message: z.string(),
-  statusCode: z.number().int() as z.ZodType<ContentfulStatusCode>,
+  statusCode: z.number().int().min(100).max(599) as z.ZodType<ContentfulStatusCode>,
   url: z.string(),
   service: z.string(),
 });

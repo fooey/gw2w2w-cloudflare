@@ -8,6 +8,19 @@ import { z } from 'zod';
 
 const TEAM_COLORS = ['red', 'blue', 'green'] as const;
 
+const WvWTeamStatsSchema = z
+  .object({
+    matchId: z.string().describe('Match ID in region-number format (e.g. "1-1")'),
+    color: z.enum(['red', 'blue', 'green']).describe('Team colour slot in this match'),
+    worldId: z.number().describe('Primary linked world ID for this team'),
+    worldIds: z.array(z.number()).describe('All world IDs linked to this team, including guest worlds'),
+    score: z.number().describe('Current map score for this team'),
+    kills: z.number().describe('Total kills across all maps for this team'),
+    deaths: z.number().describe('Total deaths across all maps for this team'),
+    victoryPoints: z.number().describe('Cumulative victory points for this team'),
+  })
+  .describe('Flattened per-team stats for a single team slot within a WvW match');
+
 export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(
     '/',
@@ -35,7 +48,12 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Returns flattened per-team stats (scores, kills, deaths, victory points) for all active matches. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'Array of team stat objects' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWTeamStatsSchema)) } },
+          description: 'Array of team stat objects',
+        },
+      },
     }),
     async (c) => {
       const matches = await getWvWMatches('all', c.env);
