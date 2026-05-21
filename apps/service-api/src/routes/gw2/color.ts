@@ -11,7 +11,8 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all colors',
-      description: 'Returns all GW2 dye color definitions. Cached per build patch cycle.',
+      description:
+        'Returns all GW2 dye color definitions. Cached per build patch cycle. Proxied from [GW2 API v2/colors](https://wiki.guildwars2.com/wiki/API:2/colors).',
       tags: ['GW2 Colors'],
       responses: {
         200: { description: 'Array of color objects' },
@@ -26,7 +27,8 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:colorId',
     describeRoute({
       summary: 'Get color by ID',
-      description: 'Returns a single GW2 dye color definition.',
+      description:
+        'Returns a single GW2 dye color definition. Proxied from [GW2 API v2/colors](https://wiki.guildwars2.com/wiki/API:2/colors).',
       tags: ['GW2 Colors'],
       responses: {
         200: { description: 'Color object' },

@@ -11,6 +11,8 @@ export const apiWvwUpgradesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all WvW upgrades',
+      description:
+        'Returns all WvW objective upgrade definitions. Proxied from [GW2 API v2/wvw/upgrades](https://wiki.guildwars2.com/wiki/API:2/wvw/upgrades).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'Array of WvW upgrade objects' } },
     }),
@@ -23,6 +25,8 @@ export const apiWvwUpgradesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:id',
     describeRoute({
       summary: 'Get WvW upgrade by ID',
+      description:
+        'Returns a single WvW upgrade by ID. Proxied from [GW2 API v2/wvw/upgrades](https://wiki.guildwars2.com/wiki/API:2/wvw/upgrades).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'WvW upgrade object' }, 404: { description: 'Not found' } },
     }),

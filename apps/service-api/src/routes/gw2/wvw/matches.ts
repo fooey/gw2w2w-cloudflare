@@ -13,6 +13,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all WvW matches',
+      description:
+        'Returns all active WvW matches with scores, kills, deaths, and world assignments. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
       responses: { 200: { description: 'Array of WvW match objects' } },
     }),
@@ -25,7 +27,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/stats/teams',
     describeRoute({
       summary: 'Get team stats for all matches',
-      description: 'Returns flattened per-team stats (scores, kills, deaths, victory points) for all active matches.',
+      description:
+        'Returns flattened per-team stats (scores, kills, deaths, victory points) for all active matches. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
       responses: { 200: { description: 'Array of team stat objects' } },
     }),
@@ -50,6 +53,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:id',
     describeRoute({
       summary: 'Get WvW match by ID',
+      description:
+        'Returns a single WvW match by ID (format: `region-tier`, e.g. `1-1`). Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
       responses: { 200: { description: 'WvW match object' }, 404: { description: 'Not found' } },
     }),
@@ -74,7 +79,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/world/:worldId',
     describeRoute({
       summary: 'Get WvW match by world ID',
-      description: 'Finds the current WvW match that a given world is participating in.',
+      description:
+        'Finds the current WvW match that a given world is participating in. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
       responses: { 200: { description: 'WvW match object' }, 404: { description: 'Not found' } },
     }),

@@ -11,6 +11,8 @@ export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all WvW teams',
+      description:
+        'Returns all WvW team (world) assignments derived from match data. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'Array of WvW team objects' }, 404: { description: 'Not found' } },
     }),
@@ -32,6 +34,8 @@ export const apiWvwTeamsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/team/:teamId',
     describeRoute({
       summary: 'Get WvW team by ID',
+      description:
+        'Returns the WvW team (world) assignment for a specific team. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'WvW team object' }, 404: { description: 'Not found' } },
     }),

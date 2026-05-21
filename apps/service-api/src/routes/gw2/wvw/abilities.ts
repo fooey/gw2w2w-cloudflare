@@ -11,6 +11,8 @@ export const apiWvwAbilitiesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all WvW abilities',
+      description:
+        'Returns all WvW ability definitions. Proxied from [GW2 API v2/wvw/abilities](https://wiki.guildwars2.com/wiki/API:2/wvw/abilities).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'Array of WvW ability objects' } },
     }),
@@ -23,6 +25,8 @@ export const apiWvwAbilitiesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:id',
     describeRoute({
       summary: 'Get WvW ability by ID',
+      description:
+        'Returns a single WvW ability by ID. Proxied from [GW2 API v2/wvw/abilities](https://wiki.guildwars2.com/wiki/API:2/wvw/abilities).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'WvW ability object' }, 404: { description: 'Not found' } },
     }),

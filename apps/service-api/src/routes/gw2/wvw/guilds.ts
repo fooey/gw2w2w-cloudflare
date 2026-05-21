@@ -14,7 +14,8 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/guild/:guildId',
     describeRoute({
       summary: 'Get WvW guild by ID',
-      description: 'Returns WvW participation data for a specific guild.',
+      description:
+        'Returns WvW participation data for a specific guild. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Guilds'],
       responses: { 200: { description: 'WvW guild object' }, 404: { description: 'Not found' } },
     }),
@@ -41,7 +42,8 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/region/:region',
     describeRoute({
       summary: 'List WvW guilds by region',
-      description: 'Returns all WvW guilds in a region (na or eu).',
+      description:
+        'Returns all WvW guilds in a region (na or eu). Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Guilds'],
       responses: { 200: { description: 'Array of WvW guild objects' }, 404: { description: 'Not found' } },
     }),
@@ -69,7 +71,8 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/team/:teamId',
     describeRoute({
       summary: 'List WvW guilds by team',
-      description: 'Returns all WvW guilds on a specific team.',
+      description:
+        'Returns all WvW guilds on a specific team. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Guilds'],
       responses: { 200: { description: 'Array of WvW guild objects' }, 404: { description: 'Not found' } },
     }),

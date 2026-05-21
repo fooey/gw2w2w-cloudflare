@@ -12,7 +12,8 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/upgrades',
     describeRoute({
       summary: 'Batch get guild upgrades',
-      description: 'Returns guild upgrade definitions for the given IDs.',
+      description:
+        'Returns guild upgrade definitions for the given IDs. Proxied from [GW2 API v2/guild/upgrades](https://wiki.guildwars2.com/wiki/API:2/guild/upgrades).',
       tags: ['GW2 Guilds'],
       responses: { 200: { description: 'Array of guild upgrade objects' }, 404: { description: 'Not found' } },
     }),
@@ -52,7 +53,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     describeRoute({
       summary: 'Search guild by name',
       description:
-        'Searches for a guild by name and returns guild details. Sets Content-Location header to the canonical guild endpoint.',
+        'Searches for a guild by name and returns guild details. Sets Content-Location header to the canonical guild endpoint. Proxied from [GW2 API v2/guild/search](https://wiki.guildwars2.com/wiki/API:2/guild/search).',
       tags: ['GW2 Guilds'],
       responses: { 200: { description: 'Guild object' }, 404: { description: 'Guild not found' } },
     }),
@@ -101,7 +102,8 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:guildId',
     describeRoute({
       summary: 'Get guild by ID',
-      description: 'Returns guild details including emblem specification.',
+      description:
+        'Returns guild details including emblem specification. Proxied from [GW2 API v2/guild/:id](https://wiki.guildwars2.com/wiki/API:2/guild/:id).',
       tags: ['GW2 Guilds'],
       responses: { 200: { description: 'Guild object' }, 404: { description: 'Guild not found' } },
     }),

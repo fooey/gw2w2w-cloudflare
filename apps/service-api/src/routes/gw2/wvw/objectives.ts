@@ -11,6 +11,8 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all WvW objectives',
+      description:
+        'Returns all WvW objective definitions (camps, towers, keeps, castles). Proxied from [GW2 API v2/wvw/objectives](https://wiki.guildwars2.com/wiki/API:2/wvw/objectives).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'Array of WvW objective objects' } },
     }),
@@ -24,6 +26,8 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:id',
     describeRoute({
       summary: 'Get WvW objective by ID',
+      description:
+        'Returns a single WvW objective by ID. Proxied from [GW2 API v2/wvw/objectives](https://wiki.guildwars2.com/wiki/API:2/wvw/objectives).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'WvW objective object' }, 404: { description: 'Not found' } },
     }),

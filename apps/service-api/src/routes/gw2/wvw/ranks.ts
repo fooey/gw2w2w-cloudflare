@@ -11,6 +11,8 @@ export const apiWvwRanksRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/',
     describeRoute({
       summary: 'List all WvW ranks',
+      description:
+        'Returns all WvW rank definitions. Proxied from [GW2 API v2/wvw/ranks](https://wiki.guildwars2.com/wiki/API:2/wvw/ranks).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'Array of WvW rank objects' } },
     }),
@@ -23,6 +25,8 @@ export const apiWvwRanksRoute = new Hono<{ Bindings: CloudflareEnv }>()
     '/:id',
     describeRoute({
       summary: 'Get WvW rank by ID',
+      description:
+        'Returns a single WvW rank by ID. Proxied from [GW2 API v2/wvw/ranks](https://wiki.guildwars2.com/wiki/API:2/wvw/ranks).',
       tags: ['GW2 WvW Reference'],
       responses: { 200: { description: 'WvW rank object' }, 404: { description: 'Not found' } },
     }),
