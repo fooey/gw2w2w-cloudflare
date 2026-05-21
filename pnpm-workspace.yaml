@@ -9,9 +9,7 @@ allowBuilds:
   workerd: true
 
 overrides:
-  fast-xml-builder: '>=1.1.7' # GHSA-5wm8-gmm8-39j9, GHSA-45c6-75p6-83cc
   postcss: '>=8.5.10' # GHSA-qx2v-qp2m-jg93 — next@16 pins postcss@8.4.31
-  brace-expansion: '>=5.0.6' # GHSA-jxxr-4gwj-5jf2 — @opennextjs/cloudflare>glob>minimatch pins <5.0.6
   ws: '>=8.20.1' # GHSA-58qx-3vcg-4xpx — wrangler>miniflare pins <8.20.1
 
 catalog:
