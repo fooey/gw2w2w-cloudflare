@@ -5,21 +5,22 @@ Rules specific to `apps/service-api`. The root [AGENTS.md](../../AGENTS.md) cove
 ## Route Conventions
 
 - Every route handler must have a `describeRoute()` middleware with `summary`, `tags`, and `responses`
-- Every `200` response in `describeRoute` must include a `content` block using `resolver()` from `hono-openapi` so the OpenAPI spec and Scalar UI show the full response schema
+- Every **JSON** `200` response in `describeRoute` must include a `content` block using `resolver()` from `hono-openapi` so the OpenAPI spec and Scalar UI show the full response schema. Exceptions: SSE endpoints (`/wvw/stream`) and custom WvW endpoints that return complex paginated payloads without a Zod schema yet (`/wvw/events`, `/wvw/guilds`) — these only need a `description` until their schemas are converted.
 - Use `validator()` from `hono-openapi` for parameter/query validation — not `zValidator` from `@hono/zod-validator`
 - Prefer `withCacheJson(c, ttl, data)` over bare `c.json()` for GET endpoints to apply HTTP cache headers
 - Route files export a Hono router instance; index files compose them with `.route()`
 
 ## Schema Conventions
 
-All resource types in `service-api` use **Zod-first schemas** — no plain TypeScript interfaces.
+GW2-proxied resource schemas in `src/lib/resources/` and `src/lib/types/` use **Zod-first schemas** — no plain TypeScript interfaces.
 
 - Define types as `z.object()` schemas exported as `const MyThingSchema = z.object({ ... })`
 - Export the TypeScript type as `export type MyThing = z.infer<typeof MyThingSchema>` — the schema is the single source of truth
 - Import the schema into the corresponding route file and pass it to `resolver()` in the `describeRoute` response
 - Add `.describe()` to all fields where the semantics are non-obvious: numeric ranges, ISO 8601 timestamps, GW2-specific IDs, null/absent distinctions, CDN URLs, etc.
-- Use the `wvwMatchTeams` generic helper in `matches.ts` when you need `{ red: T, blue: T, green: T }` — do not repeat the pattern inline
+- Use the `wvwMatchTeams` generic helper in `src/lib/resources/wvw/matches.ts` when you need `{ red: T, blue: T, green: T }` — do not repeat the pattern inline
 - The `resolver()` import comes from `hono-openapi` (not the non-existent `hono-openapi/zod` subpath)
+- Custom WvW response types (`EventLogResponse`, `GuildActivityResponse`, `WvWMatchTeams<T>`) are plain interfaces — convert them to Zod schemas when adding `resolver()` to those routes
 
 ## OpenAPI Maintenance
 

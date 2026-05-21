@@ -14,7 +14,7 @@ pnpm db:replicate # replicates production D1 to local
 
 ## API Endpoints
 
-Interactive API reference available at [`/scalar`](https://api.gw2w2w.com/scalar), with raw OpenAPI JSON at [`/doc`](https://api.gw2w2w.com/doc). Every endpoint documents its full response schema — all types are defined as Zod schemas and wired into the spec via `resolver()` in each route's `describeRoute`.
+Interactive API reference available at [`/scalar`](https://api.gw2w2w.com/scalar), with raw OpenAPI JSON at [`/doc`](https://api.gw2w2w.com/doc). All GW2-proxied endpoints document their full response schema — types are defined as Zod schemas and wired into the spec via `resolver()` in each route's `describeRoute`.
 
 ### Proxied GW2 API (`/gw2/...`)
 
