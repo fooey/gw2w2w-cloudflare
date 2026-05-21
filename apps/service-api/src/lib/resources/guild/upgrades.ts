@@ -2,14 +2,19 @@ import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
+import { z } from 'zod';
 
-export interface GuildUpgrade {
-  id: number;
-  name: string;
-  description: string;
-  icon: string;
-  type: string;
-}
+export const GuildUpgradeSchema = z
+  .object({
+    id: z.number(),
+    name: z.string(),
+    description: z.string(),
+    icon: z.string().describe('CDN URL to the upgrade icon image'),
+    type: z.string().describe("Upgrade category (e.g. 'BankBag', 'Unlock', 'Queue', 'Boost')"),
+  })
+  .describe('Guild upgrade definition from /v2/guild/upgrades');
+
+export type GuildUpgrade = z.infer<typeof GuildUpgradeSchema>;
 
 function getGuildUpgradesFromApi(env: CloudflareEnv): Promise<GuildUpgrade[] | null> {
   return apiFetch(env, '/guild/upgrades?ids=all').then((response) => {

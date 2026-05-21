@@ -1,9 +1,9 @@
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { getWvWUpgrade } from '#lib/resources/wvw/upgrades.ts';
+import { WvWUpgradeSchema, getWvWUpgrade } from '#lib/resources/wvw/upgrades.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 export const apiWvwUpgradesRoute = new Hono<{ Bindings: CloudflareEnv }>()
@@ -14,7 +14,12 @@ export const apiWvwUpgradesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Returns all WvW objective upgrade definitions. Proxied from [GW2 API v2/wvw/upgrades](https://wiki.guildwars2.com/wiki/API:2/wvw/upgrades).',
       tags: ['GW2 WvW Reference'],
-      responses: { 200: { description: 'Array of WvW upgrade objects' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWUpgradeSchema)) } },
+          description: 'Array of WvW upgrade objects',
+        },
+      },
     }),
     async (c) => {
       const upgrades = await getWvWUpgrade('all', c.env);
@@ -28,7 +33,13 @@ export const apiWvwUpgradesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Returns a single WvW upgrade by ID. Proxied from [GW2 API v2/wvw/upgrades](https://wiki.guildwars2.com/wiki/API:2/wvw/upgrades).',
       tags: ['GW2 WvW Reference'],
-      responses: { 200: { description: 'WvW upgrade object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWUpgradeSchema) } },
+          description: 'WvW upgrade object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ id: z.coerce.number().int().positive() })),
     async (c) => {

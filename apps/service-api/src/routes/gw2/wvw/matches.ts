@@ -1,9 +1,9 @@
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { getWvWMatchByWorld, getWvWMatches } from '#lib/resources/wvw/matches.ts';
+import { WvWMatchSchema, getWvWMatchByWorld, getWvWMatches } from '#lib/resources/wvw/matches.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 const TEAM_COLORS = ['red', 'blue', 'green'] as const;
@@ -16,7 +16,12 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Returns all active WvW matches with scores, kills, deaths, and world assignments. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'Array of WvW match objects' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWMatchSchema)) } },
+          description: 'Array of WvW match objects',
+        },
+      },
     }),
     async (c) => {
       const matches = await getWvWMatches('all', c.env);
@@ -56,7 +61,13 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Returns a single WvW match by ID (format: `region-tier`, e.g. `1-1`). Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'WvW match object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
+          description: 'WvW match object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ id: z.string() })),
     async (c) => {
@@ -82,7 +93,13 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Finds the current WvW match that a given world is participating in. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
       tags: ['GW2 WvW Matches'],
-      responses: { 200: { description: 'WvW match object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
+          description: 'WvW match object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ worldId: z.coerce.number().int().positive() })),
     async (c) => {

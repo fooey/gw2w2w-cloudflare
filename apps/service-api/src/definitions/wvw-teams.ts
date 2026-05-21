@@ -1,10 +1,16 @@
-export interface WvWTeam {
-  id: string;
-  en: string;
-  de: string;
-  es: string;
-  fr: string;
-}
+import { z } from 'zod';
+
+export const WvWTeamSchema = z
+  .object({
+    id: z.string().describe('Numeric world ID as a string (matches the GW2 world ID format)'),
+    en: z.string(),
+    de: z.string(),
+    es: z.string(),
+    fr: z.string(),
+  })
+  .describe('WvW world (server) team with localized names');
+
+export type WvWTeam = z.infer<typeof WvWTeamSchema>;
 
 export type WvWTeamId = keyof typeof WVW_TEAMS;
 

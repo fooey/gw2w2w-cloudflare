@@ -1,9 +1,9 @@
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { getWvWRank } from '#lib/resources/wvw/ranks.ts';
+import { WvWRankSchema, getWvWRank } from '#lib/resources/wvw/ranks.ts';
 import { Hono } from 'hono';
-import { describeRoute, validator } from 'hono-openapi';
+import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
 export const apiWvwRanksRoute = new Hono<{ Bindings: CloudflareEnv }>()
@@ -14,7 +14,12 @@ export const apiWvwRanksRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Returns all WvW rank definitions. Proxied from [GW2 API v2/wvw/ranks](https://wiki.guildwars2.com/wiki/API:2/wvw/ranks).',
       tags: ['GW2 WvW Reference'],
-      responses: { 200: { description: 'Array of WvW rank objects' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(z.array(WvWRankSchema)) } },
+          description: 'Array of WvW rank objects',
+        },
+      },
     }),
     async (c) => {
       const ranks = await getWvWRank('all', c.env);
@@ -28,7 +33,13 @@ export const apiWvwRanksRoute = new Hono<{ Bindings: CloudflareEnv }>()
       description:
         'Returns a single WvW rank by ID. Proxied from [GW2 API v2/wvw/ranks](https://wiki.guildwars2.com/wiki/API:2/wvw/ranks).',
       tags: ['GW2 WvW Reference'],
-      responses: { 200: { description: 'WvW rank object' }, 404: { description: 'Not found' } },
+      responses: {
+        200: {
+          content: { 'application/json': { schema: resolver(WvWRankSchema) } },
+          description: 'WvW rank object',
+        },
+        404: { description: 'Not found' },
+      },
     }),
     validator('param', z.object({ id: z.coerce.number().int().positive() })),
     async (c) => {
