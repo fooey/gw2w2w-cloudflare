@@ -1,0 +1,9 @@
+{
+  "printWidth": 120,
+  "semi": true,
+  "trailingComma": "all",
+  "singleQuote": true,
+  "quoteProps": "consistent",
+  "jsxSingleQuote": false,
+  "sortTailwindcss": true
+}
