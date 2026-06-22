@@ -45,13 +45,8 @@ const MAP_TO_KEY: Record<ActivityMapType, keyof Omit<TeamRow, 'owner'>> = {
   RedHome: 'claims_red_home',
 };
 
-function buildTeamRows(
-  events: EventRow[],
-  filters: { maps: string[]; objectiveTypes: string[]; timeWindow: string },
-): { teams: TeamRow[]; overall: TeamRow } {
-  const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - parseInt(filters.timeWindow, 10) * 3_600_000;
-
-  const empty = (): Omit<TeamRow, 'owner'> => ({
+function createEmptyTeamRow(): Omit<TeamRow, 'owner'> {
+  return {
     claims_castle: 0,
     claims_keep: 0,
     claims_tower: 0,
@@ -61,15 +56,22 @@ function buildTeamRows(
     claims_blue_home: 0,
     claims_red_home: 0,
     total: 0,
-  });
+  };
+}
 
-  const byOwner = new Map<string, Omit<TeamRow, 'owner'>>(TEAM_OWNERS.map((o) => [o, empty()]));
-  const overall = empty();
+function buildTeamRows(
+  events: EventRow[],
+  filters: { maps: string[]; objectiveTypes: string[]; timeWindow: string },
+): { teams: TeamRow[]; overall: TeamRow } {
+  const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - parseInt(filters.timeWindow, 10) * 3_600_000;
+
+  const byOwner = new Map<string, Omit<TeamRow, 'owner'>>(TEAM_OWNERS.map((o) => [o, createEmptyTeamRow()]));
+  const overall = createEmptyTeamRow();
 
   for (const e of events) {
     if (e.type !== 'claim') continue;
     if (typeof e.at !== 'string') continue;
-    if (cutoffMs != null && new Date(e.at).getTime() < cutoffMs) continue;
+    if (cutoffMs !== null && cutoffMs !== undefined && new Date(e.at).getTime() < cutoffMs) continue;
     if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
     if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
       continue;
@@ -120,7 +122,7 @@ function buildTeamRows(
     overall.total++;
   }
 
-  const teams = TEAM_OWNERS.map((o) => ({ owner: o, ...(byOwner.get(o) ?? empty()) }));
+  const teams = TEAM_OWNERS.map((o) => ({ owner: o, ...(byOwner.get(o) ?? createEmptyTeamRow()) }));
   return { teams, overall: { owner: 'Green', ...overall } };
 }
 
