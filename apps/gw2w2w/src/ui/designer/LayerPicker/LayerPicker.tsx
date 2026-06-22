@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/20/solid';
 import type { Color, Emblem } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
+import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
 import { EmblemPreview } from '#ui/designer/EmblemPreview';
 import type { EmblemState } from '#ui/designer/types';
 
@@ -174,7 +175,9 @@ export function LayerPicker({
   }
 
   function handleRandom() {
-    const layer = layers[Math.floor(Math.random() * layers.length)];
+    const index = getRandomIndex(layers.length, getCryptoRandomUint32());
+    if (index === null) return;
+    const layer = layers[index];
     if (layer) onChange(layer.id);
   }
 
