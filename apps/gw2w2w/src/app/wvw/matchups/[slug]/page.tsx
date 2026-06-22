@@ -4,8 +4,8 @@ import { MatchupView } from '#ui/wvw/matchup/MatchupView';
 import { resolveSlug } from '#lib/wvw/matchup';
 import { notFound } from 'next/navigation';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
-import SiteLayout from '#ui/layout/SiteLayout';
-import Link from '#ui/Link';
+import { SiteLayout } from '#ui/layout/SiteLayout';
+import { Link } from '#ui/Link';
 
 export const dynamic = 'force-dynamic';
 

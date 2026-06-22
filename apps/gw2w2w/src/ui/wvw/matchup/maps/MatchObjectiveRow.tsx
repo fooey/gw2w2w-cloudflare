@@ -62,7 +62,7 @@ export function MatchObjectiveRow({
       <Guild claimedBy={matchObjective.claimed_by ?? undefined} />
       <span className="relative inline-flex">
         <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
-        {upgradeTier != null && <UpgradeTier tier={upgradeTier} />}
+        {upgradeTier !== null && upgradeTier !== undefined && <UpgradeTier tier={upgradeTier} />}
       </span>
       <ObjectiveDirection direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
       <Name objectiveId={matchObjective.id} />

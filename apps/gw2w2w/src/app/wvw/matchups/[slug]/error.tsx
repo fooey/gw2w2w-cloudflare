@@ -1,7 +1,7 @@
 'use client';
 
-import SiteLayout from '#ui/layout/SiteLayout';
-import Link from '#ui/Link';
+import { SiteLayout } from '#ui/layout/SiteLayout';
+import { Link } from '#ui/Link';
 
 export default function MatchupError() {
   return (

@@ -1,5 +1,5 @@
 import { demoGuilds } from '#lib/definitions/demo-guilds';
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 import { GuildEmblemGrid } from './GuildEmblemGrid';
 
 export function DemoGuildList() {

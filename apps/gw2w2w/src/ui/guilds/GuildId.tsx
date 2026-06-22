@@ -1,4 +1,4 @@
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 
 export function GuildId({ guildId }: { guildId: string }) {
   return (

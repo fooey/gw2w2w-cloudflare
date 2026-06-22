@@ -1,5 +1,5 @@
 import { homePageAttributes } from '#lib/definitions/site-sections';
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 
 export function Hero() {
   return (

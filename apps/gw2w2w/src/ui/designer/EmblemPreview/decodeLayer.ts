@@ -1,6 +1,6 @@
 import type { DecodedLayer } from '@repo/emblem-renderer/pixels';
 
-import { getPhoton } from '../TextureCacheManager/photon';
+import { getPhoton } from '#ui/designer/TextureCacheManager/photon';
 
 /**
  * Decodes a PNG ArrayBuffer into a DecodedLayer using Photon WASM,
