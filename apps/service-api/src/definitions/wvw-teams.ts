@@ -16,7 +16,13 @@ export type WvWTeamId = keyof typeof WVW_TEAMS;
 
 export const WVW_TEAMS = {
   '11001': { id: '11001', en: 'Moogooloo', de: 'Muuguuluu', es: 'Mugulú', fr: 'Moogooloo' },
-  '11002': { id: '11002', en: "Rall's Rest", de: 'Ralls Rast', es: 'Descanso de Rall', fr: 'Repos de Rall' },
+  '11002': {
+    id: '11002',
+    en: "Rall's Rest",
+    de: 'Ralls Rast',
+    es: 'Descanso de Rall',
+    fr: 'Repos de Rall',
+  },
   '11003': {
     id: '11003',
     en: 'Domain of Torment',
@@ -24,7 +30,13 @@ export const WVW_TEAMS = {
     es: 'Dominio de Tormento',
     fr: 'Domaine du tourment',
   },
-  '11004': { id: '11004', en: 'Yohlon Haven', de: 'Yohlon-Winkel', es: 'Puerto de Yohlon', fr: 'Havre de Yohlon' },
+  '11004': {
+    id: '11004',
+    en: 'Yohlon Haven',
+    de: 'Yohlon-Winkel',
+    es: 'Puerto de Yohlon',
+    fr: 'Havre de Yohlon',
+  },
   '11005': {
     id: '11005',
     en: 'Tombs of Drascir',
@@ -46,7 +58,13 @@ export const WVW_TEAMS = {
     es: 'Trono de Balthazar',
     fr: 'Trône de Balthazar',
   },
-  '11008': { id: '11008', en: "Dwayna's Temple", de: 'Dwaynas Tempel', es: 'Templo de Dwayna', fr: 'Temple de Dwayna' },
+  '11008': {
+    id: '11008',
+    en: "Dwayna's Temple",
+    de: 'Dwaynas Tempel',
+    es: 'Templo de Dwayna',
+    fr: 'Temple de Dwayna',
+  },
   '11009': {
     id: '11009',
     en: "Abaddon's Prison",
@@ -69,7 +87,13 @@ export const WVW_TEAMS = {
     fr: 'Conservatoire de Lutgardis',
   },
   '11012': { id: '11012', en: 'Mosswood', de: 'Mooswald', es: 'Bosquemusgoso', fr: 'Bois moussu' },
-  '12001': { id: '12001', en: 'Skrittsburgh', de: 'Skrittsburg', es: 'Skrittsburgo', fr: 'Skrittsburgh' },
+  '12001': {
+    id: '12001',
+    en: 'Skrittsburgh',
+    de: 'Skrittsburg',
+    es: 'Skrittsburgo',
+    fr: 'Skrittsburgh',
+  },
   '12002': {
     id: '12002',
     en: "Fortune's Vale",
@@ -77,8 +101,20 @@ export const WVW_TEAMS = {
     es: 'Valle de la Fortuna',
     fr: 'Vallée de la fortune',
   },
-  '12003': { id: '12003', en: 'Silent Woods', de: 'Stille Wälder', es: 'Bosques Silenciosos', fr: 'Forêt silencieuse' },
-  '12004': { id: '12004', en: "Ettin's Back", de: 'Ettinbuckel', es: 'Loma de Ettin', fr: "Échine d'Ettin" },
+  '12003': {
+    id: '12003',
+    en: 'Silent Woods',
+    de: 'Stille Wälder',
+    es: 'Bosques Silenciosos',
+    fr: 'Forêt silencieuse',
+  },
+  '12004': {
+    id: '12004',
+    en: "Ettin's Back",
+    de: 'Ettinbuckel',
+    es: 'Loma de Ettin',
+    fr: "Échine d'Ettin",
+  },
   '12005': {
     id: '12005',
     en: 'Domain of Anguish',
@@ -102,7 +138,13 @@ export const WVW_TEAMS = {
     fr: 'Citadelle du givre',
   },
   '12009': { id: '12009', en: 'Dragrimmar', de: 'Dragrimmar', es: 'Dragrimmar', fr: 'Dragrimmar' },
-  '12010': { id: '12010', en: "Grenth's Door", de: 'Grenths Tür', es: 'Puerta de Grenth', fr: 'Porte de Grenth' },
+  '12010': {
+    id: '12010',
+    en: "Grenth's Door",
+    de: 'Grenths Tür',
+    es: 'Puerta de Grenth',
+    fr: 'Porte de Grenth',
+  },
   '12011': {
     id: '12011',
     en: 'Mirror of Lyssa',
