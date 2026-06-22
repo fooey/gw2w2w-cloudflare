@@ -14,7 +14,7 @@ export async function fetchWvwEvents(
   const res = await api.wvw.events.$get({
     query: {
       matchId: params.matchId,
-      ...(params.maxAge != null && { maxAge: String(params.maxAge) }),
+      ...(params.maxAge !== null && params.maxAge !== undefined && { maxAge: String(params.maxAge) }),
     },
   });
   return res.json();
