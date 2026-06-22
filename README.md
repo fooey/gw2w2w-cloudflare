@@ -59,7 +59,8 @@ graph TD
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`packages/emblem-renderer`](./packages/emblem-renderer/README.md) | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
 | [`packages/utils`](./packages/utils/README.md)                     | Shared routing, validation, and string utilities                                                                                                                                 |
-| `packages/eslint-config`                                           | Shared ESLint configuration                                                                                                                                                      |
+| `packages/oxlint-config`                                           | Shared Oxlint configuration presets (`base`, `nextjs-app`, `service`, `library`)                                                                                                 |
+| `packages/eslint-config`                                           | Deprecated ESLint compatibility package                                                                                                                                          |
 | `packages/typescript-config`                                       | Shared TypeScript configuration                                                                                                                                                  |
 
 ### Rendering Engine

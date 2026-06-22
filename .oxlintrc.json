@@ -1,14 +1,5 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["**/dist/**", "**/.next/**", "**/out/**", "**/build/**", "**/next-env.d.ts"],
-  "options": {
-    "respectEslintDisableDirectives": true,
-    "reportUnusedDisableDirectives": "warn"
-  },
-  "jsPlugins": ["eslint-plugin-turbo", "eslint-plugin-react-compiler"],
-  "rules": {
-    "no-console": ["warn", { "allow": ["info", "warn", "error"] }],
-    "turbo/no-undeclared-env-vars": "warn",
-    "react-compiler/react-compiler": "error"
-  }
+  "extends": ["./packages/oxlint-config/base.json"],
+  "ignorePatterns": ["**/dist/**", "**/.next/**", "**/out/**", "**/build/**", "**/next-env.d.ts"]
 }

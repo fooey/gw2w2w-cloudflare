@@ -1,0 +1,82 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["./base.json"],
+  "plugins": ["unicorn", "typescript", "nextjs", "react"],
+  "jsPlugins": [
+    "eslint-plugin-turbo",
+    "eslint-plugin-react-compiler",
+    {
+      "name": "react-hooks-js",
+      "specifier": "eslint-plugin-react-hooks"
+    }
+  ],
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "serviceworker": true
+  },
+  "rules": {
+    "react-compiler/react-compiler": "error",
+    "react-hooks-js/incompatible-library": "warn",
+    "react-hooks-js/immutability": "warn",
+    "react-hooks-js/purity": "warn",
+    "react-hooks-js/refs": "warn",
+    "react-hooks-js/set-state-in-effect": "warn",
+    "react-hooks-js/set-state-in-render": "error",
+    "react-hooks-js/static-components": "warn",
+    "react-hooks-js/unsupported-syntax": "warn",
+    "react/checked-requires-onchange-or-readonly": "error",
+    "react/forward-ref-uses-ref": "error",
+    "react/jsx-key": "error",
+    "react/jsx-no-constructed-context-values": "warn",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-script-url": "error",
+    "react/jsx-no-target-blank": "error",
+    "react/jsx-no-undef": "error",
+    "react/jsx-no-useless-fragment": "warn",
+    "react/no-array-index-key": "warn",
+    "react/no-children-prop": "error",
+    "react/no-danger-with-children": "error",
+    "react/no-direct-mutation-state": "error",
+    "react/no-find-dom-node": "warn",
+    "react/no-string-refs": "error",
+    "react/no-unsafe": "warn",
+    "react/no-unstable-nested-components": "warn",
+    "react/only-export-components": "warn",
+    "react/style-prop-object": "error",
+    "react/void-dom-elements-no-children": "error",
+    "nextjs/google-font-display": "warn",
+    "nextjs/google-font-preconnect": "warn",
+    "nextjs/next-script-for-ga": "warn",
+    "nextjs/no-async-client-component": "warn",
+    "nextjs/no-before-interactive-script-outside-document": "warn",
+    "nextjs/no-css-tags": "warn",
+    "nextjs/no-head-element": "warn",
+    "nextjs/no-html-link-for-pages": "error",
+    "nextjs/no-page-custom-font": "warn",
+    "nextjs/no-styled-jsx-in-document": "warn",
+    "nextjs/no-sync-scripts": "error",
+    "nextjs/no-title-in-document-head": "warn",
+    "nextjs/no-typos": "warn",
+    "nextjs/no-unwanted-polyfillio": "warn",
+    "nextjs/no-img-element": "off",
+    "nextjs/inline-script-id": "error",
+    "nextjs/no-assign-module-variable": "error",
+    "nextjs/no-document-import-in-page": "error",
+    "nextjs/no-duplicate-head": "error",
+    "nextjs/no-head-import-in-document": "error",
+    "nextjs/no-script-component-in-head": "error",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/src/app/**/*.{ts,tsx,mts,cts}"],
+      "rules": {
+        "import/no-default-export": "off",
+        "import/no-unassigned-import": "off",
+        "react/only-export-components": "off"
+      }
+    }
+  ]
+}

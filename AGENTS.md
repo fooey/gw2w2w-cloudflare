@@ -122,7 +122,7 @@ If packages remain outdated, investigate — the semver range may need a bump (e
 pnpm format && pnpm ci:all
 ```
 
-This formats all files, then runs all CI checks in order: format (verify) → lint → type-check → boundary-check → test. Fix any errors before finishing. Individual commands are also available as `ci:format`, `ci:lint`, `ci:types`, `ci:boundaries`, and `ci:test`. Individual commands are documented below for reference.
+This formats all files, then runs all CI checks in order: format (verify) → lint (type-aware) → type-check → boundary-check → test → audit. Fix any errors before finishing. Individual commands are also available as `ci:format`, `ci:lint`, `ci:types`, `ci:boundaries`, and `ci:test`. Individual commands are documented below for reference.
 
 ## Addressing PR Review Comments
 
@@ -176,6 +176,10 @@ This repo uses Prettier with `prettier-plugin-tailwindcss`.
 
 - **Format all files**: `pnpm format`
 - **Check without writing**: `pnpm ci:format`
+
+## Linting Configuration
+
+Primary linting is OXC-based. See `linting.md` for the active lint architecture, preset ownership (`packages/oxlint-config`), JS plugin requirements, parity notes, and rule verification workflow.
 
 ## Type Checking
 
@@ -238,7 +242,8 @@ An open-source suite of utilities for Guild Wars 2 players, built as a Turborepo
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `packages/emblem-renderer`   | Emblem rendering logic. `pixels.ts` — shared pure compositing loop. `index.ts` — server-side Photon WASM wrapper (Workers only). |
 | `packages/utils`             | Shared routing, validation, string utilities                                                                                     |
-| `packages/eslint-config`     | Shared ESLint config                                                                                                             |
+| `packages/oxlint-config`     | Shared Oxlint config presets                                                                                                     |
+| `packages/eslint-config`     | Deprecated ESLint config compatibility package                                                                                   |
 | `packages/typescript-config` | Shared TypeScript config                                                                                                         |
 
 ## Tech Stack
@@ -352,6 +357,8 @@ General API reference: https://wiki.guildwars2.com/wiki/API:Main
   - `wvw-matches-stats-all.json` — all 9 active matches from `/v2/wvw/matches/stats?ids=all`
 
 ## ESLint Config Structure
+
+This section is legacy context for the deprecated `packages/eslint-config` package and is not the primary lint path.
 
 Configs live in `packages/eslint-config/`. All packages extend `base.ts` either directly or via the React/Next wrappers.
 

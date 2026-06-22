@@ -11,6 +11,7 @@ allowBuilds:
 overrides:
   postcss: '>=8.5.10' # GHSA-qx2v-qp2m-jg93 — next@16 pins postcss@8.4.31
   ws: '>=8.20.1' # GHSA-58qx-3vcg-4xpx — wrangler>miniflare pins <8.20.1
+  qs: '>=6.15.2' # GHSA-q8mj-m7cp-5q26 — @opennextjs/aws>express>body-parser pins qs@6.15.1
 
 catalog:
   '@cloudflare/workers-types': '^4.20260517.1'
@@ -18,7 +19,7 @@ catalog:
   '@types/node': '^25.6.2'
   '@typescript/native-preview': '7.0.0-dev.20260509.2'
   eslint: '^10.4.0'
-  hono: '^4.12.16'
+  hono: '^4.12.21'
   'lodash-es': '^4.18.1'
   typescript: '^6.0.3'
   vitest: '^4.1.5'

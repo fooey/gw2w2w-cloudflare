@@ -23,6 +23,7 @@ jobs:
 
   audit:
     name: Audit
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -30,7 +31,9 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - run: pnpm audit
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm ci:audit
 
   format:
     name: Format
@@ -58,7 +61,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
+      - run: pnpm ci:lint
 
   typecheck:
     name: Type check

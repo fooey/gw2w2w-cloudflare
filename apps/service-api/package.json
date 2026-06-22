@@ -2,26 +2,13 @@
   "name": "@repo/service-api",
   "version": "2026.4.12",
   "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "main": "src/index.ts",
   "imports": {
     "#*": "./src/*"
   },
-  "scripts": {
-    "dev": "wrangler dev --port 8788 --local --test-scheduled",
-    "dev:seed": "node scripts/dev-seed.mjs",
-    "db:replicate": "node scripts/replicate-prod-db.mjs",
-    "db:query": "wrangler d1 execute wvw-events --remote --command",
-    "deploy": "wrangler deploy",
-    "lint": "eslint ./src",
-    "check-types": "tsgo --noEmit",
-    "format": "prettier --write .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "ts:clean": "tsc --build --clean"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "exports": {
     ".": "./src/index.ts",
     "./types": "./src/types.ts",
@@ -29,6 +16,19 @@
     "./lib/cache-providers": "./src/lib/cache-providers/index.ts",
     "./lib/resources": "./src/lib/resources/index.ts",
     "./lib/resources/constants": "./src/lib/resources/constants.ts"
+  },
+  "scripts": {
+    "dev": "wrangler dev --port 8788 --local --test-scheduled",
+    "dev:seed": "node scripts/dev-seed.mjs",
+    "db:replicate": "node scripts/replicate-prod-db.mjs",
+    "db:query": "wrangler d1 execute wvw-events --remote --command",
+    "deploy": "wrangler deploy",
+    "lint": "oxlint src",
+    "check-types": "tsgo --noEmit",
+    "format": "oxfmt --config ../../oxfmt.json .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "ts:clean": "tsc --build --clean"
   },
   "dependencies": {
     "@hono/standard-validator": "^0.2.2",
@@ -43,13 +43,11 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
-    "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@repo/vitest-config": "workspace:*",
     "@types/lodash-es": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
-    "eslint": "catalog:",
     "vitest": "catalog:",
     "wrangler": "catalog:"
   }
