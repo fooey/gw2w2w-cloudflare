@@ -1,5 +1,6 @@
 'use client';
 
+import { tryWriteClipboardText } from '#ui/controls/clipboard';
 import { useState } from 'react';
 
 interface CopyToClipboardInputProps {
@@ -11,15 +12,13 @@ export function CopyToClipboardInput({ label, value }: CopyToClipboardInputProps
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch {
-      // Ignore clipboard write failures in unsupported contexts.
-    }
+    const copiedOk = await tryWriteClipboardText(value, navigator.clipboard);
+    if (!copiedOk) return;
+
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   }
 
   function onCopyClick() {

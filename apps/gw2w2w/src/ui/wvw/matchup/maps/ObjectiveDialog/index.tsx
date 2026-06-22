@@ -7,6 +7,7 @@ import { useWvwObjective } from '#lib/wvw/objectives';
 import { useWvwUpgrades } from '#lib/wvw/upgrades';
 import { useGuild } from '#lib/wvw/useGuild';
 import { useGuildUpgrades } from '#lib/wvw/useGuildUpgrades';
+import { tryWriteClipboardText } from '#ui/controls/clipboard';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { getMapLabelFull } from '#ui/wvw/config/mapLabels';
 import { getDirectionLabel, type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
@@ -74,11 +75,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(objectiveDef.chat_link);
-    } catch {
-      // Ignore clipboard write failures in unsupported contexts.
-    }
+    await tryWriteClipboardText(objectiveDef.chat_link, navigator.clipboard);
   }
 
   function onCopyChatLink() {
