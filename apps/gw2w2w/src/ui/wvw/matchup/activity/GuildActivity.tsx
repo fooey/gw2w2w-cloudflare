@@ -8,9 +8,8 @@ import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import type { GuildActivityRow } from '@repo/service-api/types';
-import type { EventRow } from '@repo/service-api/types';
-import Link from '#ui/Link';
+import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
+import { Link } from '#ui/Link';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMemo, useRef, useState } from 'react';
 
@@ -62,7 +61,7 @@ function buildGuildRows(
     if (e.type !== 'claim') continue;
     if (!e.claimed_by) continue;
     if (typeof e.at !== 'string') continue;
-    if (cutoffMs != null && new Date(e.at).getTime() < cutoffMs) continue;
+    if (cutoffMs !== null && cutoffMs !== undefined && new Date(e.at).getTime() < cutoffMs) continue;
     if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
     if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
       continue;
@@ -267,7 +266,7 @@ export function GuildActivity({ events }: GuildActivityProps) {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
+  // eslint-disable-next-line react-hooks-js/incompatible-library -- TanStack Virtual's API is intentionally used for row virtualization in this scroll container.
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,

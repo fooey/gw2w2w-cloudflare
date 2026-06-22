@@ -99,8 +99,13 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
   }
 
   function handleRandom() {
-    // eslint-disable-next-line react-hooks/purity -- Math.random() is intentional in this event handler
-    const color = filtered[Math.floor(Math.random() * filtered.length)];
+    if (filtered.length === 0) return;
+
+    const random = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(random);
+    const randomValue = random[0] ?? 0;
+    const index = randomValue % filtered.length;
+    const color = filtered[index];
     if (color) onChange?.(color.id);
   }
 
