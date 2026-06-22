@@ -24,9 +24,10 @@ interface FakeEnv {
 function createHarness(initialAlarm: number | null | undefined): { state: FakeState; env: FakeEnv } {
   const storage: FakeStorage = {
     alarm: initialAlarm,
-    getAlarm: vi.fn(async () => storage.alarm),
-    setAlarm: vi.fn(async (value: number) => {
+    getAlarm: vi.fn(() => Promise.resolve(storage.alarm)),
+    setAlarm: vi.fn((value: number) => {
       storage.alarm = value;
+      return Promise.resolve();
     }),
   };
 
@@ -40,7 +41,7 @@ function createHarness(initialAlarm: number | null | undefined): { state: FakeSt
     GW2_API_BASE: 'https://api.guildwars2.com',
     WVW_DB: {
       prepare: vi.fn(() => ({
-        all: async () => ({ results: [] }),
+        all: () => Promise.resolve({ results: [] }),
       })),
     },
   };
