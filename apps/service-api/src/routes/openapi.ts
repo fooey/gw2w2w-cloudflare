@@ -21,8 +21,14 @@ Built specifically for gw2w2w.com, backed by **D1** and **Durable Objects**:
 const OPENAPI_TAGS = [
   // Proxied — data sourced from the official Guild Wars 2 API
   { name: 'GW2 Colors', description: 'Proxied from GW2 API (v2/colors). Dye color definitions.' },
-  { name: 'GW2 Emblems', description: 'Proxied from GW2 API (v2/emblem). Guild emblem layer definitions.' },
-  { name: 'GW2 Guilds', description: 'Proxied from GW2 API (v2/guild). Guild lookup and upgrades.' },
+  {
+    name: 'GW2 Emblems',
+    description: 'Proxied from GW2 API (v2/emblem). Guild emblem layer definitions.',
+  },
+  {
+    name: 'GW2 Guilds',
+    description: 'Proxied from GW2 API (v2/guild). Guild lookup and upgrades.',
+  },
   {
     name: 'GW2 WvW Reference',
     description:
@@ -41,9 +47,15 @@ const OPENAPI_TAGS = [
     name: 'WvW Events',
     description: 'Custom. Queryable event log of WvW objective captures and claims, stored in D1.',
   },
-  { name: 'WvW Guilds', description: 'Custom. Aggregated guild claim activity per match, stored in D1.' },
+  {
+    name: 'WvW Guilds',
+    description: 'Custom. Aggregated guild claim activity per match, stored in D1.',
+  },
   { name: 'WvW Matches', description: 'Custom. Cached match state snapshots from D1.' },
-  { name: 'WvW Stream', description: 'Custom. Real-time SSE stream of WvW match updates via Durable Object.' },
+  {
+    name: 'WvW Stream',
+    description: 'Custom. Real-time SSE stream of WvW match updates via Durable Object.',
+  },
 ];
 
 /**
