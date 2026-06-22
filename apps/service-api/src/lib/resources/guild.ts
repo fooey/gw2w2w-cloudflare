@@ -82,5 +82,7 @@ export async function searchGuild(name: string, env: CloudflareEnv): Promise<Gui
 
   const cacheProviders = createCacheProviders(env);
 
-  return withKvCache(kvKey, async () => searchGuildFromApi(name, env), cacheProviders, { ttl: CACHE_TTL.user.kv });
+  return withKvCache(kvKey, async () => searchGuildFromApi(name, env), cacheProviders, {
+    ttl: CACHE_TTL.user.kv,
+  });
 }

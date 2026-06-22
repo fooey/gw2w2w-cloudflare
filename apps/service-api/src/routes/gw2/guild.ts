@@ -1,8 +1,7 @@
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { GuildUpgradeSchema } from '#lib/resources/guild/upgrades.ts';
-import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
+import { getGuildUpgrades, GuildUpgradeSchema } from '#lib/resources/guild/upgrades.ts';
 import { getGuild, searchGuild } from '#lib/resources/guild.ts';
 import { GuildSchema } from '#lib/types/Guild.ts';
 import { Hono } from 'hono';
