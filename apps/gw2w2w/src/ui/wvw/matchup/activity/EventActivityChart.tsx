@@ -79,7 +79,8 @@ function buildChartData(
 
   for (const e of events) {
     if (typeof e.at !== 'string') continue;
-    if (cutoffSeconds != null && new Date(e.at).getTime() / 1_000 < cutoffSeconds) continue;
+    if (cutoffSeconds !== null && cutoffSeconds !== undefined && new Date(e.at).getTime() / 1_000 < cutoffSeconds)
+      continue;
     if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
     if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
       continue;

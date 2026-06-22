@@ -47,7 +47,14 @@ function useWvwUpgradesMap() {
 export function useWvwUpgradeTier(upgradeId: number | undefined, yaksDelivered: number | undefined): number | null {
   const { data: upgradesMap } = useWvwUpgradesMap();
 
-  if (upgradeId == null || yaksDelivered == null || !upgradesMap) return null;
+  if (
+    upgradeId === null ||
+    upgradeId === undefined ||
+    yaksDelivered === null ||
+    yaksDelivered === undefined ||
+    !upgradesMap
+  )
+    return null;
 
   const thresholds = upgradesMap.get(upgradeId);
   if (!thresholds) return null;
