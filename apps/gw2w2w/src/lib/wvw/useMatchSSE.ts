@@ -35,7 +35,21 @@ interface ClaimPayload {
   at: string;
 }
 
-function captureToRow(p: CapturePayload): EventRow {
+export function coerceEventAt(at: unknown, fallbackAt: string): string {
+  return typeof at === 'string' ? at : fallbackAt;
+}
+
+export function mergeInitialHistory(prev: EventRow[], incoming: EventRow[], fallbackAt: string): EventRow[] {
+  const prevIds = new Set(prev.map((e) => e.id));
+  const history = incoming
+    .filter((e) => !prevIds.has(e.id))
+    .map((e) => ({ ...e, at: coerceEventAt(e.at, fallbackAt) }));
+
+  // SSE events that arrived before history loaded stay at the front (they're newer)
+  return [...prev, ...history];
+}
+
+export function captureToRow(p: CapturePayload): EventRow {
   return {
     id: p.id,
     match_id: p.matchId,
@@ -49,7 +63,7 @@ function captureToRow(p: CapturePayload): EventRow {
   };
 }
 
-function claimToRow(p: ClaimPayload): EventRow {
+export function claimToRow(p: ClaimPayload): EventRow {
   return {
     id: p.id,
     match_id: p.matchId,
@@ -78,7 +92,7 @@ interface UseMatchSSEResult {
 export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEvents: EventRow[]): UseMatchSSEResult {
   const [match, setMatch] = useState(initialMatch);
   const [events, setEvents] = useState<EventRow[]>(() =>
-    initialEvents.map((e) => (typeof e.at === 'string' ? e : { ...e, at: initialMatch.start_time })),
+    initialEvents.map((e) => ({ ...e, at: coerceEventAt(e.at, initialMatch.start_time) })),
   );
   // Tracks current match start_time for use as fallback when an event has a
   // null/invalid `at` (can happen at match start before objectives are flipped).
@@ -86,10 +100,6 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEven
   const matchStartTimeRef = useRef(initialMatch.start_time);
 
   useEffect(() => {
-    function coerceAt(at: unknown): string {
-      return typeof at === 'string' ? at : matchStartTimeRef.current;
-    }
-
     const es = new EventSource(`${GW2W2W_API_BASE}/wvw/stream?matchId=${matchId}`);
 
     const onMatchState = (e: MessageEvent) => {
@@ -100,13 +110,13 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEven
 
     const onCapture = (e: MessageEvent) => {
       const p = JSON.parse(e.data as string) as CapturePayload;
-      const row = captureToRow({ ...p, at: coerceAt(p.at) });
+      const row = captureToRow({ ...p, at: coerceEventAt(p.at, matchStartTimeRef.current) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 
     const onClaim = (e: MessageEvent) => {
       const p = JSON.parse(e.data as string) as ClaimPayload;
-      const row = claimToRow({ ...p, at: coerceAt(p.at) });
+      const row = claimToRow({ ...p, at: coerceEventAt(p.at, matchStartTimeRef.current) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 
@@ -134,15 +144,7 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEven
     async function loadInitialEvents() {
       const data = await fetchWvwEvents(getClientApi(), { matchId });
       if (cancelled || !data) return;
-      const startTime = matchStartTimeRef.current;
-      setEvents((prev) => {
-        const prevIds = new Set(prev.map((e) => e.id));
-        const history = data.events
-          .filter((e) => !prevIds.has(e.id))
-          .map((e) => (typeof e.at === 'string' ? e : { ...e, at: startTime }));
-        // SSE events that arrived before history loaded stay at the front (they're newer)
-        return [...prev, ...history];
-      });
+      setEvents((prev) => mergeInitialHistory(prev, data.events, matchStartTimeRef.current));
     }
 
     void loadInitialEvents();
