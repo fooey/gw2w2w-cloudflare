@@ -105,3 +105,74 @@ describe('MatchupPoller status endpoint alarm fields', () => {
     expect(body.alarmIsStale).toBe(true);
   });
 });
+
+describe('MatchupPoller alarm backoff', () => {
+  it('uses Retry-After seconds to reschedule after 429', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-22T12:00:00.000Z'));
+
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response('', {
+          status: 429,
+          headers: {
+            'Retry-After': '30',
+            'x-rate-limit-limit': '600',
+          },
+        }),
+      )
+      .mockResolvedValueOnce(new Response('ip=203.0.113.10\n', { status: 200 }));
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { state, env } = createHarness(Date.now() + 60_000);
+    env.GW2_API_KEY = 'test-key';
+
+    const poller = new MatchupPoller(state as never, env as never);
+    await flushConstructorWork();
+
+    state.storage.setAlarm.mockClear();
+    await poller.alarm();
+
+    expect(state.storage.setAlarm).toHaveBeenCalledTimes(2);
+    expect(state.storage.setAlarm.mock.calls[1]?.[0]).toBe(Date.now() + 30_000);
+
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it('falls back to default backoff when Retry-After is missing', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-22T12:00:00.000Z'));
+
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response('', {
+          status: 429,
+          headers: {
+            'x-rate-limit-limit': '600',
+          },
+        }),
+      )
+      .mockResolvedValueOnce(new Response('ip=203.0.113.10\n', { status: 200 }));
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { state, env } = createHarness(Date.now() + 60_000);
+    env.GW2_API_KEY = 'test-key';
+
+    const poller = new MatchupPoller(state as never, env as never);
+    await flushConstructorWork();
+
+    state.storage.setAlarm.mockClear();
+    await poller.alarm();
+
+    expect(state.storage.setAlarm).toHaveBeenCalledTimes(2);
+    expect(state.storage.setAlarm.mock.calls[1]?.[0]).toBe(Date.now() + 60_000);
+
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+});
