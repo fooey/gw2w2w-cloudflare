@@ -16,8 +16,6 @@ type ActivityObjType = (typeof ACTIVITY_OBJ_TYPES)[number];
 const ACTIVITY_MAP_TYPES = ['Center', 'GreenHome', 'BlueHome', 'RedHome'] as const;
 type ActivityMapType = (typeof ACTIVITY_MAP_TYPES)[number];
 
-const TEAM_OWNERS = ['Green', 'Blue', 'Red'] as const;
-
 const OBJ_TO_KEY: Record<ActivityObjType, keyof Omit<TeamRow, 'owner'>> = {
   Castle: 'claims_castle',
   Keep: 'claims_keep',
