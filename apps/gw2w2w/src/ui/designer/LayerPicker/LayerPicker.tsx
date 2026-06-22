@@ -11,8 +11,8 @@ import {
 } from '@heroicons/react/20/solid';
 import type { Color, Emblem } from '@repo/service-api/types';
 import { useEffect, useRef, useState } from 'react';
-import { EmblemPreview } from '../EmblemPreview';
-import type { EmblemState } from '../types';
+import { EmblemPreview } from '#ui/designer/EmblemPreview';
+import type { EmblemState } from '#ui/designer/types';
 
 interface LayerPickerProps {
   layers: Emblem[];
@@ -191,7 +191,7 @@ export function LayerPicker({
         }}
         className="flex w-full items-center gap-2 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       >
-        {value != null ? (
+        {value !== null && value !== undefined ? (
           <>
             <EmblemPreview
               emblem={triggerEmblem}
