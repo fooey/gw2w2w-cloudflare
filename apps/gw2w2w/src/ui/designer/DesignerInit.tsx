@@ -17,9 +17,13 @@ export function DesignerInit({ backgrounds, foregrounds, children }: DesignerIni
 
   useEffect(() => {
     if (photonReady) return;
-    void initPhoton().then(() => {
+
+    async function bootPhoton() {
+      await initPhoton();
       setPhotonReady(true);
-    });
+    }
+
+    void bootPhoton();
   }, [photonReady]);
 
   return (

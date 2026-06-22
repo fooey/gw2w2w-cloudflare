@@ -10,13 +10,20 @@ interface CopyToClipboardInputProps {
 export function CopyToClipboardInput({ label, value }: CopyToClipboardInputProps) {
   const [copied, setCopied] = useState(false);
 
-  function handleCopy() {
-    void navigator.clipboard.writeText(value).then(() => {
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => {
         setCopied(false);
       }, 2000);
-    });
+    } catch {
+      // Ignore clipboard write failures in unsupported contexts.
+    }
+  }
+
+  function onCopyClick() {
+    void handleCopy();
   }
 
   return (
@@ -34,7 +41,7 @@ export function CopyToClipboardInput({ label, value }: CopyToClipboardInputProps
         />
         <button
           type="button"
-          onClick={handleCopy}
+          onClick={onCopyClick}
           className="shrink-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         >
           {copied ? 'Copied!' : 'Copy'}

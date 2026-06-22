@@ -6,11 +6,12 @@ let photonModule: PhotonModule | null = null;
 
 /** Start loading the Photon WASM module. Safe to call multiple times. */
 export function initPhoton(): Promise<PhotonModule> {
-  photonReady ??= import('@silvia-odwyer/photon').then(async (mod) => {
+  photonReady ??= (async () => {
+    const mod = await import('@silvia-odwyer/photon');
     await mod.default(); // init WASM
     photonModule = mod;
     return mod;
-  });
+  })();
   return photonReady;
 }
 

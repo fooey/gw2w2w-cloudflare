@@ -131,7 +131,8 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEven
   useEffect(() => {
     let cancelled = false;
 
-    void fetchWvwEvents(getClientApi(), { matchId }).then((data) => {
+    async function loadInitialEvents() {
+      const data = await fetchWvwEvents(getClientApi(), { matchId });
       if (cancelled || !data) return;
       const startTime = matchStartTimeRef.current;
       setEvents((prev) => {
@@ -142,7 +143,9 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEven
         // SSE events that arrived before history loaded stay at the front (they're newer)
         return [...prev, ...history];
       });
-    });
+    }
+
+    void loadInitialEvents();
 
     return () => {
       cancelled = true;
