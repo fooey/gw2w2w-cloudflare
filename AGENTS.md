@@ -124,6 +124,8 @@ pnpm format && pnpm ci:all
 
 This formats all files, then runs all CI checks in order: format (verify) → lint (type-aware) → type-check → boundary-check → test → audit. Fix any errors before finishing. Individual commands are also available as `ci:format`, `ci:lint`, `ci:types`, `ci:boundaries`, and `ci:test`. Individual commands are documented below for reference.
 
+**A task is not complete until `pnpm ci:all` reports a full clear signal.** Don't stop at "I ran it and saw some warnings" or "the failures are pre-existing" without re-confirming — re-run after every fix until every stage passes (or the only failure is a known, separately-tracked issue like a dependency audit advisory that the user has explicitly told you to ignore). Partial verification is not verification.
+
 ## Addressing PR Review Comments
 
 When asked to address PR review comments, follow this workflow:
