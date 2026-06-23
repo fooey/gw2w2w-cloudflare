@@ -1,5 +1,6 @@
 import type { CloudflareEnv } from '#index.ts';
 import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
+import { isNil, isPresent } from '@repo/utils';
 import { DurableObject } from 'cloudflare:workers';
 import { isEqual } from 'lodash-es';
 
@@ -93,7 +94,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       const existing = await ctx.storage.getAlarm();
       // Also reschedule if the stored alarm is in the past — this happens when a
       // CPU kill consumes the alarm invocation before the handler can reschedule.
-      if (existing === null || existing === undefined || existing <= Date.now()) {
+      if (isNil(existing) || existing <= Date.now()) {
         await ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
       }
     });
@@ -111,7 +112,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         this.#lastRateLimitAt = new Date().toISOString();
         const resumeAt = new Date(Date.now() + err.retryAfterMs).toISOString();
         const burst = err.rateLimitBurst ?? 'unknown';
-        const ipSuffix = err.egressIp !== null && err.egressIp !== undefined ? `, egressIp=${err.egressIp}` : '';
+        const ipSuffix = isPresent(err.egressIp) ? `, egressIp=${err.egressIp}` : '';
         console.warn(
           `[MatchupPoller] [${requestId}] rate limited #${this.#consecutiveRateLimits} (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
             ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
@@ -146,8 +147,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     return Response.json({
       status: 'ok',
       nextAlarmAt: alarm,
-      nextAlarmAtISO: alarm !== null && alarm !== undefined ? new Date(alarm).toISOString() : null,
-      alarmIsStale: alarm !== null && alarm !== undefined && alarm <= Date.now(),
+      nextAlarmAtISO: isPresent(alarm) ? new Date(alarm).toISOString() : null,
+      alarmIsStale: isPresent(alarm) && alarm <= Date.now(),
       matchCount: this.#matchEndTimes.size,
       matchEndTimes: Object.fromEntries(this.#matchEndTimes),
       cachedMatchStateKeys: [...this.#matchState.keys()],
@@ -330,11 +331,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
     // console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders), 'egressIp:', egressIp);
     const retryAfter = response.headers.get('Retry-After');
-    const retryAfterMs =
-      retryAfter !== null && retryAfter !== undefined ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
+    const retryAfterMs = isPresent(retryAfter) ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
     const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
-    const rateLimitBurst =
-      rateLimitBurstRaw !== null && rateLimitBurstRaw !== undefined ? parseInt(rateLimitBurstRaw, 10) : null;
+    const rateLimitBurst = isPresent(rateLimitBurstRaw) ? parseInt(rateLimitBurstRaw, 10) : null;
     throw new RateLimitError(
       Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS,
       rateLimitBurst,
@@ -377,7 +376,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       // Detection via end_time string equality is robust against ArenaNet delays
       // and avoids hardcoding day/time logic.
       const prevEndTime = this.#matchEndTimes.get(match.id);
-      if (prevEndTime !== null && prevEndTime !== undefined && prevEndTime !== match.end_time) {
+      if (isPresent(prevEndTime) && prevEndTime !== match.end_time) {
         console.info(`[MatchupPoller] [${requestId}] Weekly reset detected for match ${match.id}`);
         resetMatchIds.push(match.id);
         stmts.push(this.env.WVW_DB.prepare('DELETE FROM events WHERE match_id = ?').bind(match.id));
@@ -660,12 +659,6 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   }
 
   #shouldEmitClaim(obj: WvWMatchObjective, prev: ObjectiveSnap | undefined): boolean {
-    return (
-      obj.claimed_at !== null &&
-      obj.claimed_at !== undefined &&
-      obj.claimed_by !== null &&
-      obj.claimed_by !== undefined &&
-      obj.claimed_at !== prev?.claimed_at
-    );
+    return isPresent(obj.claimed_at) && isPresent(obj.claimed_by) && obj.claimed_at !== prev?.claimed_at;
   }
 }

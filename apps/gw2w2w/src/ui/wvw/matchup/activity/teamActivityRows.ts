@@ -1,6 +1,7 @@
 import { OBJECTIVE_TYPES } from '#lib/store/logFilters';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import type { EventRow } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 
 const TEAM_OWNERS = ['Green', 'Blue', 'Red'] as const;
 type TeamOwner = (typeof TEAM_OWNERS)[number];
@@ -44,7 +45,7 @@ export function buildTeamRows(
   for (const e of events) {
     if (e.type !== 'claim') continue;
     if (typeof e.at !== 'string') continue;
-    if (cutoffMs !== null && cutoffMs !== undefined && new Date(e.at).getTime() < cutoffMs) continue;
+    if (isPresent(cutoffMs) && new Date(e.at).getTime() < cutoffMs) continue;
     if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
     if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
       continue;

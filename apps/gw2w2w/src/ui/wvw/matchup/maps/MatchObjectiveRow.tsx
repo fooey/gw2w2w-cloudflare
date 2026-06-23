@@ -11,6 +11,7 @@ import { Name } from '#ui/wvw/matchup/maps/objective/Name';
 import { Timer } from '#ui/wvw/matchup/maps/objective/Timer';
 import { UpgradeTier } from '#ui/wvw/matchup/maps/objective/UpgradeTier';
 import type { WvWMatchObjective } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 
 const RI_TIMER = 5 * 60;
 
@@ -62,7 +63,7 @@ export function MatchObjectiveRow({
       <Guild claimedBy={matchObjective.claimed_by ?? undefined} />
       <span className="relative inline-flex">
         <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={ICON_SIZE} />
-        {upgradeTier !== null && upgradeTier !== undefined && <UpgradeTier tier={upgradeTier} />}
+        {isPresent(upgradeTier) && <UpgradeTier tier={upgradeTier} />}
       </span>
       <ObjectiveDirection direction={direction} width={ICON_SIZE / 2} height={ICON_SIZE / 2} />
       <Name objectiveId={matchObjective.id} />

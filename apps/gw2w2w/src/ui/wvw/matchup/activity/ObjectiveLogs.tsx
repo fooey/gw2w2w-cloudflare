@@ -6,6 +6,7 @@ import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
 import type { EventRow } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 
@@ -42,12 +43,11 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   const maxAge = TIME_WINDOW_TO_MAX_AGE[timeWindow];
 
   // All filtering is client-side — events array comes pre-loaded from useMatchSSE.
-  const cutoff = maxAge !== null && maxAge !== undefined ? Temporal.Now.instant().subtract({ seconds: maxAge }) : null;
+  const cutoff = isPresent(maxAge) ? Temporal.Now.instant().subtract({ seconds: maxAge }) : null;
 
   function matchesFilters(e: EventRow): boolean {
     if (typeof e.at !== 'string') return false;
-    if (cutoff !== null && cutoff !== undefined && Temporal.Instant.compare(Temporal.Instant.from(e.at), cutoff) < 0)
-      return false;
+    if (isPresent(cutoff) && Temporal.Instant.compare(Temporal.Instant.from(e.at), cutoff) < 0) return false;
     if (maps.length < MAP_TYPES.length && !maps.includes(e.map_type)) return false;
     if (objectiveTypes.length < OBJECTIVE_TYPES.length && !objectiveTypes.includes(e.objective_type)) return false;
     if (eventTypes.length < EVENT_TYPES.length && !eventTypes.includes(e.type)) return false;

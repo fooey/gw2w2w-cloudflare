@@ -6,6 +6,7 @@ import { getCustomEmblemSrc } from '#lib/emblems';
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import type { Color, Emblem } from '@repo/service-api/types';
+import { isNil, isPresent } from '@repo/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { CopyToClipboardInput } from '#ui/controls/CopyToClipboardInput';
@@ -97,25 +98,18 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   const fullUrl = (() => {
     if (typeof window === 'undefined') return '';
     const params = new URLSearchParams();
-    if (emblem.background.id !== null && emblem.background.id !== undefined)
-      params.set(P.BG, String(emblem.background.id));
-    if (emblem.background.colors[0] !== null && emblem.background.colors[0] !== undefined)
-      params.set(P.BGC, String(emblem.background.colors[0]));
-    if (emblem.foreground.id !== null && emblem.foreground.id !== undefined)
-      params.set(P.FG, String(emblem.foreground.id));
-    if (emblem.foreground.colors[0] !== null && emblem.foreground.colors[0] !== undefined)
-      params.set(P.FGC1, String(emblem.foreground.colors[0]));
-    if (emblem.foreground.colors[1] !== null && emblem.foreground.colors[1] !== undefined)
-      params.set(P.FGC2, String(emblem.foreground.colors[1]));
+    if (isPresent(emblem.background.id)) params.set(P.BG, String(emblem.background.id));
+    if (isPresent(emblem.background.colors[0])) params.set(P.BGC, String(emblem.background.colors[0]));
+    if (isPresent(emblem.foreground.id)) params.set(P.FG, String(emblem.foreground.id));
+    if (isPresent(emblem.foreground.colors[0])) params.set(P.FGC1, String(emblem.foreground.colors[0]));
+    if (isPresent(emblem.foreground.colors[1])) params.set(P.FGC2, String(emblem.foreground.colors[1]));
     for (const flag of emblem.flags) params.set(FLAG_PARAM[flag], '');
     const qs = params.toString();
     return `${window.location.origin}${pathname}${qs ? `?${qs}` : ''}`;
   })();
   const emblemSrc = getCustomEmblemSrc(emblem, previewSize);
 
-  const isEmpty =
-    (emblem.background.id === null || emblem.background.id === undefined) &&
-    (emblem.foreground.id === null || emblem.foreground.id === undefined);
+  const isEmpty = isNil(emblem.background.id) && isNil(emblem.foreground.id);
   const previewEmblem = isEmpty ? defaultState : emblem;
 
   return (
