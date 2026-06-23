@@ -7,6 +7,7 @@ import { useWvwObjective } from '#lib/wvw/objectives';
 import { useWvwUpgrades } from '#lib/wvw/upgrades';
 import { useGuild } from '#lib/wvw/useGuild';
 import { useGuildUpgrades } from '#lib/wvw/useGuildUpgrades';
+import { tryWriteClipboardText } from '#ui/controls/clipboard';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { getMapLabelFull } from '#ui/wvw/config/mapLabels';
 import { getDirectionLabel, type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
@@ -67,6 +68,18 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
 
   function handleBackdropClick(e: MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) onClose();
+  }
+
+  async function copyChatLink() {
+    if (!objectiveDef?.chat_link) {
+      return;
+    }
+
+    await tryWriteClipboardText(objectiveDef.chat_link, navigator.clipboard);
+  }
+
+  function onCopyChatLink() {
+    void copyChatLink();
   }
 
   return (
@@ -271,7 +284,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
             <button
               className="flex cursor-pointer items-center gap-1 rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-500 hover:bg-gray-200"
               title="Copy chat link"
-              onClick={() => void navigator.clipboard.writeText(objectiveDef.chat_link).catch(() => null)}
+              onClick={onCopyChatLink}
             >
               <ClipboardIcon className="size-3" />
               {objectiveDef.chat_link}

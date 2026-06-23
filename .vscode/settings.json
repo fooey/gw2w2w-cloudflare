@@ -8,5 +8,53 @@
       "pattern": "packages/*/"
     }
   ],
-  "js/ts.tsdk.path": "node_modules\\typescript\\lib"
+  "js/ts.tsdk.path": "node_modules\\typescript\\lib",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.format.oxc": "always",
+    "source.fixAll.oxc": "always"
+  },
+  "oxc.enable.oxfmt": true,
+  "oxc.enable.oxlint": true,
+  "oxc.path.oxlint": "node_modules/.bin/oxlint.cmd",
+  "oxc.path.oxfmt": "node_modules/.bin/oxfmt.cmd",
+  "oxc.path.tsgolint": "node_modules/.bin/tsgolint.cmd",
+  "oxc.fmt.configPath": "oxfmt.json",
+  "oxc.lint.run": "onSave",
+  "oxc.typeAware": true,
+  "eslint.enable": false,
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "chat.tools.terminal.autoApprove": {
+    "/^pnpm --filter gw2w2w lint$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^Set-Location 'c:\\\\src\\\\gw2w2w-cloudflare'; pnpm --filter gw2w2w lint 2>&1 \\| Select-Object -Last 250$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^pnpm --filter gw2w2w lint 2>&1 \\| Select-String -Pattern 'WatchModeProbe\\|warning\\|error\\|eqeqeq\\|set-state-in-render\\|catch-or-return\\|no-useless-rename' -CaseSensitive:\\$false$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^pnpm --filter \\./apps/gw2w2w build$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^pnpm --filter \\./apps/gw2w2w test$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^pnpm --filter \\./apps/gw2w2w lint$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^pnpm --filter \\./apps/gw2w2w check-types$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
 }

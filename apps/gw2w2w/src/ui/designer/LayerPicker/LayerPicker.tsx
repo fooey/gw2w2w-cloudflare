@@ -10,9 +10,11 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid';
 import type { Color, Emblem } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 import { useEffect, useRef, useState } from 'react';
-import { EmblemPreview } from '../EmblemPreview';
-import type { EmblemState } from '../types';
+import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
+import { EmblemPreview } from '#ui/designer/EmblemPreview';
+import type { EmblemState } from '#ui/designer/types';
 
 interface LayerPickerProps {
   layers: Emblem[];
@@ -174,7 +176,9 @@ export function LayerPicker({
   }
 
   function handleRandom() {
-    const layer = layers[Math.floor(Math.random() * layers.length)];
+    const index = getRandomIndex(layers.length, getCryptoRandomUint32());
+    if (index === null) return;
+    const layer = layers[index];
     if (layer) onChange(layer.id);
   }
 
@@ -191,7 +195,7 @@ export function LayerPicker({
         }}
         className="flex w-full items-center gap-2 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       >
-        {value != null ? (
+        {isPresent(value) ? (
           <>
             <EmblemPreview
               emblem={triggerEmblem}

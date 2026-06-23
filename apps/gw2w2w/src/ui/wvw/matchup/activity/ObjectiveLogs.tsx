@@ -6,6 +6,7 @@ import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
 import type { EventRow } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 
@@ -42,11 +43,11 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   const maxAge = TIME_WINDOW_TO_MAX_AGE[timeWindow];
 
   // All filtering is client-side — events array comes pre-loaded from useMatchSSE.
-  const cutoff = maxAge != null ? Temporal.Now.instant().subtract({ seconds: maxAge }) : null;
+  const cutoff = isPresent(maxAge) ? Temporal.Now.instant().subtract({ seconds: maxAge }) : null;
 
   function matchesFilters(e: EventRow): boolean {
     if (typeof e.at !== 'string') return false;
-    if (cutoff != null && Temporal.Instant.compare(Temporal.Instant.from(e.at), cutoff) < 0) return false;
+    if (isPresent(cutoff) && Temporal.Instant.compare(Temporal.Instant.from(e.at), cutoff) < 0) return false;
     if (maps.length < MAP_TYPES.length && !maps.includes(e.map_type)) return false;
     if (objectiveTypes.length < OBJECTIVE_TYPES.length && !objectiveTypes.includes(e.objective_type)) return false;
     if (eventTypes.length < EVENT_TYPES.length && !eventTypes.includes(e.type)) return false;
@@ -58,7 +59,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   // Use id as tiebreaker for events at the same second.
   const rows = events.filter(matchesFilters).sort((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
+  // eslint-disable-next-line react-hooks-js/incompatible-library -- TanStack Virtual's API is intentionally used for row virtualization in this scroll container.
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,

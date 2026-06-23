@@ -12,6 +12,7 @@ import {
 import type { Color } from '@repo/service-api/types';
 import { matchSorter } from 'match-sorter';
 import { useEffect, useRef, useState } from 'react';
+import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
 import { HUE_CATEGORIES, RARITY_CATEGORIES } from './filtering';
 import { SORT_OPTIONS, type SortEntry, sortColors } from './sorting';
 
@@ -99,8 +100,9 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
   }
 
   function handleRandom() {
-    // eslint-disable-next-line react-hooks/purity -- Math.random() is intentional in this event handler
-    const color = filtered[Math.floor(Math.random() * filtered.length)];
+    const index = getRandomIndex(filtered.length, getCryptoRandomUint32());
+    if (index === null) return;
+    const color = filtered[index];
     if (color) onChange?.(color.id);
   }
 

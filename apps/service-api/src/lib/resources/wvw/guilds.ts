@@ -18,42 +18,41 @@ export const WvWGuildSchema = z
 
 export type WvWGuild = z.infer<typeof WvWGuildSchema>;
 
-function getWvWGuildFromApi(env: CloudflareEnv): Promise<WvWGuild[] | null> {
-  return Promise.all([apiFetch(env, '/wvw/guilds/na'), apiFetch(env, '/wvw/guilds/eu')]).then(
-    ([naResponse, euResponse]) => {
-      if (!naResponse.ok || !euResponse.ok) {
-        if (naResponse.status === 404 || euResponse.status === 404) {
-          return null;
-        } else {
-          throw new Error(`API error retrieving WvW guilds`, {
-            cause: {
-              na: { status: naResponse.status, statusText: naResponse.statusText },
-              eu: { status: euResponse.status, statusText: euResponse.statusText },
-            },
-          });
-        }
-      }
+async function getWvWGuildFromApi(env: CloudflareEnv): Promise<WvWGuild[] | null> {
+  const [naResponse, euResponse] = await Promise.all([
+    apiFetch(env, '/wvw/guilds/na'),
+    apiFetch(env, '/wvw/guilds/eu'),
+  ]);
 
-      const naDataPromise = naResponse.json<WvWGuildApiResponse>();
-      const euDataPromise = euResponse.json<WvWGuildApiResponse>();
-
-      return Promise.all([naDataPromise, euDataPromise]).then(
-        ([naGuilds, euGuilds]: [WvWGuildApiResponse, WvWGuildApiResponse]) => {
-          const allGuilds: WvWGuild[] = [];
-
-          for (const [guildId, teamId] of Object.entries(naGuilds)) {
-            allGuilds.push({ id: guildId, teamId, region: 'na' });
-          }
-
-          for (const [guildId, teamId] of Object.entries(euGuilds)) {
-            allGuilds.push({ id: guildId, teamId, region: 'eu' });
-          }
-
-          return allGuilds;
+  if (!naResponse.ok || !euResponse.ok) {
+    if (naResponse.status === 404 || euResponse.status === 404) {
+      return null;
+    } else {
+      throw new Error(`API error retrieving WvW guilds`, {
+        cause: {
+          na: { status: naResponse.status, statusText: naResponse.statusText },
+          eu: { status: euResponse.status, statusText: euResponse.statusText },
         },
-      );
-    },
-  );
+      });
+    }
+  }
+
+  const [naGuilds, euGuilds] = await Promise.all([
+    naResponse.json<WvWGuildApiResponse>(),
+    euResponse.json<WvWGuildApiResponse>(),
+  ]);
+
+  const allGuilds: WvWGuild[] = [];
+
+  for (const [guildId, teamId] of Object.entries(naGuilds)) {
+    allGuilds.push({ id: guildId, teamId, region: 'na' });
+  }
+
+  for (const [guildId, teamId] of Object.entries(euGuilds)) {
+    allGuilds.push({ id: guildId, teamId, region: 'eu' });
+  }
+
+  return allGuilds;
 }
 
 export async function getWvwGuild(id: string | string[], env: CloudflareEnv): Promise<WvWGuild[] | null> {

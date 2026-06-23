@@ -1,5 +1,6 @@
 import type { ServiceApiClient } from '#lib/api/api.client.ts';
 import type { GuildActivityResponse } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 
 export interface FetchWvwGuildsParams {
   matchId: string;
@@ -22,9 +23,9 @@ export async function fetchWvwGuilds(
       matchId: params.matchId,
       ...(params.sort && { sort: params.sort }),
       ...(params.order && { order: params.order }),
-      ...(params.maxAge != null && { maxAge: String(params.maxAge) }),
-      ...(params.limit != null && { limit: String(params.limit) }),
-      ...(params.page != null && { page: String(params.page) }),
+      ...(isPresent(params.maxAge) && { maxAge: String(params.maxAge) }),
+      ...(isPresent(params.limit) && { limit: String(params.limit) }),
+      ...(isPresent(params.page) && { page: String(params.page) }),
       ...(params.mapType?.length && { mapType: params.mapType }),
       ...(params.objectiveType?.length && { objectiveType: params.objectiveType }),
       ...(params.owner?.length && { owner: params.owner }),

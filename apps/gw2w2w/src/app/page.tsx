@@ -1,6 +1,6 @@
 import { Features } from '#ui/home/Features';
 import { Hero } from '#ui/home/Hero';
-import SiteLayout from '#ui/layout/SiteLayout';
+import { SiteLayout } from '#ui/layout/SiteLayout';
 
 export default function Home() {
   return (

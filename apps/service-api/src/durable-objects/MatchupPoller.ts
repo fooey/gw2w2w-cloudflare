@@ -1,5 +1,6 @@
 import type { CloudflareEnv } from '#index.ts';
 import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
+import { isNil, isPresent } from '@repo/utils';
 import { DurableObject } from 'cloudflare:workers';
 import { isEqual } from 'lodash-es';
 
@@ -49,6 +50,14 @@ interface EventRow {
   claimed_by: string | null;
 }
 
+async function closeWriterIgnoringErrors(writer: WritableStreamDefaultWriter<Uint8Array>): Promise<void> {
+  try {
+    await writer.close();
+  } catch {
+    // already closed
+  }
+}
+
 class RateLimitError extends Error {
   retryAfterMs: number;
   rateLimitBurst: number | null;
@@ -93,7 +102,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       const existing = await ctx.storage.getAlarm();
       // Also reschedule if the stored alarm is in the past — this happens when a
       // CPU kill consumes the alarm invocation before the handler can reschedule.
-      if (existing == null || existing <= Date.now()) {
+      if (isNil(existing) || existing <= Date.now()) {
         await ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
       }
     });
@@ -111,7 +120,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         this.#lastRateLimitAt = new Date().toISOString();
         const resumeAt = new Date(Date.now() + err.retryAfterMs).toISOString();
         const burst = err.rateLimitBurst ?? 'unknown';
-        const ipSuffix = err.egressIp != null ? `, egressIp=${err.egressIp}` : '';
+        const ipSuffix = isPresent(err.egressIp) ? `, egressIp=${err.egressIp}` : '';
         console.warn(
           `[MatchupPoller] [${requestId}] rate limited #${this.#consecutiveRateLimits} (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
             ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
@@ -146,8 +155,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     return Response.json({
       status: 'ok',
       nextAlarmAt: alarm,
-      nextAlarmAtISO: alarm != null ? new Date(alarm).toISOString() : null,
-      alarmIsStale: alarm != null && alarm <= Date.now(),
+      nextAlarmAtISO: isPresent(alarm) ? new Date(alarm).toISOString() : null,
+      alarmIsStale: isPresent(alarm) && alarm <= Date.now(),
       matchCount: this.#matchEndTimes.size,
       matchEndTimes: Object.fromEntries(this.#matchEndTimes),
       cachedMatchStateKeys: [...this.#matchState.keys()],
@@ -189,9 +198,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     request.signal.addEventListener('abort', () => {
       this.#subscribers.delete(subId);
       console.info(`[MatchupPoller] subscriber disconnected: ${subId} (${matchId}), total=${this.#subscribers.size}`);
-      void writer.close().catch(() => {
-        /* already closed */
-      });
+      void closeWriterIgnoringErrors(writer);
     });
 
     // IMPORTANT: seed AFTER returning the Response so the readable has a consumer.
@@ -199,13 +206,15 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // chunk size exceeds the TransformStream's internal buffer HWM — nothing is
     // reading the readable yet, so backpressure blocks the write indefinitely.
     this.ctx.waitUntil(
-      this.#seedAndReplay(writer, matchId, matchRow, request.headers.get('last-event-id')).catch((err: unknown) => {
-        console.error('[MatchupPoller] seed error:', err);
-        this.#subscribers.delete(subId);
-        void writer.close().catch(() => {
-          /* already closed */
-        });
-      }),
+      (async () => {
+        try {
+          await this.#seedAndReplay(writer, matchId, matchRow, request.headers.get('last-event-id'));
+        } catch (err: unknown) {
+          console.error('[MatchupPoller] seed error:', err);
+          this.#subscribers.delete(subId);
+          void closeWriterIgnoringErrors(writer);
+        }
+      })(),
     );
 
     return new Response(readable, {
@@ -320,7 +329,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     let egressIp: string | null = null;
     try {
       // very short timeout since this is just for observability and shouldn't delay the alarm handler significantly
-      const trace = await fetch('https://1.1.1.1/cdn-cgi/trace', { signal: AbortSignal.timeout(200) });
+      const trace = await fetch('https://1.1.1.1/cdn-cgi/trace', {
+        signal: AbortSignal.timeout(200),
+      });
       const text = await trace.text();
       egressIp = /^ip=(.+)$/m.exec(text)?.[1] ?? null;
     } catch {
@@ -328,9 +339,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
     // console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders), 'egressIp:', egressIp);
     const retryAfter = response.headers.get('Retry-After');
-    const retryAfterMs = retryAfter != null ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
+    const retryAfterMs = isPresent(retryAfter) ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
     const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
-    const rateLimitBurst = rateLimitBurstRaw != null ? parseInt(rateLimitBurstRaw, 10) : null;
+    const rateLimitBurst = isPresent(rateLimitBurstRaw) ? parseInt(rateLimitBurstRaw, 10) : null;
     throw new RateLimitError(
       Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS,
       rateLimitBurst,
@@ -373,7 +384,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       // Detection via end_time string equality is robust against ArenaNet delays
       // and avoids hardcoding day/time logic.
       const prevEndTime = this.#matchEndTimes.get(match.id);
-      if (prevEndTime != null && prevEndTime !== match.end_time) {
+      if (isPresent(prevEndTime) && prevEndTime !== match.end_time) {
         console.info(`[MatchupPoller] [${requestId}] Weekly reset detected for match ${match.id}`);
         resetMatchIds.push(match.id);
         stmts.push(this.env.WVW_DB.prepare('DELETE FROM events WHERE match_id = ?').bind(match.id));
@@ -656,6 +667,6 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   }
 
   #shouldEmitClaim(obj: WvWMatchObjective, prev: ObjectiveSnap | undefined): boolean {
-    return obj.claimed_at != null && obj.claimed_by != null && obj.claimed_at !== prev?.claimed_at;
+    return isPresent(obj.claimed_at) && isPresent(obj.claimed_by) && obj.claimed_at !== prev?.claimed_at;
   }
 }

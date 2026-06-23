@@ -1,6 +1,5 @@
 import { integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core';
-import type { WvWMatch } from '#lib/resources/wvw/matches.ts';
-import type { WvWTeamColor, WvWMapType } from '#lib/resources/wvw/matches.ts';
+import type { WvWMapType, WvWMatch, WvWTeamColor } from '#lib/resources/wvw/matches.ts';
 
 type WvWEventType = 'capture' | 'claim';
 type WvWObjectiveType = 'Camp' | 'Tower' | 'Keep' | 'Castle' | 'Ruins';

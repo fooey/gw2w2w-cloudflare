@@ -1,11 +1,11 @@
 import { getEmblemSrc } from '#lib/emblems';
 import type { Guild } from '@repo/service-api/types';
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 
 export function Highlight({ text, query }: { text: string; query: string }) {
-  if (!query) return <>{text}</>;
+  if (!query) return text;
   const index = text.toLowerCase().indexOf(query.toLowerCase());
-  if (index === -1) return <>{text}</>;
+  if (index === -1) return text;
   return (
     <>
       {text.slice(0, index)}
@@ -25,7 +25,8 @@ export function WvWTeamGuild({ guild, query = '' }: { guild: Guild; query?: stri
       </div>
       <div className="text-center text-xs text-balance">
         <Link href={`/guilds/${guild.id}`}>
-          <Highlight text={guild.name} query={query} /> [<Highlight text={guild.tag} query={query} />]
+          <Highlight text={guild.name} query={query} /> [
+          <Highlight text={guild.tag} query={query} />]
         </Link>
       </div>
     </div>

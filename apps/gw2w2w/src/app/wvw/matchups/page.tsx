@@ -1,6 +1,6 @@
 import { getApi } from '#lib/api/api.server.ts';
 import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
-import SiteLayout from '#ui/layout/SiteLayout';
+import { SiteLayout } from '#ui/layout/SiteLayout';
 import { Dashboard } from '#ui/wvw/dashboard/Dashboard';
 
 export const dynamic = 'force-dynamic';

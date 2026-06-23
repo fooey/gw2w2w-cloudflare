@@ -59,7 +59,8 @@ graph TD
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`packages/emblem-renderer`](./packages/emblem-renderer/README.md) | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
 | [`packages/utils`](./packages/utils/README.md)                     | Shared routing, validation, and string utilities                                                                                                                                 |
-| `packages/eslint-config`                                           | Shared ESLint configuration                                                                                                                                                      |
+| `packages/oxlint-config`                                           | Shared Oxlint configuration presets (`base`, `nextjs-app`, `service`, `library`)                                                                                                 |
+| `packages/eslint-config`                                           | Deprecated ESLint compatibility package                                                                                                                                          |
 | `packages/typescript-config`                                       | Shared TypeScript configuration                                                                                                                                                  |
 
 ### Rendering Engine
@@ -200,7 +201,7 @@ Real-time WvW data requires polling `api.guildwars2.com/v2/wvw/matches?ids=all` 
 - **[Turborepo](https://turbo.build/)** — Monorepo build system with intelligent task caching. Ensures only affected packages rebuild on change.
 - **[pnpm](https://pnpm.io/)** — Package manager. Uses a content-addressable store and hard links to avoid duplicating packages on disk, making installs significantly faster and lighter than npm or yarn, especially in a monorepo.
 - **[TypeScript](https://www.typescriptlang.org/)** — Used across all apps and packages with strict shared configs via `packages/typescript-config`. Type checking runs via [`tsgo`](https://github.com/microsoft/typescript-go) (`@typescript/native-preview`) — the native Go port of the TypeScript compiler (~3.4× faster than `tsc` on this codebase).
-- **[ESLint](https://eslint.org/) + [Prettier](https://prettier.io/)** — Linting and formatting enforced across the monorepo via shared configs in `packages/eslint-config`.
+- **[Oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)** — Linting and formatting enforced across the monorepo with OXC tooling. `oxfmt` also enables Tailwind class sorting via `sortTailwindcss`.
 
 ## Local Development
 
@@ -235,8 +236,8 @@ The three services will be available at:
 ### Other useful commands
 
 ```sh
-pnpm format        # Prettier — format all files
-pnpm lint          # ESLint across all packages
+pnpm format        # Oxfmt — format all files
+pnpm lint          # Oxlint across apps + packages
 pnpm ci:types      # TypeScript type checking (tsgo — ~3.4× faster than tsc)
 pnpm ci:boundaries # Enforce package import boundaries
 pnpm test          # Run all unit tests

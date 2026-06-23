@@ -31,7 +31,10 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
       summary: 'Subscribe to WvW match events',
       description: 'Opens an SSE stream for real-time WvW match updates. Requires a matchId query parameter.',
       tags: ['WvW Stream'],
-      responses: { 200: { description: 'SSE event stream' }, 400: { description: 'Invalid or missing matchId' } },
+      responses: {
+        200: { description: 'SSE event stream' },
+        400: { description: 'Invalid or missing matchId' },
+      },
     }),
     async (c) => {
       const matchId = c.req.query('matchId');
@@ -51,6 +54,10 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
       if (lastEventId) headers['last-event-id'] = lastEventId;
 
       const stub = c.env.MATCHUP_POLLER.getByName('global');
-      return stub.fetch(new Request(`https://internal/subscribe?matchId=${encodeURIComponent(matchId)}`, { headers }));
+      return stub.fetch(
+        new Request(`https://internal/subscribe?matchId=${encodeURIComponent(matchId)}`, {
+          headers,
+        }),
+      );
     },
   );

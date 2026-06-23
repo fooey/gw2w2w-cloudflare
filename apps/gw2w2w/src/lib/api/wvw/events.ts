@@ -1,5 +1,6 @@
 import type { ServiceApiClient } from '#lib/api/api.client.ts';
 import type { EventLogResponse } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 
 export interface FetchWvwEventsParams {
   matchId: string;
@@ -14,7 +15,7 @@ export async function fetchWvwEvents(
   const res = await api.wvw.events.$get({
     query: {
       matchId: params.matchId,
-      ...(params.maxAge != null && { maxAge: String(params.maxAge) }),
+      ...(isPresent(params.maxAge) && { maxAge: String(params.maxAge) }),
     },
   });
   return res.json();

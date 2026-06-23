@@ -46,7 +46,7 @@ function SiteFooter() {
   );
 }
 
-export default function SiteLayout({
+export function SiteLayout({
   pageHeader,
   headerActions,
   children,

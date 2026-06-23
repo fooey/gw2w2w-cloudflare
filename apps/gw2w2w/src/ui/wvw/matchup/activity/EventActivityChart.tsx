@@ -12,6 +12,7 @@ import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, GranularityFilter, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import type { EventRow } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 import { useMemo } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
@@ -79,7 +80,7 @@ function buildChartData(
 
   for (const e of events) {
     if (typeof e.at !== 'string') continue;
-    if (cutoffSeconds != null && new Date(e.at).getTime() / 1_000 < cutoffSeconds) continue;
+    if (isPresent(cutoffSeconds) && new Date(e.at).getTime() / 1_000 < cutoffSeconds) continue;
     if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
     if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
       continue;

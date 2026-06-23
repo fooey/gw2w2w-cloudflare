@@ -1,6 +1,7 @@
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
 import type { CloudflareEnv } from '#index.ts';
+import { isPresent } from '@repo/utils';
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { describeRoute, validator } from 'hono-openapi';
@@ -41,7 +42,7 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
 
     const conditions = [eq(events.match_id, matchId)];
 
-    if (maxAge != null) {
+    if (isPresent(maxAge)) {
       // GW2 stores timestamps as "YYYY-MM-DDTHH:mm:ssZ" (no milliseconds).
       // Truncate the cutoff to seconds so SQLite's lexicographic comparison is correct.
       const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/, 'Z');

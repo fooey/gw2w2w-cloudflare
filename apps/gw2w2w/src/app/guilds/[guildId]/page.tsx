@@ -4,7 +4,7 @@ import { getEmblemSrc } from '#lib/emblems';
 import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import { GuildDetail } from '#ui/guilds/GuildDetail';
 import { GuildNotFound } from '#ui/guilds/GuildNotFound';
-import SiteLayout from '#ui/layout/SiteLayout';
+import { SiteLayout } from '#ui/layout/SiteLayout';
 import type { Guild } from '@repo/service-api/types';
 import { validateArenaNetUuid } from '@repo/utils';
 import type { Metadata } from 'next';
@@ -59,7 +59,14 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
         siteName: 'GW2W2W',
         type: 'website',
         images: emblemUrl
-          ? [{ url: emblemUrl, width: 128, height: 128, alt: `${guild.name} [${guild.tag}] Guild Emblem` }]
+          ? [
+              {
+                url: emblemUrl,
+                width: 128,
+                height: 128,
+                alt: `${guild.name} [${guild.tag}] Guild Emblem`,
+              },
+            ]
           : undefined,
       },
       twitter: {

@@ -5,7 +5,7 @@ import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { getEmblemSrc } from '#lib/emblems';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { Card } from '#ui/Card';
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 import { clsx } from 'clsx';
 
 interface GuildEmblemGridProps {

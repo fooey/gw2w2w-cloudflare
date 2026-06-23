@@ -3,7 +3,7 @@
 import { Highlight, WvWTeamGuild } from '#app/wvw/teams/[teamName]/WvWTeamGuild';
 import type { Guild } from '@repo/service-api/types';
 import { matchSorter } from 'match-sorter';
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 import { useState } from 'react';
 
 export function WvWTeamGuildFilter({ guilds }: { guilds: Guild[] }) {
@@ -37,7 +37,8 @@ export function WvWTeamGuildFilter({ guilds }: { guilds: Guild[] }) {
           {guildsWithoutEmblems.map((guild) => (
             <li key={guild.id} className="text-center">
               <Link href={`/guilds/${guild.id}`} className="text-sm text-gray-700 hover:text-gray-900">
-                <Highlight text={guild.name} query={query} /> [<Highlight text={guild.tag} query={query} />]
+                <Highlight text={guild.name} query={query} /> [
+                <Highlight text={guild.tag} query={query} />]
               </Link>
             </li>
           ))}

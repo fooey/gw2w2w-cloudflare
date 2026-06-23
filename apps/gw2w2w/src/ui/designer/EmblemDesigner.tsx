@@ -6,9 +6,10 @@ import { getCustomEmblemSrc } from '#lib/emblems';
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import type { Color, Emblem } from '@repo/service-api/types';
+import { isNil, isPresent } from '@repo/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { CopyToClipboardInput } from '../controls/CopyToClipboardInput';
+import { CopyToClipboardInput } from '#ui/controls/CopyToClipboardInput';
 import { ColorPicker } from './ColorPicker';
 import { DesignerInit } from './DesignerInit';
 import { LayerPicker } from './LayerPicker';
@@ -97,18 +98,18 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   const fullUrl = (() => {
     if (typeof window === 'undefined') return '';
     const params = new URLSearchParams();
-    if (emblem.background.id != null) params.set(P.BG, String(emblem.background.id));
-    if (emblem.background.colors[0] != null) params.set(P.BGC, String(emblem.background.colors[0]));
-    if (emblem.foreground.id != null) params.set(P.FG, String(emblem.foreground.id));
-    if (emblem.foreground.colors[0] != null) params.set(P.FGC1, String(emblem.foreground.colors[0]));
-    if (emblem.foreground.colors[1] != null) params.set(P.FGC2, String(emblem.foreground.colors[1]));
+    if (isPresent(emblem.background.id)) params.set(P.BG, String(emblem.background.id));
+    if (isPresent(emblem.background.colors[0])) params.set(P.BGC, String(emblem.background.colors[0]));
+    if (isPresent(emblem.foreground.id)) params.set(P.FG, String(emblem.foreground.id));
+    if (isPresent(emblem.foreground.colors[0])) params.set(P.FGC1, String(emblem.foreground.colors[0]));
+    if (isPresent(emblem.foreground.colors[1])) params.set(P.FGC2, String(emblem.foreground.colors[1]));
     for (const flag of emblem.flags) params.set(FLAG_PARAM[flag], '');
     const qs = params.toString();
     return `${window.location.origin}${pathname}${qs ? `?${qs}` : ''}`;
   })();
   const emblemSrc = getCustomEmblemSrc(emblem, previewSize);
 
-  const isEmpty = emblem.background.id == null && emblem.foreground.id == null;
+  const isEmpty = isNil(emblem.background.id) && isNil(emblem.foreground.id);
   const previewEmblem = isEmpty ? defaultState : emblem;
 
   return (
@@ -175,7 +176,10 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             label="Color"
             value={emblem.background.colors[0]}
             onChange={(colorId) => {
-              setEmblem((prev) => ({ ...prev, background: { ...prev.background, colors: [colorId] } }));
+              setEmblem((prev) => ({
+                ...prev,
+                background: { ...prev.background, colors: [colorId] },
+              }));
             }}
           />
 

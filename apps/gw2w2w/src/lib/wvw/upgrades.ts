@@ -1,6 +1,7 @@
 import { getClientApi } from '#lib/api/api.client.ts';
 import { fetchWvwUpgrades } from '#lib/api/gw2/wvw/upgrades';
 import type { WvWUpgrade } from '@repo/service-api/types';
+import { isNil } from '@repo/utils';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 type WvwUpgradesQueryOptions = Partial<
@@ -47,7 +48,7 @@ function useWvwUpgradesMap() {
 export function useWvwUpgradeTier(upgradeId: number | undefined, yaksDelivered: number | undefined): number | null {
   const { data: upgradesMap } = useWvwUpgradesMap();
 
-  if (upgradeId == null || yaksDelivered == null || !upgradesMap) return null;
+  if (isNil(upgradeId) || isNil(yaksDelivered) || !upgradesMap) return null;
 
   const thresholds = upgradesMap.get(upgradeId);
   if (!thresholds) return null;

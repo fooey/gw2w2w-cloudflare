@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
 
+function expectDefined<T>(value: T | undefined): T {
+  expect(value).toBeDefined();
+  if (value === undefined) throw new Error('Expected value to be defined');
+  return value;
+}
+
 describe('IMAGE_DIMENSION', () => {
   it('is 128', () => {
     expect(IMAGE_DIMENSION).toBe(128);
@@ -53,7 +59,7 @@ describe('renderEmblemPixels', () => {
     });
     expect(result.width).toBe(IMAGE_DIMENSION);
     expect(result.height).toBe(IMAGE_DIMENSION);
-    expect(result.data.length).toBe(IMAGE_DIMENSION * IMAGE_DIMENSION * 4);
+    expect(result.data).toHaveLength(IMAGE_DIMENSION * IMAGE_DIMENSION * 4);
     // All pixels should be transparent (no background layer)
     expect(result.u32.every((px) => px === 0)).toBe(true);
   });
@@ -74,11 +80,10 @@ describe('renderEmblemPixels', () => {
 
     // With mask = 255, the output pixel should carry bgRGB values
     // RGBA layout in u32 (little-endian): a<<24 | b<<16 | g<<8 | r
-    const pixel = result.u32[0];
-    expect(pixel).toBeDefined();
-    const r = (pixel ?? 0) & 0xff;
-    const g = ((pixel ?? 0) >> 8) & 0xff;
-    const b = ((pixel ?? 0) >> 16) & 0xff;
+    const pixel = expectDefined(result.u32[0]);
+    const r = pixel & 0xff;
+    const g = (pixel >> 8) & 0xff;
+    const b = (pixel >> 16) & 0xff;
     expect(r).toBe(0);
     expect(g).toBe(128);
     expect(b).toBe(255);

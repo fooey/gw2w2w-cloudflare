@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["./base.json"],
+  "plugins": ["unicorn", "typescript", "import", "promise", "vitest", "node"],
+  "rules": {
+    "node/global-require": "warn",
+    "node/no-exports-assign": "error",
+    "node/no-new-require": "error",
+    "node/no-path-concat": "error",
+    "node/no-process-env": "warn"
+  }
+}

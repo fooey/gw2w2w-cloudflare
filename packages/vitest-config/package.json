@@ -1,8 +1,8 @@
 {
   "name": "@repo/vitest-config",
   "version": "2026.4.12",
-  "type": "module",
   "private": true,
+  "type": "module",
   "exports": {
     "./base": "./base.ts"
   },

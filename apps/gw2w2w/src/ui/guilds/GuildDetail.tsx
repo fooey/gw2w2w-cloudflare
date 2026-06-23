@@ -3,7 +3,7 @@ import { GuildEmblemGrid } from '#ui/guilds/GuildEmblemGrid';
 import { GuildEmblemUsage } from '#ui/guilds/GuildEmblemUsage';
 import { GuildId } from '#ui/guilds/GuildId';
 import { GuildOpenInDesigner } from '#ui/guilds/GuildOpenInDesigner';
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 import type { Guild } from '@repo/service-api/types';
 
 interface GuildDetailProps {

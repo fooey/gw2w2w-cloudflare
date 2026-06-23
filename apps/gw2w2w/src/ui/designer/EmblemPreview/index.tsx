@@ -4,8 +4,8 @@ import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB }
 import type { Color, Emblem } from '@repo/service-api/types';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
-import { fetchTexture } from '../TextureCacheManager/textureCache';
-import type { EmblemState } from '../types';
+import { fetchTexture } from '#ui/designer/TextureCacheManager/textureCache';
+import type { EmblemState } from '#ui/designer/types';
 import { decodeLayer } from './decodeLayer';
 
 interface EmblemPreviewProps {
@@ -51,45 +51,49 @@ export function EmblemPreview({
     const fg2RGB = colorMap.get(fg2ColorId ?? -1) ?? [0, 0, 0];
 
     async function render() {
-      if (!bgDef && !fgDef) {
+      try {
+        if (!bgDef && !fgDef) {
+          const ctx = canvasEl.getContext('2d');
+          ctx?.clearRect(0, 0, canvasEl.width, canvasEl.height);
+          return;
+        }
+
+        const bgUrl = bgDef?.layers[0] ?? null;
+        const fg1Url = fgDef?.layers[1] ?? null;
+        const fg2Url = fgDef?.layers[2] ?? null;
+
+        const [bgBuf, fg1Buf, fg2Buf] = await Promise.all([
+          bgUrl ? fetchTexture(bgUrl) : Promise.resolve(null),
+          fg1Url ? fetchTexture(fg1Url) : Promise.resolve(null),
+          fg2Url ? fetchTexture(fg2Url) : Promise.resolve(null),
+        ]);
+
+        if (renderIdRef.current !== myId) return;
+
+        const [bgLayer, fg1Layer, fg2Layer] = await Promise.all([
+          decodeLayer(bgBuf, flipBgH, flipBgV),
+          decodeLayer(fg1Buf, flipFgH, flipFgV),
+          decodeLayer(fg2Buf, flipFgH, flipFgV),
+        ]);
+
+        if (renderIdRef.current !== myId) return;
+
+        const result = renderEmblemPixels(bgLayer, fg1Layer, fg2Layer, { bgRGB, fg1RGB, fg2RGB });
+
         const ctx = canvasEl.getContext('2d');
-        ctx?.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        return;
+        if (!ctx) return;
+        const imageData = new ImageData(
+          new Uint8ClampedArray(result.data.buffer as ArrayBuffer),
+          result.width,
+          result.height,
+        );
+        ctx.putImageData(imageData, 0, 0);
+      } catch (error) {
+        console.error(error);
       }
-
-      const bgUrl = bgDef?.layers[0] ?? null;
-      const fg1Url = fgDef?.layers[1] ?? null;
-      const fg2Url = fgDef?.layers[2] ?? null;
-
-      const [bgBuf, fg1Buf, fg2Buf] = await Promise.all([
-        bgUrl ? fetchTexture(bgUrl) : Promise.resolve(null),
-        fg1Url ? fetchTexture(fg1Url) : Promise.resolve(null),
-        fg2Url ? fetchTexture(fg2Url) : Promise.resolve(null),
-      ]);
-
-      if (renderIdRef.current !== myId) return;
-
-      const [bgLayer, fg1Layer, fg2Layer] = await Promise.all([
-        decodeLayer(bgBuf, flipBgH, flipBgV),
-        decodeLayer(fg1Buf, flipFgH, flipFgV),
-        decodeLayer(fg2Buf, flipFgH, flipFgV),
-      ]);
-
-      if (renderIdRef.current !== myId) return;
-
-      const result = renderEmblemPixels(bgLayer, fg1Layer, fg2Layer, { bgRGB, fg1RGB, fg2RGB });
-
-      const ctx = canvasEl.getContext('2d');
-      if (!ctx) return;
-      const imageData = new ImageData(
-        new Uint8ClampedArray(result.data.buffer as ArrayBuffer),
-        result.width,
-        result.height,
-      );
-      ctx.putImageData(imageData, 0, 0);
     }
 
-    render().catch(console.error);
+    void render();
 
     const idRef = renderIdRef;
     return () => {
@@ -104,7 +108,10 @@ export function EmblemPreview({
     <div className={clsx('flex flex-col items-center gap-1', tileClassName && 'rounded-xl')}>
       <div
         className={clsx('relative rounded-xl', bgClass, tileClassName && 'p-2')}
-        style={{ width: tileClassName ? undefined : size, height: tileClassName ? undefined : size }}
+        style={{
+          width: tileClassName ? undefined : size,
+          height: tileClassName ? undefined : size,
+        }}
       >
         <canvas
           ref={canvasRef}

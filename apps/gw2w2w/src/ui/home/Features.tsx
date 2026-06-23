@@ -1,5 +1,5 @@
 import { siteFeatures } from '#lib/definitions/site-sections';
-import Link from '#ui/Link';
+import { Link } from '#ui/Link';
 
 export function Features() {
   return (

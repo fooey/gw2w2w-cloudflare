@@ -8,7 +8,9 @@ import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 export async function getApi() {
   if (process.env.NODE_ENV === 'production') {
     const { env } = await getCloudflareContext({ async: true });
-    return hc<ServiceApiAppType>(GW2W2W_API_BASE, { fetch: env.SERVICE_API.fetch.bind(env.SERVICE_API) });
+    return hc<ServiceApiAppType>(GW2W2W_API_BASE, {
+      fetch: env.SERVICE_API.fetch.bind(env.SERVICE_API),
+    });
   }
 
   // Local dev — no Cloudflare context, use standard fetch

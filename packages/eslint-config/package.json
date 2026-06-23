@@ -1,8 +1,9 @@
 {
   "name": "@repo/eslint-config",
   "version": "2026.4.12",
-  "type": "module",
   "private": true,
+  "description": "DEPRECATED: use @repo/oxlint-config for active linting rules",
+  "type": "module",
   "exports": {
     "./base": "./base.js",
     "./next-js": "./next.js",

@@ -1,5 +1,5 @@
-import SiteLayout from '#ui/layout/SiteLayout';
-import Link from '#ui/Link';
+import { SiteLayout } from '#ui/layout/SiteLayout';
+import { Link } from '#ui/Link';
 
 export default function NotFound() {
   return (

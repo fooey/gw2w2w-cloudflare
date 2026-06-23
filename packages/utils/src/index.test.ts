@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { allowedCsrf, allowedOrigin, normalizeGuildName, validateArenaNetUuid, withJitter } from './index';
+import {
+  allowedCsrf,
+  allowedOrigin,
+  isNil,
+  isPresent,
+  normalizeGuildName,
+  validateArenaNetUuid,
+  withJitter,
+} from './index';
 
 describe('normalizeGuildName', () => {
   it('lowercases and trims', () => {
@@ -62,6 +70,31 @@ describe('allowedOrigin', () => {
   });
   it('returns undefined when origin is falsy', () => {
     expect(allowedOrigin(undefined, 'gw2w2w.com')).toBeUndefined();
+  });
+});
+
+describe('isNil', () => {
+  it('returns true for null and undefined', () => {
+    expect(isNil(null)).toBe(true);
+    expect(isNil(undefined)).toBe(true);
+  });
+  it('returns false for present values, including falsy ones', () => {
+    expect(isNil(0)).toBe(false);
+    expect(isNil('')).toBe(false);
+    expect(isNil(false)).toBe(false);
+    expect(isNil(NaN)).toBe(false);
+  });
+});
+
+describe('isPresent', () => {
+  it('returns false for null and undefined', () => {
+    expect(isPresent(null)).toBe(false);
+    expect(isPresent(undefined)).toBe(false);
+  });
+  it('returns true for present values, including falsy ones', () => {
+    expect(isPresent(0)).toBe(true);
+    expect(isPresent('')).toBe(true);
+    expect(isPresent(false)).toBe(true);
   });
 });
 

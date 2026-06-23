@@ -1,6 +1,7 @@
 import type { EmblemState } from '#ui/designer/types';
 import { DEFAULT_EMBLEM_SIZE, type EmblemSize } from '@repo/emblem-renderer/sizes';
 import type { Guild } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 
 const EMBLEM_HOST_PRODUCTION = 'https://emblem.gw2w2w.com';
 const EMBLEM_HOST_DEVELOPMENT = 'http://localhost:8787';
@@ -14,11 +15,13 @@ export const getEmblemSrc = (guildId: string, size?: EmblemSize) => {
 
 export const getCustomEmblemSrc = (emblem: EmblemState, size?: EmblemSize) => {
   const qs = new URLSearchParams();
-  if (emblem.background.id != null) qs.set('background_id', String(emblem.background.id));
-  if (emblem.background.colors[0] != null) qs.set('background_color_id', String(emblem.background.colors[0]));
-  if (emblem.foreground.id != null) qs.set('foreground_id', String(emblem.foreground.id));
-  if (emblem.foreground.colors[0] != null) qs.set('foreground_primary_color_id', String(emblem.foreground.colors[0]));
-  if (emblem.foreground.colors[1] != null) qs.set('foreground_secondary_color_id', String(emblem.foreground.colors[1]));
+  if (isPresent(emblem.background.id)) qs.set('background_id', String(emblem.background.id));
+  if (isPresent(emblem.background.colors[0])) qs.set('background_color_id', String(emblem.background.colors[0]));
+  if (isPresent(emblem.foreground.id)) qs.set('foreground_id', String(emblem.foreground.id));
+  if (isPresent(emblem.foreground.colors[0]))
+    qs.set('foreground_primary_color_id', String(emblem.foreground.colors[0]));
+  if (isPresent(emblem.foreground.colors[1]))
+    qs.set('foreground_secondary_color_id', String(emblem.foreground.colors[1]));
   if (emblem.flags.includes('FlipBackgroundHorizontal')) qs.set('flags_flip_bg_horizontal', '');
   if (emblem.flags.includes('FlipBackgroundVertical')) qs.set('flags_flip_bg_vertical', '');
   if (emblem.flags.includes('FlipForegroundHorizontal')) qs.set('flags_flip_fg_horizontal', '');
@@ -31,10 +34,12 @@ export const getCustomEmblemSrc = (emblem: EmblemState, size?: EmblemSize) => {
 export const getDesignerSrc = (emblem: NonNullable<Guild['emblem']>) => {
   const qs = new URLSearchParams();
   qs.set('background_id', String(emblem.background.id));
-  if (emblem.background.colors[0] != null) qs.set('background_color_id', String(emblem.background.colors[0]));
+  if (isPresent(emblem.background.colors[0])) qs.set('background_color_id', String(emblem.background.colors[0]));
   qs.set('foreground_id', String(emblem.foreground.id));
-  if (emblem.foreground.colors[0] != null) qs.set('foreground_primary_color_id', String(emblem.foreground.colors[0]));
-  if (emblem.foreground.colors[1] != null) qs.set('foreground_secondary_color_id', String(emblem.foreground.colors[1]));
+  if (isPresent(emblem.foreground.colors[0]))
+    qs.set('foreground_primary_color_id', String(emblem.foreground.colors[0]));
+  if (isPresent(emblem.foreground.colors[1]))
+    qs.set('foreground_secondary_color_id', String(emblem.foreground.colors[1]));
   if (emblem.flags.includes('FlipBackgroundHorizontal')) qs.set('flags_flip_bg_horizontal', '');
   if (emblem.flags.includes('FlipBackgroundVertical')) qs.set('flags_flip_bg_vertical', '');
   if (emblem.flags.includes('FlipForegroundHorizontal')) qs.set('flags_flip_fg_horizontal', '');
