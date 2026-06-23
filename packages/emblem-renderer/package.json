@@ -23,6 +23,7 @@
     "@repo/typescript-config": "workspace:*",
     "@repo/vitest-config": "workspace:*",
     "@typescript/native-preview": "catalog:",
+    "vite": "catalog:",
     "vitest": "catalog:"
   },
   "entry": "src/index.ts"

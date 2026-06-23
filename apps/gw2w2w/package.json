@@ -62,6 +62,7 @@
     "babel-plugin-react-compiler": "0.0.0-experimental-a1856f3-20260507",
     "tailwindcss": "^4.3.0",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vitest": "catalog:",
     "wrangler": "catalog:"
   }

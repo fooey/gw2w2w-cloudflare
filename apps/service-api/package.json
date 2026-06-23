@@ -48,6 +48,7 @@
     "@types/lodash-es": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
+    "vite": "catalog:",
     "vitest": "catalog:",
     "wrangler": "catalog:"
   }
