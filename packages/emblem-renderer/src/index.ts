@@ -37,6 +37,21 @@ export function renderEmblem(
   });
 }
 
+function decodeAndOrientLayer(buf: ArrayBuffer | null, h: boolean, v: boolean) {
+  if (!buf) return null;
+  const img = PhotonImage.new_from_byteslice(new Uint8Array(buf));
+  const rotate180 = h && v;
+  if (!rotate180) {
+    if (h) fliph(img);
+    if (v) flipv(img);
+  }
+  const data = img.get_raw_pixels();
+  const u32 = new Uint32Array(data.buffer, data.byteOffset, data.length >> 2);
+  if (rotate180) u32.reverse();
+  // img kept alive so its memory backing `data` remains valid
+  return { img, data, u32, width: img.get_width(), height: img.get_height() };
+}
+
 /**
  * Server-side entry point: decodes PNG buffers via Photon WASM, composites layers,
  * and returns a PhotonImage ready for WebP encoding.
@@ -55,23 +70,8 @@ export function renderEmblemLayers(
   const { flags } = options;
   const { flipBgH, flipBgV, flipFgH, flipFgV } = getFlipsFromFlags(flags);
 
-  const prepare = (buf: ArrayBuffer | null, h: boolean, v: boolean) => {
-    if (!buf) return null;
-    const img = PhotonImage.new_from_byteslice(new Uint8Array(buf));
-    const rotate180 = h && v;
-    if (!rotate180) {
-      if (h) fliph(img);
-      if (v) flipv(img);
-    }
-    const data = img.get_raw_pixels();
-    const u32 = new Uint32Array(data.buffer, data.byteOffset, data.length >> 2);
-    if (rotate180) u32.reverse();
-    // img kept alive so its memory backing `data` remains valid
-    return { img, data, u32, width: img.get_width(), height: img.get_height() };
-  };
-
   const bgLayer =
-    prepare(bgBuf, flipBgH, flipBgV) ??
+    decodeAndOrientLayer(bgBuf, flipBgH, flipBgV) ??
     (() => {
       const data = new Uint8Array(IMAGE_DIMENSION * IMAGE_DIMENSION * 4);
       const img = new PhotonImage(data, IMAGE_DIMENSION, IMAGE_DIMENSION);
@@ -81,8 +81,8 @@ export function renderEmblemLayers(
 
   const result = renderEmblemPixels(
     bgLayer,
-    prepare(fgBuf1, flipFgH, flipFgV),
-    prepare(fgBuf2, flipFgH, flipFgV),
+    decodeAndOrientLayer(fgBuf1, flipFgH, flipFgV),
+    decodeAndOrientLayer(fgBuf2, flipFgH, flipFgV),
     options,
   );
 

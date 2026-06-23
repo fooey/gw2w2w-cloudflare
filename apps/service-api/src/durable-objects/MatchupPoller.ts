@@ -50,6 +50,14 @@ interface EventRow {
   claimed_by: string | null;
 }
 
+async function closeWriterIgnoringErrors(writer: WritableStreamDefaultWriter<Uint8Array>): Promise<void> {
+  try {
+    await writer.close();
+  } catch {
+    // already closed
+  }
+}
+
 class RateLimitError extends Error {
   retryAfterMs: number;
   rateLimitBurst: number | null;
@@ -190,9 +198,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     request.signal.addEventListener('abort', () => {
       this.#subscribers.delete(subId);
       console.info(`[MatchupPoller] subscriber disconnected: ${subId} (${matchId}), total=${this.#subscribers.size}`);
-      void writer.close().catch(() => {
-        /* already closed */
-      });
+      void closeWriterIgnoringErrors(writer);
     });
 
     // IMPORTANT: seed AFTER returning the Response so the readable has a consumer.
@@ -200,13 +206,15 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // chunk size exceeds the TransformStream's internal buffer HWM — nothing is
     // reading the readable yet, so backpressure blocks the write indefinitely.
     this.ctx.waitUntil(
-      this.#seedAndReplay(writer, matchId, matchRow, request.headers.get('last-event-id')).catch((err: unknown) => {
-        console.error('[MatchupPoller] seed error:', err);
-        this.#subscribers.delete(subId);
-        void writer.close().catch(() => {
-          /* already closed */
-        });
-      }),
+      (async () => {
+        try {
+          await this.#seedAndReplay(writer, matchId, matchRow, request.headers.get('last-event-id'));
+        } catch (err: unknown) {
+          console.error('[MatchupPoller] seed error:', err);
+          this.#subscribers.delete(subId);
+          void closeWriterIgnoringErrors(writer);
+        }
+      })(),
     );
 
     return new Response(readable, {

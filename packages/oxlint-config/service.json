@@ -8,5 +8,13 @@
     "node/no-new-require": "error",
     "node/no-path-concat": "error",
     "node/no-process-env": "warn"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/index.ts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    }
+  ]
 }
