@@ -58,6 +58,7 @@ describe('MatchupPoller constructor alarm scheduling', () => {
   it('schedules an alarm when existing alarm is undefined', async () => {
     const { state, env } = createHarness(undefined);
 
+    // eslint-disable-next-line no-new -- constructing triggers the alarm-scheduling side effect under test.
     new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
 
@@ -68,6 +69,7 @@ describe('MatchupPoller constructor alarm scheduling', () => {
   it('does not reschedule when an alarm is already in the future', async () => {
     const { state, env } = createHarness(Date.now() + 60_000);
 
+    // eslint-disable-next-line no-new -- constructing triggers the alarm-scheduling side effect under test.
     new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
 

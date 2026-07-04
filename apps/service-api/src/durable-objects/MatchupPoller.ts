@@ -656,6 +656,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       this.#matchEndTimes.set(row.match_id, row.end_time);
       // Restore the JSON cache so the first post-cold-start poll skips redundant
       // match_state upserts for matches that haven't changed since the last write.
+      // row.data was JSON.stringify(match)'d by this same class — trusted, not external input.
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion
       const match = JSON.parse(row.data) as WvWMatch;
       this.#matchState.set(row.match_id, match);
       for (const map of match.maps) {

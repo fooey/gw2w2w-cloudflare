@@ -5,7 +5,7 @@ import type { EmblemSize } from './sizes';
 
 export type { DecodedLayer, RenderOptions } from './pixels';
 export { type ColorRGB, renderEmblemPixels };
-export { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from './sizes';
+export { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize, type EmblemSize } from './sizes';
 
 export function resizeEmblemImage(image: PhotonImage, size: EmblemSize): PhotonImage {
   if (size === IMAGE_DIMENSION) return image;

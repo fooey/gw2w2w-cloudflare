@@ -94,12 +94,16 @@ function compareByKey(a: Color, b: Color, key: SortKey): number {
         channelDominance(b.cloth.rgb[2], b.cloth.rgb[0], b.cloth.rgb[1]) -
         channelDominance(a.cloth.rgb[2], a.cloth.rgb[0], a.cloth.rgb[1])
       );
+    default: {
+      const exhaustive: never = key;
+      throw new Error(`Unhandled sort key: ${String(exhaustive)}`);
+    }
   }
 }
 
 export function sortColors(colors: Color[], sort: SortEntry | null): Color[] {
   if (!sort) return colors;
-  return [...colors].sort((a, b) => {
+  return colors.toSorted((a, b) => {
     const cmp = compareByKey(a, b, sort.key);
     return sort.dir === 'asc' ? cmp : -cmp;
   });

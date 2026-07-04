@@ -47,6 +47,9 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
       dialog.showModal();
     }
     dialog.addEventListener('cancel', onClose);
+    // React's useEffect callback intentionally allows either no cleanup (void, as in the
+    // early `if (!dialog) return;` above) or a cleanup function — not a bug.
+    // eslint-disable-next-line typescript/consistent-return
     return () => {
       dialog.removeEventListener('cancel', onClose);
     };

@@ -24,8 +24,13 @@ export function withCacheJson<T, S extends ContentfulStatusCode = 200>(
   c: Context,
   ttl: number,
   data: T,
+  // 200 is always a valid ContentfulStatusCode; the assertion is only needed to satisfy the generic S.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
   status: S = 200 as S,
 ): Promise<TypedResponse<T, S, 'json'>> {
+  // withCache operates on the untyped base Response; c.json(data, status) just above already
+  // produced a correctly-shaped TypedResponse, but that shape doesn't survive the generic boundary.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
   return withCache(c, ttl, () => Promise.resolve(c.json(data, status))) as unknown as Promise<
     TypedResponse<T, S, 'json'>
   >;

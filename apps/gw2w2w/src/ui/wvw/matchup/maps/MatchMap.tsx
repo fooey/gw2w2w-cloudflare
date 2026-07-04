@@ -54,6 +54,7 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
       <section className={clsx('rounded border py-2 shadow', border)}>
         <header className="grid grid-cols-[auto_1fr] gap-y-0.5 p-2 pt-0">
           {TEAM_COLORS.map((color) => {
+            // eslint-disable-next-line typescript/no-unsafe-type-assertion -- tsgo doesn't narrow .toLowerCase() to the literal union here.
             const c = color.toLowerCase() as 'green' | 'blue' | 'red';
             return (
               <MatchMapTeamScore

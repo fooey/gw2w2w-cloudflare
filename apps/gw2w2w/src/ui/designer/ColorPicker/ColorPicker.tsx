@@ -281,7 +281,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
           <div className="flex items-start gap-2">
             <span className="mt-0.5 w-10 shrink-0 text-xs text-gray-500">Sort:</span>
             <div className="flex flex-wrap gap-1">
-              {SORT_OPTIONS.map(({ key, label }) => {
+              {SORT_OPTIONS.map(({ key, label: optionLabel }) => {
                 const active = sort?.key === key ? sort : null;
                 return (
                   <button
@@ -297,7 +297,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
                       active ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
-                    {label}
+                    {optionLabel}
                     {active ? (active.dir === 'asc' ? ' ↑' : ' ↓') : ''}
                   </button>
                 );

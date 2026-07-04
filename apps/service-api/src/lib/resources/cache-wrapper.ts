@@ -50,6 +50,8 @@ export async function withKvCache<T>(
       return null;
     }
 
+    // Generic cache layer trusts that data previously cached under this key matches T.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion
     return JSON.parse(cached) as T;
   }
 
@@ -67,6 +69,8 @@ export async function withKvCache<T>(
   if (existing) {
     kvInflightWaiters.set(key, (kvInflightWaiters.get(key) ?? 0) + 1);
     if (enableLogging) console.info(`kv coalesced [${key}]`);
+    // In-flight promises are keyed the same as the cache itself, so this always resolves to T | null.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion
     return (await existing) as T | null;
   }
 
@@ -160,6 +164,8 @@ export async function withObjectCache<T>(
     if (existing) {
       objectInflightWaiters.set(objectKey, (objectInflightWaiters.get(objectKey) ?? 0) + 1);
       if (enableLogging) console.info(`object coalesced [${objectKey}]`);
+      // In-flight promises are keyed the same as the cache itself, so this always resolves to T.
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion
       cachedData = (await existing) as T;
     } else {
       const inflight = (async () => {

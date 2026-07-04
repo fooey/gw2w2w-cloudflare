@@ -25,7 +25,9 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
     if (!matchId && !selectedTeamId) notFound();
 
     // Valid team/match but no active match right now — happens briefly during weekly reset
-    const teamName = selectedTeamId ? WVW_TEAMS[selectedTeamId as keyof typeof WVW_TEAMS].en : null;
+    // The `in` check above already guards against an unknown team id; tsgo just doesn't narrow it.
+    const teamName =
+      selectedTeamId && selectedTeamId in WVW_TEAMS ? WVW_TEAMS[selectedTeamId as keyof typeof WVW_TEAMS].en : null; // eslint-disable-line typescript/no-unsafe-type-assertion
 
     return (
       <SiteLayout pageHeader="WvW Matchup">

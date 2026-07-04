@@ -106,7 +106,7 @@ function buildChartData(
     }
   }
 
-  return Array.from(buckets.values()).sort((a, b) => a.epochSeconds - b.epochSeconds);
+  return Array.from(buckets.values()).toSorted((a, b) => a.epochSeconds - b.epochSeconds);
 }
 
 const ACTIVE_OWNERS = ['Green', 'Blue', 'Red', 'Neutral'] as const;

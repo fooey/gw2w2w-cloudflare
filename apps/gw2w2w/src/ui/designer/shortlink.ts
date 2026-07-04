@@ -44,6 +44,9 @@ const FLAG_BITS: Record<EmblemFlag, number> = {
   FlipForegroundVertical: 8,
 };
 
+// Object.keys widens to string[] even though FLAG_BITS's Record<EmblemFlag, number> type
+// guarantees its keys are exactly the EmblemFlag union — TypeScript's stdlib can't express that.
+// eslint-disable-next-line typescript/no-unsafe-type-assertion
 const ALL_FLAGS = Object.keys(FLAG_BITS) as EmblemFlag[];
 
 export const SHORTLINK_LENGTH = 11;

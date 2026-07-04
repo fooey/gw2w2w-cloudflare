@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowsRightLeftIcon, ArrowsUpDownIcon } from '@heroicons/react/20/solid';
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';
 import { getCustomEmblemSrc } from '#lib/emblems';
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { useUserPrefs } from '#lib/store/userPrefs';
@@ -56,6 +56,9 @@ function stateFromParams(params: URLSearchParams): EmblemState {
 
   if (params.size === 0) return defaultState;
 
+  // Object.entries widens the key to string even though FLAG_PARAM's Record<EmblemFlag, string>
+  // type guarantees its keys are exactly the EmblemFlag union.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
   const flags = (Object.entries(FLAG_PARAM) as [EmblemFlag, string][])
     .filter(([, param]) => params.has(param))
     .map(([flag]) => flag);
@@ -122,7 +125,8 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             <select
               value={previewSize}
               onChange={(e) => {
-                setPreviewSize(Number(e.target.value) as Parameters<typeof setPreviewSize>[0]);
+                const n = Number(e.target.value);
+                if (isEmblemSize(n)) setPreviewSize(n);
               }}
               className="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-600"
             >

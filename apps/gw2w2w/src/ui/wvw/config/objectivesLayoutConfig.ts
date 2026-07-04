@@ -1,4 +1,6 @@
-export type ObjectivesLayout = Record<string, ObjectivesLayoutMap>;
+import type { WvWMapType } from '@repo/service-api/types';
+
+export type ObjectivesLayout = Record<WvWMapType, ObjectivesLayoutMap>;
 export type ObjectivesLayoutMap = Record<string, { objectives: LayoutObjective[] }>;
 export interface LayoutObjective {
   id: string;

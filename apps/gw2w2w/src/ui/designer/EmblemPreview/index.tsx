@@ -82,11 +82,11 @@ export function EmblemPreview({
 
         const ctx = canvasEl.getContext('2d');
         if (!ctx) return;
-        const imageData = new ImageData(
-          new Uint8ClampedArray(result.data.buffer as ArrayBuffer),
-          result.width,
-          result.height,
-        );
+        // result.data is always a plain `new Uint8Array(...)` from the renderer, never a view
+        // over a SharedArrayBuffer, but TypedArray.buffer is typed as ArrayBufferLike.
+        // eslint-disable-next-line typescript/no-unsafe-type-assertion
+        const buffer = result.data.buffer as ArrayBuffer;
+        const imageData = new ImageData(new Uint8ClampedArray(buffer), result.width, result.height);
         ctx.putImageData(imageData, 0, 0);
       } catch (error) {
         console.error(error);
@@ -96,6 +96,9 @@ export function EmblemPreview({
     void render();
 
     const idRef = renderIdRef;
+    // React's useEffect callback intentionally allows either no cleanup (void, as in the
+    // early `if (!canvas) return;` above) or a cleanup function — not a bug.
+    // eslint-disable-next-line typescript/consistent-return
     return () => {
       idRef.current++;
     };

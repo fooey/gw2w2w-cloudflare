@@ -58,7 +58,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
 
   // Sort by actual event timestamp descending. ISO 8601 UTC strings are lexicographically comparable.
   // Use id as tiebreaker for events at the same second.
-  const rows = events.filter(matchesFilters).sort((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
+  const rows = events.filter(matchesFilters).toSorted((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
 
   const virtualizer = useVirtualizer({
     count: rows.length,

@@ -17,6 +17,9 @@ export { MatchupPoller };
 
 export const ErrorPayloadSchema = z.object({
   message: z.string(),
+  // zod can only runtime-check the numeric range; asserting the precise ContentfulStatusCode
+  // literal union would require listing every valid HTTP status code explicitly.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
   statusCode: z.number().int().min(100).max(599) as z.ZodType<ContentfulStatusCode>,
   url: z.string(),
   service: z.string(),

@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from '@repo/emblem-renderer';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer';
 import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
 import { validateArenaNetUuid } from '@repo/utils';
@@ -16,7 +16,7 @@ const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|'
 const sizeQuery = z.coerce
   .number()
   .int()
-  .refine((n): n is EmblemSize => (EMBLEM_SIZES as readonly number[]).includes(n), {
+  .refine(isEmblemSize, {
     message: `Size must be one of: ${EMBLEM_SIZES.join(', ')}`,
   })
   .default(DEFAULT_EMBLEM_SIZE);
@@ -59,12 +59,12 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       const emblem = {
         background: {
           id: query.background_id ?? 1,
-          colors: [query.background_color_id].filter((c): c is number => c !== undefined),
+          colors: [query.background_color_id].filter((v): v is number => v !== undefined),
         },
         foreground: {
           id: query.foreground_id ?? 1,
           colors: [query.foreground_primary_color_id, query.foreground_secondary_color_id].filter(
-            (c): c is number => c !== undefined,
+            (v): v is number => v !== undefined,
           ),
         },
         flags,
@@ -95,11 +95,11 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     const sizeStr = sizeExt.replace(/\.\w+$/, '');
     const sizeNum = Number(sizeStr);
 
-    if (!Number.isInteger(sizeNum) || !(EMBLEM_SIZES as readonly number[]).includes(sizeNum)) {
+    if (!Number.isInteger(sizeNum) || !isEmblemSize(sizeNum)) {
       return c.json({ error: { message: `Size must be one of: ${EMBLEM_SIZES.join(', ')}`, status: 400 } }, 400);
     }
 
-    const size = sizeNum as EmblemSize;
+    const size = sizeNum;
     const url = size === DEFAULT_EMBLEM_SIZE ? `/${guildId}` : `/${guildId}?size=${size}`;
     return c.redirect(url, 301);
   })

@@ -176,4 +176,7 @@ export const WVW_TEAMS = {
   '12015': { id: '12015', en: 'Bava Nisos', de: 'Bava Nisos', es: 'Bava Nisos', fr: 'Bava Nisos' },
 } as const satisfies Record<string, WvWTeam>;
 
+// Object.keys widens to string[] even though WVW_TEAMS's `satisfies Record<string, WvWTeam>`
+// (combined with `keyof typeof WVW_TEAMS`) guarantees its keys are exactly WvWTeamId.
+// eslint-disable-next-line typescript/no-unsafe-type-assertion
 export const WVW_TEAMS_IDS = Object.keys(WVW_TEAMS) as WvWTeamId[];

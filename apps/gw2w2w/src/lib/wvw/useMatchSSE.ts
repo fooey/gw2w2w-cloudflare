@@ -103,18 +103,21 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEven
     const es = new EventSource(`${GW2W2W_API_BASE}/wvw/stream?matchId=${matchId}`);
 
     const onMatchState = (e: MessageEvent) => {
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- trusted same-origin SSE payload from our own API, not user input.
       const payload = JSON.parse(e.data as string) as MatchStatePayload;
       matchStartTimeRef.current = payload.data.start_time;
       setMatch(payload.data);
     };
 
     const onCapture = (e: MessageEvent) => {
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- trusted same-origin SSE payload from our own API, not user input.
       const p = JSON.parse(e.data as string) as CapturePayload;
       const row = captureToRow({ ...p, at: coerceEventAt(p.at, matchStartTimeRef.current) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 
     const onClaim = (e: MessageEvent) => {
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- trusted same-origin SSE payload from our own API, not user input.
       const p = JSON.parse(e.data as string) as ClaimPayload;
       const row = claimToRow({ ...p, at: coerceEventAt(p.at, matchStartTimeRef.current) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));

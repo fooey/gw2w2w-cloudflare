@@ -61,6 +61,8 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
         map_type: events.map_type,
         owner: events.owner,
         claimed_by: events.claimed_by,
+        // Leading underscore marks this as an internal window-function column, stripped
+        // from each row before the response is built below.
         _total: sql<number>`COUNT(*) OVER ()`,
       })
       .from(events)
@@ -69,6 +71,7 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
       .limit(limit)
       .offset(offset);
 
+    // eslint-disable-next-line no-underscore-dangle
     const total = rows[0]?._total ?? 0;
     const response: EventLogResponse = {
       events: rows.map(({ _total: _, ...row }) => row),

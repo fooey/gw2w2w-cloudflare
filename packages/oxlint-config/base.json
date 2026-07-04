@@ -4,7 +4,8 @@
   "plugins": ["unicorn", "typescript", "import", "promise", "vitest"],
   "categories": {
     "correctness": "error",
-    "perf": "error"
+    "perf": "error",
+    "suspicious": "error"
   },
   "options": {
     "typeAware": true,
@@ -25,7 +26,6 @@
     "no-regex-spaces": "error",
     "array-callback-return": "error",
     "eqeqeq": "error",
-    "preserve-caught-error": "error",
     "no-console": [
       "warn",
       {
@@ -37,22 +37,16 @@
     "import/no-default-export": "error",
     "import/no-named-default": "error",
     "import/no-relative-parent-imports": "warn",
-    "import/no-unassigned-import": "error",
     "import/newline-after-import": "warn",
     "import/no-duplicates": "error",
     "import/no-mutable-exports": "error",
-    "import/no-self-import": "error",
     "import/no-webpack-loader-syntax": "error",
     "promise/catch-or-return": "error",
-    "promise/always-return": "error",
-    "promise/no-multiple-resolved": "error",
     "promise/no-nesting": "error",
-    "promise/no-promise-in-callback": "error",
     "promise/prefer-await-to-then": "error",
     "promise/prefer-catch": "error",
     "promise/no-return-in-finally": "error",
     "promise/no-return-wrap": "warn",
-    "unicorn/consistent-function-scoping": "error",
     "unicorn/no-useless-promise-resolve-reject": "error",
     "unicorn/prefer-logical-operator-over-ternary": "warn",
     "typescript/consistent-type-imports": [
@@ -71,7 +65,6 @@
       "rules": {
         "no-array-constructor": "error",
         "no-implied-eval": "off",
-        "no-useless-constructor": "error",
         "no-throw-literal": "off",
         "prefer-promise-reject-errors": "off",
         "require-await": "off",
@@ -86,7 +79,6 @@
         "typescript/no-dynamic-delete": "error",
         "typescript/no-empty-object-type": "error",
         "typescript/no-explicit-any": "error",
-        "typescript/no-extraneous-class": "error",
         "typescript/no-invalid-void-type": "error",
         "typescript/no-misused-promises": "error",
         "typescript/no-mixed-enums": "error",
@@ -94,17 +86,9 @@
         "typescript/no-non-null-asserted-nullish-coalescing": "error",
         "typescript/no-non-null-assertion": "error",
         "typescript/no-require-imports": "error",
-        "typescript/no-unnecessary-boolean-literal-compare": "error",
-        "typescript/no-unnecessary-template-expression": "error",
-        "typescript/no-unnecessary-type-arguments": "error",
-        "typescript/no-unnecessary-type-assertion": "error",
-        "typescript/no-unnecessary-type-constraint": "error",
-        "typescript/no-unnecessary-type-conversion": "error",
-        "typescript/no-unnecessary-type-parameters": "error",
         "typescript/no-unsafe-argument": "error",
         "typescript/no-unsafe-assignment": "error",
         "typescript/no-unsafe-call": "error",
-        "typescript/no-unsafe-enum-comparison": "error",
         "typescript/no-unsafe-function-type": "error",
         "typescript/no-unsafe-member-access": "error",
         "typescript/no-unsafe-return": "error",
@@ -138,7 +122,6 @@
         "typescript/consistent-type-assertions": "error",
         "typescript/consistent-type-definitions": "error",
         "typescript/dot-notation": "error",
-        "typescript/no-confusing-non-null-assertion": "error",
         "typescript/no-inferrable-types": "error",
         "typescript/prefer-find": "error",
         "typescript/prefer-for-of": "error",
@@ -173,7 +156,8 @@
         "vitest/prefer-hooks-on-top": "warn",
         "vitest/prefer-strict-boolean-matchers": "error",
         "vitest/prefer-to-have-length": "error",
-        "vitest/expect-expect": "warn"
+        "vitest/expect-expect": "warn",
+        "typescript/no-unsafe-type-assertion": "off"
       }
     }
   ]

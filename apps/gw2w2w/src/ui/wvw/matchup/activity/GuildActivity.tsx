@@ -23,14 +23,16 @@ type ActivityMapType = (typeof ACTIVITY_MAP_TYPES)[number];
 type SortKey = ActivityObjType | ActivityMapType | 'total' | 'lastActivity';
 type SortDir = 'asc' | 'desc';
 
-const OBJ_TO_KEY: Record<ActivityObjType, keyof GuildActivityRow> = {
+type NumericKeyOf<T> = { [K in keyof T]: T[K] extends number ? K : never }[keyof T];
+
+const OBJ_TO_KEY: Record<ActivityObjType, NumericKeyOf<GuildActivityRow>> = {
   Castle: 'claims_castle',
   Keep: 'claims_keep',
   Tower: 'claims_tower',
   Camp: 'claims_camp',
 };
 
-const MAP_TO_KEY: Record<ActivityMapType, keyof GuildActivityRow> = {
+const MAP_TO_KEY: Record<ActivityMapType, NumericKeyOf<GuildActivityRow>> = {
   Center: 'claims_center',
   GreenHome: 'claims_green_home',
   BlueHome: 'claims_blue_home',
@@ -210,7 +212,7 @@ function GuildTableRow({ row }: { row: GuildActivityRow }) {
           key={type}
           className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
         >
-          {row[OBJ_TO_KEY[type]] as number}
+          {row[OBJ_TO_KEY[type]]}
         </td>
       ))}
       {ACTIVITY_MAP_TYPES.map((map) => (
@@ -218,7 +220,7 @@ function GuildTableRow({ row }: { row: GuildActivityRow }) {
           key={map}
           className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
         >
-          {row[MAP_TO_KEY[map]] as number}
+          {row[MAP_TO_KEY[map]]}
         </td>
       ))}
       <td className="w-px px-2 py-1 text-center text-sm font-semibold whitespace-nowrap text-gray-800 tabular-nums">
@@ -254,7 +256,7 @@ export function GuildActivity({ events }: GuildActivityProps) {
   const rows = useMemo(() => {
     const built = buildGuildRows(events, { maps, objectiveTypes, owners, timeWindow });
     const cmp = SORT_FN[sortKey];
-    return [...built].sort((a, b) => (sortDir === 'desc' ? -cmp(a, b) : cmp(a, b)));
+    return built.toSorted((a, b) => (sortDir === 'desc' ? -cmp(a, b) : cmp(a, b)));
   }, [events, maps, objectiveTypes, owners, timeWindow, sortKey, sortDir]);
 
   function handleSort(key: SortKey) {
