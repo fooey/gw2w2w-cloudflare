@@ -1,7 +1,6 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
   "plugins": ["unicorn", "typescript", "import", "promise", "vitest"],
-  "jsPlugins": ["eslint-plugin-turbo"],
   "categories": {
     "correctness": "off"
   },
@@ -85,7 +84,6 @@
     "use-isnan": "error",
     "valid-typeof": "error",
     "no-console": ["warn", { "allow": ["info", "warn", "error"] }],
-    "turbo/no-undeclared-env-vars": "warn",
     "import/first": "error",
     "import/no-cycle": "warn",
     "import/no-default-export": "error",

@@ -243,6 +243,7 @@ interface GuildActivityProps {
   events: EventRow[];
 }
 
+// eslint-disable-next-line react/react-compiler -- TanStack Virtual's API is intentionally used for row virtualization in this scroll container.
 export function GuildActivity({ events }: GuildActivityProps) {
   const { maps, objectiveTypes, owners, timeWindow, toggleMap, toggleObjectiveType, toggleOwner, setTimeWindow } =
     useGuildActivityFilters();
@@ -267,7 +268,6 @@ export function GuildActivity({ events }: GuildActivityProps) {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // eslint-disable-next-line react-hooks-js/incompatible-library -- TanStack Virtual's API is intentionally used for row virtualization in this scroll container.
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,

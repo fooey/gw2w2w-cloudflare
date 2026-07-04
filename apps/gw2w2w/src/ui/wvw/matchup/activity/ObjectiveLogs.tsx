@@ -25,6 +25,7 @@ interface ObjectiveLogsProps {
 
 const ROW_HEIGHT_PX = 32;
 
+// eslint-disable-next-line react/react-compiler -- TanStack Virtual's API is intentionally used for row virtualization in this scroll container.
 export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   const {
     maps,
@@ -59,7 +60,6 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   // Use id as tiebreaker for events at the same second.
   const rows = events.filter(matchesFilters).sort((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
 
-  // eslint-disable-next-line react-hooks-js/incompatible-library -- TanStack Virtual's API is intentionally used for row virtualization in this scroll container.
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
