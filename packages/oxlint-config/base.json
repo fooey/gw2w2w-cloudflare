@@ -3,7 +3,8 @@
   "extends": ["./override-correctness.json"],
   "plugins": ["unicorn", "typescript", "import", "promise", "vitest"],
   "categories": {
-    "correctness": "error"
+    "correctness": "error",
+    "perf": "error"
   },
   "options": {
     "typeAware": true,

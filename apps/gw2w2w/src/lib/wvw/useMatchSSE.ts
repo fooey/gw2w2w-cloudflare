@@ -43,7 +43,7 @@ export function mergeInitialHistory(prev: EventRow[], incoming: EventRow[], fall
   const prevIds = new Set(prev.map((e) => e.id));
   const history = incoming
     .filter((e) => !prevIds.has(e.id))
-    .map((e) => ({ ...e, at: coerceEventAt(e.at, fallbackAt) }));
+    .map((e) => Object.assign({}, e, { at: coerceEventAt(e.at, fallbackAt) }));
 
   // SSE events that arrived before history loaded stay at the front (they're newer)
   return [...prev, ...history];

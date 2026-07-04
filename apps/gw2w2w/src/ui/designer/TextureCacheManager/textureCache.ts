@@ -89,6 +89,9 @@ export async function prefetchAllTextures(
   const BATCH_SIZE = 20;
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
     const batch = urls.slice(i, i + BATCH_SIZE);
+    // Awaiting per-batch is the point here — it caps concurrent fetches at BATCH_SIZE
+    // instead of firing all of them at once.
+    // eslint-disable-next-line no-await-in-loop
     await Promise.allSettled(
       batch.map(async (gw2Url) => {
         const proxyUrl = textureProxyUrl(gw2Url);

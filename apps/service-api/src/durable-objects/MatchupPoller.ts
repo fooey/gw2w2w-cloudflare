@@ -529,16 +529,22 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     if (this.#subscribers.size === 0) return;
 
     // 1. Reset events — client clears its local log for the affected match.
-    for (const matchId of resetMatchIds) {
-      const newEndTime = this.#matchEndTimes.get(matchId) ?? '';
-      await this.#fanout(matchId, 'reset', { matchId, endTime: newEndTime }, `0:${newEndTime}`, requestId);
-    }
+    //    Each matchId appears at most once here, so these fan out independently in parallel.
+    await Promise.all(
+      resetMatchIds.map((matchId) => {
+        const newEndTime = this.#matchEndTimes.get(matchId) ?? '';
+        return this.#fanout(matchId, 'reset', { matchId, endTime: newEndTime }, `0:${newEndTime}`, requestId);
+      }),
+    );
 
     // 2. Match state — full snapshot pushed every poll so display stays current.
     //    No id: field — match-state events don't advance the Last-Event-ID cursor.
-    for (const match of matchStateFanouts) {
-      await this.#fanout(match.id, 'match-state', { matchId: match.id, data: match }, undefined, requestId);
-    }
+    //    Each match appears at most once here, so these fan out independently in parallel.
+    await Promise.all(
+      matchStateFanouts.map((match) =>
+        this.#fanout(match.id, 'match-state', { matchId: match.id, data: match }, undefined, requestId),
+      ),
+    );
 
     // 3. Capture / claim events — only rows that were actually inserted (changes > 0).
     //    INSERT OR IGNORE produces changes=0 for duplicates; we skip those.
@@ -550,6 +556,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       if (result.meta.changes > 0 && result.meta.last_row_id > 0) {
         const endTime = this.#matchEndTimes.get(pending.matchId) ?? '';
         const id = `${result.meta.last_row_id}:${endTime}`;
+        // A single match can have multiple pending events in one poll (e.g. several
+        // objectives flipping at once); parallelizing this would let their SSE writes
+        // land out of order and desync the client's Last-Event-ID cursor for that match.
+        // eslint-disable-next-line no-await-in-loop
         await this.#fanout(
           pending.matchId,
           pending.type,

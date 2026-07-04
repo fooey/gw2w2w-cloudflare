@@ -96,6 +96,6 @@ export function buildTeamRows(
     overall.total++;
   }
 
-  const teams = TEAM_OWNERS.map((o) => ({ owner: o, ...(byOwner.get(o) ?? createEmptyTeamRow()) }));
+  const teams = TEAM_OWNERS.map((o) => Object.assign({ owner: o }, byOwner.get(o) ?? createEmptyTeamRow()));
   return { teams, overall: { owner: 'Green', ...overall } };
 }
