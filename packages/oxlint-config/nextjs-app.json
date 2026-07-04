@@ -2,29 +2,13 @@
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
   "extends": ["./base.json"],
   "plugins": ["unicorn", "typescript", "nextjs", "react"],
-  "jsPlugins": [
-    "eslint-plugin-turbo",
-    "eslint-plugin-react-compiler",
-    {
-      "name": "react-hooks-js",
-      "specifier": "eslint-plugin-react-hooks"
-    }
-  ],
   "env": {
     "builtin": true,
     "browser": true,
     "serviceworker": true
   },
   "rules": {
-    "react-compiler/react-compiler": "error",
-    "react-hooks-js/incompatible-library": "warn",
-    "react-hooks-js/immutability": "warn",
-    "react-hooks-js/purity": "warn",
-    "react-hooks-js/refs": "warn",
-    "react-hooks-js/set-state-in-effect": "warn",
-    "react-hooks-js/set-state-in-render": "error",
-    "react-hooks-js/static-components": "warn",
-    "react-hooks-js/unsupported-syntax": "warn",
+    "react/react-compiler": "error",
     "react/checked-requires-onchange-or-readonly": "error",
     "react/forward-ref-uses-ref": "error",
     "react/jsx-key": "error",
