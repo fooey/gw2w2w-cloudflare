@@ -24,8 +24,8 @@ interface FakeEnv {
 function createHarness(initialAlarm: number | null | undefined): { state: FakeState; env: FakeEnv } {
   const storage: FakeStorage = {
     alarm: initialAlarm,
-    getAlarm: vi.fn(() => Promise.resolve(storage.alarm)),
-    setAlarm: vi.fn((value: number) => {
+    getAlarm: vi.fn<() => Promise<number | null | undefined>>(() => Promise.resolve(storage.alarm)),
+    setAlarm: vi.fn<(value: number) => Promise<void>>((value: number) => {
       storage.alarm = value;
       return Promise.resolve();
     }),
@@ -34,13 +34,13 @@ function createHarness(initialAlarm: number | null | undefined): { state: FakeSt
   const state: FakeState = {
     storage,
     blockConcurrencyWhile: async <T>(callback: () => Promise<T>) => callback(),
-    waitUntil: vi.fn(),
+    waitUntil: vi.fn<(promise: Promise<unknown>) => void>(),
   };
 
   const env: FakeEnv = {
     GW2_API_BASE: 'https://api.guildwars2.com',
     WVW_DB: {
-      prepare: vi.fn(() => ({
+      prepare: vi.fn<() => { all: () => Promise<{ results: unknown[] }> }>(() => ({
         all: () => Promise.resolve({ results: [] }),
       })),
     },
