@@ -10,9 +10,8 @@ function getColorFromApi(env: CloudflareEnv): Promise<Color[] | null> {
     if (!response.ok) {
       if (response.status === 404) {
         return null; // Guild not found or no colors available
-      } else {
-        throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
       }
+      throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
     }
     return response.json();
   });

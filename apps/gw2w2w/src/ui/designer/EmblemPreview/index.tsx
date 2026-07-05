@@ -2,6 +2,7 @@
 
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
 import type { Color, Emblem } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { fetchTexture } from '#ui/designer/TextureCacheManager/textureCache';
@@ -63,9 +64,9 @@ export function EmblemPreview({
         const fg2Url = fgDef?.layers[2] ?? null;
 
         const [bgBuf, fg1Buf, fg2Buf] = await Promise.all([
-          bgUrl ? fetchTexture(bgUrl) : Promise.resolve(null),
-          fg1Url ? fetchTexture(fg1Url) : Promise.resolve(null),
-          fg2Url ? fetchTexture(fg2Url) : Promise.resolve(null),
+          isPresent(bgUrl) ? fetchTexture(bgUrl) : Promise.resolve(null),
+          isPresent(fg1Url) ? fetchTexture(fg1Url) : Promise.resolve(null),
+          isPresent(fg2Url) ? fetchTexture(fg2Url) : Promise.resolve(null),
         ]);
 
         if (renderIdRef.current !== myId) return;
@@ -108,12 +109,12 @@ export function EmblemPreview({
 
   const bgClass = tileClassName ?? 'bg-gray-100';
   return (
-    <div className={clsx('flex flex-col items-center gap-1', tileClassName && 'rounded-xl')}>
+    <div className={clsx('flex flex-col items-center gap-1', isPresent(tileClassName) && 'rounded-xl')}>
       <div
-        className={clsx('relative rounded-xl', bgClass, tileClassName && 'p-2')}
+        className={clsx('relative rounded-xl', bgClass, isPresent(tileClassName) && 'p-2')}
         style={{
-          width: tileClassName ? undefined : size,
-          height: tileClassName ? undefined : size,
+          width: isPresent(tileClassName) ? undefined : size,
+          height: isPresent(tileClassName) ? undefined : size,
         }}
       >
         <canvas

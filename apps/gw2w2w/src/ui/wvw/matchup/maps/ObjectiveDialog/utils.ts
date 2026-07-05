@@ -1,10 +1,12 @@
+import { isNil } from '@repo/utils';
+
 export function getEtaDisplay(
   yaksRequired: number,
   yaksDelivered: number,
   lastFlipped: string | null | undefined,
   now: Temporal.Instant | null | undefined,
 ): string | null {
-  if (!now || !lastFlipped || yaksDelivered === 0) return null;
+  if (isNil(now) || isNil(lastFlipped) || yaksDelivered === 0) return null;
   const elapsedSeconds = Math.max(0, Math.floor(Temporal.Instant.from(lastFlipped).until(now).total('seconds')));
   const remaining = yaksRequired - yaksDelivered;
   if (remaining <= 0 || elapsedSeconds === 0) return null;

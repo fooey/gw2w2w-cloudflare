@@ -6,7 +6,7 @@ import { GuildDetail } from '#ui/guilds/GuildDetail';
 import { GuildNotFound } from '#ui/guilds/GuildNotFound';
 import { SiteLayout } from '#ui/layout/SiteLayout';
 import type { Guild } from '@repo/service-api/types';
-import { validateArenaNetUuid } from '@repo/utils';
+import { isPresent, validateArenaNetUuid } from '@repo/utils';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 
@@ -51,14 +51,14 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
       description,
       keywords: `Guild Wars 2, GW2, guild, ${guild.name}, ${guild.tag}, gaming, MMORPG`,
       alternates: { canonical },
-      icons: emblemUrl ? { icon: emblemUrl, shortcut: emblemUrl, apple: emblemUrl } : undefined,
+      icons: isPresent(emblemUrl) ? { icon: emblemUrl, shortcut: emblemUrl, apple: emblemUrl } : undefined,
       openGraph: {
         title,
         description,
         url: canonical,
         siteName: 'GW2W2W',
         type: 'website',
-        images: emblemUrl
+        images: isPresent(emblemUrl)
           ? [
               {
                 url: emblemUrl,
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
         card: 'summary',
         title,
         description,
-        images: emblemUrl ? [emblemUrl] : undefined,
+        images: isPresent(emblemUrl) ? [emblemUrl] : undefined,
       },
     };
   } catch (e) {

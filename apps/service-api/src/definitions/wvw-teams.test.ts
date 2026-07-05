@@ -23,7 +23,7 @@ describe('WVW_TEAMS definitions', () => {
     expect(idSet.size).toBe(WVW_TEAMS_IDS.length);
 
     for (const id of WVW_TEAMS_IDS) {
-      expect(id).toMatch(/^\d{5}$/);
+      expect(id).toMatch(/^\d{5}$/u);
     }
   });
 });

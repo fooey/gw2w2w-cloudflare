@@ -11,6 +11,8 @@ export type TimeWindow = (typeof TIME_WINDOWS)[number];
 
 export function getTimeCutoff(timeWindow: TimeWindow): Temporal.Instant | null {
   if (timeWindow === 'all') return null;
+  // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
+  // eslint-disable-next-line unicorn/prefer-number-coercion
   const hours = parseInt(timeWindow, 10);
   return Temporal.Now.instant().subtract({ hours });
 }

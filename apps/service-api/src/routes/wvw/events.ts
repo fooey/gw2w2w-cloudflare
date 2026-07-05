@@ -20,7 +20,7 @@ export interface EventLogResponse {
 const MAX_LIMIT = 10_000;
 
 const querySchema = z.object({
-  matchId: z.string().regex(/^\d-\d$/),
+  matchId: z.string().regex(/^\d-\d$/u),
   // maxAge in seconds — omit for the "all" time window
   maxAge: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(MAX_LIMIT),
@@ -45,7 +45,7 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     if (isPresent(maxAge)) {
       // GW2 stores timestamps as "YYYY-MM-DDTHH:mm:ssZ" (no milliseconds).
       // Truncate the cutoff to seconds so SQLite's lexicographic comparison is correct.
-      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/u, 'Z');
       conditions.push(gte(events.at, cutoff));
     }
 

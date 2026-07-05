@@ -27,14 +27,13 @@ async function getWvWGuildFromApi(env: CloudflareEnv): Promise<WvWGuild[] | null
   if (!naResponse.ok || !euResponse.ok) {
     if (naResponse.status === 404 || euResponse.status === 404) {
       return null;
-    } else {
-      throw new Error(`API error retrieving WvW guilds`, {
-        cause: {
-          na: { status: naResponse.status, statusText: naResponse.statusText },
-          eu: { status: euResponse.status, statusText: euResponse.statusText },
-        },
-      });
     }
+    throw new Error(`API error retrieving WvW guilds`, {
+      cause: {
+        na: { status: naResponse.status, statusText: naResponse.statusText },
+        eu: { status: euResponse.status, statusText: euResponse.statusText },
+      },
+    });
   }
 
   const [naGuilds, euGuilds] = await Promise.all([

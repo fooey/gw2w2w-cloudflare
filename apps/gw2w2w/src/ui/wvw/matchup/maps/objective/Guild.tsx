@@ -5,6 +5,7 @@ import { cn } from '#lib/utils/cn';
 import { useGuild } from '#lib/wvw/useGuild';
 import { Link } from '#ui/Link';
 import { NoSymbolIcon } from '@heroicons/react/20/solid';
+import { isEmpty, isNonEmptyString } from '@repo/utils';
 import { useState } from 'react';
 
 const ICON_SIZE = 24;
@@ -21,7 +22,7 @@ export function Guild({
   const guildQuery = useGuild(claimedBy);
   const [emblemError, setEmblemError] = useState(false);
 
-  if (!claimedBy) return <span className={cn(className)} />;
+  if (isEmpty(claimedBy)) return <span className={cn(className)} />;
 
   const inner = (
     <>
@@ -45,7 +46,7 @@ export function Guild({
   if (linkable) {
     return (
       <Link
-        href={`/guilds/${guildQuery.data?.name ? encodeURIComponent(guildQuery.data.name) : claimedBy}`}
+        href={`/guilds/${isNonEmptyString(guildQuery.data?.name) ? encodeURIComponent(guildQuery.data.name) : claimedBy}`}
         className={cn('flex w-full items-center justify-between gap-1', className)}
         title={`${guildQuery.data?.name ?? ''} (${guildQuery.data?.tag ?? ''})`}
       >

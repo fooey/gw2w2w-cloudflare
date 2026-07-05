@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer';
 import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
-import { validateArenaNetUuid } from '@repo/utils';
+import { isNonEmptyString, validateArenaNetUuid } from '@repo/utils';
 import type { CloudflareEnv } from '#index.ts';
 import { getApiClient, getEmblemBytes, getEmblemBytesByGuildId, HttpError, searchGuild } from '#lib/api.ts';
 import { Hono } from 'hono';
@@ -11,7 +11,7 @@ import z from 'zod';
 const getEnableCacheLogging = () => true;
 
 const redirectFileExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
-const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|')})$`);
+const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|')})$`, 'u');
 
 const sizeQuery = z.coerce
   .number()
@@ -92,7 +92,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/:guildId/:sizeExt', (c) => {
     const guildId = c.req.param('guildId');
     const sizeExt = c.req.param('sizeExt');
-    const sizeStr = sizeExt.replace(/\.\w+$/, '');
+    const sizeStr = sizeExt.replace(/\.\w+$/u, '');
     const sizeNum = Number(sizeStr);
 
     if (!Number.isInteger(sizeNum) || !isEmblemSize(sizeNum)) {
@@ -136,7 +136,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
       const object = await objectStore.get(cacheKey);
       const expiresAt = object?.customMetadata?.expiresAt;
-      const expiresAtTimestamp = expiresAt ? Date.parse(expiresAt) : Number.NaN;
+      const expiresAtTimestamp = isNonEmptyString(expiresAt) ? Date.parse(expiresAt) : Number.NaN;
       const hasValidExpiry = Number.isFinite(expiresAtTimestamp) && expiresAtTimestamp > Date.now();
 
       if (object !== null && hasValidExpiry) {

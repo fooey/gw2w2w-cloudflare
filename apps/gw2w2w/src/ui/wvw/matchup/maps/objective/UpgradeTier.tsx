@@ -1,3 +1,5 @@
+import { isNil } from '@repo/utils';
+
 const TIER_LABEL: Record<number, string> = {
   1: 'Ⅰ',
   2: 'Ⅱ',
@@ -22,7 +24,7 @@ interface UpgradeTierProps {
 export function UpgradeTier({ tier }: UpgradeTierProps) {
   const label = TIER_LABEL[tier];
   const cls = TIER_CLASS[tier];
-  if (!label || !cls) return null;
+  if (isNil(label) || isNil(cls)) return null;
 
   return (
     <span

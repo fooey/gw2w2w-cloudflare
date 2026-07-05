@@ -3,5 +3,5 @@
  * GW2 guild IDs use non-standard version nibbles (E, F) so stricter checks would reject valid IDs.
  */
 export function validateArenaNetUuid(uuid: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuid);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(uuid);
 }

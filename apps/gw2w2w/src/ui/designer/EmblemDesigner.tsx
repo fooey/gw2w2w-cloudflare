@@ -6,7 +6,7 @@ import { getCustomEmblemSrc } from '#lib/emblems';
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import type { Color, Emblem } from '@repo/service-api/types';
-import { isNil, isPresent } from '@repo/utils';
+import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { CopyToClipboardInput } from '#ui/controls/CopyToClipboardInput';
@@ -39,7 +39,7 @@ const FLAG_PARAM: Record<EmblemFlag, string> = {
 };
 
 function parseNum(s: string | null): number | null {
-  if (!s) return null;
+  if (isEmpty(s)) return null;
   const n = Number(s);
   return Number.isFinite(n) ? n : null;
 }
@@ -52,7 +52,7 @@ const defaultState: EmblemState = {
 
 function stateFromParams(params: URLSearchParams): EmblemState {
   const s = params.get('s');
-  if (s) return decodeShortlink(s) ?? defaultState;
+  if (isNonEmptyString(s)) return decodeShortlink(s) ?? defaultState;
 
   if (params.size === 0) return defaultState;
 
@@ -97,7 +97,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   }, [router]);
 
   const shortUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}` : '';
+    typeof window === 'undefined' ? '' : `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}`;
   const fullUrl = (() => {
     if (typeof window === 'undefined') return '';
     const params = new URLSearchParams();
@@ -112,8 +112,8 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   })();
   const emblemSrc = getCustomEmblemSrc(emblem, previewSize);
 
-  const isEmpty = isNil(emblem.background.id) && isNil(emblem.foreground.id);
-  const previewEmblem = isEmpty ? defaultState : emblem;
+  const isEmblemEmpty = isNil(emblem.background.id) && isNil(emblem.foreground.id);
+  const previewEmblem = isEmblemEmpty ? defaultState : emblem;
 
   return (
     <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>

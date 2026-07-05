@@ -7,7 +7,7 @@ export async function register() {
   const { Temporal, Intl, toTemporalInstant } = await import('@js-temporal/polyfill');
 
   // Only install if not already present (workerd may gain native Temporal later).
-  if (typeof globalThis.Temporal === 'undefined') {
+  if (globalThis.Temporal === undefined) {
     Object.assign(globalThis, { Temporal, Intl, toTemporalInstant });
   }
 }

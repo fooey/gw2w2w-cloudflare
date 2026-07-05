@@ -74,6 +74,8 @@ function buildChartData(
 ): ChartBucket[] {
   const bucketSeconds = GRANULARITY_SECONDS[filters.granularity];
   const nowSeconds = Math.floor(Date.now() / 1_000);
+  // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
+  // eslint-disable-next-line unicorn/prefer-number-coercion
   const cutoffSeconds = filters.timeWindow === 'all' ? null : nowSeconds - parseInt(filters.timeWindow, 10) * 3_600;
 
   const buckets = new Map<number, ChartBucket>();

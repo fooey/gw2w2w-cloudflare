@@ -15,6 +15,7 @@ describe('IMAGE_DIMENSION', () => {
 
 describe('getFlipsFromFlags', () => {
   it('returns all false with no flags', () => {
+    // eslint-disable-next-line unicorn/no-useless-undefined -- getFlipsFromFlags's parameter is required, not optional.
     expect(getFlipsFromFlags(undefined)).toEqual({
       flipBgH: false,
       flipBgV: false,

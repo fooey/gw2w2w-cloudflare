@@ -10,6 +10,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/20/solid';
 import type { Color } from '@repo/service-api/types';
+import { isNil } from '@repo/utils';
 import { matchSorter } from 'match-sorter';
 import { useEffect, useRef, useState } from 'react';
 import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
@@ -48,8 +49,8 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
   const filtered = (() => {
     const searched = search ? matchSorter(colors, search, { keys: ['name'] }) : colors;
     const result = searched.filter((c) => {
-      const matchesHue = !activeHue || c.categories.includes(activeHue);
-      const matchesRarity = !activeRarity || c.categories.includes(activeRarity);
+      const matchesHue = isNil(activeHue) || c.categories.includes(activeHue);
+      const matchesRarity = isNil(activeRarity) || c.categories.includes(activeRarity);
       return matchesHue && matchesRarity;
     });
     return sortColors(result, sort);
@@ -233,7 +234,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
                 onClick={() => {
                   setActiveHue(null);
                 }}
-                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${!activeHue ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${isNil(activeHue) ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 All
               </button>
@@ -259,7 +260,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
                 onClick={() => {
                   setActiveRarity(null);
                 }}
-                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${!activeRarity ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${isNil(activeRarity) ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 Any
               </button>

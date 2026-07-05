@@ -14,6 +14,7 @@ import { AtSymbolIcon } from '@heroicons/react/20/solid';
 import { Bars3Icon, CodeBracketIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { Link } from '#ui/Link';
+import { isPresent } from '@repo/utils';
 import { usePathname } from 'next/navigation';
 
 const repoUrl = 'https://github.com/fooey/gw2w2w-cloudflare';
@@ -86,7 +87,7 @@ export function SiteNav() {
               >
                 {contactNavigation.map((item) => (
                   <MenuItem key={item.name}>
-                    {item.href ? (
+                    {isPresent(item.href) ? (
                       <Link
                         target="_blank"
                         rel="noopener noreferrer"

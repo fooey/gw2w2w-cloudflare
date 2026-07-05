@@ -1,4 +1,5 @@
 import type { CloudflareEnv } from '#index.ts';
+import { isEmpty, isNonEmptyString } from '@repo/utils';
 
 export class GW2RateLimitError extends Error {
   retryAfterMs: number;
@@ -11,7 +12,7 @@ export class GW2RateLimitError extends Error {
 }
 
 export async function apiFetch(env: CloudflareEnv, path: string, init?: RequestInit): Promise<Response> {
-  if (!env.GW2_API_BASE || !env.GW2_API_KEY) {
+  if (isEmpty(env.GW2_API_BASE) || isEmpty(env.GW2_API_KEY)) {
     throw new Error('GW2_API_BASE and GW2_API_KEY must be set in environment variables');
   }
 
@@ -27,7 +28,10 @@ export async function apiFetch(env: CloudflareEnv, path: string, init?: RequestI
 
   if (response.status === 429) {
     const retryAfter = response.headers.get('retry-after');
-    const retryAfterMs = retryAfter ? parseFloat(retryAfter) * 1000 : 60_000;
+    // parseFloat tolerates trailing garbage, unlike Number() — consistent with the same
+    // Retry-After parsing pattern in MatchupPoller.
+    // eslint-disable-next-line unicorn/prefer-number-coercion
+    const retryAfterMs = isNonEmptyString(retryAfter) ? parseFloat(retryAfter) * 1000 : 60_000;
     throw new GW2RateLimitError(retryAfterMs);
   }
 

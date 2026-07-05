@@ -56,6 +56,7 @@ async function flushConstructorWork(): Promise<void> {
 
 describe('MatchupPoller constructor alarm scheduling', () => {
   it('schedules an alarm when existing alarm is undefined', async () => {
+    // eslint-disable-next-line unicorn/no-useless-undefined -- createHarness's parameter is required, not optional.
     const { state, env } = createHarness(undefined);
 
     // eslint-disable-next-line no-new -- constructing triggers the alarm-scheduling side effect under test.

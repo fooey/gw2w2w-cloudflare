@@ -1,6 +1,7 @@
 import { cn } from '#lib/utils/cn';
 import { LocalTimestamp } from '#ui/LocalTimestamp';
 import { SiteNav } from '#ui/layout/SiteNav';
+import { isNonEmptyString, isPresent } from '@repo/utils';
 
 interface SiteLayoutProps {
   pageHeader?: React.ReactNode;
@@ -12,12 +13,14 @@ interface SiteLayoutProps {
 }
 
 function SiteHeader({ pageHeader, headerActions }: Pick<SiteLayoutProps, 'pageHeader' | 'headerActions'>) {
-  if (!pageHeader && !headerActions) return null;
+  if (!isPresent(pageHeader) && !isPresent(headerActions)) return null;
   return (
     <header>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {pageHeader ? <h1 className="text-3xl font-bold tracking-tight text-gray-900">{pageHeader}</h1> : null}
-        {headerActions ? <div className="flex items-center">{headerActions}</div> : null}
+        {isPresent(pageHeader) ? (
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">{pageHeader}</h1>
+        ) : null}
+        {isPresent(headerActions) ? <div className="flex items-center">{headerActions}</div> : null}
       </div>
     </header>
   );
@@ -34,7 +37,7 @@ function SiteFooter() {
           Guild Wars 2 and all related content, artwork, and trademarks are the property of ArenaNet, LLC.
         </p>
         <p className="mt-3 font-mono text-xs text-gray-400">
-          {process.env.NEXT_PUBLIC_BUILD_TIMESTAMP ? (
+          {isNonEmptyString(process.env.NEXT_PUBLIC_BUILD_TIMESTAMP) ? (
             <LocalTimestamp value={process.env.NEXT_PUBLIC_BUILD_TIMESTAMP} />
           ) : (
             'dev'

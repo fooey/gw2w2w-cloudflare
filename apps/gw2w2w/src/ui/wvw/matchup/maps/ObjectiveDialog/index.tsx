@@ -14,6 +14,7 @@ import { getDirectionLabel, type Direction } from '#ui/wvw/config/objectivesLayo
 import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
 import { ClipboardIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import type { WvWMapType, WvWMatchObjective } from '@repo/service-api/types';
+import { isNil, isPresent } from '@repo/utils';
 import { type MouseEvent, useEffect, useRef } from 'react';
 import { formatLocalized, formatRelative, getEtaDisplay } from './utils';
 
@@ -62,19 +63,19 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
   const isFullyUpgraded = currentTier === upgrade?.tiers.length;
 
   const ownerConfig =
-    matchObjective.owner !== 'Neutral'
-      ? teamColorConfig[matchObjective.owner as TeamColorConfigKey]
-      : teamColorConfig.Neutral;
+    matchObjective.owner === 'Neutral'
+      ? teamColorConfig.Neutral
+      : teamColorConfig[matchObjective.owner as TeamColorConfigKey];
 
   const guild = guildQuery.data;
-  const isClaimed = !!matchObjective.claimed_by;
+  const isClaimed = isPresent(matchObjective.claimed_by);
 
   function handleBackdropClick(e: MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) onClose();
   }
 
   async function copyChatLink() {
-    if (!objectiveDef?.chat_link) {
+    if (isNil(objectiveDef?.chat_link)) {
       return;
     }
 
@@ -100,7 +101,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
     >
       {/* Header */}
       <div className={cn('flex shrink-0 items-center gap-3 p-4', ownerConfig.bg)}>
-        {isClaimed && matchObjective.claimed_by && (
+        {isClaimed && isPresent(matchObjective.claimed_by) && (
           <img
             src={getEmblemSrc(matchObjective.claimed_by)}
             alt={guild?.name ?? 'Guild Emblem'}
@@ -141,15 +142,15 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
         <div className="mb-4 flex items-center gap-3">
           <ObjectiveIcon type={matchObjective.type} owner={matchObjective.owner} size={32} />
           <p className="text-sm text-gray-500">
-            {direction !== 'C' ? `${getDirectionLabel(direction)} ` : ''}
+            {direction === 'C' ? '' : `${getDirectionLabel(direction)} `}
             {matchObjective.type} - {getMapLabelFull(mapType)}
           </p>
         </div>
 
         {/* Capture / claim times */}
-        {(matchObjective.last_flipped ?? matchObjective.claimed_at) && (
+        {(isPresent(matchObjective.last_flipped) || isPresent(matchObjective.claimed_at)) && (
           <div className="mb-4 flex flex-col gap-1 text-sm">
-            {matchObjective.last_flipped && (
+            {isPresent(matchObjective.last_flipped) && (
               <div className="flex justify-between">
                 <span className="text-gray-400">Captured</span>
                 <span className="text-gray-600">
@@ -163,7 +164,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
                 </span>
               </div>
             )}
-            {matchObjective.claimed_at && (
+            {isPresent(matchObjective.claimed_at) && (
               <div className="flex justify-between">
                 <span className="text-gray-400">Claimed</span>
                 <span className="text-gray-600">
@@ -219,7 +220,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
                           }}
                         />
                       </div>
-                      {eta && <p className="mt-1 text-right text-xs text-gray-400">ETA {eta}</p>}
+                      {isPresent(eta) && <p className="mt-1 text-right text-xs text-gray-400">ETA {eta}</p>}
                     </div>
                   );
                 })}
@@ -283,7 +284,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
             <span>{matchObjective.points_tick} pts/tick</span>
             <span>{matchObjective.points_capture} pts/capture</span>
           </div>
-          {objectiveDef?.chat_link && (
+          {isPresent(objectiveDef?.chat_link) && (
             <button
               className="flex cursor-pointer items-center gap-1 rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-500 hover:bg-gray-200"
               title="Copy chat link"

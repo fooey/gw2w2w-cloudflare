@@ -37,6 +37,8 @@ export function buildTeamRows(
   events: EventRow[],
   filters: { maps: string[]; objectiveTypes: string[]; timeWindow: string },
 ): { teams: TeamRow[]; overall: TeamRow } {
+  // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
+  // eslint-disable-next-line unicorn/prefer-number-coercion
   const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - parseInt(filters.timeWindow, 10) * 3_600_000;
 
   const byOwner = new Map<string, Omit<TeamRow, 'owner'>>(TEAM_OWNERS.map((o) => [o, createEmptyTeamRow()]));

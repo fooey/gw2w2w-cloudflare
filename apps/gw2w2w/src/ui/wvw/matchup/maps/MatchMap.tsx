@@ -6,6 +6,7 @@ import { MatchMapTeamScore } from '#ui/wvw/matchup/maps/MatchMapTeamScore';
 import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
 import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog';
 import type { WvWMatchMap, WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
+import { isNonEmptyString } from '@repo/utils';
 import clsx from 'clsx';
 import { useState } from 'react';
 
@@ -31,7 +32,7 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
   for (const obj of map.objectives) {
     if (VISIBLE_OBJECTIVE_TYPES.includes(obj.type)) {
       const id = obj.id.split('-')[1];
-      if (id) objectivesById.set(id, obj);
+      if (isNonEmptyString(id)) objectivesById.set(id, obj);
     }
   }
 

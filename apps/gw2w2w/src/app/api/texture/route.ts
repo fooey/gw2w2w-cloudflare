@@ -1,5 +1,6 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
+import { isEmpty, isNonEmptyString } from '@repo/utils';
 import { type NextRequest, NextResponse } from 'next/server';
 
 const ALLOWED_HOSTNAME = 'render.guildwars2.com';
@@ -39,9 +40,9 @@ function parseAllowedTexturePath(raw: string): string | null {
 
 export async function GET(request: NextRequest) {
   const textureUrl = request.nextUrl.searchParams.get('url');
-  const safePath = textureUrl ? parseAllowedTexturePath(textureUrl) : null;
+  const safePath = isNonEmptyString(textureUrl) ? parseAllowedTexturePath(textureUrl) : null;
 
-  if (!safePath) {
+  if (isEmpty(safePath)) {
     return NextResponse.json({ error: 'Invalid url parameter' }, { status: 400 });
   }
 

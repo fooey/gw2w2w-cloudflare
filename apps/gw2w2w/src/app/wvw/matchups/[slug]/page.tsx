@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { SiteLayout } from '#ui/layout/SiteLayout';
 import { Link } from '#ui/Link';
+import { isNil, isPresent } from '@repo/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,20 +15,23 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
   const { matchId, selectedTeamId } = resolveSlug(slug);
 
   const api = await getApi();
-  const match = matchId
+  const match = isPresent(matchId)
     ? await fetchWvwMatch(api, matchId)
-    : selectedTeamId
+    : isPresent(selectedTeamId)
       ? await fetchWvwMatchByTeam(api, selectedTeamId)
       : null;
 
   if (!match) {
     // Slug didn't resolve to a known team or match ID format — genuine 404
-    if (!matchId && !selectedTeamId) notFound();
+    if (isNil(matchId) && isNil(selectedTeamId)) notFound();
 
     // Valid team/match but no active match right now — happens briefly during weekly reset
     // The `in` check above already guards against an unknown team id; tsgo just doesn't narrow it.
     const teamName =
-      selectedTeamId && selectedTeamId in WVW_TEAMS ? WVW_TEAMS[selectedTeamId as keyof typeof WVW_TEAMS].en : null; // eslint-disable-line typescript/no-unsafe-type-assertion
+      isPresent(selectedTeamId) && selectedTeamId in WVW_TEAMS
+        ? // eslint-disable-next-line typescript/no-unsafe-type-assertion
+          WVW_TEAMS[selectedTeamId as keyof typeof WVW_TEAMS].en
+        : null;
 
     return (
       <SiteLayout pageHeader="WvW Matchup">

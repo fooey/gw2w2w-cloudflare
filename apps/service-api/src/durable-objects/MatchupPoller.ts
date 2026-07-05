@@ -1,6 +1,6 @@
 import type { CloudflareEnv } from '#index.ts';
 import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
-import { isNil, isPresent } from '@repo/utils';
+import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
 import { DurableObject } from 'cloudflare:workers';
 import { isEqual } from 'lodash-es';
 
@@ -176,7 +176,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const url = new URL(request.url);
     const matchId = url.searchParams.get('matchId');
 
-    if (!matchId) {
+    if (isEmpty(matchId)) {
       return new Response('matchId required', { status: 400 });
     }
 
@@ -237,7 +237,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const seedMsg = `event: match-state\ndata: {"matchId":${JSON.stringify(matchId)},"data":${matchRow.data}}\n\n`;
     await writer.write(this.#encoder.encode(seedMsg));
 
-    if (!lastEventId) return;
+    if (isEmpty(lastEventId)) return;
 
     // Last-Event-ID format: "{d1RowId}:{matchEndTime}"
     // The matchEndTime embedded in the id lets us detect weekly resets without an
@@ -245,6 +245,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const colonIdx = lastEventId.indexOf(':');
     if (colonIdx < 1) return;
 
+    // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
+    // eslint-disable-next-line unicorn/prefer-number-coercion
     const lastId = parseInt(lastEventId.slice(0, colonIdx), 10);
     const lastEndTime = lastEventId.slice(colonIdx + 1);
 
@@ -278,7 +280,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   }
 
   async #fetchMatches(requestId: string, requestTime: Date): Promise<Response | null> {
-    if (!this.env.GW2_API_KEY) {
+    if (isEmpty(this.env.GW2_API_KEY)) {
       console.warn(`[MatchupPoller] [${requestId}] GW2_API_KEY not set — skipping poll`);
       return null;
     }
@@ -333,14 +335,17 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         signal: AbortSignal.timeout(200),
       });
       const text = await trace.text();
-      egressIp = /^ip=(.+)$/m.exec(text)?.[1] ?? null;
+      egressIp = /^ip=(.+)$/mu.exec(text)?.[1] ?? null;
     } catch {
       // non-critical — don't let this suppress the RateLimitError
     }
     // console.info('[MatchupPoller] 429 headers:', JSON.stringify(rateLimitHeaders), 'egressIp:', egressIp);
     const retryAfter = response.headers.get('Retry-After');
+    // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
+    // eslint-disable-next-line unicorn/prefer-number-coercion
     const retryAfterMs = isPresent(retryAfter) ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
     const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
+    // eslint-disable-next-line unicorn/prefer-number-coercion
     const rateLimitBurst = isPresent(rateLimitBurstRaw) ? parseInt(rateLimitBurstRaw, 10) : null;
     throw new RateLimitError(
       Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS,
@@ -577,7 +582,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
   async #fanout(matchId: string, event: string, data: unknown, id?: string, requestId?: string): Promise<void> {
     const chunk = this.#sseChunk(event, data, id);
-    const pfx = requestId ? `[MatchupPoller] [${requestId}]` : '[MatchupPoller]';
+    const pfx = isPresent(requestId) ? `[MatchupPoller] [${requestId}]` : '[MatchupPoller]';
 
     const writes = [...this.#subscribers.entries()]
       .filter(([, sub]) => sub.matchId === matchId)
@@ -592,11 +597,11 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           // but no TCP FIN/RST) cannot stall the alarm handler indefinitely.
           await Promise.race([
             sub.writer.write(chunk),
-            new Promise<never>((_, reject) =>
+            new Promise<never>((_, reject) => {
               setTimeout(() => {
                 reject(new Error('SSE write timeout'));
-              }, SSE_WRITE_TIMEOUT_MS),
-            ),
+              }, SSE_WRITE_TIMEOUT_MS);
+            }),
           ]);
           return null;
         } catch (err) {
@@ -616,7 +621,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
   #sseChunk(event: string, data: unknown, id?: string): Uint8Array {
     let msg = '';
-    if (id) msg += `id: ${id}\n`;
+    if (isNonEmptyString(id)) msg += `id: ${id}\n`;
     msg += `event: ${event}\n`;
     msg += `data: ${JSON.stringify(data)}\n\n`;
     return this.#encoder.encode(msg);
@@ -674,7 +679,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   }
 
   #shouldEmitCapture(obj: WvWMatchObjective, prev: ObjectiveSnap | undefined): boolean {
-    if (!obj.last_flipped) return false;
+    if (isNil(obj.last_flipped)) return false;
     return obj.last_flipped !== prev?.last_flipped;
   }
 

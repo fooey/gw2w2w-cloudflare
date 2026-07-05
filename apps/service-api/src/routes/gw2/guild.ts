@@ -4,6 +4,7 @@ import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { getGuildUpgrades, GuildUpgradeSchema } from '#lib/resources/guild/upgrades.ts';
 import { getGuild, searchGuild } from '#lib/resources/guild.ts';
 import { GuildSchema } from '#lib/types/Guild.ts';
+import { isEmpty } from '@repo/utils';
 import { Hono } from 'hono';
 import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
@@ -29,7 +30,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
       z.object({
         ids: z.string().transform((value, ctx) => {
           const segments = value.split(',');
-          if (segments.some((id) => !/^[1-9]\d*$/.test(id))) {
+          if (segments.some((id) => !/^[1-9]\d*$/u.test(id))) {
             ctx.addIssue({
               code: 'custom',
               message: 'ids must be a comma-separated list of positive integers',
@@ -72,9 +73,9 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
     }),
     validator('query', z.object({ name: z.string() })),
     async (c) => {
-      const name = c.req.query('name')?.replace(/-/g, ' ');
+      const name = c.req.query('name')?.replaceAll('-', ' ');
 
-      if (!name) {
+      if (isEmpty(name)) {
         const payload: ErrorPayload = {
           message: 'Guild Not Found',
           statusCode: 404,
@@ -85,7 +86,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
       }
 
       const guildId = await searchGuild(name, c.env);
-      if (!guildId) {
+      if (isEmpty(guildId)) {
         const payload: ErrorPayload = {
           message: 'Guild Not Found',
           statusCode: 404,

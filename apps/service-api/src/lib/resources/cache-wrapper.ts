@@ -36,7 +36,7 @@ export async function withKvCache<T>(
   config: CacheConfig = {},
 ): Promise<T | null> {
   const { kvStore } = cacheProviders;
-  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging } = config;
+  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging() } = config;
 
   // 1. Check cache
   const cached = await kvStore.get(key, 'text');
@@ -126,16 +126,23 @@ export async function withObjectCache<T>(
   config: CacheConfig = {},
 ): Promise<T> {
   const { objectStore } = cacheProviders;
-  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging } = config;
+  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging() } = config;
 
   // 1. Check cache with expiration
   let cachedData: T | null = null;
   let staleData: T | null = null;
   const object = await objectStore.get(objectKey);
 
-  if (object !== null) {
+  if (object === null) {
+    if (enableLogging) {
+      console.info(`object MISS for ${objectKey}`);
+    }
+  } else {
     const expiresAt = object.customMetadata?.expiresAt;
-    if (expiresAt && Temporal.Instant.compare(Temporal.Instant.from(expiresAt), Temporal.Now.instant()) > 0) {
+    if (
+      expiresAt !== undefined &&
+      Temporal.Instant.compare(Temporal.Instant.from(expiresAt), Temporal.Now.instant()) > 0
+    ) {
       if (enableLogging) {
         console.info(`object HIT for ${objectKey}`);
       }
@@ -146,10 +153,6 @@ export async function withObjectCache<T>(
       }
       // Retain stale data as fallback in case the API is rate-limited.
       staleData = await object.json<T>();
-    }
-  } else {
-    if (enableLogging) {
-      console.info(`object MISS for ${objectKey}`);
     }
   }
 

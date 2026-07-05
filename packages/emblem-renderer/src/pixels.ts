@@ -88,11 +88,11 @@ export function renderEmblemPixels(
       const fg1A = fg1Pixel >>> 24;
       if (fg1A > 0) {
         const invA = 255 - fg1A;
-        const outA = (fg1A + (a * invA) / 255) | 0;
+        const outA = Math.trunc(fg1A + (a * invA) / 255);
         if (outA > 0) {
-          r = ((fg1R * fg1A + (r * a * invA) / 255) / outA) | 0;
-          g = ((fg1G * fg1A + (g * a * invA) / 255) / outA) | 0;
-          b = ((fg1B * fg1A + (b * a * invA) / 255) / outA) | 0;
+          r = Math.trunc((fg1R * fg1A + (r * a * invA) / 255) / outA);
+          g = Math.trunc((fg1G * fg1A + (g * a * invA) / 255) / outA);
+          b = Math.trunc((fg1B * fg1A + (b * a * invA) / 255) / outA);
           a = outA;
         }
       }
@@ -105,11 +105,11 @@ export function renderEmblemPixels(
       const fg2A = fg2Pixel >>> 24;
       if (fg2A > 0) {
         const invA = 255 - fg2A;
-        const outA = (fg2A + (a * invA) / 255) | 0;
+        const outA = Math.trunc(fg2A + (a * invA) / 255);
         if (outA > 0) {
-          r = ((fg2R * fg2A + (r * a * invA) / 255) / outA) | 0;
-          g = ((fg2G * fg2A + (g * a * invA) / 255) / outA) | 0;
-          b = ((fg2B * fg2A + (b * a * invA) / 255) / outA) | 0;
+          r = Math.trunc((fg2R * fg2A + (r * a * invA) / 255) / outA);
+          g = Math.trunc((fg2G * fg2A + (g * a * invA) / 255) / outA);
+          b = Math.trunc((fg2B * fg2A + (b * a * invA) / 255) / outA);
           a = outA;
         }
       }

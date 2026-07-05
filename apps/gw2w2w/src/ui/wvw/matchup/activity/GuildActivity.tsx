@@ -9,7 +9,7 @@ import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
-import { isPresent } from '@repo/utils';
+import { isEmpty, isNonEmptyString, isPresent } from '@repo/utils';
 import { Link } from '#ui/Link';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMemo, useRef, useState } from 'react';
@@ -56,13 +56,15 @@ function buildGuildRows(
   events: EventRow[],
   filters: { maps: string[]; objectiveTypes: string[]; owners: string[]; timeWindow: string },
 ): GuildActivityRow[] {
+  // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
+  // eslint-disable-next-line unicorn/prefer-number-coercion
   const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - parseInt(filters.timeWindow, 10) * 3_600_000;
 
   const map = new Map<string, GuildActivityRow>();
 
   for (const e of events) {
     if (e.type !== 'claim') continue;
-    if (!e.claimed_by) continue;
+    if (isEmpty(e.claimed_by)) continue;
     if (typeof e.at !== 'string') continue;
     if (isPresent(cutoffMs) && new Date(e.at).getTime() < cutoffMs) continue;
     if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
@@ -173,7 +175,7 @@ function SortableHeader({
 function GuildTableRow({ row }: { row: GuildActivityRow }) {
   const guildQuery = useGuild(row.guild_id);
   const guild = guildQuery.data;
-  const guildLink = `/guilds/${guild?.name ? encodeURIComponent(guild.name) : row.guild_id}`;
+  const guildLink = `/guilds/${isNonEmptyString(guild?.name) ? encodeURIComponent(guild.name) : row.guild_id}`;
 
   const ownerColors = (teamColorConfig as Record<string, { text: string }>)[row.last_activity_owner];
 
@@ -280,7 +282,7 @@ export function GuildActivity({ events }: GuildActivityProps) {
   const virtualItems = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
   const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0;
-  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0;
+  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems.at(-1)?.end ?? 0) : 0;
 
   return (
     <section className="mt-4 rounded p-2 shadow">

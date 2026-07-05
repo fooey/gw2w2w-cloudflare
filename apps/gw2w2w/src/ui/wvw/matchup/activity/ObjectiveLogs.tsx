@@ -58,7 +58,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
 
   // Sort by actual event timestamp descending. ISO 8601 UTC strings are lexicographically comparable.
   // Use id as tiebreaker for events at the same second.
-  const rows = events.filter(matchesFilters).toSorted((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
+  const rows = events.filter((e) => matchesFilters(e)).toSorted((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -70,7 +70,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   const virtualItems = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
   const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0;
-  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0;
+  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems.at(-1)?.end ?? 0) : 0;
 
   return (
     <section className="mt-8 rounded p-2 shadow">

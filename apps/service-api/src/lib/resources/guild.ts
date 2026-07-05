@@ -11,9 +11,8 @@ export async function getGuildFromApi(guildId: string, env: CloudflareEnv): Prom
   if (!response.ok) {
     if (response.status === 404) {
       return null; // Guild not found
-    } else {
-      throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
     }
+    throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
   }
   return response.json();
 }
@@ -23,9 +22,8 @@ export async function searchGuildFromApi(name: string, env: CloudflareEnv): Prom
   if (!response.ok) {
     if (response.status === 404) {
       return null; // Guild not found
-    } else {
-      throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
     }
+    throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
   }
 
   const result = await response.json();
