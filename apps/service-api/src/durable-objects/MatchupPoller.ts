@@ -50,6 +50,17 @@ interface EventRow {
   claimed_by: string | null;
 }
 
+// Everything #poll needs to persist to D1 and then fan out, built by #buildPollPlan
+// and threaded through #persistPollPlan / #applyPollPlan / #fanoutPollPlan.
+interface PollPlan {
+  stmts: D1PreparedStatement[];
+  pendingFanout: (PendingFanout | null)[];
+  matchStateFanouts: WvWMatch[];
+  snapUpdates: { key: string; snap: ObjectiveSnap }[];
+  resetMatchIds: string[];
+  newEventsByMatch: Map<string, number>;
+}
+
 async function closeWriterIgnoringErrors(writer: WritableStreamDefaultWriter<Uint8Array>): Promise<void> {
   try {
     await writer.close();
@@ -371,7 +382,29 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     this.#lastSuccessfulPollAt = requestStartTime.toISOString();
 
-    // Collect all D1 write statements and in-memory updates to apply after a successful batch.
+    const plan = this.#buildPollPlan(matches, requestId, requestStartTime);
+    const newEventCount = [...plan.newEventsByMatch.values()].reduce((a, b) => a + b, 0);
+    const batchResults = await this.#persistPollPlan(plan, requestId, requestStartTime);
+
+    const eventSummary =
+      plan.newEventsByMatch.size > 0
+        ? ` (${[...plan.newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')})`
+        : '';
+    console.info(
+      `[MatchupPoller] [${requestId}] poll complete — ${matches.length} matches, ${newEventCount} new events${eventSummary}, ${this.#subscribers.size} subscribers`,
+    );
+
+    this.#applyPollPlan(matches, plan);
+    await this.#fanoutPollPlan(plan, batchResults, requestId);
+
+    const requestEndTime = new Date();
+    const durationMs = requestEndTime.getTime() - requestStartTime.getTime();
+    console.info(`[MatchupPoller] [${requestId}] duration=${durationMs}ms`);
+  }
+
+  // Diffs the freshly-fetched matches against cached state and builds every D1 statement
+  // and in-memory update #poll needs to apply, without executing or persisting any of it.
+  #buildPollPlan(matches: WvWMatch[], requestId: string, requestStartTime: Date): PollPlan {
     // pendingFanout is a parallel array to stmts — null for non-event statements so we can
     // correlate batch results (meta.changes / last_row_id) back to their fanout data.
     const stmts: D1PreparedStatement[] = [];
@@ -472,45 +505,47 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       }
     }
 
-    // --- Execute all writes atomically ---
-    const newEventCount = [...newEventsByMatch.values()].reduce((a, b) => a + b, 0);
-    let batchResults: D1Result[] = [];
-    if (stmts.length > 0) {
-      const upsertedMatchIds = matchStateFanouts.map((m) => m.id);
-      const stmtSummary =
-        `resets=[${resetMatchIds.join(',')}]` +
-        ` upserts=[${upsertedMatchIds.join(',')}]` +
-        ` events={${[...newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')}}`;
-      console.info(`[MatchupPoller] [${requestId}] D1 batch: ${stmts.length} statements — ${stmtSummary}`);
-      try {
-        batchResults = await this.env.WVW_DB.batch(stmts);
-        this.#totalD1Writes += stmts.length;
-        if (this.#consecutiveD1Errors > 0) {
-          console.info(
-            `[MatchupPoller] [${requestId}] D1 recovered after ${this.#consecutiveD1Errors} consecutive errors`,
-          );
-          this.#consecutiveD1Errors = 0;
-        }
-      } catch (err) {
-        this.#consecutiveD1Errors++;
-        this.#lastD1ErrorAt = requestStartTime.toISOString();
-        console.error(
-          `[MatchupPoller] [${requestId}] D1 batch failed (consecutive=${this.#consecutiveD1Errors}, stmts=${stmts.length}, ${stmtSummary}):`,
-          err,
+    return { stmts, pendingFanout, matchStateFanouts, snapUpdates, resetMatchIds, newEventsByMatch };
+  }
+
+  // Executes the plan's D1 statements as a single atomic batch. Returns [] without writing
+  // anything if there's nothing to persist. Re-throws on failure so #poll's caller (alarm())
+  // sees the error and #applyPollPlan / #fanoutPollPlan never run against an unpersisted plan.
+  async #persistPollPlan(plan: PollPlan, requestId: string, requestStartTime: Date): Promise<D1Result[]> {
+    if (plan.stmts.length === 0) return [];
+
+    const upsertedMatchIds = plan.matchStateFanouts.map((m) => m.id);
+    const stmtSummary =
+      `resets=[${plan.resetMatchIds.join(',')}]` +
+      ` upserts=[${upsertedMatchIds.join(',')}]` +
+      ` events={${[...plan.newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')}}`;
+    console.info(`[MatchupPoller] [${requestId}] D1 batch: ${plan.stmts.length} statements — ${stmtSummary}`);
+    try {
+      const batchResults = await this.env.WVW_DB.batch(plan.stmts);
+      this.#totalD1Writes += plan.stmts.length;
+      if (this.#consecutiveD1Errors > 0) {
+        console.info(
+          `[MatchupPoller] [${requestId}] D1 recovered after ${this.#consecutiveD1Errors} consecutive errors`,
         );
-        // Re-throw so in-memory state is not updated and the next poll retries.
-        throw err;
+        this.#consecutiveD1Errors = 0;
       }
+      return batchResults;
+    } catch (err) {
+      this.#consecutiveD1Errors++;
+      this.#lastD1ErrorAt = requestStartTime.toISOString();
+      console.error(
+        `[MatchupPoller] [${requestId}] D1 batch failed (consecutive=${this.#consecutiveD1Errors}, stmts=${plan.stmts.length}, ${stmtSummary}):`,
+        err,
+      );
+      // Re-throw so in-memory state is not updated and the next poll retries.
+      throw err;
     }
+  }
 
-    const eventSummary =
-      newEventsByMatch.size > 0 ? ` (${[...newEventsByMatch.entries()].map(([id, n]) => `${id}:${n}`).join(',')})` : '';
-    console.info(
-      `[MatchupPoller] [${requestId}] poll complete — ${matches.length} matches, ${newEventCount} new events${eventSummary}, ${this.#subscribers.size} subscribers`,
-    );
-
-    // --- Update in-memory state after successful batch ---
-    for (const matchId of resetMatchIds) {
+  // Updates in-memory caches to match what was just persisted. Must only be called after
+  // #persistPollPlan resolves successfully — never against a plan that failed to write.
+  #applyPollPlan(matches: WvWMatch[], plan: PollPlan): void {
+    for (const matchId of plan.resetMatchIds) {
       for (const key of this.#objectiveSnap.keys()) {
         if (key.startsWith(`${matchId}:`)) {
           this.#objectiveSnap.delete(key);
@@ -526,17 +561,19 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       this.#matchState.set(match.id, match);
     }
 
-    for (const { key, snap } of snapUpdates) {
+    for (const { key, snap } of plan.snapUpdates) {
       this.#objectiveSnap.set(key, snap);
     }
+  }
 
-    // --- Fan out to SSE subscribers (skip entirely if no one is connected) ---
+  // Fans the plan's results out to connected SSE subscribers (skip entirely if no one is connected).
+  async #fanoutPollPlan(plan: PollPlan, batchResults: D1Result[], requestId: string): Promise<void> {
     if (this.#subscribers.size === 0) return;
 
     // 1. Reset events — client clears its local log for the affected match.
     //    Each matchId appears at most once here, so these fan out independently in parallel.
     await Promise.all(
-      resetMatchIds.map(async (matchId) => {
+      plan.resetMatchIds.map(async (matchId) => {
         const newEndTime = this.#matchEndTimes.get(matchId) ?? '';
         return this.#fanout(matchId, 'reset', { matchId, endTime: newEndTime }, `0:${newEndTime}`, requestId);
       }),
@@ -546,7 +583,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     //    No id: field — match-state events don't advance the Last-Event-ID cursor.
     //    Each match appears at most once here, so these fan out independently in parallel.
     await Promise.all(
-      matchStateFanouts.map(async (match) =>
+      plan.matchStateFanouts.map(async (match) =>
         this.#fanout(match.id, 'match-state', { matchId: match.id, data: match }, undefined, requestId),
       ),
     );
@@ -554,7 +591,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // 3. Capture / claim events — only rows that were actually inserted (changes > 0).
     //    INSERT OR IGNORE produces changes=0 for duplicates; we skip those.
     for (let i = 0; i < batchResults.length; i++) {
-      const pending = pendingFanout[i];
+      const pending = plan.pendingFanout[i];
       if (!pending) continue;
       const result = batchResults[i];
       if (!result) continue;
@@ -574,10 +611,6 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         );
       }
     }
-
-    const requestEndTime = new Date();
-    const durationMs = requestEndTime.getTime() - requestStartTime.getTime();
-    console.info(`[MatchupPoller] [${requestId}] duration=${durationMs}ms`);
   }
 
   async #fanout(matchId: string, event: string, data: unknown, id?: string, requestId?: string): Promise<void> {

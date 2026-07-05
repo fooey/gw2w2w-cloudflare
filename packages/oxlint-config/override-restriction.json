@@ -14,7 +14,6 @@
     "node/no-process-env": "off",
     "no-use-before-define": "off",
     "default-case": "off",
-    "complexity": "off",
     "oxc/no-async-await": "off",
     "oxc/no-optional-chaining": "off",
     "oxc/no-rest-spread-properties": "off"

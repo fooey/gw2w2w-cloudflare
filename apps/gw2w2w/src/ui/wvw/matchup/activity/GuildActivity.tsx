@@ -8,8 +8,9 @@ import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
+import { buildGuildRows } from '#ui/wvw/matchup/activity/guildActivityRows';
 import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
-import { isEmpty, isNonEmptyString, isPresent } from '@repo/utils';
+import { isNonEmptyString } from '@repo/utils';
 import { Link } from '#ui/Link';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMemo, useRef, useState } from 'react';
@@ -51,91 +52,6 @@ const SORT_FN: Record<SortKey, (a: GuildActivityRow, b: GuildActivityRow) => num
   BlueHome: (a, b) => a.claims_blue_home - b.claims_blue_home,
   RedHome: (a, b) => a.claims_red_home - b.claims_red_home,
 };
-
-function buildGuildRows(
-  events: EventRow[],
-  filters: { maps: string[]; objectiveTypes: string[]; owners: string[]; timeWindow: string },
-): GuildActivityRow[] {
-  // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
-  // eslint-disable-next-line unicorn/prefer-number-coercion
-  const timeWindowHours = Number.parseInt(filters.timeWindow, 10);
-  const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - timeWindowHours * 3_600_000;
-
-  const map = new Map<string, GuildActivityRow>();
-
-  for (const e of events) {
-    if (e.type !== 'claim') continue;
-    if (isEmpty(e.claimed_by)) continue;
-    if (typeof e.at !== 'string') continue;
-    if (isPresent(cutoffMs) && new Date(e.at).getTime() < cutoffMs) continue;
-    if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
-    if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
-      continue;
-    if (filters.owners.length < OWNER_TYPES.length && !filters.owners.includes(e.owner)) continue;
-
-    let row = map.get(e.claimed_by);
-    if (!row) {
-      row = {
-        guild_id: e.claimed_by,
-        match_id: e.match_id,
-        claims_castle: 0,
-        claims_keep: 0,
-        claims_tower: 0,
-        claims_camp: 0,
-        claims_center: 0,
-        claims_green_home: 0,
-        claims_blue_home: 0,
-        claims_red_home: 0,
-        total: 0,
-        last_seen_at: e.at,
-        last_activity_owner: e.owner,
-        last_activity_map: e.map_type,
-      };
-      map.set(e.claimed_by, row);
-    }
-
-    switch (e.objective_type) {
-      case 'Castle':
-        row.claims_castle++;
-        break;
-      case 'Keep':
-        row.claims_keep++;
-        break;
-      case 'Tower':
-        row.claims_tower++;
-        break;
-      case 'Camp':
-        row.claims_camp++;
-        break;
-      case 'Ruins':
-        // Ruins are not claimable
-        break;
-    }
-    switch (e.map_type) {
-      case 'Center':
-        row.claims_center++;
-        break;
-      case 'GreenHome':
-        row.claims_green_home++;
-        break;
-      case 'BlueHome':
-        row.claims_blue_home++;
-        break;
-      case 'RedHome':
-        row.claims_red_home++;
-        break;
-    }
-    row.total++;
-
-    if (e.at > row.last_seen_at) {
-      row.last_seen_at = e.at;
-      row.last_activity_owner = e.owner;
-      row.last_activity_map = e.map_type;
-    }
-  }
-
-  return Array.from(map.values());
-}
 
 function SortableHeader({
   label,

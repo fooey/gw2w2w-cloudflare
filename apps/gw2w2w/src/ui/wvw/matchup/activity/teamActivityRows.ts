@@ -33,6 +33,38 @@ export function createEmptyTeamRow(): Omit<TeamRow, 'owner'> {
   };
 }
 
+type ClaimField = keyof Omit<TeamRow, 'owner' | 'total'>;
+
+// Ruins are not claimable, so they're deliberately absent here — an event with an
+// objective_type/map_type not in these maps just skips that half of the increment.
+const OBJECTIVE_TYPE_FIELD: Partial<Record<string, ClaimField>> = {
+  Castle: 'claims_castle',
+  Keep: 'claims_keep',
+  Tower: 'claims_tower',
+  Camp: 'claims_camp',
+};
+
+const MAP_TYPE_FIELD: Partial<Record<string, ClaimField>> = {
+  Center: 'claims_center',
+  GreenHome: 'claims_green_home',
+  BlueHome: 'claims_blue_home',
+  RedHome: 'claims_red_home',
+};
+
+function isClaimEventInScope(
+  event: EventRow,
+  filters: { maps: string[]; objectiveTypes: string[]; timeWindow: string },
+  cutoffMs: number | null,
+): boolean {
+  if (event.type !== 'claim') return false;
+  if (typeof event.at !== 'string') return false;
+  if (isPresent(cutoffMs) && new Date(event.at).getTime() < cutoffMs) return false;
+  if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(event.map_type)) return false;
+  if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(event.objective_type))
+    return false;
+  return true;
+}
+
 export function buildTeamRows(
   events: EventRow[],
   filters: { maps: string[]; objectiveTypes: string[]; timeWindow: string },
@@ -46,55 +78,23 @@ export function buildTeamRows(
   const overall = createEmptyTeamRow();
 
   for (const e of events) {
-    if (e.type !== 'claim') continue;
-    if (typeof e.at !== 'string') continue;
-    if (isPresent(cutoffMs) && new Date(e.at).getTime() < cutoffMs) continue;
-    if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
-    if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
-      continue;
+    if (!isClaimEventInScope(e, filters, cutoffMs)) continue;
 
     const row = byOwner.get(e.owner);
     if (!row) continue; // skip Neutral — teams only claim
 
-    switch (e.objective_type) {
-      case 'Castle':
-        row.claims_castle++;
-        overall.claims_castle++;
-        break;
-      case 'Keep':
-        row.claims_keep++;
-        overall.claims_keep++;
-        break;
-      case 'Tower':
-        row.claims_tower++;
-        overall.claims_tower++;
-        break;
-      case 'Camp':
-        row.claims_camp++;
-        overall.claims_camp++;
-        break;
-      case 'Ruins':
-        // Ruins are not claimable
-        break;
+    const objectiveField = OBJECTIVE_TYPE_FIELD[e.objective_type];
+    if (objectiveField) {
+      row[objectiveField]++;
+      overall[objectiveField]++;
     }
-    switch (e.map_type) {
-      case 'Center':
-        row.claims_center++;
-        overall.claims_center++;
-        break;
-      case 'GreenHome':
-        row.claims_green_home++;
-        overall.claims_green_home++;
-        break;
-      case 'BlueHome':
-        row.claims_blue_home++;
-        overall.claims_blue_home++;
-        break;
-      case 'RedHome':
-        row.claims_red_home++;
-        overall.claims_red_home++;
-        break;
+
+    const mapField = MAP_TYPE_FIELD[e.map_type];
+    if (mapField) {
+      row[mapField]++;
+      overall[mapField]++;
     }
+
     row.total++;
     overall.total++;
   }

@@ -4,7 +4,7 @@ import type { Direction, ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLa
 import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { MatchMapTeamScore } from '#ui/wvw/matchup/maps/MatchMapTeamScore';
 import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
-import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog';
+import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog/ObjectiveDialog';
 import type { WvWMatchMap, WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
 import { isNonEmptyString } from '@repo/utils';
 import clsx from 'clsx';

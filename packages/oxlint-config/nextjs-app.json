@@ -9,28 +9,8 @@
   },
   "rules": {
     "react/react-compiler": "error",
-    "react/jsx-no-constructed-context-values": "warn",
-    "react/jsx-no-useless-fragment": "warn",
-    "react/no-array-index-key": "warn",
-    "react/no-find-dom-node": "warn",
-    "react/no-unsafe": "warn",
-    "react/no-unstable-nested-components": "warn",
-    "react/only-export-components": "warn",
     "react/react-in-jsx-scope": "off",
-    "nextjs/google-font-display": "warn",
-    "nextjs/google-font-preconnect": "warn",
-    "nextjs/next-script-for-ga": "warn",
-    "nextjs/no-async-client-component": "warn",
-    "nextjs/no-before-interactive-script-outside-document": "warn",
-    "nextjs/no-css-tags": "warn",
-    "nextjs/no-head-element": "warn",
-    "nextjs/no-page-custom-font": "warn",
-    "nextjs/no-styled-jsx-in-document": "warn",
-    "nextjs/no-title-in-document-head": "warn",
-    "nextjs/no-typos": "warn",
-    "nextjs/no-unwanted-polyfillio": "warn",
-    "nextjs/no-img-element": "off",
-    "react/exhaustive-deps": "warn"
+    "nextjs/no-img-element": "off"
   },
   "overrides": [
     {

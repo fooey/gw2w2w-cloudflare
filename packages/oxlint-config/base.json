@@ -23,16 +23,14 @@
     "no-empty": "error",
     "no-regex-spaces": "error",
     "no-console": [
-      "warn",
+      "error",
       {
         "allow": ["info", "warn", "error"]
       }
     ],
     "import/first": "error",
-    "import/no-cycle": "warn",
     "import/no-default-export": "error",
     "import/no-named-default": "error",
-    "import/no-relative-parent-imports": "warn",
     "import/newline-after-import": "warn",
     "import/no-duplicates": "error",
     "import/no-mutable-exports": "error",
@@ -127,12 +125,9 @@
       "rules": {
         "vitest/no-duplicate-hooks": "error",
         "vitest/no-identical-title": "error",
-        "vitest/no-disabled-tests": "warn",
-        "vitest/no-commented-out-tests": "warn",
         "vitest/prefer-hooks-on-top": "warn",
         "vitest/prefer-strict-boolean-matchers": "error",
         "vitest/prefer-to-have-length": "error",
-        "vitest/expect-expect": "warn",
         "typescript/no-unsafe-type-assertion": "off",
         "no-empty-function": "off",
         "typescript/require-await": "off"

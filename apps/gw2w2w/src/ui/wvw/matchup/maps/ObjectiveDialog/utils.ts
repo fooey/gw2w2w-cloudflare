@@ -1,5 +1,13 @@
 import { isNil } from '@repo/utils';
 
+export const TIER_ROMAN: Record<number, string> = { 1: 'I', 2: 'II', 3: 'III' };
+
+export const TIER_CLASS: Record<number, string> = {
+  1: 'bg-amber-800 text-amber-100',
+  2: 'bg-slate-400 text-slate-900',
+  3: 'bg-yellow-400 text-yellow-900',
+};
+
 export function getEtaDisplay(
   yaksRequired: number,
   yaksDelivered: number,
