@@ -1,3 +1,5 @@
+// This file tests pixel/alpha-channel compositing math, so bitwise operators are intentional here.
+/* eslint-disable no-bitwise */
 import { describe, expect, it } from 'vitest';
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
 

@@ -10,7 +10,7 @@ import { DetailedError, hc, parseResponse } from 'hono/client';
 export type ApiClient = ReturnType<typeof hc<ServiceApiAppType>>;
 
 export class HttpError extends Error {
-  constructor(
+  public constructor(
     public readonly status: number,
     message: string,
   ) {
@@ -29,26 +29,26 @@ export function getApiClient(
   });
 }
 
-export function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
+export async function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
   const guildApi = apiClient.gw2.guild[':guildId'];
   return parseResponse(guildApi.$get({ param: { guildId } }));
 }
 
-export function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
+export async function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
   const guildApi = apiClient.gw2.guild.search;
   return parseResponse(guildApi.$get({ query: { name } }));
 }
 
-export function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
+export async function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
   const colorApi = apiClient.gw2.color[':colorId'];
   return parseResponse(colorApi.$get({ param: { colorId: colorId.toString() } }));
 }
 
-export function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
-  return Promise.all(colorIds.map((id) => getColor(apiClient, id)));
+export async function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
+  return Promise.all(colorIds.map(async (id) => getColor(apiClient, id)));
 }
 
-export function getEmblemLayer(
+export async function getEmblemLayer(
   apiClient: ApiClient,
   layer: 'background' | 'foreground',
   emblemId: number,
@@ -81,15 +81,15 @@ export async function getEmblemBytesByGuildId(
   return getEmblemBytes(apiClient, guild.emblem, cacheProviders, size);
 }
 
-function fetchLayerTextures(
+async function fetchLayerTextures(
   apiClient: ApiClient,
   layer: 'background' | 'foreground',
   emblemId: number,
   indices: number[],
   objectStore: ReturnType<typeof createCacheProviders>['objectStore'],
 ): Promise<(ArrayBuffer | null)[]> {
-  return getEmblemLayer(apiClient, layer, emblemId).then((def) =>
-    Promise.all(indices.map((i) => getTextureArrayBuffer(def.layers[i] ?? null, objectStore))),
+  return getEmblemLayer(apiClient, layer, emblemId).then(async (def) =>
+    Promise.all(indices.map(async (i) => getTextureArrayBuffer(def.layers[i] ?? null, objectStore))),
   );
 }
 

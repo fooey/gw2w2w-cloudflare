@@ -4,8 +4,8 @@ import { apiFetch } from '#lib/resources/api.ts';
 import type { Emblem } from '#lib/types/index.ts';
 import { withFilteredObjectCache } from './cache-wrapper';
 
-function getEmblemBackgroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null> {
-  return apiFetch(env, '/emblem/backgrounds?ids=all').then((response) => {
+async function getEmblemBackgroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null> {
+  return apiFetch(env, '/emblem/backgrounds?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null; // Guild not found
@@ -16,8 +16,8 @@ function getEmblemBackgroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null
   });
 }
 
-function getEmblemForegroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null> {
-  return apiFetch(env, '/emblem/foregrounds?ids=all').then((response) => {
+async function getEmblemForegroundFromApi(env: CloudflareEnv): Promise<Emblem[] | null> {
+  return apiFetch(env, '/emblem/foregrounds?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null; // Guild not found

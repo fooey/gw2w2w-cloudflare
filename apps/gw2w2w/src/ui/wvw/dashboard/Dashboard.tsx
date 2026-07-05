@@ -18,7 +18,7 @@ const matchupRegions = [
 function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatch[] | null>>) {
   return useQuery({
     queryKey: ['wvwMatches'],
-    queryFn: () => fetchWvwMatchesService(getClientApi()),
+    queryFn: async () => fetchWvwMatchesService(getClientApi()),
     refetchInterval: () => withJitter(60_000, 0.5),
     staleTime: 60_000,
     refetchOnWindowFocus: true,
@@ -57,6 +57,7 @@ export function Dashboard({ matches }: DashboardProps) {
               {LANGS.map((l) => (
                 <button
                   key={l}
+                  type="button"
                   onClick={() => {
                     setLang(l);
                   }}

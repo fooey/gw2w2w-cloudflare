@@ -59,10 +59,10 @@ async function closeWriterIgnoringErrors(writer: WritableStreamDefaultWriter<Uin
 }
 
 class RateLimitError extends Error {
-  retryAfterMs: number;
-  rateLimitBurst: number | null;
-  egressIp: string | null;
-  constructor(retryAfterMs: number, rateLimitBurst: number | null = null, egressIp: string | null = null) {
+  public retryAfterMs: number;
+  public rateLimitBurst: number | null;
+  public egressIp: string | null;
+  public constructor(retryAfterMs: number, rateLimitBurst: number | null = null, egressIp: string | null = null) {
     super(`[MatchupPoller] GW2 API rate limited — retry after ${retryAfterMs}ms`);
     this.retryAfterMs = retryAfterMs;
     this.rateLimitBurst = rateLimitBurst;
@@ -87,7 +87,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
   #lastD1ErrorAt: string | null = null;
   #totalD1Writes = 0;
 
-  constructor(ctx: DurableObjectState, env: CloudflareEnv) {
+  public constructor(ctx: DurableObjectState, env: CloudflareEnv) {
     super(ctx, env);
     void ctx.blockConcurrencyWhile(async () => {
       try {
@@ -108,7 +108,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     });
   }
 
-  override async alarm(): Promise<void> {
+  public override async alarm(): Promise<void> {
     const requestId = crypto.randomUUID();
     // Reschedule FIRST — before any work — so eviction after poll can't kill the loop.
     await this.ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
@@ -134,7 +134,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
   }
 
-  override async fetch(request: Request): Promise<Response> {
+  public override async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === '/subscribe') {
@@ -247,10 +247,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
     // eslint-disable-next-line unicorn/prefer-number-coercion
-    const lastId = parseInt(lastEventId.slice(0, colonIdx), 10);
+    const lastId = Number.parseInt(lastEventId.slice(0, colonIdx), 10);
     const lastEndTime = lastEventId.slice(colonIdx + 1);
 
-    if (isNaN(lastId)) return;
+    if (Number.isNaN(lastId)) return;
 
     // Reset detected — D1 events were wiped, client's cursor is stale.
     // The fresh match-state seed above is sufficient; skip replay.
@@ -274,7 +274,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // spent on repeated TextEncoder.encode() calls and backpressure checks.
     let payload = '';
     for (const row of results) {
-      payload += `id: ${row.id}:${matchRow.end_time}\nevent: ${row.type}\ndata: ${JSON.stringify(this.#eventRowToPayload(matchId, row))}\n\n`;
+      payload += `id: ${row.id}:${matchRow.end_time}\nevent: ${row.type}\ndata: ${JSON.stringify(MatchupPoller.#eventRowToPayload(matchId, row))}\n\n`;
     }
     await writer.write(this.#encoder.encode(payload));
   }
@@ -310,7 +310,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     if (!response.ok) {
       if (response.status === 429) {
-        await this.#handleRateLimit(response, requestId);
+        await MatchupPoller.#handleRateLimit(response, requestId);
       }
       throw new Error(
         `[MatchupPoller] [${requestId}] GW2 API error: ${response.status.toString()} ${response.statusText}`,
@@ -320,7 +320,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     return response;
   }
 
-  async #handleRateLimit(response: Response, _requestId: string): Promise<never> {
+  static async #handleRateLimit(response: Response, _requestId: string): Promise<never> {
     const rateLimitHeaders: Record<string, string> = {};
     for (const [key, value] of response.headers.entries()) {
       if (key.toLowerCase().startsWith('x-rate-limit') || key.toLowerCase() === 'retry-after') {
@@ -343,10 +343,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const retryAfter = response.headers.get('Retry-After');
     // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
     // eslint-disable-next-line unicorn/prefer-number-coercion
-    const retryAfterMs = isPresent(retryAfter) ? parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
+    const retryAfterMs = isPresent(retryAfter) ? Number.parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
     const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
     // eslint-disable-next-line unicorn/prefer-number-coercion
-    const rateLimitBurst = isPresent(rateLimitBurstRaw) ? parseInt(rateLimitBurstRaw, 10) : null;
+    const rateLimitBurst = isPresent(rateLimitBurstRaw) ? Number.parseInt(rateLimitBurstRaw, 10) : null;
     throw new RateLimitError(
       Number.isFinite(retryAfterMs) ? retryAfterMs : BACKOFF_INTERVAL_MS,
       rateLimitBurst,
@@ -416,7 +416,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           const snapKey = `${match.id}:${obj.id}`;
           const prev = this.#objectiveSnap.get(snapKey);
 
-          if (this.#shouldEmitCapture(obj, prev)) {
+          if (MatchupPoller.#shouldEmitCapture(obj, prev)) {
             newEventsByMatch.set(match.id, (newEventsByMatch.get(match.id) ?? 0) + 1);
             stmts.push(
               this.env.WVW_DB.prepare(
@@ -437,7 +437,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
             });
           }
 
-          if (this.#shouldEmitClaim(obj, prev)) {
+          if (MatchupPoller.#shouldEmitClaim(obj, prev)) {
             newEventsByMatch.set(match.id, (newEventsByMatch.get(match.id) ?? 0) + 1);
             stmts.push(
               this.env.WVW_DB.prepare(
@@ -536,7 +536,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     // 1. Reset events — client clears its local log for the affected match.
     //    Each matchId appears at most once here, so these fan out independently in parallel.
     await Promise.all(
-      resetMatchIds.map((matchId) => {
+      resetMatchIds.map(async (matchId) => {
         const newEndTime = this.#matchEndTimes.get(matchId) ?? '';
         return this.#fanout(matchId, 'reset', { matchId, endTime: newEndTime }, `0:${newEndTime}`, requestId);
       }),
@@ -546,7 +546,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     //    No id: field — match-state events don't advance the Last-Event-ID cursor.
     //    Each match appears at most once here, so these fan out independently in parallel.
     await Promise.all(
-      matchStateFanouts.map((match) =>
+      matchStateFanouts.map(async (match) =>
         this.#fanout(match.id, 'match-state', { matchId: match.id, data: match }, undefined, requestId),
       ),
     );
@@ -627,7 +627,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     return this.#encoder.encode(msg);
   }
 
-  #eventRowToPayload(matchId: string, row: EventRow): Record<string, unknown> {
+  static #eventRowToPayload(matchId: string, row: EventRow): Record<string, unknown> {
     const base: Record<string, unknown> = {
       id: row.id,
       matchId,
@@ -678,12 +678,12 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     }
   }
 
-  #shouldEmitCapture(obj: WvWMatchObjective, prev: ObjectiveSnap | undefined): boolean {
+  static #shouldEmitCapture(obj: WvWMatchObjective, prev: ObjectiveSnap | undefined): boolean {
     if (isNil(obj.last_flipped)) return false;
     return obj.last_flipped !== prev?.last_flipped;
   }
 
-  #shouldEmitClaim(obj: WvWMatchObjective, prev: ObjectiveSnap | undefined): boolean {
+  static #shouldEmitClaim(obj: WvWMatchObjective, prev: ObjectiveSnap | undefined): boolean {
     return isPresent(obj.claimed_at) && isPresent(obj.claimed_by) && obj.claimed_at !== prev?.claimed_at;
   }
 }

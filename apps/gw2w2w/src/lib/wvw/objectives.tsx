@@ -11,7 +11,7 @@ export function useWvwObjectives(queryOptions?: WvwObjectivesQueryOptions) {
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwObjectives'],
-    queryFn: () => fetchWvwObjectives(getClientApi()),
+    queryFn: async () => fetchWvwObjectives(getClientApi()),
     staleTime: Infinity,
   });
 }
@@ -20,7 +20,7 @@ export function useWvwObjective(objectiveId: string, queryOptions?: Omit<WvwObje
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwObjectives'],
-    queryFn: () => fetchWvwObjectives(getClientApi()),
+    queryFn: async () => fetchWvwObjectives(getClientApi()),
     staleTime: Infinity,
     select: (data) => data?.find((obj) => obj.id === objectiveId) ?? null,
   });
@@ -33,7 +33,7 @@ export function useWvWObjectiveIcon(
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwObjectives'],
-    queryFn: () => fetchWvwObjectives(getClientApi()),
+    queryFn: async () => fetchWvwObjectives(getClientApi()),
     staleTime: Infinity,
     select: (data) => data?.find((obj) => obj.type === type && obj.map_type !== 'EdgeOfTheMists')?.marker,
   });

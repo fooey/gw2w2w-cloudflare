@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "typescript/explicit-function-return-type": "off",
+    "typescript/explicit-module-boundary-types": "off",
+    "react/jsx-no-literals": "off",
+    "vitest/require-test-timeout": "off",
+    "react/forbid-component-props": "off",
+    "react/jsx-filename-extension": "off",
+    "no-undefined": "off",
+    "no-plusplus": "off",
+    "no-void": "off",
+    "react/no-multi-comp": "off",
+    "node/no-process-env": "off",
+    "no-use-before-define": "off",
+    "default-case": "off",
+    "complexity": "off",
+    "oxc/no-async-await": "off",
+    "oxc/no-optional-chaining": "off",
+    "oxc/no-rest-spread-properties": "off"
+  }
+}

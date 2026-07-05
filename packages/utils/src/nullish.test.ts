@@ -13,7 +13,7 @@ describe('isNil', () => {
     expect(isNil(0)).toBe(false);
     expect(isNil('')).toBe(false);
     expect(isNil(false)).toBe(false);
-    expect(isNil(NaN)).toBe(false);
+    expect(isNil(Number.NaN)).toBe(false);
   });
 });
 

@@ -1,3 +1,5 @@
+// This file does pixel/alpha-channel compositing math, so bitwise operators are intentional here.
+/* eslint-disable no-bitwise */
 export const IMAGE_DIMENSION = 128;
 export type ColorRGB = [number, number, number];
 

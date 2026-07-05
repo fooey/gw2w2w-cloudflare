@@ -30,7 +30,7 @@ export function resolveTeamId(slug: string): string | null {
 export function findMatchForTeam(matches: WvWMatch[], teamId: string): WvWMatch | null {
   // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
   // eslint-disable-next-line unicorn/prefer-number-coercion
-  const id = parseInt(teamId, 10);
+  const id = Number.parseInt(teamId, 10);
   return (
     matches.find(
       (m) => m.all_worlds.red.includes(id) || m.all_worlds.blue.includes(id) || m.all_worlds.green.includes(id),

@@ -9,7 +9,7 @@ export type UseGuildResult = Guild | null;
 export function useGuild(guildId: string | null | undefined, queryOptions?: Partial<UseQueryOptions<UseGuildResult>>) {
   return useQuery<UseGuildResult>({
     queryKey: ['guild', guildId],
-    queryFn: () => {
+    queryFn: async () => {
       if (isEmpty(guildId)) throw new Error('guildId is required');
       return fetchGuild(getClientApi(), guildId);
     },

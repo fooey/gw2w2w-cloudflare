@@ -12,7 +12,7 @@ export function useWvwUpgrades(queryOptions?: WvwUpgradesQueryOptions) {
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwUpgrades'],
-    queryFn: () => fetchWvwUpgrades(getClientApi()),
+    queryFn: async () => fetchWvwUpgrades(getClientApi()),
     staleTime: Infinity,
   });
 }
@@ -24,7 +24,7 @@ export function useWvwUpgrades(queryOptions?: WvwUpgradesQueryOptions) {
 function useWvwUpgradesMap() {
   return useQuery({
     queryKey: ['wvwUpgrades'],
-    queryFn: () => fetchWvwUpgrades(getClientApi()),
+    queryFn: async () => fetchWvwUpgrades(getClientApi()),
     staleTime: Infinity,
     select: (data): Map<number, number[]> => {
       const map = new Map<number, number[]>();

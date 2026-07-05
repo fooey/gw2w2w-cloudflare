@@ -29,8 +29,8 @@ export const WvWObjectiveSchema = z
 
 export type WvWObjective = z.infer<typeof WvWObjectiveSchema>;
 
-function getWvWObjectivesFromApi(env: CloudflareEnv): Promise<WvWObjective[] | null> {
-  return apiFetch(env, '/wvw/objectives?ids=all').then((response) => {
+async function getWvWObjectivesFromApi(env: CloudflareEnv): Promise<WvWObjective[] | null> {
+  return apiFetch(env, '/wvw/objectives?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -45,7 +45,7 @@ export async function getWvWObjective(id: string | string[], env: CloudflareEnv)
   return withFilteredObjectCache(
     'wvw-objectives.json',
     id,
-    () => getWvWObjectivesFromApi(env),
+    async () => getWvWObjectivesFromApi(env),
     createCacheProviders(env),
   );
 }

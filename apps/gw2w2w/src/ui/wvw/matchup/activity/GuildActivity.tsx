@@ -58,7 +58,8 @@ function buildGuildRows(
 ): GuildActivityRow[] {
   // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
   // eslint-disable-next-line unicorn/prefer-number-coercion
-  const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - parseInt(filters.timeWindow, 10) * 3_600_000;
+  const timeWindowHours = Number.parseInt(filters.timeWindow, 10);
+  const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - timeWindowHours * 3_600_000;
 
   const map = new Map<string, GuildActivityRow>();
 

@@ -55,7 +55,7 @@ async function getWvWGuildFromApi(env: CloudflareEnv): Promise<WvWGuild[] | null
 }
 
 export async function getWvwGuild(id: string | string[], env: CloudflareEnv): Promise<WvWGuild[] | null> {
-  return withFilteredObjectCache('wvw-guilds', id, () => getWvWGuildFromApi(env), createCacheProviders(env), {
+  return withFilteredObjectCache('wvw-guilds', id, async () => getWvWGuildFromApi(env), createCacheProviders(env), {
     ttl: CACHE_TTL.user.kv,
   });
 }

@@ -13,6 +13,7 @@ export default function MatchupError() {
         </p>
         <div className="flex gap-4">
           <button
+            type="button"
             onClick={() => {
               window.location.reload();
             }}

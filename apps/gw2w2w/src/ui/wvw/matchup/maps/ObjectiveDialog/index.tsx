@@ -128,6 +128,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
           )}
         </div>
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close dialog"
           className={cn('shrink-0 cursor-pointer rounded p-1 hover:bg-black/10', ownerConfig.text)}
@@ -286,6 +287,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
           </div>
           {isPresent(objectiveDef?.chat_link) && (
             <button
+              type="button"
               className="flex cursor-pointer items-center gap-1 rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-500 hover:bg-gray-200"
               title="Copy chat link"
               onClick={onCopyChatLink}

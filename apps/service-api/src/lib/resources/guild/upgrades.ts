@@ -16,8 +16,8 @@ export const GuildUpgradeSchema = z
 
 export type GuildUpgrade = z.infer<typeof GuildUpgradeSchema>;
 
-function getGuildUpgradesFromApi(env: CloudflareEnv): Promise<GuildUpgrade[] | null> {
-  return apiFetch(env, '/guild/upgrades?ids=all').then((response) => {
+async function getGuildUpgradesFromApi(env: CloudflareEnv): Promise<GuildUpgrade[] | null> {
+  return apiFetch(env, '/guild/upgrades?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) return null;
       throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
@@ -31,7 +31,7 @@ export async function getGuildUpgrades(ids: number[] | 'all', env: CloudflareEnv
   const results = await withFilteredObjectCache(
     'guild-upgrades.json',
     ids,
-    () => getGuildUpgradesFromApi(env),
+    async () => getGuildUpgradesFromApi(env),
     createCacheProviders(env),
   );
   return results.length > 0 ? results : null;

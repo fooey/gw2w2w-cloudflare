@@ -12,7 +12,7 @@ export function useGuildUpgrades(
 
   return useQuery<GuildUpgrade[] | null>({
     queryKey: ['guildUpgrades', key],
-    queryFn: () => fetchGuildUpgrades(getClientApi(), uniqueIds),
+    queryFn: async () => fetchGuildUpgrades(getClientApi(), uniqueIds),
     enabled: uniqueIds.length > 0,
     staleTime: Infinity,
     ...queryOptions,

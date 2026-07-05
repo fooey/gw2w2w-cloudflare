@@ -231,6 +231,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
             <span className="mt-0.5 w-10 shrink-0 text-xs text-gray-500">Hue:</span>
             <div className="flex flex-wrap gap-1">
               <button
+                type="button"
                 onClick={() => {
                   setActiveHue(null);
                 }}
@@ -241,6 +242,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
               {HUE_CATEGORIES.map((hue) => (
                 <button
                   key={hue}
+                  type="button"
                   onClick={() => {
                     setActiveHue(activeHue === hue ? null : hue);
                   }}
@@ -257,6 +259,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
             <span className="mt-0.5 w-10 shrink-0 text-xs text-gray-500">Rarity:</span>
             <div className="flex flex-wrap gap-1">
               <button
+                type="button"
                 onClick={() => {
                   setActiveRarity(null);
                 }}
@@ -267,6 +270,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
               {RARITY_CATEGORIES.map((rarity) => (
                 <button
                   key={rarity}
+                  type="button"
                   onClick={() => {
                     setActiveRarity(activeRarity === rarity ? null : rarity);
                   }}
@@ -287,6 +291,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
                 return (
                   <button
                     key={key}
+                    type="button"
                     onClick={() => {
                       setSort((prev) => {
                         if (prev?.key !== key) return { key, dir: 'asc' };

@@ -101,8 +101,8 @@ export interface WvWMatchTeams<T> {
 /** WvWMatch with skirmishes[] omitted — the shape stored in D1 match_state and pushed over SSE */
 export type WvWMatchStripped = Omit<WvWMatch, 'skirmishes'>;
 
-function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
-  return apiFetch(env, '/wvw/matches?ids=all').then((response) => {
+async function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
+  return apiFetch(env, '/wvw/matches?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -117,7 +117,7 @@ export async function getWvWMatches(id: string | string[], env: CloudflareEnv): 
   return withFilteredObjectCache<WvWMatch>(
     'wvw-matches.json',
     id,
-    () => getWvWMatchesFromApi(env),
+    async () => getWvWMatchesFromApi(env),
     createCacheProviders(env),
     {
       ttl: CACHE_TTL.live.kv,

@@ -39,7 +39,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
       origin: (origin, c) => allowedCsrf(origin, c.req.header('host')),
     }),
   )
-  .use('*', (c, next) => {
+  .use('*', async (c, next) => {
     c.header('X-Robots-Tag', 'noindex, nofollow');
     return next();
   })

@@ -21,6 +21,7 @@ export function FilterGroup<T extends string>({
         {options.map((opt) => (
           <button
             key={opt}
+            type="button"
             onClick={() => {
               onToggle(opt);
             }}
@@ -45,6 +46,7 @@ export function TimeWindowFilter({ value, onChange }: { value: TimeWindow; onCha
         {TIME_WINDOWS.map((opt) => (
           <button
             key={opt}
+            type="button"
             onClick={() => {
               onChange(opt);
             }}
@@ -69,6 +71,7 @@ export function GranularityFilter({ value, onChange }: { value: Granularity; onC
         {GRANULARITIES.map((opt) => (
           <button
             key={opt}
+            type="button"
             onClick={() => {
               onChange(opt);
             }}
