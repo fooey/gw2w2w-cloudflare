@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import app from './index';
 
 describe('service-emblem smoke tests', () => {

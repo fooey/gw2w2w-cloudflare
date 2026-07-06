@@ -1,5 +1,7 @@
 'use client';
 
+import type { EventRow, WvWMapType, WvWMatchMap, WvWMatch } from '@repo/service-api/types';
+
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { useMatchSSE } from '#lib/wvw/useMatchSSE';
 import { SiteLayoutFullWidth } from '#ui/layout/SiteLayout';
@@ -11,7 +13,6 @@ import { ObjectiveLogs } from '#ui/wvw/matchup/activity/ObjectiveLogs';
 import { TeamActivity } from '#ui/wvw/matchup/activity/TeamActivity';
 import { MatchMap } from '#ui/wvw/matchup/maps/MatchMap';
 import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
-import type { EventRow, WvWMapType, WvWMatchMap, WvWMatch } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
   match: WvWMatch;

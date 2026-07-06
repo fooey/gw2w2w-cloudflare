@@ -1,7 +1,8 @@
-import type { CloudflareEnv } from '#index.ts';
 import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { openAPIRouteHandler } from 'hono-openapi';
+
+import type { CloudflareEnv } from '#index.ts';
 
 const OPENAPI_DESCRIPTION = `
 REST API for **gw2w2w.com**.

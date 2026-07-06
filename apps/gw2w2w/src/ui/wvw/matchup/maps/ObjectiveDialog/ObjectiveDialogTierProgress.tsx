@@ -1,6 +1,8 @@
-import { cn } from '#lib/utils/cn';
 import type { WvWUpgrade, WvWUpgradeTier } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
+
+import { cn } from '#lib/utils/cn';
+
 import { getEtaDisplay, TIER_CLASS, TIER_ROMAN } from './utils';
 
 interface ObjectiveDialogTierProgressProps {

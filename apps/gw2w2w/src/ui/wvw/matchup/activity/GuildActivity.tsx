@@ -1,19 +1,21 @@
 'use client';
 
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useMemo, useRef, useState } from 'react';
+
+import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
+import { isNonEmptyString } from '@repo/utils';
+
 import { getEmblemSrc } from '#lib/emblems';
 import { OBJECTIVE_TYPES, OWNER_TYPES, useGuildActivityFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
 import { useGuild } from '#lib/wvw/useGuild';
+import { Link } from '#ui/Link';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
-import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
 import { buildGuildRows } from '#ui/wvw/matchup/activity/guildActivityRows';
-import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
-import { isNonEmptyString } from '@repo/utils';
-import { Link } from '#ui/Link';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { useMemo, useRef, useState } from 'react';
 
 const ACTIVITY_OBJ_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 type ActivityObjType = (typeof ACTIVITY_OBJ_TYPES)[number];

@@ -1,8 +1,10 @@
-import { getClientApi } from '#lib/api/api.client.ts';
-import { fetchWvwUpgrades } from '#lib/api/gw2/wvw/upgrades';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+
 import type { WvWUpgrade } from '@repo/service-api/types';
 import { isNil } from '@repo/utils';
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+
+import { getClientApi } from '#lib/api/api.client.ts';
+import { fetchWvwUpgrades } from '#lib/api/gw2/wvw/upgrades';
 
 type WvwUpgradesQueryOptions = Partial<
   Omit<UseQueryOptions<WvWUpgrade[] | null>, 'queryKey' | 'queryFn' | 'staleTime'>

@@ -1,8 +1,10 @@
 'use client';
 
-import { tryWriteClipboardText } from '#ui/controls/clipboard';
-import { isPresent } from '@repo/utils';
 import { useState } from 'react';
+
+import { isPresent } from '@repo/utils';
+
+import { tryWriteClipboardText } from '#ui/controls/clipboard';
 
 interface CopyToClipboardInputProps {
   label?: string;

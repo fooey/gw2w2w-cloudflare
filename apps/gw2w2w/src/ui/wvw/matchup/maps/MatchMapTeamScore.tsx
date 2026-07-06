@@ -1,7 +1,9 @@
+import clsx from 'clsx';
+
+import type { WvWMatchObjective } from '@repo/service-api/types';
+
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
-import type { WvWMatchObjective } from '@repo/service-api/types';
-import clsx from 'clsx';
 
 type ObjectiveType = 'Castle' | 'Keep' | 'Tower' | 'Camp';
 

@@ -1,12 +1,14 @@
 'use client';
 
+import { clsx } from 'clsx';
+
 import { EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';
+
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { getEmblemSrc } from '#lib/emblems';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { Card } from '#ui/Card';
 import { Link } from '#ui/Link';
-import { clsx } from 'clsx';
 
 interface GuildEmblemGridProps {
   guildId: string;

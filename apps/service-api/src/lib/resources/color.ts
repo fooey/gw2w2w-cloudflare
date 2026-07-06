@@ -3,6 +3,7 @@ import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import type { Color } from '#lib/types/index.ts';
+
 import { withFilteredObjectCache } from './cache-wrapper';
 
 async function getColorFromApi(env: CloudflareEnv): Promise<Color[] | null> {

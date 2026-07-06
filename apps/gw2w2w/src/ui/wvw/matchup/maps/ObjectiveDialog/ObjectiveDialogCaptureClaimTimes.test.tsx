@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+
 import { ObjectiveDialogCaptureClaimTimes } from './ObjectiveDialogCaptureClaimTimes';
 import { formatLocalized } from './utils';
 

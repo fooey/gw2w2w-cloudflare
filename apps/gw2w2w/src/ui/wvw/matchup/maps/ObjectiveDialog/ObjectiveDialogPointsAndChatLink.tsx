@@ -1,6 +1,7 @@
+import { ClipboardIcon } from '@heroicons/react/20/solid';
+
 import type { WvWObjective } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
-import { ClipboardIcon } from '@heroicons/react/20/solid';
 
 interface ObjectiveDialogPointsAndChatLinkProps {
   objectiveDef: WvWObjective | null | undefined;

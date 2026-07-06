@@ -1,3 +1,9 @@
+import type { Metadata } from 'next';
+import { cache } from 'react';
+
+import type { Guild } from '@repo/service-api/types';
+import { isPresent, validateArenaNetUuid } from '@repo/utils';
+
 import { getApi } from '#lib/api/api.server.ts';
 import { fetchGuild, fetchGuildByName } from '#lib/api/gw2/guild';
 import { getEmblemSrc } from '#lib/emblems';
@@ -5,10 +11,6 @@ import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import { GuildDetail } from '#ui/guilds/GuildDetail';
 import { GuildNotFound } from '#ui/guilds/GuildNotFound';
 import { SiteLayout } from '#ui/layout/SiteLayout';
-import type { Guild } from '@repo/service-api/types';
-import { isPresent, validateArenaNetUuid } from '@repo/utils';
-import type { Metadata } from 'next';
-import { cache } from 'react';
 
 export interface GuildPageProps {
   params: Promise<{ guildId: string }>;

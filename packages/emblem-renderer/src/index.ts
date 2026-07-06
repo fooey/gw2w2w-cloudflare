@@ -1,7 +1,9 @@
 // This file does pixel buffer/layer math, so bitwise operators are intentional here.
 /* eslint-disable no-bitwise */
 import { fliph, flipv, PhotonImage, resize, SamplingFilter } from '@cf-wasm/photon';
+
 import type { Color, Guild } from '@repo/service-api/types';
+
 import { type ColorRGB, getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
 import type { EmblemSize } from './sizes';
 

@@ -1,13 +1,16 @@
 // @vitest-environment happy-dom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
 import type { Guild, GuildUpgrade, WvWMatchObjective, WvWObjective, WvWUpgrade } from '@repo/service-api/types';
+
 import { useClockStore } from '#lib/store/useClock';
 import { useWvwObjective, useWvWObjectiveIcon } from '#lib/wvw/objectives';
 import { useWvwUpgrades } from '#lib/wvw/upgrades';
 import { useGuild } from '#lib/wvw/useGuild';
 import { useGuildUpgrades } from '#lib/wvw/useGuildUpgrades';
 import { tryWriteClipboardText } from '#ui/controls/clipboard';
+
 import { ObjectiveDialog } from './ObjectiveDialog';
 
 // ObjectiveDialog's own job is wiring hook data into the right children under the right

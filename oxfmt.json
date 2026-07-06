@@ -5,5 +5,20 @@
   "singleQuote": true,
   "quoteProps": "consistent",
   "jsxSingleQuote": false,
-  "sortTailwindcss": true
+  "sortTailwindcss": {
+    "stylesheet": "./apps/gw2w2w/src/app/globals.css",
+    "functions": ["clsx", "cn"]
+  },
+  "sortImports": {
+    "customGroups": [{ "groupName": "repo", "elementNamePattern": ["@repo/**"] }],
+    "groups": [
+      "builtin",
+      "external",
+      "repo",
+      ["internal", "subpath"],
+      ["parent", "sibling", "index"],
+      "style",
+      "unknown"
+    ]
+  }
 }

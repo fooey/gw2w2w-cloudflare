@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { WvWTeamSchema, WVW_TEAMS, WVW_TEAMS_IDS } from './wvw-teams';
 
 describe('WVW_TEAMS definitions', () => {

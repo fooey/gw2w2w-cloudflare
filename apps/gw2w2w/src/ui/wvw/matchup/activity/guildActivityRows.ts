@@ -1,7 +1,8 @@
-import { OBJECTIVE_TYPES, OWNER_TYPES } from '#lib/store/logFilters';
-import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
 import { isEmpty, isPresent } from '@repo/utils';
+
+import { OBJECTIVE_TYPES, OWNER_TYPES } from '#lib/store/logFilters';
+import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 
 type ClaimField = keyof Omit<
   GuildActivityRow,

@@ -1,11 +1,11 @@
 import type { CloudflareEnv } from '#index.ts';
 import { getColor } from '#lib/resources/color.ts';
 import { getEmblemBackground, getEmblemForeground } from '#lib/resources/emblem.ts';
+import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
 import { getWvWAbility } from '#lib/resources/wvw/abilities.ts';
 import { getWvWObjective } from '#lib/resources/wvw/objectives.ts';
 import { getWvWRank } from '#lib/resources/wvw/ranks.ts';
 import { getWvWUpgrade } from '#lib/resources/wvw/upgrades.ts';
-import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
 
 const GW2_BUILD_URL = 'https://api.guildwars2.com/v2/build';
 const BUILD_ID_KV_KEY = 'meta:build_id';

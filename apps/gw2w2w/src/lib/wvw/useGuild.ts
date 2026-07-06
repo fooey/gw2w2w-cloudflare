@@ -1,8 +1,10 @@
-import { getClientApi } from '#lib/api/api.client.ts';
-import { fetchGuild } from '#lib/api/gw2/guild';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+
 import type { Guild } from '@repo/service-api/types';
 import { isEmpty } from '@repo/utils';
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+
+import { getClientApi } from '#lib/api/api.client.ts';
+import { fetchGuild } from '#lib/api/gw2/guild';
 
 export type UseGuildResult = Guild | null;
 

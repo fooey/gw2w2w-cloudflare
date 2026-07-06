@@ -1,5 +1,5 @@
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Context, TypedResponse } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 export async function withCache(c: Context, ttl: number, handler: () => Promise<Response>): Promise<Response> {
   // Bump the version suffix when a route's JSON response shape changes.

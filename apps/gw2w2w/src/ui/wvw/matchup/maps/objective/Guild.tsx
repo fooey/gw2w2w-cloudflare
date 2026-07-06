@@ -1,12 +1,14 @@
 'use client';
 
+import { NoSymbolIcon } from '@heroicons/react/20/solid';
+import { useState } from 'react';
+
+import { isEmpty, isNonEmptyString } from '@repo/utils';
+
 import { getEmblemSrc } from '#lib/emblems';
 import { cn } from '#lib/utils/cn';
 import { useGuild } from '#lib/wvw/useGuild';
 import { Link } from '#ui/Link';
-import { NoSymbolIcon } from '@heroicons/react/20/solid';
-import { isEmpty, isNonEmptyString } from '@repo/utils';
-import { useState } from 'react';
 
 const ICON_SIZE = 24;
 

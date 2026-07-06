@@ -1,7 +1,8 @@
-import { OBJECTIVE_TYPES } from '#lib/store/logFilters';
-import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import type { EventRow } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
+
+import { OBJECTIVE_TYPES } from '#lib/store/logFilters';
+import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 
 const TEAM_OWNERS = ['Green', 'Blue', 'Red'] as const;
 type TeamOwner = (typeof TEAM_OWNERS)[number];

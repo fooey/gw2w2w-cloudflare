@@ -1,5 +1,6 @@
-import type { ServiceApiAppType } from '@repo/service-api';
 import { hc } from 'hono/client';
+
+import type { ServiceApiAppType } from '@repo/service-api';
 
 import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 

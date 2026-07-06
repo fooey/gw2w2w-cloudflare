@@ -1,5 +1,6 @@
-import { GRANULARITIES, TIME_WINDOWS, type Granularity, type TimeWindow } from '#lib/store/logFilters';
 import clsx from 'clsx';
+
+import { GRANULARITIES, TIME_WINDOWS, type Granularity, type TimeWindow } from '#lib/store/logFilters';
 
 export function FilterGroup<T extends string>({
   label,

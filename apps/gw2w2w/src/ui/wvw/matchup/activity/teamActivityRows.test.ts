@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { EventRow } from '@repo/service-api/types';
+
 import { buildTeamRows, createEmptyTeamRow } from './teamActivityRows';
 
 function makeClaim(overrides: Partial<EventRow> = {}): EventRow {

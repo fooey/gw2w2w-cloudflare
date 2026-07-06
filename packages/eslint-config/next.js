@@ -4,6 +4,7 @@ import pluginReactCompiler from 'eslint-plugin-react-compiler';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
+
 import { config as baseConfig } from './base.js';
 
 export const nextJsConfig = defineConfig(

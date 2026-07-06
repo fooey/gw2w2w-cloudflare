@@ -1,7 +1,8 @@
-import type { EmblemState } from '#ui/designer/types';
 import { DEFAULT_EMBLEM_SIZE, type EmblemSize } from '@repo/emblem-renderer/sizes';
 import type { Guild } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
+
+import type { EmblemState } from '#ui/designer/types';
 
 const EMBLEM_HOST_PRODUCTION = 'https://emblem.gw2w2w.com';
 const EMBLEM_HOST_DEVELOPMENT = 'http://localhost:8787';

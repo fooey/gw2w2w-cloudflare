@@ -1,10 +1,11 @@
+import { Hono } from 'hono';
+import { describeRoute, validator, resolver } from 'hono-openapi';
+import { z } from 'zod';
+
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { WvWRankSchema, getWvWRank } from '#lib/resources/wvw/ranks.ts';
-import { Hono } from 'hono';
-import { describeRoute, validator, resolver } from 'hono-openapi';
-import { z } from 'zod';
 
 export const apiWvwRanksRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(

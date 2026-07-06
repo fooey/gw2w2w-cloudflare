@@ -1,8 +1,10 @@
-import { getEmblemSrc } from '#lib/emblems';
-import { cn } from '#lib/utils/cn';
+import { XMarkIcon } from '@heroicons/react/20/solid';
+
 import type { Guild } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
-import { XMarkIcon } from '@heroicons/react/20/solid';
+
+import { getEmblemSrc } from '#lib/emblems';
+import { cn } from '#lib/utils/cn';
 
 interface ObjectiveDialogHeaderProps {
   ownerConfig: { bg: string; text: string };

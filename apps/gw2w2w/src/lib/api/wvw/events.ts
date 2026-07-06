@@ -1,6 +1,7 @@
-import type { ServiceApiClient } from '#lib/api/api.client.ts';
 import type { EventLogResponse } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
+
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
 export interface FetchWvwEventsParams {
   matchId: string;

@@ -1,7 +1,9 @@
-// @vitest-environment happy-dom
-import type { WvWUpgrade } from '@repo/service-api/types';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+
+// @vitest-environment happy-dom
+import type { WvWUpgrade } from '@repo/service-api/types';
+
 import { ObjectiveDialogTierProgress } from './ObjectiveDialogTierProgress';
 
 afterEach(cleanup);

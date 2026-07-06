@@ -1,11 +1,12 @@
+import { Hono } from 'hono';
+import { describeRoute, validator, resolver } from 'hono-openapi';
+import { z } from 'zod';
+
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { getColor } from '#lib/resources/color.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { ColorSchema } from '#lib/types/Color.ts';
-import { Hono } from 'hono';
-import { describeRoute, validator, resolver } from 'hono-openapi';
-import { z } from 'zod';
 
 export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(

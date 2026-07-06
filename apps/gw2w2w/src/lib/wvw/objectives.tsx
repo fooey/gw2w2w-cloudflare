@@ -1,7 +1,9 @@
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+
+import type { WvWObjective } from '@repo/service-api/types';
+
 import { getClientApi } from '#lib/api/api.client.ts';
 import { fetchWvwObjectives } from '#lib/api/gw2/wvw/objectives';
-import type { WvWObjective } from '@repo/service-api/types';
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 type WvwObjectivesQueryOptions = Partial<
   Omit<UseQueryOptions<WvWObjective[] | null>, 'queryKey' | 'queryFn' | 'staleTime'>

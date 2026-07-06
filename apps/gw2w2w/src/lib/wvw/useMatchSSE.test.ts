@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+
 import type { EventRow } from '@repo/service-api/types';
+
 import { captureToRow, claimToRow, coerceEventAt, mergeInitialHistory } from './useMatchSSE';
 
 function makeEvent(overrides: Partial<EventRow> = {}): EventRow {

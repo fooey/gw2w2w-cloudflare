@@ -1,5 +1,3 @@
-import { allowedCsrf, allowedOrigin } from '@repo/utils/routing/security';
-import { serviceEmblemRoute } from '#routes/emblem.ts';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
@@ -7,6 +5,10 @@ import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
+
+import { allowedCsrf, allowedOrigin } from '@repo/utils/routing/security';
+
+import { serviceEmblemRoute } from '#routes/emblem.ts';
 
 export interface ErrorPayload {
   message: string;

@@ -1,6 +1,7 @@
-import type { ServiceApiClient } from '#lib/api/api.client.ts';
 import type { GuildActivityResponse } from '@repo/service-api/types';
 import { isNonEmptyString, isPresent } from '@repo/utils';
+
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
 export interface FetchWvwGuildsParams {
   matchId: string;

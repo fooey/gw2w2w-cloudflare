@@ -1,6 +1,8 @@
-import baseConfig from '@repo/vitest-config/base';
 import path from 'node:path';
+
 import { defineConfig, mergeConfig, type Plugin } from 'vitest/config';
+
+import baseConfig from '@repo/vitest-config/base';
 
 const SERVICE_EMBLEM_SRC = path.resolve(import.meta.dirname, './src');
 const SERVICE_API_SRC = path.resolve(import.meta.dirname, '../service-api/src');

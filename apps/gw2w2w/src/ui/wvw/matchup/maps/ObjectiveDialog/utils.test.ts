@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { formatLocalized, formatRelative, getEtaDisplay } from './utils';
 
 const now = Temporal.Instant.from('2026-06-22T12:00:00Z');

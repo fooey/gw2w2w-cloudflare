@@ -1,8 +1,9 @@
 import { execSync } from 'node:child_process';
 
-import { getEmblemSrc } from './src/lib/emblems';
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import type { NextConfig } from 'next';
+
+import { getEmblemSrc } from './src/lib/emblems';
 
 const faviconSrc = getEmblemSrc('97C007DC-87D5-E311-9621-AC162DAE8ACD');
 

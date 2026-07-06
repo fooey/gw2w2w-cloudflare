@@ -1,7 +1,9 @@
-import { MAP_TYPES, TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
-import type { WvWObjective } from '@repo/service-api/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
+import type { WvWObjective } from '@repo/service-api/types';
+
+import { MAP_TYPES, TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 
 export const OBJECTIVE_TYPES: WvWObjective['type'][] = ['Castle', 'Keep', 'Tower', 'Camp', 'Ruins'];
 export const EVENT_TYPES = ['capture', 'claim'] as const;

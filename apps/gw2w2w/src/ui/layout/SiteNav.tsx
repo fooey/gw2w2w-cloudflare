@@ -1,6 +1,5 @@
 'use client';
 
-import { pageAttributes } from '#lib/definitions/site-sections';
 import {
   Disclosure,
   DisclosureButton,
@@ -13,9 +12,12 @@ import {
 import { AtSymbolIcon } from '@heroicons/react/20/solid';
 import { Bars3Icon, CodeBracketIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
-import { Link } from '#ui/Link';
-import { isPresent } from '@repo/utils';
 import { usePathname } from 'next/navigation';
+
+import { isPresent } from '@repo/utils';
+
+import { pageAttributes } from '#lib/definitions/site-sections';
+import { Link } from '#ui/Link';
 
 const repoUrl = 'https://github.com/fooey/gw2w2w-cloudflare';
 

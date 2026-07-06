@@ -1,14 +1,16 @@
 'use client';
 
-import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useEventLogFilters } from '#lib/store/logFilters';
-import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
-import { getMapLabel } from '#ui/wvw/config/mapLabels';
-import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
-import type { EventRow } from '@repo/service-api/types';
-import { isPresent } from '@repo/utils';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
+
+import type { EventRow } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
+
+import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useEventLogFilters } from '#lib/store/logFilters';
+import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
+import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
 
 const TIME_WINDOW_TO_MAX_AGE: Record<string, number | undefined> = {
   '1h': 3600,

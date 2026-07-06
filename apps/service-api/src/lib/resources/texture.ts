@@ -1,7 +1,9 @@
 import { Temporal } from '@js-temporal/polyfill';
+
 import { isEmpty, withJitter } from '@repo/utils';
-import type { CacheProviders } from '#lib/resources/index.ts';
+
 import { CACHE_TTL, getEnableCacheLogging } from '#lib/resources/constants.ts';
+import type { CacheProviders } from '#lib/resources/index.ts';
 
 export async function getTextureArrayBuffer(
   url: string | null,

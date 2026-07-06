@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { isMatchId, isTeamId, resolveSlug, resolveTeamId } from './matchup';
 
 describe('isMatchId', () => {

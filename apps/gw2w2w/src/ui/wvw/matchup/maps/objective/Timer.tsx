@@ -1,8 +1,9 @@
 'use client';
 
+import { isNil } from '@repo/utils';
+
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
-import { isNil } from '@repo/utils';
 
 const FLIP_WINDOW_SECONDS = 5 * 60;
 const RI_TIMER = 5 * 60;

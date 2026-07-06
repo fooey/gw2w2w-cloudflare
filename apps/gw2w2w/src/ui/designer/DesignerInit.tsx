@@ -1,7 +1,8 @@
 'use client';
 
-import type { Emblem } from '@repo/service-api/types';
 import { useEffect, useState } from 'react';
+
+import type { Emblem } from '@repo/service-api/types';
 
 import { TextureCacheManager } from './TextureCacheManager';
 import { initPhoton, isPhotonReady } from './TextureCacheManager/photon';

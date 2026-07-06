@@ -1,3 +1,6 @@
+import type { WvWMatchObjective } from '@repo/service-api/types';
+import { isNil, isPresent } from '@repo/utils';
+
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { useWvwObjective } from '#lib/wvw/objectives';
@@ -10,8 +13,6 @@ import { Guild } from '#ui/wvw/matchup/maps/objective/Guild';
 import { Name } from '#ui/wvw/matchup/maps/objective/Name';
 import { Timer } from '#ui/wvw/matchup/maps/objective/Timer';
 import { UpgradeTier } from '#ui/wvw/matchup/maps/objective/UpgradeTier';
-import type { WvWMatchObjective } from '@repo/service-api/types';
-import { isNil, isPresent } from '@repo/utils';
 
 const RI_TIMER = 5 * 60;
 

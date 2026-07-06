@@ -1,9 +1,10 @@
+import { Suspense } from 'react';
+
 import { getApi } from '#lib/api/api.server.ts';
 import { fetchAllColors } from '#lib/api/gw2/color';
 import { fetchAllBackgrounds, fetchAllForegrounds } from '#lib/api/gw2/emblem';
 import { EmblemDesigner } from '#ui/designer/EmblemDesigner';
 import { SiteLayout } from '#ui/layout/SiteLayout';
-import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 

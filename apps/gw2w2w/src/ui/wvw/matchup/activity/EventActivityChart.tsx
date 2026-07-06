@@ -1,5 +1,11 @@
 'use client';
 
+import { useMemo } from 'react';
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+import type { EventRow } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
+
 import {
   EVENT_TYPES,
   OBJECTIVE_TYPES,
@@ -8,13 +14,9 @@ import {
   type Granularity,
   type TimeWindow,
 } from '#lib/store/logFilters';
-import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, GranularityFilter, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import type { EventRow } from '@repo/service-api/types';
-import { isPresent } from '@repo/utils';
-import { useMemo } from 'react';
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface EventActivityChartProps {
   events: EventRow[];

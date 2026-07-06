@@ -1,12 +1,15 @@
 'use client';
 
+import clsx from 'clsx';
+import { useEffect, useRef } from 'react';
+
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
 import type { Color, Emblem } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
-import clsx from 'clsx';
-import { useEffect, useRef } from 'react';
+
 import { fetchTexture } from '#ui/designer/TextureCacheManager/textureCache';
 import type { EmblemState } from '#ui/designer/types';
+
 import { decodeLayer } from './decodeLayer';
 
 interface EmblemPreviewProps {

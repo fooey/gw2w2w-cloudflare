@@ -1,8 +1,10 @@
-import type { CloudflareEnv } from '#index.ts';
-import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
-import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
 import { DurableObject } from 'cloudflare:workers';
 import { isEqual } from 'lodash-es';
+
+import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
+
+import type { CloudflareEnv } from '#index.ts';
+import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
 
 const POLL_INTERVAL_MS = 20_000;
 const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429

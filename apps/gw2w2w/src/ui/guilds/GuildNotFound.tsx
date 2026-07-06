@@ -1,5 +1,6 @@
-import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+
+import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 
 export function GuildNotFound({ guildId }: { guildId: string }) {
   return (

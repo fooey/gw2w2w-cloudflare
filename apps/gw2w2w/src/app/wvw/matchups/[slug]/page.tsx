@@ -1,12 +1,14 @@
+import { notFound } from 'next/navigation';
+
+import { WVW_TEAMS } from '@repo/service-api/definitions';
+import { isNil, isPresent } from '@repo/utils';
+
 import { getApi } from '#lib/api/api.server.ts';
 import { fetchWvwMatch, fetchWvwMatchByTeam } from '#lib/api/gw2/wvw/matches';
-import { MatchupView } from '#ui/wvw/matchup/MatchupView';
 import { resolveSlug } from '#lib/wvw/matchup';
-import { notFound } from 'next/navigation';
-import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { SiteLayout } from '#ui/layout/SiteLayout';
 import { Link } from '#ui/Link';
-import { isNil, isPresent } from '@repo/utils';
+import { MatchupView } from '#ui/wvw/matchup/MatchupView';
 
 export const dynamic = 'force-dynamic';
 

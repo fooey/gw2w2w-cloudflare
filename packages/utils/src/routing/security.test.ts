@@ -2,6 +2,7 @@
 // arguments are the point of the test, not redundant noise.
 /* eslint-disable unicorn/no-useless-undefined */
 import { describe, expect, it } from 'vitest';
+
 import { allowedCsrf, allowedOrigin } from './security';
 
 describe('allowedOrigin', () => {

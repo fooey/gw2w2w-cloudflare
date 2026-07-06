@@ -1,8 +1,10 @@
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
+
+import type { Guild } from '@repo/service-api/types';
+
 import { getDesignerSrc } from '#lib/emblems';
 import { Card } from '#ui/Card';
 import { Link } from '#ui/Link';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
-import type { Guild } from '@repo/service-api/types';
 
 interface GuildOpenInDesignerProps {
   emblem: NonNullable<Guild['emblem']>;

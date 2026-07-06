@@ -1,10 +1,12 @@
 'use client';
 
-import { Highlight, WvWTeamGuild } from '#app/wvw/teams/[teamName]/WvWTeamGuild';
-import type { Guild } from '@repo/service-api/types';
 import { matchSorter } from 'match-sorter';
-import { Link } from '#ui/Link';
 import { useState } from 'react';
+
+import type { Guild } from '@repo/service-api/types';
+
+import { Highlight, WvWTeamGuild } from '#app/wvw/teams/[teamName]/WvWTeamGuild';
+import { Link } from '#ui/Link';
 
 export function WvWTeamGuildFilter({ guilds }: { guilds: Guild[] }) {
   const [query, setQuery] = useState('');

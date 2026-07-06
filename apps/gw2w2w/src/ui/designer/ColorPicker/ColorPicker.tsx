@@ -9,11 +9,14 @@ import {
   SparklesIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
-import type { Color } from '@repo/service-api/types';
-import { isNil } from '@repo/utils';
 import { matchSorter } from 'match-sorter';
 import { useEffect, useRef, useState } from 'react';
+
+import type { Color } from '@repo/service-api/types';
+import { isNil } from '@repo/utils';
+
 import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
+
 import { HUE_CATEGORIES, RARITY_CATEGORIES } from './filtering';
 import { SORT_OPTIONS, type SortEntry, sortColors } from './sorting';
 

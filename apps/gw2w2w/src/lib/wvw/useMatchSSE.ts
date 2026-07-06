@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
+import type { EventRow, WvWMapType, WvWMatch, WvWTeamColor } from '@repo/service-api/types';
+
 import { getClientApi } from '#lib/api/api.client.ts';
 import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
-import type { EventRow, WvWMapType, WvWMatch, WvWTeamColor } from '@repo/service-api/types';
-import { useEffect, useRef, useState } from 'react';
 
 // Narrow types matching what the DO actually inserts — subset of WvWObjective['type']
 type WvWObjectiveType = EventRow['objective_type'];

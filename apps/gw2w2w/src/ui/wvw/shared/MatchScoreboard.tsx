@@ -1,11 +1,13 @@
 'use client';
 
+import clsx from 'clsx';
+
+import { WVW_TEAMS } from '@repo/service-api/definitions';
+import type { WvWMatch, WvWTeamId } from '@repo/service-api/types';
+
 import type { Lang } from '#ui/wvw/config/lang';
 import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { TeamScore } from '#ui/wvw/shared/TeamScore';
-import { WVW_TEAMS } from '@repo/service-api/definitions';
-import type { WvWMatch, WvWTeamId } from '@repo/service-api/types';
-import clsx from 'clsx';
 
 type TeamColor = 'red' | 'blue' | 'green';
 const TEAM_COLORS_LC = ['red', 'blue', 'green'] as const satisfies TeamColor[];

@@ -1,7 +1,8 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { type NextRequest, NextResponse } from 'next/server';
+
 import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
 import { isEmpty, isNonEmptyString } from '@repo/utils';
-import { type NextRequest, NextResponse } from 'next/server';
 
 const ALLOWED_HOSTNAME = 'render.guildwars2.com';
 const ALLOWED_PATH_PREFIX = '/file/';

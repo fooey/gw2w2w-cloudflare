@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { getCryptoRandomUint32, getRandomIndex } from './random';
 
 describe('getRandomIndex', () => {
