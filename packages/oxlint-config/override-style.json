@@ -12,6 +12,11 @@
     "vitest/max-expects": "off",
     "curly": "off",
     "vitest/prefer-lowercase-title": "off",
+    // oxfmt's sortImports now owns import ordering (grouped by source path: npm / @repo / #-alias
+    // / relative). This rule sorts by member-syntax kind + local binding name instead, which
+    // fights that grouping even with allowSeparatedGroups — so it's excluded outright, not just
+    // deferred.
+    "sort-imports": "off",
 
     // Not yet reviewed — every other rule that produced real violations in the initial
     // style-category churn scan. Held off in a block so the category can be enabled
@@ -20,7 +25,6 @@
     "no-magic-numbers": "off",
     "sort-keys": "off",
     "id-length": "off",
-    "sort-imports": "off",
     "func-style": "off",
     "import/group-exports": "off",
     "react/jsx-max-depth": "off",
