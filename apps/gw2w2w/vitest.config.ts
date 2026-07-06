@@ -4,6 +4,9 @@ import { defineConfig, mergeConfig } from 'vitest/config';
 export default mergeConfig(
   baseConfig,
   defineConfig({
+    esbuild: {
+      jsx: 'automatic',
+    },
     test: {
       server: {
         deps: {
