@@ -11,7 +11,7 @@ export default mergeConfig(
       server: {
         deps: {
           // Process workspace packages (TypeScript source, not compiled)
-          inline: [/@repo\//],
+          inline: [/@repo\//u],
         },
       },
     },

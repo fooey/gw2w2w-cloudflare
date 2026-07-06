@@ -4,6 +4,7 @@
  *
  * Designed to run as a turbo `dev:seed` task that `dependsOn: ["dev"]`.
  */
+import { exit } from 'node:process';
 
 const SCHEDULED_URL = 'http://localhost:8788/__scheduled?cron=*+*+*+*+*';
 const MAX_ATTEMPTS = 60; // 60 × 500ms = 30s
@@ -16,9 +17,11 @@ async function attempt(n = 0) {
   } catch {
     if (n >= MAX_ATTEMPTS) {
       console.error(`[dev-seed] Gave up after ${MAX_ATTEMPTS} attempts — is wrangler dev running on :8788?`);
-      process.exit(1);
+      exit(1);
     }
-    await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+    await new Promise((r) => {
+      setTimeout(r, RETRY_DELAY_MS);
+    });
     await attempt(n + 1);
   }
 }

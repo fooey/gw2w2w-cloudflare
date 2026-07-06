@@ -132,6 +132,12 @@
         "no-empty-function": "off",
         "typescript/require-await": "off"
       }
+    },
+    {
+      "files": ["**/*.config.{ts,mts,cts,js,mjs,cjs}"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
     }
   ]
 }

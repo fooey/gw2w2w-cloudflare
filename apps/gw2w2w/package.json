@@ -15,7 +15,7 @@
     "dev": "next dev",
     "build": "tsgo --noEmit --checkers 4 && next build",
     "start": "next start",
-    "lint": "oxlint src",
+    "lint": "oxlint .",
     "check-types": "tsgo --noEmit --checkers 4",
     "format": "oxfmt --config ../../oxfmt.json .",
     "ts:clean": "tsc --build --clean",

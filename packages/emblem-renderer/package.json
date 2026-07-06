@@ -8,7 +8,7 @@
     "./sizes": "./src/sizes.ts"
   },
   "scripts": {
-    "lint": "oxlint src",
+    "lint": "oxlint .",
     "check-types": "tsgo --noEmit",
     "format": "oxfmt --config ../../oxfmt.json .",
     "test": "vitest run",

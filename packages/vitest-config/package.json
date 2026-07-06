@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./base": "./base.ts"
+    "./base": "./base.config.ts"
+  },
+  "scripts": {
+    "lint": "oxlint ."
   },
   "peerDependencies": {
     "vitest": "catalog:"

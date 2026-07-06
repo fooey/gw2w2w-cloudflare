@@ -8,7 +8,7 @@
   },
   "scripts": {
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "lint": "oxlint src",
+    "lint": "oxlint .",
     "check-types": "tsgo --noEmit",
     "format": "oxfmt --config ../../oxfmt.json .",
     "test": "vitest run",

@@ -23,7 +23,7 @@
     "db:replicate": "node scripts/replicate-prod-db.mjs",
     "db:query": "wrangler d1 execute wvw-events --remote --command",
     "deploy": "wrangler deploy",
-    "lint": "oxlint src",
+    "lint": "oxlint .",
     "check-types": "tsgo --noEmit",
     "format": "oxfmt --config ../../oxfmt.json .",
     "test": "vitest run",
