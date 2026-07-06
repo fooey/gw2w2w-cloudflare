@@ -2,6 +2,7 @@ import clsx from 'clsx';
 
 import type { WvWMatchObjective } from '@repo/service-api/types';
 
+import { formatKdr } from '#lib/wvw/scoreboard';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 
@@ -26,7 +27,7 @@ export function MatchMapTeamScore({
 }: MatchMapTeamScoreProps) {
   const { bg, text } = teamColorConfig[color];
   const countByType = (type: WvWMatchObjective['type']) => objectives.filter((o) => o.type === type).length;
-  const kdr = deaths > 0 ? (kills / deaths).toFixed(2) : kills > 0 ? '∞' : '—';
+  const kdr = formatKdr(kills, deaths);
 
   return (
     <div className={clsx(bg, 'col-span-2 grid grid-cols-subgrid items-center gap-x-3 p-2')}>

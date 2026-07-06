@@ -17,6 +17,31 @@
     // fights that grouping even with allowSeparatedGroups — so it's excluded outright, not just
     // deferred.
     "sort-imports": "off",
+    // Fires on every `afterEach(cleanup)` in the test suite — that's the standard RTL cleanup
+    // pattern used in every test file. Also directly contradicts vitest/require-hook (which
+    // demands setup/teardown live in a hook), so at most one of the two could ever be enabled.
+    "vitest/no-hooks": "off",
+    // See vitest/no-hooks above — require-hook wants setup code moved into a hook, no-hooks wants
+    // hooks removed entirely. Its one real violation (scripts/replicate-prod-db.mjs) is a Node
+    // CLI script with no vitest hooks in scope at all, not a test-authoring issue.
+    "vitest/require-hook": "off",
+    // Fires on every `describe('ExactFunctionOrComponentName', ...)` block — the established
+    // naming convention throughout the suite. Same conflict as vitest/prefer-lowercase-title above.
+    "vitest/prefer-describe-function-title": "off",
+    // Both real violations are generic passthrough wrapper components (`<Icon {...rest} />`,
+    // `<NextLink {...props} />` in the shared Link.tsx) — prop spreading is the point of a
+    // wrapper component; banning it forces enumerating every prop by hand.
+    "react/jsx-props-no-spreading": "off",
+    // Its one violation is `await next(); ...` in Hono middleware (service-api/src/index.ts) —
+    // the rule is a holdover from Node's callback-style era and misreads Hono's async
+    // middleware-chain `next()` as a Node callback requiring an explicit return.
+    "node/callback-return": "off",
+    // The codebase's actual convention is "nested ternaries are fine once parenthesized for
+    // clarity" (see the sort comparator and sort-direction-arrow uses in GuildActivity.tsx and
+    // ColorPicker.tsx) — this rule bans nesting outright with no parens escape hatch, which is
+    // stricter than what's wanted. unicorn/no-nested-ternary enforces the parens-for-clarity
+    // convention instead and is adopted below.
+    "no-nested-ternary": "off",
 
     // Not yet reviewed — every other rule that produced real violations in the initial
     // style-category churn scan. Held off in a block so the category can be enabled
@@ -34,7 +59,6 @@
     "unicorn/max-nested-calls": "off",
     "unicorn/filename-case": "off",
     "max-statements": "off",
-    "vitest/prefer-describe-function-title": "off",
     "import/consistent-type-specifier-style": "off",
     "vitest/no-importing-vitest-globals": "off",
     "max-params": "off",
@@ -42,25 +66,21 @@
     "init-declarations": "off",
     "unicorn/prefer-global-this": "off",
     "vitest/require-top-level-describe": "off",
-    "vitest/no-hooks": "off",
     "unicorn/prefer-spread": "off",
     "unicorn/catch-error-name": "off",
     "react/jsx-curly-brace-presence": "off",
     "vitest/prefer-import-in-mock": "off",
     "import/no-nodejs-modules": "off",
-    "no-nested-ternary": "off",
     "typescript/prefer-readonly": "off",
     "typescript/method-signature-style": "off",
     "react/jsx-boolean-value": "off",
     "unicorn/number-literal-case": "off",
-    "unicorn/no-nested-ternary": "off",
     "promise/prefer-await-to-callbacks": "off",
     "unicorn/prefer-export-from": "off",
     "node/no-sync": "off",
     "new-cap": "off",
     "arrow-body-style": "off",
     "unicorn/prefer-response-static-json": "off",
-    "react/jsx-props-no-spreading": "off",
     "promise/param-names": "off",
     "promise/avoid-new": "off",
     "prefer-object-spread": "off",
@@ -68,12 +88,10 @@
     "unicorn/custom-error-definition": "off",
     "typescript/parameter-properties": "off",
     "react/hook-use-state": "off",
-    "node/callback-return": "off",
     "import/no-namespace": "off",
     "import/no-anonymous-default-export": "off",
     "prefer-template": "off",
     "prefer-named-capture-group": "off",
-    "vitest/require-hook": "off",
     "vitest/prefer-called-once": "off"
   }
 }

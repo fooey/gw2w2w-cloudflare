@@ -43,7 +43,7 @@ const MAP_TO_KEY: Record<ActivityMapType, NumericKeyOf<GuildActivityRow>> = {
 };
 
 const SORT_FN: Record<SortKey, (a: GuildActivityRow, b: GuildActivityRow) => number> = {
-  lastActivity: (a, b) => (a.last_seen_at < b.last_seen_at ? -1 : a.last_seen_at > b.last_seen_at ? 1 : 0),
+  lastActivity: (a, b) => (a.last_seen_at < b.last_seen_at ? -1 : (a.last_seen_at > b.last_seen_at ? 1 : 0)),
   total: (a, b) => a.total - b.total,
   Castle: (a, b) => a.claims_castle - b.claims_castle,
   Keep: (a, b) => a.claims_keep - b.claims_keep,

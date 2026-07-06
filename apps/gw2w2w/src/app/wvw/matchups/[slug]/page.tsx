@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { WVW_TEAMS } from '@repo/service-api/definitions';
+import type { WvWMatch } from '@repo/service-api/types';
 import { isNil, isPresent } from '@repo/utils';
 
 import { getApi } from '#lib/api/api.server.ts';
@@ -17,11 +18,14 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
   const { matchId, selectedTeamId } = resolveSlug(slug);
 
   const api = await getApi();
-  const match = isPresent(matchId)
-    ? await fetchWvwMatch(api, matchId)
-    : isPresent(selectedTeamId)
-      ? await fetchWvwMatchByTeam(api, selectedTeamId)
-      : null;
+  let match: WvWMatch | null;
+  if (isPresent(matchId)) {
+    match = await fetchWvwMatch(api, matchId);
+  } else if (isPresent(selectedTeamId)) {
+    match = await fetchWvwMatchByTeam(api, selectedTeamId);
+  } else {
+    match = null;
+  }
 
   if (!match) {
     // Slug didn't resolve to a known team or match ID format — genuine 404
