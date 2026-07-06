@@ -15,7 +15,7 @@ describe('WVW_TEAMS definitions', () => {
   });
 
   it('exposes ids list that exactly matches object keys', () => {
-    expect(WVW_TEAMS_IDS).toEqual(Object.keys(WVW_TEAMS));
+    expect(WVW_TEAMS_IDS).toStrictEqual(Object.keys(WVW_TEAMS));
   });
 
   it('uses unique 5-digit numeric ids', () => {

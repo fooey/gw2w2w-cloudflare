@@ -57,8 +57,7 @@ export function renderEmblemPixels(
     // bg.data.buffer may be the entire WASM linear memory (much larger than
     // the pixel data), so we copy bg.data itself rather than the full buffer.
     outData = new Uint8Array(bg.data);
-    width = bg.width;
-    height = bg.height;
+    ({ width, height } = bg);
   } else {
     width = IMAGE_DIMENSION;
     height = IMAGE_DIMENSION;

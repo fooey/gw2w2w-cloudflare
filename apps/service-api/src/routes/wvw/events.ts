@@ -45,7 +45,7 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     if (isPresent(maxAge)) {
       // GW2 stores timestamps as "YYYY-MM-DDTHH:mm:ssZ" (no milliseconds).
       // Truncate the cutoff to seconds so SQLite's lexicographic comparison is correct.
-      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/u, 'Z');
+      const cutoff = new Date(Date.now() - maxAge * 1000).toISOString().replace(/\.\d{3}Z$/u, 'Z');
       conditions.push(gte(events.at, cutoff));
     }
 

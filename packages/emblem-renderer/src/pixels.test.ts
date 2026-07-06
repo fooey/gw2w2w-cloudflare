@@ -18,7 +18,7 @@ describe('IMAGE_DIMENSION', () => {
 describe('getFlipsFromFlags', () => {
   it('returns all false with no flags', () => {
     // eslint-disable-next-line unicorn/no-useless-undefined -- getFlipsFromFlags's parameter is required, not optional.
-    expect(getFlipsFromFlags(undefined)).toEqual({
+    expect(getFlipsFromFlags(undefined)).toStrictEqual({
       flipBgH: false,
       flipBgV: false,
       flipFgH: false,
@@ -26,7 +26,7 @@ describe('getFlipsFromFlags', () => {
     });
   });
   it('returns all false with empty flags array', () => {
-    expect(getFlipsFromFlags([])).toEqual({
+    expect(getFlipsFromFlags([])).toStrictEqual({
       flipBgH: false,
       flipBgV: false,
       flipFgH: false,
@@ -34,7 +34,7 @@ describe('getFlipsFromFlags', () => {
     });
   });
   it('sets the correct flip booleans', () => {
-    expect(getFlipsFromFlags(['FlipBackgroundHorizontal', 'FlipForegroundVertical'])).toEqual({
+    expect(getFlipsFromFlags(['FlipBackgroundHorizontal', 'FlipForegroundVertical'])).toStrictEqual({
       flipBgH: true,
       flipBgV: false,
       flipFgH: false,
@@ -49,7 +49,7 @@ describe('getFlipsFromFlags', () => {
         'FlipForegroundHorizontal',
         'FlipForegroundVertical',
       ]),
-    ).toEqual({ flipBgH: true, flipBgV: true, flipFgH: true, flipFgV: true });
+    ).toStrictEqual({ flipBgH: true, flipBgV: true, flipFgH: true, flipFgV: true });
   });
 });
 

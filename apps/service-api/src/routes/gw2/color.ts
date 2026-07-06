@@ -47,7 +47,7 @@ export const apiColorRoute = new Hono<{ Bindings: CloudflareEnv }>()
       const colorId = Number(c.req.param('colorId'));
 
       const colors = await getColor(colorId, c.env);
-      const color = colors[0];
+      const [color] = colors;
       if (!color) {
         const payload: ErrorPayload = {
           message: 'Color Not Found',

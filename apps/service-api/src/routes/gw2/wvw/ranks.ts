@@ -45,7 +45,7 @@ export const apiWvwRanksRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const id = c.req.param('id');
       const ranks = await getWvWRank(Number(id), c.env);
-      const rank = ranks[0];
+      const [rank] = ranks;
       if (!rank) {
         const payload: ErrorPayload = {
           message: 'WvW Rank Not Found',

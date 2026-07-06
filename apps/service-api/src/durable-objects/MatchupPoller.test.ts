@@ -63,7 +63,7 @@ describe('MatchupPoller constructor alarm scheduling', () => {
     await flushConstructorWork();
 
     expect(state.storage.setAlarm).toHaveBeenCalledTimes(1);
-    expect(state.storage.setAlarm.mock.calls[0]?.[0]).toEqual(expect.any(Number));
+    expect(state.storage.setAlarm.mock.calls[0]?.[0]).toStrictEqual(expect.any(Number));
   });
 
   it('does not reschedule when an alarm is already in the future', async () => {
@@ -98,7 +98,7 @@ describe('MatchupPoller status endpoint alarm fields', () => {
     const poller = new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
 
-    state.storage.alarm = Date.now() - 1_000;
+    state.storage.alarm = Date.now() - 1000;
 
     const res = await poller.fetch(new Request('http://localhost/status'));
     const body = (await res.json()) as { alarmIsStale: boolean };

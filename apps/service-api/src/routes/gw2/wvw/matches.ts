@@ -91,7 +91,7 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const id = c.req.param('id');
       const matches = await getWvWMatches(id, c.env);
-      const match = matches[0];
+      const [match] = matches;
       if (!match) {
         const payload: ErrorPayload = {
           message: 'WvW Match Not Found',

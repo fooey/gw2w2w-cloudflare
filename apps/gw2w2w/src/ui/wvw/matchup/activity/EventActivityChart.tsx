@@ -30,8 +30,8 @@ const OWNER_HEX: Record<string, string> = {
 
 const GRANULARITY_SECONDS: Record<Granularity, number> = {
   '15m': 900,
-  '1h': 3_600,
-  '2h': 7_200,
+  '1h': 3600,
+  '2h': 7200,
   '3h': 10_800,
   '4h': 14_400,
   '8h': 28_800,
@@ -40,12 +40,12 @@ const GRANULARITY_SECONDS: Record<Granularity, number> = {
 };
 
 function bucketFloor(isoString: string, bucketSeconds: number): number {
-  const epochSeconds = Math.floor(new Date(isoString).getTime() / 1_000);
+  const epochSeconds = Math.floor(new Date(isoString).getTime() / 1000);
   return Math.floor(epochSeconds / bucketSeconds) * bucketSeconds;
 }
 
 function formatBucketLabel(epochSeconds: number, granularity: Granularity): string {
-  const d = new Date(epochSeconds * 1_000);
+  const d = new Date(epochSeconds * 1000);
   if (granularity === '1d') {
     return d.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' });
   }
@@ -73,17 +73,17 @@ function buildChartData(
   },
 ): ChartBucket[] {
   const bucketSeconds = GRANULARITY_SECONDS[filters.granularity];
-  const nowSeconds = Math.floor(Date.now() / 1_000);
+  const nowSeconds = Math.floor(Date.now() / 1000);
   // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
   // eslint-disable-next-line unicorn/prefer-number-coercion
   const timeWindowHours = Number.parseInt(filters.timeWindow, 10);
-  const cutoffSeconds = filters.timeWindow === 'all' ? null : nowSeconds - timeWindowHours * 3_600;
+  const cutoffSeconds = filters.timeWindow === 'all' ? null : nowSeconds - timeWindowHours * 3600;
 
   const buckets = new Map<number, ChartBucket>();
 
   for (const e of events) {
     if (typeof e.at !== 'string') continue;
-    if (isPresent(cutoffSeconds) && new Date(e.at).getTime() / 1_000 < cutoffSeconds) continue;
+    if (isPresent(cutoffSeconds) && new Date(e.at).getTime() / 1000 < cutoffSeconds) continue;
     if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
     if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
       continue;

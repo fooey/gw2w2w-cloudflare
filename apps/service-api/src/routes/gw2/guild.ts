@@ -42,7 +42,7 @@ export const apiGuildRoute = new Hono<{ Bindings: CloudflareEnv }>()
       }),
     ),
     async (c) => {
-      const ids = c.req.valid('query').ids;
+      const { ids } = c.req.valid('query');
       const upgrades = await getGuildUpgrades(ids, c.env);
       if (!upgrades) {
         const payload: ErrorPayload = {

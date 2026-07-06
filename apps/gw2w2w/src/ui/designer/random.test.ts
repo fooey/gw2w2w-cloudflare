@@ -18,11 +18,11 @@ describe('getCryptoRandomUint32', () => {
   it('returns the random value from the provided crypto object', () => {
     const fakeCrypto: Pick<Crypto, 'getRandomValues'> = {
       getRandomValues(array: Uint32Array) {
-        array[0] = 123456;
+        array[0] = 123_456;
         return array;
       },
     };
 
-    expect(getCryptoRandomUint32(fakeCrypto)).toBe(123456);
+    expect(getCryptoRandomUint32(fakeCrypto)).toBe(123_456);
   });
 });

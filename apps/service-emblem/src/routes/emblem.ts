@@ -41,7 +41,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     ),
     async (c) => {
       const query = c.req.valid('query');
-      const size = query.size;
+      const { size } = query;
       const cacheProviders = createCacheProviders(c.env);
       const apiClient = getApiClient(c);
 
@@ -110,7 +110,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const cacheProviders = createCacheProviders(c.env);
       let guildId = c.req.param('guildId');
-      const size = c.req.valid('query').size;
+      const { size } = c.req.valid('query');
 
       if (redirectFileExtensions.some((ext) => guildId.endsWith(ext))) {
         // pop the file extension off the end of the guildId

@@ -46,7 +46,7 @@ export const apiWvwObjectivesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const id = c.req.param('id');
       const objectives = await getWvWObjective(id, c.env);
-      const objective = objectives[0];
+      const [objective] = objectives;
       if (!objective) {
         const payload: ErrorPayload = {
           message: 'WvW Objective Not Found',

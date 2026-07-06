@@ -19,7 +19,7 @@ function makeClaim(overrides: Partial<EventRow> = {}): EventRow {
 
 describe('createEmptyTeamRow', () => {
   it('returns a fully zeroed row', () => {
-    expect(createEmptyTeamRow()).toEqual({
+    expect(createEmptyTeamRow()).toStrictEqual({
       claims_castle: 0,
       claims_keep: 0,
       claims_tower: 0,

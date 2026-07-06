@@ -45,7 +45,7 @@ export const apiWvwUpgradesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const id = c.req.param('id');
       const upgrades = await getWvWUpgrade(Number(id), c.env);
-      const upgrade = upgrades[0];
+      const [upgrade] = upgrades;
       if (!upgrade) {
         const payload: ErrorPayload = {
           message: 'WvW Upgrade Not Found',

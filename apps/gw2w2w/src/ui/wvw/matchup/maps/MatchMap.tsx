@@ -31,7 +31,7 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
   const objectivesById = new Map<string, WvWMatchObjective>();
   for (const obj of map.objectives) {
     if (VISIBLE_OBJECTIVE_TYPES.includes(obj.type)) {
-      const id = obj.id.split('-')[1];
+      const [, id] = obj.id.split('-');
       if (isNonEmptyString(id)) objectivesById.set(id, obj);
     }
   }

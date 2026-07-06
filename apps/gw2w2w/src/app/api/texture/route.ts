@@ -18,7 +18,7 @@ function parseAllowedTexturePath(raw: string): string | null {
   if (url.protocol !== 'https:' || url.hostname !== ALLOWED_HOSTNAME) {
     return null;
   }
-  const pathname = url.pathname;
+  const { pathname } = url;
   if (!pathname.startsWith(ALLOWED_PATH_PREFIX)) {
     return null;
   }

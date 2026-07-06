@@ -45,7 +45,7 @@ export const apiWvwAbilitiesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const id = c.req.param('id');
       const abilities = await getWvWAbility(Number(id), c.env);
-      const ability = abilities[0];
+      const [ability] = abilities;
       if (!ability) {
         const payload: ErrorPayload = {
           message: 'WvW Ability Not Found',

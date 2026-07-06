@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
       nowSecond: instant,
       nowMinute: s.nowMinute === null || !minuteMark.equals(s.nowMinute) ? minuteMark : s.nowMinute,
     }));
-  }, 1_000);
+  }, 1000);
 }
 
 export function useClock(): Temporal.Instant | null {

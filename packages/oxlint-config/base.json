@@ -1,13 +1,19 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
-  "extends": ["./override-correctness.json", "./override-pedantic.json", "./override-restriction.json"],
+  "extends": [
+    "./override-correctness.json",
+    "./override-pedantic.json",
+    "./override-restriction.json",
+    "./override-style.json"
+  ],
   "plugins": ["unicorn", "typescript", "import", "promise", "vitest"],
   "categories": {
     "correctness": "error",
     "perf": "error",
     "suspicious": "error",
     "pedantic": "error",
-    "restriction": "error"
+    "restriction": "error",
+    "style": "error"
   },
   "options": {
     "typeAware": true,
@@ -18,38 +24,20 @@
     "builtin": true
   },
   "rules": {
-    "default-case-last": "warn",
-    "guard-for-in": "warn",
-    "no-empty": "error",
-    "no-regex-spaces": "error",
     "no-console": [
       "error",
       {
         "allow": ["info", "warn", "error"]
       }
     ],
-    "import/first": "error",
-    "import/no-default-export": "error",
-    "import/no-named-default": "error",
-    "import/newline-after-import": "warn",
-    "import/no-duplicates": "error",
-    "import/no-mutable-exports": "error",
-    "import/no-webpack-loader-syntax": "error",
-    "promise/catch-or-return": "error",
-    "promise/no-nesting": "error",
-    "promise/prefer-await-to-then": "error",
-    "promise/prefer-catch": "error",
     "promise/no-return-in-finally": "error",
-    "promise/no-return-wrap": "warn",
-    "unicorn/prefer-logical-operator-over-ternary": "warn",
     "typescript/consistent-type-imports": [
       "error",
       {
         "prefer": "type-imports",
         "fixStyle": "inline-type-imports"
       }
-    ],
-    "typescript/no-import-type-side-effects": "error"
+    ]
   },
   "overrides": [
     {
@@ -123,11 +111,6 @@
     {
       "files": ["**/*.{test,spec}.{ts,tsx,mts,cts}", "**/src/**/*.test-d.ts"],
       "rules": {
-        "vitest/no-duplicate-hooks": "error",
-        "vitest/no-identical-title": "error",
-        "vitest/prefer-hooks-on-top": "warn",
-        "vitest/prefer-strict-boolean-matchers": "error",
-        "vitest/prefer-to-have-length": "error",
         "typescript/no-unsafe-type-assertion": "off",
         "no-empty-function": "off",
         "typescript/require-await": "off"

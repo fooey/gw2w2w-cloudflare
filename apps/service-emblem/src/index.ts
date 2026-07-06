@@ -63,7 +63,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'))
   .get('/favicon.ico', (c) => c.redirect('/97C007DC-87D5-E311-9621-AC162DAE8ACD', 302))
   .get('/guilds/*', (c) => {
-    const guildId = c.req.path.replace(/^\/guilds\//u, '').split('/')[0];
+    const [guildId] = c.req.path.replace(/^\/guilds\//u, '').split('/');
     return c.redirect(`https://emblem.gw2w2w.com/${guildId}`, 308);
   })
   .get('/short/:guildId', (c) => {

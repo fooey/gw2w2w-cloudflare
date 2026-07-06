@@ -354,7 +354,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     const retryAfter = response.headers.get('Retry-After');
     // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
     // eslint-disable-next-line unicorn/prefer-number-coercion
-    const retryAfterMs = isPresent(retryAfter) ? Number.parseInt(retryAfter, 10) * 1_000 : BACKOFF_INTERVAL_MS;
+    const retryAfterMs = isPresent(retryAfter) ? Number.parseInt(retryAfter, 10) * 1000 : BACKOFF_INTERVAL_MS;
     const rateLimitBurstRaw = response.headers.get('x-rate-limit-limit');
     // eslint-disable-next-line unicorn/prefer-number-coercion
     const rateLimitBurst = isPresent(rateLimitBurstRaw) ? Number.parseInt(rateLimitBurstRaw, 10) : null;

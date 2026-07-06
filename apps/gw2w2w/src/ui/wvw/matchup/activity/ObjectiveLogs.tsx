@@ -11,10 +11,10 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 
 const TIME_WINDOW_TO_MAX_AGE: Record<string, number | undefined> = {
-  '1h': 3_600,
-  '4h': 4 * 3_600,
-  '8h': 8 * 3_600,
-  '24h': 24 * 3_600,
+  '1h': 3600,
+  '4h': 4 * 3600,
+  '8h': 8 * 3600,
+  '24h': 24 * 3600,
   'all': undefined,
 };
 
