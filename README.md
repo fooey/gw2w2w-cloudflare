@@ -207,8 +207,8 @@ Real-time WvW data requires polling `api.guildwars2.com/v2/wvw/matches?ids=all` 
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 24+
-- [pnpm](https://pnpm.io/) (via `corepack enable`)
+- [Node.js](https://nodejs.org/) 26+
+- [pnpm](https://pnpm.io/) (via `corepack enable` — Node 26 no longer bundles Corepack, so run `npm install -g corepack` first)
 - A [GW2 API key](https://account.arena.net/applications)
 
 A Cloudflare account is **not** required for local development — wrangler simulates KV, R2, D1, and Durable Objects locally. It is only needed to deploy to production.
@@ -216,7 +216,7 @@ A Cloudflare account is **not** required for local development — wrangler simu
 ### Steps
 
 1. Clone the repo.
-2. Enable pnpm: `corepack enable`
+2. Enable pnpm: `npm install -g corepack && corepack enable` (Corepack isn't bundled with Node 26+ — if you already have it, just `corepack enable`)
 3. Install dependencies: `pnpm install`
 4. Run the one-time setup script: `pnpm setup:dev`
    - Scaffolds `apps/service-api/.dev.vars` with a `GW2_API_KEY` placeholder
