@@ -64,6 +64,9 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
 
   const guild = guildQuery.data;
   const isClaimed = isPresent(matchObjective.claimed_by);
+  const hasCaptureOrClaimData = isPresent(matchObjective.last_flipped) || isPresent(matchObjective.claimed_at);
+  const hasGuildUpgrades = isPresent(guildUpgrades) && guildUpgrades.length > 0;
+  const hasActiveUpgrades = currentTier > 0 && isPresent(upgrade);
 
   function handleBackdropClick(e: MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) onClose();
@@ -114,7 +117,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
           </p>
         </div>
 
-        {(isPresent(matchObjective.last_flipped) || isPresent(matchObjective.claimed_at)) && (
+        {hasCaptureOrClaimData && (
           <ObjectiveDialogCaptureClaimTimes
             lastFlipped={matchObjective.last_flipped}
             claimedAt={matchObjective.claimed_at}
@@ -134,13 +137,9 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
           />
         )}
 
-        {guildUpgrades && guildUpgrades.length > 0 && (
-          <ObjectiveDialogGuildUpgradesList guildUpgrades={guildUpgrades} />
-        )}
+        {hasGuildUpgrades && <ObjectiveDialogGuildUpgradesList guildUpgrades={guildUpgrades} />}
 
-        {currentTier > 0 && upgrade && (
-          <ObjectiveDialogActiveUpgradesList upgrade={upgrade} currentTier={currentTier} />
-        )}
+        {hasActiveUpgrades && <ObjectiveDialogActiveUpgradesList upgrade={upgrade} currentTier={currentTier} />}
 
         <ObjectiveDialogPointsAndChatLink
           objectiveDef={objectiveDef}
