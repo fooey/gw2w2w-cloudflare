@@ -60,17 +60,6 @@
             "minimumDescriptionLength": 10
           }
         ],
-        "typescript/no-dynamic-delete": "error",
-        "typescript/no-empty-object-type": "error",
-        "typescript/no-explicit-any": "error",
-        "typescript/no-invalid-void-type": "error",
-        "typescript/no-namespace": "error",
-        "typescript/no-non-null-asserted-nullish-coalescing": "error",
-        "typescript/no-non-null-assertion": "error",
-        "typescript/no-require-imports": "error",
-        "typescript/prefer-literal-enum-member": "error",
-        "typescript/prefer-reduce-type-parameter": "error",
-        "typescript/prefer-return-this-type": "error",
         "typescript/restrict-plus-operands": [
           "error",
           {
@@ -81,25 +70,7 @@
             "allowRegExp": false
           }
         ],
-        "typescript/return-await": ["error", "error-handling-correctness-only"],
-        "typescript/unified-signatures": "error",
-        "typescript/use-unknown-in-catch-callback-variable": "error",
-        "no-empty-function": "error",
-        "typescript/adjacent-overload-signatures": "error",
-        "typescript/array-type": "error",
-        "typescript/ban-tslint-comment": "error",
-        "typescript/class-literal-property-style": "error",
-        "typescript/consistent-generic-constructors": "error",
-        "typescript/consistent-indexed-object-style": "error",
-        "typescript/consistent-type-assertions": "error",
-        "typescript/consistent-type-definitions": "error",
-        "typescript/dot-notation": "error",
-        "typescript/no-inferrable-types": "error",
-        "typescript/prefer-find": "error",
-        "typescript/prefer-for-of": "error",
-        "typescript/prefer-function-type": "error",
-        "typescript/prefer-regexp-exec": "error",
-        "typescript/prefer-string-starts-ends-with": "error"
+        "typescript/return-await": ["error", "error-handling-correctness-only"]
       }
     },
     {
