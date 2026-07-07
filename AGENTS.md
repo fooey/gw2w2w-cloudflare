@@ -210,7 +210,7 @@ Tests use [Vitest](https://vitest.dev/). All Vitest CLI flags are available afte
 
 If you add or change logic covered by tests, update the tests to match.
 
-**Unit tests are guardrails for AI-agent-driven changes, not just QA — fast execution matters more than exhaustive coverage.** Default `environment` (`packages/vitest-config/base.ts`) is `node` for speed; add `// @vitest-environment happy-dom` as the first line of a specific test file only when it renders React components, rather than flipping the global default (a DOM environment costs roughly +300ms per test _file_, not per suite — confirmed empirically, since each file runs in its own forked VM under `pool: 'vmForks'`).
+**Unit tests are guardrails for AI-agent-driven changes, not just QA — fast execution matters more than exhaustive coverage.** Default `environment` (`packages/vitest-config/base.config.ts`) is `node` for speed; add `// @vitest-environment happy-dom` as the first line of a specific test file only when it renders React components, rather than flipping the global default (a DOM environment costs roughly +300ms per test _file_, not per suite — confirmed empirically, since each file runs in its own forked VM under `pool: 'vmForks'`).
 
 **Mocking:**
 
