@@ -1,0 +1,16 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    // Nursery is experimental and left off as a whole category (see base.json) — these individual
+    // rules were reviewed against the codebase and cherry-picked in. no-restricted-exports (needs
+    // config we have no use for) and no-undef (redundant with and less accurate than the
+    // TypeScript compiler) were reviewed and left out.
+    "promise/no-return-in-finally": "error",
+    "no-useless-assignment": "error",
+    "import/export": "error",
+    "import/named": "error",
+    "unicorn/no-useless-iterator-to-array": "error",
+    "typescript/prefer-optional-chain": "error",
+    "typescript/no-unnecessary-condition": "error"
+  }
+}
