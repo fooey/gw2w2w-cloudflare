@@ -81,6 +81,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
 
 app.notFound((c) => c.json({ error: { message: 'Not Found', status: 404 } }, 404));
 
+// eslint-disable-next-line promise/prefer-await-to-callbacks -- Hono's .onError() is a synchronous handler-registration API, not callback-style async code.
 app.onError((err, c) => {
   console.error(err);
   return c.json({ error: { message: 'Internal Server Error', status: 500 } }, 500);

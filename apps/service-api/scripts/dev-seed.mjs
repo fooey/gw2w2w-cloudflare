@@ -19,8 +19,9 @@ async function attempt(n = 0) {
       console.error(`[dev-seed] Gave up after ${MAX_ATTEMPTS} attempts — is wrangler dev running on :8788?`);
       exit(1);
     }
-    await new Promise((r) => {
-      setTimeout(r, RETRY_DELAY_MS);
+    // eslint-disable-next-line promise/avoid-new -- promisifying setTimeout; no existing promise to delegate to.
+    await new Promise((resolve) => {
+      setTimeout(resolve, RETRY_DELAY_MS);
     });
     await attempt(n + 1);
   }

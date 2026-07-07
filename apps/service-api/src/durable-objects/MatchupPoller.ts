@@ -77,6 +77,7 @@ class RateLimitError extends Error {
   public egressIp: string | null;
   public constructor(retryAfterMs: number, rateLimitBurst: number | null = null, egressIp: string | null = null) {
     super(`[MatchupPoller] GW2 API rate limited — retry after ${retryAfterMs}ms`);
+    this.name = 'RateLimitError';
     this.retryAfterMs = retryAfterMs;
     this.rateLimitBurst = rateLimitBurst;
     this.egressIp = egressIp;
@@ -348,7 +349,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         signal: AbortSignal.timeout(200),
       });
       const text = await trace.text();
-      egressIp = /^ip=(.+)$/mu.exec(text)?.[1] ?? null;
+      egressIp = /^ip=(?<ip>.+)$/mu.exec(text)?.groups?.ip ?? null;
     } catch {
       // non-critical — don't let this suppress the RateLimitError
     }
@@ -632,6 +633,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
           // but no TCP FIN/RST) cannot stall the alarm handler indefinitely.
           await Promise.race([
             sub.writer.write(chunk),
+            // eslint-disable-next-line promise/avoid-new, promise/param-names -- promisifying a setTimeout-based race timeout (no existing promise to delegate to); this promise only ever rejects, so naming the first param `resolve` would be misleading.
             new Promise<never>((_, reject) => {
               setTimeout(() => {
                 reject(new Error('SSE write timeout'));

@@ -73,26 +73,24 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
           })}
         </header>
         <div className="flex flex-col gap-4">
-          {Object.entries(layout).map(([sectionName, sectionLayout]) => {
-            return (
-              <div key={sectionName} className="flex flex-col gap-1">
-                {sectionLayout.objectives.map((obj) => {
-                  const matchObj = objectivesById.get(obj.id);
-                  if (!matchObj) return null;
-                  return (
-                    <MatchObjectiveRow
-                      key={`${matchObj.id}:${matchObj.last_flipped}`}
-                      matchObjective={matchObj}
-                      direction={obj.direction}
-                      onClick={() => {
-                        setSelected({ objectiveId: matchObj.id, direction: obj.direction });
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            );
-          })}
+          {Object.entries(layout).map(([sectionName, sectionLayout]) => (
+            <div key={sectionName} className="flex flex-col gap-1">
+              {sectionLayout.objectives.map((obj) => {
+                const matchObj = objectivesById.get(obj.id);
+                if (!matchObj) return null;
+                return (
+                  <MatchObjectiveRow
+                    key={`${matchObj.id}:${matchObj.last_flipped}`}
+                    matchObjective={matchObj}
+                    direction={obj.direction}
+                    onClick={() => {
+                      setSelected({ objectiveId: matchObj.id, direction: obj.direction });
+                    }}
+                  />
+                );
+              })}
+            </div>
+          ))}
         </div>
       </section>
       {selectedObj && selectedDirection && (

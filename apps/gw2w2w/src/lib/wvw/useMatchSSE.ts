@@ -45,6 +45,7 @@ export function mergeInitialHistory(prev: EventRow[], incoming: EventRow[], fall
   const prevIds = new Set(prev.map((e) => e.id));
   const history = incoming
     .filter((e) => !prevIds.has(e.id))
+    // eslint-disable-next-line prefer-object-spread -- oxc/no-map-spread wants Object.assign here instead of spread, to avoid an extra allocation per iteration.
     .map((e) => Object.assign({}, e, { at: coerceEventAt(e.at, fallbackAt) }));
 
   // SSE events that arrived before history loaded stay at the front (they're newer)

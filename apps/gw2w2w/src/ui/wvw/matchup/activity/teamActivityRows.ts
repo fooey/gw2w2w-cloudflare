@@ -100,6 +100,7 @@ export function buildTeamRows(
     overall.total++;
   }
 
+  // eslint-disable-next-line prefer-object-spread -- oxc/no-map-spread wants Object.assign here instead of spread, to avoid an extra allocation per iteration.
   const teams = TEAM_OWNERS.map((o) => Object.assign({ owner: o }, byOwner.get(o) ?? createEmptyTeamRow()));
   return { teams, overall: { owner: 'Green', ...overall } };
 }

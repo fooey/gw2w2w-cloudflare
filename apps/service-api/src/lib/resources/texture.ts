@@ -11,7 +11,7 @@ export async function getTextureArrayBuffer(
 ): Promise<ArrayBuffer | null> {
   if (isEmpty(url)) return null;
 
-  const OBJECT_KEY = 'textures:' + encodeURIComponent(url);
+  const OBJECT_KEY = `textures:${encodeURIComponent(url)}`;
 
   let buffer: ArrayBuffer | null;
   const object = await objectStore.get(OBJECT_KEY);

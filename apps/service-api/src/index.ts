@@ -9,13 +9,12 @@ import { z } from 'zod';
 import { allowedCsrf, allowedOrigin } from '@repo/utils';
 
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
-import { MatchupPoller } from './durable-objects/MatchupPoller';
 import { GW2RateLimitError } from './lib/resources/api';
 import { apiGw2Route } from './routes/gw2';
 import { createOpenAPIRoutes } from './routes/openapi';
 import { apiWvwRoute } from './routes/wvw';
 
-export { MatchupPoller };
+export { MatchupPoller } from './durable-objects/MatchupPoller';
 
 export const ErrorPayloadSchema = z.object({
   message: z.string(),
@@ -41,6 +40,7 @@ export interface CloudflareEnv {
 const app = new Hono<{ Bindings: CloudflareEnv }>()
   .use(logger())
   .use('*', async (c, next) => {
+    // eslint-disable-next-line node/callback-return -- Hono's async middleware `next()` isn't a Node-style callback; code after it is expected.
     await next();
     c.header('Vary', 'Origin', { append: true });
   })
@@ -64,6 +64,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
     };
     return c.json(payload, payload.statusCode);
   })
+  // eslint-disable-next-line promise/prefer-await-to-callbacks -- Hono's .onError() is a synchronous handler-registration API, not callback-style async code.
   .onError((err, c) => {
     if (err instanceof GW2RateLimitError) {
       const retryAfter = Math.ceil(err.retryAfterMs / 1000);
@@ -90,7 +91,7 @@ app.route('', createOpenAPIRoutes(app));
 
 export type ServiceApiAppType = typeof app;
 
-export default {
+const worker = {
   fetch: app.fetch,
   async scheduled(_event: ScheduledEvent, env: CloudflareEnv, ctx: ExecutionContext): Promise<void> {
     const didInvalidate = await checkBuildId(env);
@@ -102,3 +103,5 @@ export default {
     ctx.waitUntil(env.MATCHUP_POLLER.getByName('global').fetch('https://internal/poller'));
   },
 };
+
+export default worker;

@@ -5,7 +5,9 @@ import { UpdateNotifier } from '#ui/UpdateNotifier';
 
 import './globals.css';
 
+// eslint-disable-next-line new-cap -- Geist/Geist_Mono are PascalCase factory functions per next/font/google's API, not constructors.
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
+// eslint-disable-next-line new-cap -- see above.
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {

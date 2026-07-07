@@ -37,9 +37,7 @@ export async function getEmblemBackground(
   return withFilteredObjectCache(
     'backgrounds.json',
     emblemId,
-    async () => {
-      return getEmblemBackgroundFromApi(env);
-    },
+    async () => getEmblemBackgroundFromApi(env),
     cacheProviders,
   );
 }
@@ -52,9 +50,7 @@ export async function getEmblemForeground(
   return withFilteredObjectCache(
     'foregrounds.json',
     emblemId,
-    async () => {
-      return getEmblemForegroundFromApi(env);
-    },
+    async () => getEmblemForegroundFromApi(env),
     cacheProviders,
   );
 }

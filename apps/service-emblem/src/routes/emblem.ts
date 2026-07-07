@@ -82,10 +82,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
         });
       } catch (error: unknown) {
         if (error instanceof HttpError) {
-          return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
-            status: error.status,
-            headers: { 'Content-Type': 'application/json' },
-          });
+          return Response.json({ error: { message: error.message, status: error.status } }, { status: error.status });
         }
         throw error;
       }
@@ -127,7 +124,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
           const guild = await searchGuild(apiClient, guildId);
 
           guildId = guild.id;
-        } catch (_error) {
+        } catch {
           return c.json({ error: { message: 'Guild not found', status: 404 } }, 404);
         }
       }
@@ -150,10 +147,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
           bytes = await getEmblemBytesByGuildId(apiClient, guildId, cacheProviders, size);
         } catch (error: unknown) {
           if (error instanceof HttpError) {
-            return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
-              status: error.status,
-              headers: { 'Content-Type': 'application/json' },
-            });
+            return Response.json({ error: { message: error.message, status: error.status } }, { status: error.status });
           }
 
           throw error;

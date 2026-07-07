@@ -33,6 +33,7 @@ function createHarness(initialAlarm: number | null | undefined): { state: FakeSt
 
   const state: FakeState = {
     storage,
+    // eslint-disable-next-line promise/prefer-await-to-callbacks -- mocking DurableObjectState's blockConcurrencyWhile(callback) interface signature.
     blockConcurrencyWhile: async <T>(callback: () => Promise<T>) => callback(),
     waitUntil: vi.fn<(promise: Promise<unknown>) => void>(),
   };
