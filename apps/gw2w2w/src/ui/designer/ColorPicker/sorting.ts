@@ -39,15 +39,18 @@ function rgbToHsl(rgb: [number, number, number]): { h: number; s: number; l: num
   const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
   let h: number;
   switch (max) {
-    case r:
+    case r: {
       h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
       break;
-    case g:
+    }
+    case g: {
       h = ((b - r) / d + 2) / 6;
       break;
-    default:
+    }
+    default: {
       h = ((r - g) / d + 4) / 6;
       break;
+    }
   }
   return { h: h * 360, s, l };
 }
@@ -67,39 +70,51 @@ function channelDominance(channel: number, other1: number, other2: number): numb
 
 function compareByKey(a: Color, b: Color, key: SortKey): number {
   switch (key) {
-    case 'id':
+    case 'id': {
       return a.id - b.id;
-    case 'name':
+    }
+    case 'name': {
       return a.name.localeCompare(b.name);
-    case 'hue':
+    }
+    case 'hue': {
       return rgbToHsl(a.cloth.rgb).h - rgbToHsl(b.cloth.rgb).h;
-    case 'saturation':
+    }
+    case 'saturation': {
       return rgbToHsl(a.cloth.rgb).s - rgbToHsl(b.cloth.rgb).s;
-    case 'lightness':
+    }
+    case 'lightness': {
       return rgbToHsl(a.cloth.rgb).l - rgbToHsl(b.cloth.rgb).l;
+    }
     // Dominance comparisons are inverted so that ascending = most dominant first,
     // which is the natural expectation when sorting a colour picker by hue channel.
-    case 'red':
+    case 'red': {
       return (
         channelDominance(b.cloth.rgb[0], b.cloth.rgb[1], b.cloth.rgb[2]) -
         channelDominance(a.cloth.rgb[0], a.cloth.rgb[1], a.cloth.rgb[2])
       );
-    case 'green':
+    }
+    case 'green': {
       return (
         channelDominance(b.cloth.rgb[1], b.cloth.rgb[0], b.cloth.rgb[2]) -
         channelDominance(a.cloth.rgb[1], a.cloth.rgb[0], a.cloth.rgb[2])
       );
-    case 'blue':
+    }
+    case 'blue': {
       return (
         channelDominance(b.cloth.rgb[2], b.cloth.rgb[0], b.cloth.rgb[1]) -
         channelDominance(a.cloth.rgb[2], a.cloth.rgb[0], a.cloth.rgb[1])
       );
+    }
+    default: {
+      const exhaustive: never = key;
+      throw new Error(`Unhandled sort key: ${String(exhaustive)}`);
+    }
   }
 }
 
 export function sortColors(colors: Color[], sort: SortEntry | null): Color[] {
   if (!sort) return colors;
-  return [...colors].sort((a, b) => {
+  return colors.toSorted((a, b) => {
     const cmp = compareByKey(a, b, sort.key);
     return sort.dir === 'asc' ? cmp : -cmp;
   });

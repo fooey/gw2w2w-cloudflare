@@ -1,7 +1,10 @@
-import { GW2RateLimitError } from '#lib/resources/api.ts';
-import type { CacheProviders } from '#lib/resources/index.ts';
 import { Temporal } from '@js-temporal/polyfill';
-import { withJitter } from '@repo/utils';
+
+import { isNonEmptyString, withJitter } from '@repo/utils';
+
+import type { CacheProviders } from '#lib/resources/index.ts';
+import { GW2RateLimitError } from '#lib/resources/api.ts';
+
 import { CACHE_TTL, getEnableCacheLogging, NOT_FOUND_CACHE_VALUE } from './constants';
 
 // Module-scope in-flight registries for request coalescing.
@@ -36,7 +39,7 @@ export async function withKvCache<T>(
   config: CacheConfig = {},
 ): Promise<T | null> {
   const { kvStore } = cacheProviders;
-  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging } = config;
+  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging() } = config;
 
   // 1. Check cache
   const cached = await kvStore.get(key, 'text');
@@ -50,6 +53,8 @@ export async function withKvCache<T>(
       return null;
     }
 
+    // Generic cache layer trusts that data previously cached under this key matches T.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion
     return JSON.parse(cached) as T;
   }
 
@@ -67,6 +72,8 @@ export async function withKvCache<T>(
   if (existing) {
     kvInflightWaiters.set(key, (kvInflightWaiters.get(key) ?? 0) + 1);
     if (enableLogging) console.info(`kv coalesced [${key}]`);
+    // In-flight promises are keyed the same as the cache itself, so this always resolves to T | null.
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion
     return (await existing) as T | null;
   }
 
@@ -122,16 +129,23 @@ export async function withObjectCache<T>(
   config: CacheConfig = {},
 ): Promise<T> {
   const { objectStore } = cacheProviders;
-  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging } = config;
+  const { ttl = CACHE_TTL.patch.kv, enableLogging = getEnableCacheLogging() } = config;
 
   // 1. Check cache with expiration
   let cachedData: T | null = null;
   let staleData: T | null = null;
   const object = await objectStore.get(objectKey);
 
-  if (object !== null) {
+  if (object === null) {
+    if (enableLogging) {
+      console.info(`object MISS for ${objectKey}`);
+    }
+  } else {
     const expiresAt = object.customMetadata?.expiresAt;
-    if (expiresAt && Temporal.Instant.compare(Temporal.Instant.from(expiresAt), Temporal.Now.instant()) > 0) {
+    if (
+      isNonEmptyString(expiresAt) &&
+      Temporal.Instant.compare(Temporal.Instant.from(expiresAt), Temporal.Now.instant()) > 0
+    ) {
       if (enableLogging) {
         console.info(`object HIT for ${objectKey}`);
       }
@@ -142,10 +156,6 @@ export async function withObjectCache<T>(
       }
       // Retain stale data as fallback in case the API is rate-limited.
       staleData = await object.json<T>();
-    }
-  } else {
-    if (enableLogging) {
-      console.info(`object MISS for ${objectKey}`);
     }
   }
 
@@ -160,6 +170,8 @@ export async function withObjectCache<T>(
     if (existing) {
       objectInflightWaiters.set(objectKey, (objectInflightWaiters.get(objectKey) ?? 0) + 1);
       if (enableLogging) console.info(`object coalesced [${objectKey}]`);
+      // In-flight promises are keyed the same as the cache itself, so this always resolves to T.
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion
       cachedData = (await existing) as T;
     } else {
       const inflight = (async () => {

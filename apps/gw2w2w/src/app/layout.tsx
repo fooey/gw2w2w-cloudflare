@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+
 import { UpdateNotifier } from '#ui/UpdateNotifier';
+
 import './globals.css';
 
+// eslint-disable-next-line new-cap -- Geist/Geist_Mono are PascalCase factory functions per next/font/google's API, not constructors.
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
+// eslint-disable-next-line new-cap -- see above.
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -18,10 +22,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full bg-zinc-50" suppressHydrationWarning={true}>
+    <html lang="en" className="h-full bg-zinc-50" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} h-full font-sans text-zinc-900 antialiased`}
-        suppressHydrationWarning={true}
+        suppressHydrationWarning
       >
         <UpdateNotifier />
         {children}

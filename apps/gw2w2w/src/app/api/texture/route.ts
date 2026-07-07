@@ -1,6 +1,9 @@
+import type { NextRequest } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { NextResponse } from 'next/server';
+
 import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
-import { type NextRequest, NextResponse } from 'next/server';
+import { isEmpty, isNonEmptyString } from '@repo/utils';
 
 const ALLOWED_HOSTNAME = 'render.guildwars2.com';
 const ALLOWED_PATH_PREFIX = '/file/';
@@ -17,7 +20,7 @@ function parseAllowedTexturePath(raw: string): string | null {
   if (url.protocol !== 'https:' || url.hostname !== ALLOWED_HOSTNAME) {
     return null;
   }
-  const pathname = url.pathname;
+  const { pathname } = url;
   if (!pathname.startsWith(ALLOWED_PATH_PREFIX)) {
     return null;
   }
@@ -39,9 +42,9 @@ function parseAllowedTexturePath(raw: string): string | null {
 
 export async function GET(request: NextRequest) {
   const textureUrl = request.nextUrl.searchParams.get('url');
-  const safePath = textureUrl ? parseAllowedTexturePath(textureUrl) : null;
+  const safePath = isNonEmptyString(textureUrl) ? parseAllowedTexturePath(textureUrl) : null;
 
-  if (!safePath) {
+  if (isEmpty(safePath)) {
     return NextResponse.json({ error: 'Invalid url parameter' }, { status: 400 });
   }
 
@@ -72,6 +75,7 @@ export async function GET(request: NextRequest) {
   const buf = await upstream.arrayBuffer();
 
   // Write to R2 asynchronously — don't block the response
+  // eslint-disable-next-line unicorn/prefer-spread -- buf is an ArrayBuffer, not an array; slice(0) makes a real defensive copy since buf is also used below.
   void env.EMBLEM_ASSETS.put(r2Key, buf.slice(0), {
     customMetadata: {
       expiresAt: Temporal.Now.instant().add({ seconds: CACHE_TTL.immutable.kv }).toString(),

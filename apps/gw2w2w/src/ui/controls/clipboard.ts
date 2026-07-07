@@ -1,5 +1,5 @@
 interface ClipboardLike {
-  writeText(text: string): Promise<void>;
+  writeText: (text: string) => Promise<void>;
 }
 
 export async function tryWriteClipboardText(text: string, clipboard: ClipboardLike): Promise<boolean> {

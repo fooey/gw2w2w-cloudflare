@@ -1,17 +1,19 @@
+import type { WvWMatchObjective } from '@repo/service-api/types';
+import { isNil, isPresent } from '@repo/utils';
+
+import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
+import type { TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { useWvwObjective } from '#lib/wvw/objectives';
 import { useWvwUpgradeTier } from '#lib/wvw/upgrades';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
-import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
-import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
+import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { ObjectiveDirection } from '#ui/wvw/matchup/maps/objective/Direction';
 import { Guild } from '#ui/wvw/matchup/maps/objective/Guild';
 import { Name } from '#ui/wvw/matchup/maps/objective/Name';
 import { Timer } from '#ui/wvw/matchup/maps/objective/Timer';
 import { UpgradeTier } from '#ui/wvw/matchup/maps/objective/UpgradeTier';
-import type { WvWMatchObjective } from '@repo/service-api/types';
-import { isPresent } from '@repo/utils';
 
 const RI_TIMER = 5 * 60;
 
@@ -30,7 +32,7 @@ export function MatchObjectiveRow({
   const upgradeTier = useWvwUpgradeTier(objectiveDef?.upgrade_id, matchObjective.yaks_delivered);
 
   const now = useClockStore((s) => {
-    if (!matchObjective.last_flipped || s.nowMinute === null) return s.nowSecond;
+    if (isNil(matchObjective.last_flipped) || s.nowMinute === null) return s.nowSecond;
     const holdSeconds = Math.floor(
       Temporal.Instant.from(matchObjective.last_flipped).until(s.nowMinute).total('seconds'),
     );
@@ -38,14 +40,14 @@ export function MatchObjectiveRow({
   });
 
   const holdSeconds =
-    now && matchObjective.last_flipped
+    isPresent(now) && isPresent(matchObjective.last_flipped)
       ? Math.floor(Temporal.Instant.from(matchObjective.last_flipped).until(now).total('seconds'))
       : null;
   const isInRI = holdSeconds !== null && holdSeconds < RI_TIMER;
   const ownerBg =
-    matchObjective.owner !== 'Neutral' ? teamColorConfig[matchObjective.owner as TeamColorConfigKey].bg : null;
+    matchObjective.owner === 'Neutral' ? null : teamColorConfig[matchObjective.owner as TeamColorConfigKey].bg;
   const ownerText =
-    matchObjective.owner !== 'Neutral' ? teamColorConfig[matchObjective.owner as TeamColorConfigKey].text : null;
+    matchObjective.owner === 'Neutral' ? null : teamColorConfig[matchObjective.owner as TeamColorConfigKey].text;
 
   return (
     <button

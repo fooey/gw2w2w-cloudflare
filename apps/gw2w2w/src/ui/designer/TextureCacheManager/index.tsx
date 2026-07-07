@@ -1,7 +1,8 @@
 'use client';
 
-import type { Emblem } from '@repo/service-api/types';
 import { useRef, useState } from 'react';
+
+import type { Emblem } from '@repo/service-api/types';
 
 import { clearTextureCache, clearTextureCacheMark, isTextureCacheMarked, prefetchAllTextures } from './textureCache';
 
@@ -73,6 +74,7 @@ export function TextureCacheManager({ backgrounds, foregrounds, children }: Text
           </div>
         ) : (
           <button
+            type="button"
             onClick={() => {
               void handleDownload();
             }}
@@ -91,10 +93,15 @@ export function TextureCacheManager({ backgrounds, foregrounds, children }: Text
 
       <section className="flex items-center gap-3 border-t border-gray-100 pt-2">
         <span className="text-xs text-gray-400">Textures cached locally.</span>
-        <button onClick={handleRedownload} className="text-xs text-indigo-500 underline hover:text-indigo-700">
+        <button
+          type="button"
+          onClick={handleRedownload}
+          className="text-xs text-indigo-500 underline hover:text-indigo-700"
+        >
           Re-download / verify
         </button>
         <button
+          type="button"
           onClick={() => {
             void handleClearCache();
           }}

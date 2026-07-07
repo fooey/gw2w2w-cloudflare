@@ -1,11 +1,13 @@
 'use client';
 
+import type { WvWMatchObjective, WvWTeam } from '@repo/service-api/types';
+
+import type { Lang } from '#ui/wvw/config/lang';
 import { cn } from '#lib/utils/cn';
+import { formatKdr } from '#lib/wvw/scoreboard';
 import { Link } from '#ui/Link';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
-import type { Lang } from '#ui/wvw/config/lang';
 import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
-import type { WvWMatchObjective, WvWTeam } from '@repo/service-api/types';
 
 const OBJECTIVE_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 
@@ -42,7 +44,7 @@ export function TeamScore({
 
   const teamObjectives = objectives.filter((o) => o.owner === color);
   const countByType = (type: WvWMatchObjective['type']) => teamObjectives.filter((o) => o.type === type).length;
-  const kdr = deaths > 0 ? (kills / deaths).toFixed(2) : kills > 0 ? '∞' : '—';
+  const kdr = formatKdr(kills, deaths);
 
   return (
     <div className={cn('flex flex-col justify-end')}>

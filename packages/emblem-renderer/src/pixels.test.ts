@@ -1,4 +1,7 @@
+// This file tests pixel/alpha-channel compositing math, so bitwise operators are intentional here.
+/* eslint-disable no-bitwise */
 import { describe, expect, it } from 'vitest';
+
 import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
 
 function expectDefined<T>(value: T | undefined): T {
@@ -15,7 +18,8 @@ describe('IMAGE_DIMENSION', () => {
 
 describe('getFlipsFromFlags', () => {
   it('returns all false with no flags', () => {
-    expect(getFlipsFromFlags(undefined)).toEqual({
+    // eslint-disable-next-line unicorn/no-useless-undefined -- getFlipsFromFlags's parameter is required, not optional.
+    expect(getFlipsFromFlags(undefined)).toStrictEqual({
       flipBgH: false,
       flipBgV: false,
       flipFgH: false,
@@ -23,7 +27,7 @@ describe('getFlipsFromFlags', () => {
     });
   });
   it('returns all false with empty flags array', () => {
-    expect(getFlipsFromFlags([])).toEqual({
+    expect(getFlipsFromFlags([])).toStrictEqual({
       flipBgH: false,
       flipBgV: false,
       flipFgH: false,
@@ -31,7 +35,7 @@ describe('getFlipsFromFlags', () => {
     });
   });
   it('sets the correct flip booleans', () => {
-    expect(getFlipsFromFlags(['FlipBackgroundHorizontal', 'FlipForegroundVertical'])).toEqual({
+    expect(getFlipsFromFlags(['FlipBackgroundHorizontal', 'FlipForegroundVertical'])).toStrictEqual({
       flipBgH: true,
       flipBgV: false,
       flipFgH: false,
@@ -46,7 +50,7 @@ describe('getFlipsFromFlags', () => {
         'FlipForegroundHorizontal',
         'FlipForegroundVertical',
       ]),
-    ).toEqual({ flipBgH: true, flipBgV: true, flipFgH: true, flipFgV: true });
+    ).toStrictEqual({ flipBgH: true, flipBgV: true, flipFgH: true, flipFgV: true });
   });
 });
 

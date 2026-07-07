@@ -13,6 +13,7 @@
 import { execSync } from 'node:child_process';
 import { rmSync } from 'node:fs';
 
+/** @param {string} cmd */
 function run(cmd) {
   console.info(`\n> ${cmd}`);
   execSync(cmd, { stdio: 'inherit' });

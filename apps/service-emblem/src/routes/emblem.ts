@@ -1,22 +1,24 @@
 import { zValidator } from '@hono/zod-validator';
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from '@repo/emblem-renderer';
-import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
-import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
-import { validateArenaNetUuid } from '@repo/utils';
-import type { CloudflareEnv } from '#index.ts';
-import { getApiClient, getEmblemBytes, getEmblemBytesByGuildId, HttpError, searchGuild } from '#lib/api.ts';
 import { Hono } from 'hono';
 import z from 'zod';
+
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer';
+import { createCacheProviders } from '@repo/service-api/lib/cache-providers';
+import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
+import { isNonEmptyString, validateArenaNetUuid } from '@repo/utils';
+
+import type { CloudflareEnv } from '#index.ts';
+import { getApiClient, getEmblemBytes, getEmblemBytesByGuildId, HttpError, searchGuild } from '#lib/api.ts';
 
 const getEnableCacheLogging = () => true;
 
 const redirectFileExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
-const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|')})$`);
+const replaceFileExtensionRegex = new RegExp(`(${redirectFileExtensions.join('|')})$`, 'u');
 
 const sizeQuery = z.coerce
   .number()
   .int()
-  .refine((n): n is EmblemSize => (EMBLEM_SIZES as readonly number[]).includes(n), {
+  .refine(isEmblemSize, {
     message: `Size must be one of: ${EMBLEM_SIZES.join(', ')}`,
   })
   .default(DEFAULT_EMBLEM_SIZE);
@@ -41,7 +43,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     ),
     async (c) => {
       const query = c.req.valid('query');
-      const size = query.size;
+      const { size } = query;
       const cacheProviders = createCacheProviders(c.env);
       const apiClient = getApiClient(c);
 
@@ -59,12 +61,12 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
       const emblem = {
         background: {
           id: query.background_id ?? 1,
-          colors: [query.background_color_id].filter((c): c is number => c !== undefined),
+          colors: [query.background_color_id].filter((v): v is number => v !== undefined),
         },
         foreground: {
           id: query.foreground_id ?? 1,
           colors: [query.foreground_primary_color_id, query.foreground_secondary_color_id].filter(
-            (c): c is number => c !== undefined,
+            (v): v is number => v !== undefined,
           ),
         },
         flags,
@@ -80,10 +82,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
         });
       } catch (error: unknown) {
         if (error instanceof HttpError) {
-          return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
-            status: error.status,
-            headers: { 'Content-Type': 'application/json' },
-          });
+          return Response.json({ error: { message: error.message, status: error.status } }, { status: error.status });
         }
         throw error;
       }
@@ -92,14 +91,14 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/:guildId/:sizeExt', (c) => {
     const guildId = c.req.param('guildId');
     const sizeExt = c.req.param('sizeExt');
-    const sizeStr = sizeExt.replace(/\.\w+$/, '');
+    const sizeStr = sizeExt.replace(/\.\w+$/u, '');
     const sizeNum = Number(sizeStr);
 
-    if (!Number.isInteger(sizeNum) || !(EMBLEM_SIZES as readonly number[]).includes(sizeNum)) {
+    if (!Number.isInteger(sizeNum) || !isEmblemSize(sizeNum)) {
       return c.json({ error: { message: `Size must be one of: ${EMBLEM_SIZES.join(', ')}`, status: 400 } }, 400);
     }
 
-    const size = sizeNum as EmblemSize;
+    const size = sizeNum;
     const url = size === DEFAULT_EMBLEM_SIZE ? `/${guildId}` : `/${guildId}?size=${size}`;
     return c.redirect(url, 301);
   })
@@ -110,7 +109,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const cacheProviders = createCacheProviders(c.env);
       let guildId = c.req.param('guildId');
-      const size = c.req.valid('query').size;
+      const { size } = c.req.valid('query');
 
       if (redirectFileExtensions.some((ext) => guildId.endsWith(ext))) {
         // pop the file extension off the end of the guildId
@@ -125,7 +124,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
           const guild = await searchGuild(apiClient, guildId);
 
           guildId = guild.id;
-        } catch (_error) {
+        } catch {
           return c.json({ error: { message: 'Guild not found', status: 404 } }, 404);
         }
       }
@@ -136,7 +135,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
 
       const object = await objectStore.get(cacheKey);
       const expiresAt = object?.customMetadata?.expiresAt;
-      const expiresAtTimestamp = expiresAt ? Date.parse(expiresAt) : Number.NaN;
+      const expiresAtTimestamp = isNonEmptyString(expiresAt) ? Date.parse(expiresAt) : Number.NaN;
       const hasValidExpiry = Number.isFinite(expiresAtTimestamp) && expiresAtTimestamp > Date.now();
 
       if (object !== null && hasValidExpiry) {
@@ -148,10 +147,7 @@ export const serviceEmblemRoute = new Hono<{ Bindings: CloudflareEnv }>()
           bytes = await getEmblemBytesByGuildId(apiClient, guildId, cacheProviders, size);
         } catch (error: unknown) {
           if (error instanceof HttpError) {
-            return new Response(JSON.stringify({ error: { message: error.message, status: error.status } }), {
-              status: error.status,
-              headers: { 'Content-Type': 'application/json' },
-            });
+            return Response.json({ error: { message: error.message, status: error.status } }, { status: error.status });
           }
 
           throw error;

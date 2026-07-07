@@ -1,11 +1,13 @@
-import { getDb } from '#db/index.ts';
-import { events } from '#db/schema.ts';
-import type { CloudflareEnv } from '#index.ts';
-import { isPresent } from '@repo/utils';
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { describeRoute, validator } from 'hono-openapi';
 import { z } from 'zod';
+
+import { isPresent } from '@repo/utils';
+
+import type { CloudflareEnv } from '#index.ts';
+import { getDb } from '#db/index.ts';
+import { events } from '#db/schema.ts';
 
 export type EventRow = typeof events.$inferSelect;
 
@@ -20,7 +22,7 @@ export interface EventLogResponse {
 const MAX_LIMIT = 10_000;
 
 const querySchema = z.object({
-  matchId: z.string().regex(/^\d-\d$/),
+  matchId: z.string().regex(/^\d-\d$/u),
   // maxAge in seconds — omit for the "all" time window
   maxAge: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(MAX_LIMIT),
@@ -45,7 +47,7 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     if (isPresent(maxAge)) {
       // GW2 stores timestamps as "YYYY-MM-DDTHH:mm:ssZ" (no milliseconds).
       // Truncate the cutoff to seconds so SQLite's lexicographic comparison is correct.
-      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+      const cutoff = new Date(Date.now() - maxAge * 1000).toISOString().replace(/\.\d{3}Z$/u, 'Z');
       conditions.push(gte(events.at, cutoff));
     }
 
@@ -61,6 +63,8 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
         map_type: events.map_type,
         owner: events.owner,
         claimed_by: events.claimed_by,
+        // Leading underscore marks this as an internal window-function column, stripped
+        // from each row before the response is built below.
         _total: sql<number>`COUNT(*) OVER ()`,
       })
       .from(events)
@@ -69,6 +73,7 @@ export const apiWvwEventsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
       .limit(limit)
       .offset(offset);
 
+    // eslint-disable-next-line no-underscore-dangle
     const total = rows[0]?._total ?? 0;
     const response: EventLogResponse = {
       events: rows.map(({ _total: _, ...row }) => row),

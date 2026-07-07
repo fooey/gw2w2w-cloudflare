@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { isMatchId, isTeamId, resolveSlug, resolveTeamId } from './matchup';
 
 describe('isMatchId', () => {
@@ -36,13 +37,13 @@ describe('resolveTeamId', () => {
 
 describe('resolveSlug', () => {
   it('detects a match id slug', () => {
-    expect(resolveSlug('1-1')).toEqual({ matchId: '1-1', selectedTeamId: null });
-    expect(resolveSlug('2-3')).toEqual({ matchId: '2-3', selectedTeamId: null });
+    expect(resolveSlug('1-1')).toStrictEqual({ matchId: '1-1', selectedTeamId: null });
+    expect(resolveSlug('2-3')).toStrictEqual({ matchId: '2-3', selectedTeamId: null });
   });
   it('resolves a raw team id slug', () => {
-    expect(resolveSlug('11001')).toEqual({ matchId: null, selectedTeamId: '11001' });
+    expect(resolveSlug('11001')).toStrictEqual({ matchId: null, selectedTeamId: '11001' });
   });
   it('returns nulls for completely unknown slug', () => {
-    expect(resolveSlug('unknown-slug-xyz')).toEqual({ matchId: null, selectedTeamId: null });
+    expect(resolveSlug('unknown-slug-xyz')).toStrictEqual({ matchId: null, selectedTeamId: null });
   });
 });

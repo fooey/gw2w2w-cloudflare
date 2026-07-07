@@ -1,18 +1,21 @@
 'use client';
 
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useMemo, useRef, useState } from 'react';
+
+import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
+import { isNonEmptyString } from '@repo/utils';
+
 import { getEmblemSrc } from '#lib/emblems';
 import { OBJECTIVE_TYPES, OWNER_TYPES, useGuildActivityFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
 import { useGuild } from '#lib/wvw/useGuild';
-import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
-import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
-import { getMapLabel } from '#ui/wvw/config/mapLabels';
-import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import type { EventRow, GuildActivityRow } from '@repo/service-api/types';
-import { isPresent } from '@repo/utils';
 import { Link } from '#ui/Link';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { useMemo, useRef, useState } from 'react';
+import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
+import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
+import { buildGuildRows } from '#ui/wvw/matchup/activity/guildActivityRows';
 
 const ACTIVITY_OBJ_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 type ActivityObjType = (typeof ACTIVITY_OBJ_TYPES)[number];
@@ -23,14 +26,16 @@ type ActivityMapType = (typeof ACTIVITY_MAP_TYPES)[number];
 type SortKey = ActivityObjType | ActivityMapType | 'total' | 'lastActivity';
 type SortDir = 'asc' | 'desc';
 
-const OBJ_TO_KEY: Record<ActivityObjType, keyof GuildActivityRow> = {
+type NumericKeyOf<T> = { [K in keyof T]: T[K] extends number ? K : never }[keyof T];
+
+const OBJ_TO_KEY: Record<ActivityObjType, NumericKeyOf<GuildActivityRow>> = {
   Castle: 'claims_castle',
   Keep: 'claims_keep',
   Tower: 'claims_tower',
   Camp: 'claims_camp',
 };
 
-const MAP_TO_KEY: Record<ActivityMapType, keyof GuildActivityRow> = {
+const MAP_TO_KEY: Record<ActivityMapType, NumericKeyOf<GuildActivityRow>> = {
   Center: 'claims_center',
   GreenHome: 'claims_green_home',
   BlueHome: 'claims_blue_home',
@@ -38,6 +43,9 @@ const MAP_TO_KEY: Record<ActivityMapType, keyof GuildActivityRow> = {
 };
 
 const SORT_FN: Record<SortKey, (a: GuildActivityRow, b: GuildActivityRow) => number> = {
+  // oxfmt strips parens around an else-chained nested ternary as redundant, which fights
+  // unicorn/no-nested-ternary's requirement to add them — no stable fixed point between the two.
+  // eslint-disable-next-line unicorn/no-nested-ternary
   lastActivity: (a, b) => (a.last_seen_at < b.last_seen_at ? -1 : a.last_seen_at > b.last_seen_at ? 1 : 0),
   total: (a, b) => a.total - b.total,
   Castle: (a, b) => a.claims_castle - b.claims_castle,
@@ -49,88 +57,6 @@ const SORT_FN: Record<SortKey, (a: GuildActivityRow, b: GuildActivityRow) => num
   BlueHome: (a, b) => a.claims_blue_home - b.claims_blue_home,
   RedHome: (a, b) => a.claims_red_home - b.claims_red_home,
 };
-
-function buildGuildRows(
-  events: EventRow[],
-  filters: { maps: string[]; objectiveTypes: string[]; owners: string[]; timeWindow: string },
-): GuildActivityRow[] {
-  const cutoffMs = filters.timeWindow === 'all' ? null : Date.now() - parseInt(filters.timeWindow, 10) * 3_600_000;
-
-  const map = new Map<string, GuildActivityRow>();
-
-  for (const e of events) {
-    if (e.type !== 'claim') continue;
-    if (!e.claimed_by) continue;
-    if (typeof e.at !== 'string') continue;
-    if (isPresent(cutoffMs) && new Date(e.at).getTime() < cutoffMs) continue;
-    if (filters.maps.length < MAP_TYPES.length && !filters.maps.includes(e.map_type)) continue;
-    if (filters.objectiveTypes.length < OBJECTIVE_TYPES.length && !filters.objectiveTypes.includes(e.objective_type))
-      continue;
-    if (filters.owners.length < OWNER_TYPES.length && !filters.owners.includes(e.owner)) continue;
-
-    let row = map.get(e.claimed_by);
-    if (!row) {
-      row = {
-        guild_id: e.claimed_by,
-        match_id: e.match_id,
-        claims_castle: 0,
-        claims_keep: 0,
-        claims_tower: 0,
-        claims_camp: 0,
-        claims_center: 0,
-        claims_green_home: 0,
-        claims_blue_home: 0,
-        claims_red_home: 0,
-        total: 0,
-        last_seen_at: e.at,
-        last_activity_owner: e.owner,
-        last_activity_map: e.map_type,
-      };
-      map.set(e.claimed_by, row);
-    }
-
-    switch (e.objective_type) {
-      case 'Castle':
-        row.claims_castle++;
-        break;
-      case 'Keep':
-        row.claims_keep++;
-        break;
-      case 'Tower':
-        row.claims_tower++;
-        break;
-      case 'Camp':
-        row.claims_camp++;
-        break;
-      case 'Ruins':
-        // Ruins are not claimable
-        break;
-    }
-    switch (e.map_type) {
-      case 'Center':
-        row.claims_center++;
-        break;
-      case 'GreenHome':
-        row.claims_green_home++;
-        break;
-      case 'BlueHome':
-        row.claims_blue_home++;
-        break;
-      case 'RedHome':
-        row.claims_red_home++;
-        break;
-    }
-    row.total++;
-
-    if (e.at > row.last_seen_at) {
-      row.last_seen_at = e.at;
-      row.last_activity_owner = e.owner;
-      row.last_activity_map = e.map_type;
-    }
-  }
-
-  return Array.from(map.values());
-}
 
 function SortableHeader({
   label,
@@ -171,7 +97,7 @@ function SortableHeader({
 function GuildTableRow({ row }: { row: GuildActivityRow }) {
   const guildQuery = useGuild(row.guild_id);
   const guild = guildQuery.data;
-  const guildLink = `/guilds/${guild?.name ? encodeURIComponent(guild.name) : row.guild_id}`;
+  const guildLink = `/guilds/${isNonEmptyString(guild?.name) ? encodeURIComponent(guild.name) : row.guild_id}`;
 
   const ownerColors = (teamColorConfig as Record<string, { text: string }>)[row.last_activity_owner];
 
@@ -210,7 +136,7 @@ function GuildTableRow({ row }: { row: GuildActivityRow }) {
           key={type}
           className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
         >
-          {row[OBJ_TO_KEY[type]] as number}
+          {row[OBJ_TO_KEY[type]]}
         </td>
       ))}
       {ACTIVITY_MAP_TYPES.map((map) => (
@@ -218,7 +144,7 @@ function GuildTableRow({ row }: { row: GuildActivityRow }) {
           key={map}
           className="w-px min-w-10 px-2 py-1 text-center text-sm whitespace-nowrap text-gray-700 tabular-nums"
         >
-          {row[MAP_TO_KEY[map]] as number}
+          {row[MAP_TO_KEY[map]]}
         </td>
       ))}
       <td className="w-px px-2 py-1 text-center text-sm font-semibold whitespace-nowrap text-gray-800 tabular-nums">
@@ -254,7 +180,7 @@ export function GuildActivity({ events }: GuildActivityProps) {
   const rows = useMemo(() => {
     const built = buildGuildRows(events, { maps, objectiveTypes, owners, timeWindow });
     const cmp = SORT_FN[sortKey];
-    return [...built].sort((a, b) => (sortDir === 'desc' ? -cmp(a, b) : cmp(a, b)));
+    return built.toSorted((a, b) => (sortDir === 'desc' ? -cmp(a, b) : cmp(a, b)));
   }, [events, maps, objectiveTypes, owners, timeWindow, sortKey, sortDir]);
 
   function handleSort(key: SortKey) {
@@ -278,7 +204,7 @@ export function GuildActivity({ events }: GuildActivityProps) {
   const virtualItems = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
   const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0;
-  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0;
+  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems.at(-1)?.end ?? 0) : 0;
 
   return (
     <section className="mt-4 rounded p-2 shadow">

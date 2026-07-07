@@ -1,21 +1,24 @@
 'use client';
 
 import { ArrowsRightLeftIcon, ArrowsUpDownIcon } from '@heroicons/react/20/solid';
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
-import { getCustomEmblemSrc } from '#lib/emblems';
-import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
-import { useUserPrefs } from '#lib/store/userPrefs';
-import type { Color, Emblem } from '@repo/service-api/types';
-import { isNil, isPresent } from '@repo/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+
+import type { Color, Emblem } from '@repo/service-api/types';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';
+import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
+
+import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
+import { getCustomEmblemSrc } from '#lib/emblems';
+import { useUserPrefs } from '#lib/store/userPrefs';
 import { CopyToClipboardInput } from '#ui/controls/CopyToClipboardInput';
+
+import type { EmblemFlag, EmblemState } from './types';
 import { ColorPicker } from './ColorPicker';
 import { DesignerInit } from './DesignerInit';
-import { LayerPicker } from './LayerPicker';
 import { EmblemPreview } from './EmblemPreview';
+import { LayerPicker } from './LayerPicker';
 import { decodeShortlink, encodeShortlink } from './shortlink';
-import type { EmblemFlag, EmblemState } from './types';
 
 interface EmblemDesignerProps {
   colors: Color[];
@@ -39,7 +42,7 @@ const FLAG_PARAM: Record<EmblemFlag, string> = {
 };
 
 function parseNum(s: string | null): number | null {
-  if (!s) return null;
+  if (isEmpty(s)) return null;
   const n = Number(s);
   return Number.isFinite(n) ? n : null;
 }
@@ -52,10 +55,13 @@ const defaultState: EmblemState = {
 
 function stateFromParams(params: URLSearchParams): EmblemState {
   const s = params.get('s');
-  if (s) return decodeShortlink(s) ?? defaultState;
+  if (isNonEmptyString(s)) return decodeShortlink(s) ?? defaultState;
 
   if (params.size === 0) return defaultState;
 
+  // Object.entries widens the key to string even though FLAG_PARAM's Record<EmblemFlag, string>
+  // type guarantees its keys are exactly the EmblemFlag union.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
   const flags = (Object.entries(FLAG_PARAM) as [EmblemFlag, string][])
     .filter(([, param]) => params.has(param))
     .map(([flag]) => flag);
@@ -94,7 +100,7 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   }, [router]);
 
   const shortUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}` : '';
+    typeof window === 'undefined' ? '' : `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}`;
   const fullUrl = (() => {
     if (typeof window === 'undefined') return '';
     const params = new URLSearchParams();
@@ -109,8 +115,8 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   })();
   const emblemSrc = getCustomEmblemSrc(emblem, previewSize);
 
-  const isEmpty = isNil(emblem.background.id) && isNil(emblem.foreground.id);
-  const previewEmblem = isEmpty ? defaultState : emblem;
+  const isEmblemEmpty = isNil(emblem.background.id) && isNil(emblem.foreground.id);
+  const previewEmblem = isEmblemEmpty ? defaultState : emblem;
 
   return (
     <DesignerInit backgrounds={backgrounds} foregrounds={foregrounds}>
@@ -122,7 +128,8 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
             <select
               value={previewSize}
               onChange={(e) => {
-                setPreviewSize(Number(e.target.value) as Parameters<typeof setPreviewSize>[0]);
+                const n = Number(e.target.value);
+                if (isEmblemSize(n)) setPreviewSize(n);
               }}
               className="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-600"
             >

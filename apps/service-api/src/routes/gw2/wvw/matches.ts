@@ -1,10 +1,11 @@
+import { Hono } from 'hono';
+import { describeRoute, validator, resolver } from 'hono-openapi';
+import { z } from 'zod';
+
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { WvWMatchSchema, getWvWMatchByWorld, getWvWMatches } from '#lib/resources/wvw/matches.ts';
-import { Hono } from 'hono';
-import { describeRoute, validator, resolver } from 'hono-openapi';
-import { z } from 'zod';
 
 const TEAM_COLORS = ['red', 'blue', 'green'] as const;
 
@@ -91,7 +92,7 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const id = c.req.param('id');
       const matches = await getWvWMatches(id, c.env);
-      const match = matches[0];
+      const [match] = matches;
       if (!match) {
         const payload: ErrorPayload = {
           message: 'WvW Match Not Found',

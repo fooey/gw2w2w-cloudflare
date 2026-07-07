@@ -1,11 +1,16 @@
+// This file does pixel buffer/layer math, so bitwise operators are intentional here.
+/* eslint-disable no-bitwise */
 import { fliph, flipv, PhotonImage, resize, SamplingFilter } from '@cf-wasm/photon';
+
 import type { Color, Guild } from '@repo/service-api/types';
-import { type ColorRGB, getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
+
+import type { ColorRGB } from './pixels';
 import type { EmblemSize } from './sizes';
+import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
 
 export type { DecodedLayer, RenderOptions } from './pixels';
-export { type ColorRGB, renderEmblemPixels };
-export { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from './sizes';
+export { type ColorRGB, renderEmblemPixels } from './pixels';
+export { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize, type EmblemSize } from './sizes';
 
 export function resizeEmblemImage(image: PhotonImage, size: EmblemSize): PhotonImage {
   if (size === IMAGE_DIMENSION) return image;

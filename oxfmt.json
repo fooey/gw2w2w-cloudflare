@@ -5,5 +5,31 @@
   "singleQuote": true,
   "quoteProps": "consistent",
   "jsxSingleQuote": false,
-  "sortTailwindcss": true
+  "sortTailwindcss": {
+    "stylesheet": "./apps/gw2w2w/src/app/globals.css",
+    "functions": ["clsx", "cn"]
+  },
+  "sortImports": {
+    "customGroups": [
+      { "groupName": "type-repo", "elementNamePattern": ["@repo/**"], "modifiers": ["type"] },
+      { "groupName": "repo", "elementNamePattern": ["@repo/**"] }
+    ],
+    "groups": [
+      "builtin",
+      "type-external",
+      { "newlinesBetween": false },
+      "external",
+      "type-repo",
+      { "newlinesBetween": false },
+      "repo",
+      ["type-internal", "type-subpath"],
+      { "newlinesBetween": false },
+      ["internal", "subpath"],
+      ["type-parent", "type-sibling", "type-index"],
+      { "newlinesBetween": false },
+      ["parent", "sibling", "index"],
+      "style",
+      "unknown"
+    ]
+  }
 }

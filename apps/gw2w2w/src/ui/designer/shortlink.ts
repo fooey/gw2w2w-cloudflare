@@ -1,3 +1,5 @@
+// This file encodes/decodes emblem flags as a bitmask, so bitwise operators are intentional here.
+/* eslint-disable no-bitwise, oxc/bad-bitwise-operator */
 import type { EmblemFlag, EmblemState } from './types';
 
 /**
@@ -20,9 +22,10 @@ const BASE = CHARS.length; // 62
 
 function b62Encode(n: number, width: number): string {
   let s = '';
+  let remaining = n;
   for (let i = 0; i < width; i++) {
-    s = (CHARS[n % BASE] ?? '0') + s;
-    n = Math.floor(n / BASE);
+    s = (CHARS[remaining % BASE] ?? '0') + s;
+    remaining = Math.floor(remaining / BASE);
   }
   return s;
 }
@@ -44,6 +47,9 @@ const FLAG_BITS: Record<EmblemFlag, number> = {
   FlipForegroundVertical: 8,
 };
 
+// Object.keys widens to string[] even though FLAG_BITS's Record<EmblemFlag, number> type
+// guarantees its keys are exactly the EmblemFlag union — TypeScript's stdlib can't express that.
+// eslint-disable-next-line typescript/no-unsafe-type-assertion
 const ALL_FLAGS = Object.keys(FLAG_BITS) as EmblemFlag[];
 
 export const SHORTLINK_LENGTH = 11;

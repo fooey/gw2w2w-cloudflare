@@ -1,9 +1,11 @@
 'use client';
 
+import type { EventRow, WvWMapType, WvWMatchMap, WvWMatch } from '@repo/service-api/types';
+
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { useMatchSSE } from '#lib/wvw/useMatchSSE';
 import { SiteLayoutFullWidth } from '#ui/layout/SiteLayout';
-import { objectivesLayout, type ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
+import { objectivesLayout } from '#ui/wvw/config/objectivesLayoutConfig';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { EventActivityChart } from '#ui/wvw/matchup/activity/EventActivityChart';
 import { GuildActivity } from '#ui/wvw/matchup/activity/GuildActivity';
@@ -11,7 +13,6 @@ import { ObjectiveLogs } from '#ui/wvw/matchup/activity/ObjectiveLogs';
 import { TeamActivity } from '#ui/wvw/matchup/activity/TeamActivity';
 import { MatchMap } from '#ui/wvw/matchup/maps/MatchMap';
 import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
-import type { EventRow, WvWMapType, WvWMatchMap, WvWMatch } from '@repo/service-api/types';
 
 export interface MatchupViewProps {
   match: WvWMatch;
@@ -23,8 +24,10 @@ export function MatchupView({ match: initialMatch, selectedTeamId, initialEvents
   const lang = useUserPrefs((s) => s.lang);
   const { match, events } = useMatchSSE(initialMatch.id, initialMatch, initialEvents ?? []);
 
+  // A WvW match always has exactly one map per WvWMapType, so this genuinely has all 4 keys.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
   const mapsByType = Object.fromEntries(match.maps.map((m) => [m.type, m])) as Record<WvWMapType, WvWMatchMap>;
-  const layoutByType = objectivesLayout as Record<WvWMapType, ObjectivesLayoutMap>;
+  const layoutByType = objectivesLayout;
 
   return (
     <SiteLayoutFullWidth className="pt-0">

@@ -1,7 +1,11 @@
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from '@repo/emblem-renderer/sizes';
-import { DEFAULT_LANG, LANGS, type Lang } from '#ui/wvw/config/lang';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
+import type { EmblemSize } from '@repo/emblem-renderer/sizes';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
+
+import type { Lang } from '#ui/wvw/config/lang';
+import { DEFAULT_LANG, LANGS } from '#ui/wvw/config/lang';
 
 interface UserPrefsState {
   lang: Lang;
@@ -18,9 +22,15 @@ export const useUserPrefs = create<UserPrefsState>()(
       lang: DEFAULT_LANG,
       apiKey: '',
       emblemSize: DEFAULT_EMBLEM_SIZE,
-      setLang: (lang) => set({ lang }),
-      setApiKey: (apiKey) => set({ apiKey }),
-      setEmblemSize: (emblemSize) => set({ emblemSize }),
+      setLang: (lang) => {
+        set({ lang });
+      },
+      setApiKey: (apiKey) => {
+        set({ apiKey });
+      },
+      setEmblemSize: (emblemSize) => {
+        set({ emblemSize });
+      },
     }),
     {
       name: 'gw2w2w.prefs',

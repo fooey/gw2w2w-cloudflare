@@ -1,5 +1,5 @@
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { Context, TypedResponse } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 export async function withCache(c: Context, ttl: number, handler: () => Promise<Response>): Promise<Response> {
   // Bump the version suffix when a route's JSON response shape changes.
@@ -20,13 +20,18 @@ export async function withCache(c: Context, ttl: number, handler: () => Promise<
   return response;
 }
 
-export function withCacheJson<T, S extends ContentfulStatusCode = 200>(
+export async function withCacheJson<T, S extends ContentfulStatusCode = 200>(
   c: Context,
   ttl: number,
   data: T,
+  // 200 is always a valid ContentfulStatusCode; the assertion is only needed to satisfy the generic S.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
   status: S = 200 as S,
 ): Promise<TypedResponse<T, S, 'json'>> {
-  return withCache(c, ttl, () => Promise.resolve(c.json(data, status))) as unknown as Promise<
-    TypedResponse<T, S, 'json'>
-  >;
+  // withCache operates on the untyped base Response; c.json(data, status) just above already
+  // produced a correctly-shaped TypedResponse, but that shape doesn't survive the generic boundary.
+  // async is required here since withCache's handler param must return Promise<Response>,
+  // but c.json(...) returns a Response synchronously — no real await needed.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion, typescript/require-await
+  return withCache(c, ttl, async () => c.json(data, status)) as unknown as Promise<TypedResponse<T, S, 'json'>>;
 }

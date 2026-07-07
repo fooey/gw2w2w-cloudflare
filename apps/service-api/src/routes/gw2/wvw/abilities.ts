@@ -1,10 +1,11 @@
+import { Hono } from 'hono';
+import { describeRoute, validator, resolver } from 'hono-openapi';
+import { z } from 'zod';
+
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { WvWAbilitySchema, getWvWAbility } from '#lib/resources/wvw/abilities.ts';
-import { Hono } from 'hono';
-import { describeRoute, validator, resolver } from 'hono-openapi';
-import { z } from 'zod';
 
 export const apiWvwAbilitiesRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(
@@ -45,7 +46,7 @@ export const apiWvwAbilitiesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const id = c.req.param('id');
       const abilities = await getWvWAbility(Number(id), c.env);
-      const ability = abilities[0];
+      const [ability] = abilities;
       if (!ability) {
         const payload: ErrorPayload = {
           message: 'WvW Ability Not Found',

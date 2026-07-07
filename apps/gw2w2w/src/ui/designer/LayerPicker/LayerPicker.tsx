@@ -9,12 +9,14 @@ import {
   SparklesIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
+import { useEffect, useRef, useState } from 'react';
+
 import type { Color, Emblem } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
-import { useEffect, useRef, useState } from 'react';
-import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
-import { EmblemPreview } from '#ui/designer/EmblemPreview';
+
 import type { EmblemState } from '#ui/designer/types';
+import { EmblemPreview } from '#ui/designer/EmblemPreview';
+import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
 
 interface LayerPickerProps {
   layers: Emblem[];

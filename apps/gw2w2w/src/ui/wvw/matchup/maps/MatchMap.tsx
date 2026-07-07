@@ -1,13 +1,16 @@
 'use client';
 
+import clsx from 'clsx';
+import { useState } from 'react';
+
+import type { WvWMatchMap, WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
+import { isNonEmptyString } from '@repo/utils';
+
 import type { Direction, ObjectivesLayoutMap } from '#ui/wvw/config/objectivesLayoutConfig';
 import { TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 import { MatchMapTeamScore } from '#ui/wvw/matchup/maps/MatchMapTeamScore';
 import { MatchObjectiveRow } from '#ui/wvw/matchup/maps/MatchObjectiveRow';
-import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog';
-import type { WvWMatchMap, WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
-import clsx from 'clsx';
-import { useState } from 'react';
+import { ObjectiveDialog } from '#ui/wvw/matchup/maps/ObjectiveDialog/ObjectiveDialog';
 
 const mapTypeBorderClass: Record<string, string> = {
   Center: 'border-gray-300',
@@ -30,8 +33,8 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
   const objectivesById = new Map<string, WvWMatchObjective>();
   for (const obj of map.objectives) {
     if (VISIBLE_OBJECTIVE_TYPES.includes(obj.type)) {
-      const id = obj.id.split('-')[1];
-      if (id) objectivesById.set(id, obj);
+      const [, id] = obj.id.split('-');
+      if (isNonEmptyString(id)) objectivesById.set(id, obj);
     }
   }
 
@@ -54,6 +57,7 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
       <section className={clsx('rounded border py-2 shadow', border)}>
         <header className="grid grid-cols-[auto_1fr] gap-y-0.5 p-2 pt-0">
           {TEAM_COLORS.map((color) => {
+            // eslint-disable-next-line typescript/no-unsafe-type-assertion -- tsgo doesn't narrow .toLowerCase() to the literal union here.
             const c = color.toLowerCase() as 'green' | 'blue' | 'red';
             return (
               <MatchMapTeamScore
@@ -69,26 +73,24 @@ export function MatchMap({ map, layout }: { map: WvWMatchMap; layout: Objectives
           })}
         </header>
         <div className="flex flex-col gap-4">
-          {Object.entries(layout).map(([sectionName, sectionLayout]) => {
-            return (
-              <div key={sectionName} className="flex flex-col gap-1">
-                {sectionLayout.objectives.map((obj) => {
-                  const matchObj = objectivesById.get(obj.id);
-                  if (!matchObj) return null;
-                  return (
-                    <MatchObjectiveRow
-                      key={`${matchObj.id}:${matchObj.last_flipped}`}
-                      matchObjective={matchObj}
-                      direction={obj.direction}
-                      onClick={() => {
-                        setSelected({ objectiveId: matchObj.id, direction: obj.direction });
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            );
-          })}
+          {Object.entries(layout).map(([sectionName, sectionLayout]) => (
+            <div key={sectionName} className="flex flex-col gap-1">
+              {sectionLayout.objectives.map((obj) => {
+                const matchObj = objectivesById.get(obj.id);
+                if (!matchObj) return null;
+                return (
+                  <MatchObjectiveRow
+                    key={`${matchObj.id}:${matchObj.last_flipped}`}
+                    matchObjective={matchObj}
+                    direction={obj.direction}
+                    onClick={() => {
+                      setSelected({ objectiveId: matchObj.id, direction: obj.direction });
+                    }}
+                  />
+                );
+              })}
+            </div>
+          ))}
         </div>
       </section>
       {selectedObj && selectedDirection && (

@@ -1,11 +1,14 @@
-import type { CloudflareEnv } from '#index.ts';
-import { getDb } from '#db/index.ts';
-import { events } from '#db/schema.ts';
-import { isPresent } from '@repo/utils';
-import { and, asc, count, desc, eq, gte, inArray, sql, type SQL } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { describeRoute, validator } from 'hono-openapi';
 import { z } from 'zod';
+
+import { isPresent } from '@repo/utils';
+
+import type { CloudflareEnv } from '#index.ts';
+import { getDb } from '#db/index.ts';
+import { events } from '#db/schema.ts';
 
 export interface GuildActivityRow {
   guild_id: string;
@@ -65,7 +68,7 @@ const OBJECTIVE_TYPES = ['Camp', 'Tower', 'Keep', 'Castle'] as const;
 const OWNER_VALUES = ['Red', 'Blue', 'Green', 'Neutral'] as const;
 
 const querySchema = z.object({
-  matchId: z.string().regex(/^\d-\d$/),
+  matchId: z.string().regex(/^\d-\d$/u),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   page: z.coerce.number().int().min(0).default(0),
   sort: z.enum(SORT_COLUMNS).default('total'),
@@ -104,12 +107,13 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
     if (isPresent(maxAge)) {
       // GW2 stores timestamps as "YYYY-MM-DDTHH:mm:ssZ" (no milliseconds).
       // Truncate the cutoff to seconds so SQLite's lexicographic comparison is correct.
-      const cutoff = new Date(Date.now() - maxAge * 1_000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+      const cutoff = new Date(Date.now() - maxAge * 1000).toISOString().replace(/\.\d{3}Z$/u, 'Z');
       conditions.push(gte(events.at, cutoff));
     }
-    if (mapType?.length) conditions.push(inArray(events.map_type, Array.from(mapType)));
-    if (objectiveType?.length) conditions.push(inArray(events.objective_type, Array.from(objectiveType)));
-    if (owner?.length) conditions.push(inArray(events.owner, Array.from(owner)));
+    if (isPresent(mapType) && mapType.length > 0) conditions.push(inArray(events.map_type, [...mapType]));
+    if (isPresent(objectiveType) && objectiveType.length > 0)
+      conditions.push(inArray(events.objective_type, [...objectiveType]));
+    if (isPresent(owner) && owner.length > 0) conditions.push(inArray(events.owner, [...owner]));
 
     const whereExpr: SQL = and(...conditions) ?? eq(events.match_id, matchId);
 

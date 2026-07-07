@@ -1,9 +1,10 @@
+import { z } from 'zod';
+
 import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
-import { z } from 'zod';
 
 // Generic helper — produces { red: T, blue: T, green: T } for any inner schema T
 const wvwMatchTeams = <T extends z.ZodType>(inner: T) => z.object({ red: inner, blue: inner, green: inner });
@@ -101,8 +102,8 @@ export interface WvWMatchTeams<T> {
 /** WvWMatch with skirmishes[] omitted — the shape stored in D1 match_state and pushed over SSE */
 export type WvWMatchStripped = Omit<WvWMatch, 'skirmishes'>;
 
-function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
-  return apiFetch(env, '/wvw/matches?ids=all').then((response) => {
+async function getWvWMatchesFromApi(env: CloudflareEnv): Promise<WvWMatch[] | null> {
+  return apiFetch(env, '/wvw/matches?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -117,7 +118,7 @@ export async function getWvWMatches(id: string | string[], env: CloudflareEnv): 
   return withFilteredObjectCache<WvWMatch>(
     'wvw-matches.json',
     id,
-    () => getWvWMatchesFromApi(env),
+    async () => getWvWMatchesFromApi(env),
     createCacheProviders(env),
     {
       ttl: CACHE_TTL.live.kv,

@@ -1,13 +1,17 @@
 'use client';
 
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import clsx from 'clsx';
+
+import type { WvWMatch } from '@repo/service-api/types';
+import { withJitter } from '@repo/utils';
+
 import { getClientApi } from '#lib/api/api.client.ts';
 import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
-import { withJitter } from '@repo/utils';
-import type { WvWMatch } from '@repo/service-api/types';
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import clsx from 'clsx';
+
 import { MatchupRow } from './MatchupRow';
 
 const matchupRegions = [
@@ -18,7 +22,7 @@ const matchupRegions = [
 function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatch[] | null>>) {
   return useQuery({
     queryKey: ['wvwMatches'],
-    queryFn: () => fetchWvwMatchesService(getClientApi()),
+    queryFn: async () => fetchWvwMatchesService(getClientApi()),
     refetchInterval: () => withJitter(60_000, 0.5),
     staleTime: 60_000,
     refetchOnWindowFocus: true,
@@ -57,6 +61,7 @@ export function Dashboard({ matches }: DashboardProps) {
               {LANGS.map((l) => (
                 <button
                   key={l}
+                  type="button"
                   onClick={() => {
                     setLang(l);
                   }}

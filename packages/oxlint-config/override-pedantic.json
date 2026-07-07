@@ -1,0 +1,11 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "typescript/prefer-readonly-parameter-types": "off",
+    "no-inline-comments": "off",
+    "max-lines-per-function": "off",
+    "import/max-dependencies": "off",
+    "max-lines": "off",
+    "max-classes-per-file": "off"
+  }
+}

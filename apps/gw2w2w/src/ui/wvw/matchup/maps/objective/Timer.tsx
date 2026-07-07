@@ -1,5 +1,7 @@
 'use client';
 
+import { isNil } from '@repo/utils';
+
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 
@@ -24,12 +26,12 @@ function getFlippedDisplay(isoString: string, now: Temporal.Instant | null): str
 
 export function Timer({ lastFlipped, className }: { lastFlipped: string | undefined; className?: string }) {
   const now = useClockStore((s) => {
-    if (!lastFlipped || s.nowMinute === null) return s.nowMinute;
+    if (isNil(lastFlipped) || s.nowMinute === null) return s.nowMinute;
     const holdSeconds = Math.floor(Temporal.Instant.from(lastFlipped).until(s.nowMinute).total('seconds'));
     return holdSeconds < RI_TIMER ? s.nowSecond : s.nowMinute;
   });
 
-  if (!lastFlipped || now === null) return <span />;
+  if (isNil(lastFlipped) || now === null) return <span />;
 
   const holdTime = Math.floor(Temporal.Instant.from(lastFlipped).until(now).total('seconds'));
   const isInRI = holdTime < RI_TIMER;

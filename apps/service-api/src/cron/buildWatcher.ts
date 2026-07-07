@@ -1,11 +1,11 @@
 import type { CloudflareEnv } from '#index.ts';
 import { getColor } from '#lib/resources/color.ts';
 import { getEmblemBackground, getEmblemForeground } from '#lib/resources/emblem.ts';
+import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
 import { getWvWAbility } from '#lib/resources/wvw/abilities.ts';
 import { getWvWObjective } from '#lib/resources/wvw/objectives.ts';
 import { getWvWRank } from '#lib/resources/wvw/ranks.ts';
 import { getWvWUpgrade } from '#lib/resources/wvw/upgrades.ts';
-import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
 
 const GW2_BUILD_URL = 'https://api.guildwars2.com/v2/build';
 const BUILD_ID_KV_KEY = 'meta:build_id';
@@ -35,18 +35,18 @@ export const STATIC_CACHE_KEYS: string[] = [
  * Keep this list in sync with STATIC_CACHE_KEYS above.
  */
 const WARM_CACHE_FNS: ((env: CloudflareEnv) => Promise<unknown>)[] = [
-  (env) => getColor('all', env),
-  (env) => getWvWObjective('all', env),
-  (env) => getWvWAbility('all', env),
-  (env) => getWvWRank('all', env),
-  (env) => getWvWUpgrade('all', env),
-  (env) => getGuildUpgrades('all', env),
-  (env) => getEmblemBackground('all', env),
-  (env) => getEmblemForeground('all', env),
+  async (env) => getColor('all', env),
+  async (env) => getWvWObjective('all', env),
+  async (env) => getWvWAbility('all', env),
+  async (env) => getWvWRank('all', env),
+  async (env) => getWvWUpgrade('all', env),
+  async (env) => getGuildUpgrades('all', env),
+  async (env) => getEmblemBackground('all', env),
+  async (env) => getEmblemForeground('all', env),
 ];
 
 export async function warmStaticCaches(env: CloudflareEnv): Promise<void> {
-  await Promise.allSettled(WARM_CACHE_FNS.map((fn) => fn(env)));
+  await Promise.allSettled(WARM_CACHE_FNS.map(async (fn) => fn(env)));
   console.info(`Warmed ${WARM_CACHE_FNS.length.toString()} static caches`);
 }
 
@@ -74,7 +74,7 @@ export async function checkBuildId(env: CloudflareEnv): Promise<boolean> {
 
   console.info(`GW2 build changed: ${stored ?? 'none'} → ${buildId}`);
 
-  await Promise.all(STATIC_CACHE_KEYS.map((key) => env.EMBLEM_ASSETS.delete(key)));
+  await Promise.all(STATIC_CACHE_KEYS.map(async (key) => env.EMBLEM_ASSETS.delete(key)));
   console.info(`Invalidated ${STATIC_CACHE_KEYS.length.toString()} R2 cache keys: ${STATIC_CACHE_KEYS.join(', ')}`);
 
   await env.EMBLEM_ENGINE_GUILD_LOOKUP.put(BUILD_ID_KV_KEY, buildId);

@@ -1,12 +1,14 @@
 'use client';
 
+import { clsx } from 'clsx';
+import { useEffect, useRef } from 'react';
+
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
+
 import { getEmblemSrc } from '#lib/emblems';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { Card } from '#ui/Card';
 import { CopyToClipboardInput } from '#ui/controls/CopyToClipboardInput';
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
-import { clsx } from 'clsx';
-import { useEffect, useRef } from 'react';
 
 interface GuildEmblemUsageProps {
   guildId: string;

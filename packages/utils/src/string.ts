@@ -7,10 +7,10 @@ export function normalizeGuildName(name: string): string {
       .toLowerCase() // ASCII-safe, fast
       .trim()
       .replaceAll('-', ' ') // Normalize spaces
-      .replace(/\s+/g, ' ') // Normalize spaces
+      .replaceAll(/\s+/gu, ' ') // Normalize spaces
       // Optional: Handle special characters consistently
       .normalize('NFD') // Decompose accented characters
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks
-      .substring(0, 100)
+      .replaceAll(/[\u0300-\u036F]/gu, '') // Remove diacritical marks
+      .slice(0, 100)
   ); // Prevent extremely long cache keys
 }

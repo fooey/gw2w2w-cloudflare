@@ -1,7 +1,8 @@
-import type { CloudflareEnv } from '#index.ts';
 import { Scalar } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { openAPIRouteHandler } from 'hono-openapi';
+
+import type { CloudflareEnv } from '#index.ts';
 
 const OPENAPI_DESCRIPTION = `
 REST API for **gw2w2w.com**.
@@ -63,23 +64,26 @@ const OPENAPI_TAGS = [
  * Must be mounted after all other routes are registered so the spec is complete.
  */
 export function createOpenAPIRoutes(app: Hono<{ Bindings: CloudflareEnv }>) {
-  return new Hono<{ Bindings: CloudflareEnv }>()
-    .get(
-      '/doc',
-      openAPIRouteHandler(app, {
-        documentation: {
-          info: {
-            title: 'gw2w2w service-api',
-            version: '1.0.0',
-            description: OPENAPI_DESCRIPTION,
+  return (
+    new Hono<{ Bindings: CloudflareEnv }>()
+      .get(
+        '/doc',
+        openAPIRouteHandler(app, {
+          documentation: {
+            info: {
+              title: 'gw2w2w service-api',
+              version: '1.0.0',
+              description: OPENAPI_DESCRIPTION,
+            },
+            servers: [
+              { url: 'https://api.gw2w2w.com', description: 'Production' },
+              { url: 'http://localhost:8788', description: 'Development' },
+            ],
+            tags: OPENAPI_TAGS,
           },
-          servers: [
-            { url: 'https://api.gw2w2w.com', description: 'Production' },
-            { url: 'http://localhost:8788', description: 'Development' },
-          ],
-          tags: OPENAPI_TAGS,
-        },
-      }),
-    )
-    .get('/scalar', Scalar({ url: '/doc' }));
+        }),
+      )
+      // eslint-disable-next-line new-cap -- Scalar is a PascalCase factory function per @scalar/hono-api-reference's API, not a constructor.
+      .get('/scalar', Scalar({ url: '/doc' }))
+  );
 }

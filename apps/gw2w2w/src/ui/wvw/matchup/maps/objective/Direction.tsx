@@ -1,4 +1,3 @@
-import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 import {
   ArrowDownIcon,
   ArrowDownLeftIcon,
@@ -10,6 +9,8 @@ import {
   ArrowUpRightIcon,
   StarIcon,
 } from '@heroicons/react/20/solid';
+
+import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 
 const DirectionIcons: Record<Direction, typeof StarIcon> = {
   C: StarIcon,

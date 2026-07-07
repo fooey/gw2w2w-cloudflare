@@ -1,6 +1,7 @@
-import type { ServiceApiClient } from '#lib/api/api.client.ts';
 import type { GuildActivityResponse } from '@repo/service-api/types';
-import { isPresent } from '@repo/utils';
+import { isNonEmptyString, isPresent } from '@repo/utils';
+
+import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
 export interface FetchWvwGuildsParams {
   matchId: string;
@@ -21,14 +22,15 @@ export async function fetchWvwGuilds(
   const res = await api.wvw.guilds.$get({
     query: {
       matchId: params.matchId,
-      ...(params.sort && { sort: params.sort }),
-      ...(params.order && { order: params.order }),
+      ...(isNonEmptyString(params.sort) && { sort: params.sort }),
+      ...(isPresent(params.order) && { order: params.order }),
       ...(isPresent(params.maxAge) && { maxAge: String(params.maxAge) }),
       ...(isPresent(params.limit) && { limit: String(params.limit) }),
       ...(isPresent(params.page) && { page: String(params.page) }),
-      ...(params.mapType?.length && { mapType: params.mapType }),
-      ...(params.objectiveType?.length && { objectiveType: params.objectiveType }),
-      ...(params.owner?.length && { owner: params.owner }),
+      ...(isPresent(params.mapType) && params.mapType.length > 0 && { mapType: params.mapType }),
+      ...(isPresent(params.objectiveType) &&
+        params.objectiveType.length > 0 && { objectiveType: params.objectiveType }),
+      ...(isPresent(params.owner) && params.owner.length > 0 && { owner: params.owner }),
     },
   });
   if (!res.ok) return null;

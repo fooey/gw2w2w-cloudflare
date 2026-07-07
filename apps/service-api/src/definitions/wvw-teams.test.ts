@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { WvWTeamSchema, WVW_TEAMS, WVW_TEAMS_IDS } from './wvw-teams';
 
 describe('WVW_TEAMS definitions', () => {
@@ -15,7 +16,7 @@ describe('WVW_TEAMS definitions', () => {
   });
 
   it('exposes ids list that exactly matches object keys', () => {
-    expect(WVW_TEAMS_IDS).toEqual(Object.keys(WVW_TEAMS));
+    expect(WVW_TEAMS_IDS).toStrictEqual(Object.keys(WVW_TEAMS));
   });
 
   it('uses unique 5-digit numeric ids', () => {
@@ -23,7 +24,7 @@ describe('WVW_TEAMS definitions', () => {
     expect(idSet.size).toBe(WVW_TEAMS_IDS.length);
 
     for (const id of WVW_TEAMS_IDS) {
-      expect(id).toMatch(/^\d{5}$/);
+      expect(id).toMatch(/^\d{5}$/u);
     }
   });
 });

@@ -1,8 +1,9 @@
+import { z } from 'zod';
+
 import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
-import { z } from 'zod';
 
 export const WvWObjectiveSchema = z
   .object({
@@ -29,8 +30,8 @@ export const WvWObjectiveSchema = z
 
 export type WvWObjective = z.infer<typeof WvWObjectiveSchema>;
 
-function getWvWObjectivesFromApi(env: CloudflareEnv): Promise<WvWObjective[] | null> {
-  return apiFetch(env, '/wvw/objectives?ids=all').then((response) => {
+async function getWvWObjectivesFromApi(env: CloudflareEnv): Promise<WvWObjective[] | null> {
+  return apiFetch(env, '/wvw/objectives?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -45,7 +46,7 @@ export async function getWvWObjective(id: string | string[], env: CloudflareEnv)
   return withFilteredObjectCache(
     'wvw-objectives.json',
     id,
-    () => getWvWObjectivesFromApi(env),
+    async () => getWvWObjectivesFromApi(env),
     createCacheProviders(env),
   );
 }

@@ -9,12 +9,17 @@ import {
   SparklesIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid';
-import type { Color } from '@repo/service-api/types';
 import { matchSorter } from 'match-sorter';
 import { useEffect, useRef, useState } from 'react';
+
+import type { Color } from '@repo/service-api/types';
+import { isNil } from '@repo/utils';
+
 import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
+
+import type { SortEntry } from './sorting';
 import { HUE_CATEGORIES, RARITY_CATEGORIES } from './filtering';
-import { SORT_OPTIONS, type SortEntry, sortColors } from './sorting';
+import { SORT_OPTIONS, sortColors } from './sorting';
 
 interface ColorPickerProps {
   colors: Color[];
@@ -48,8 +53,8 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
   const filtered = (() => {
     const searched = search ? matchSorter(colors, search, { keys: ['name'] }) : colors;
     const result = searched.filter((c) => {
-      const matchesHue = !activeHue || c.categories.includes(activeHue);
-      const matchesRarity = !activeRarity || c.categories.includes(activeRarity);
+      const matchesHue = isNil(activeHue) || c.categories.includes(activeHue);
+      const matchesRarity = isNil(activeRarity) || c.categories.includes(activeRarity);
       return matchesHue && matchesRarity;
     });
     return sortColors(result, sort);
@@ -230,16 +235,18 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
             <span className="mt-0.5 w-10 shrink-0 text-xs text-gray-500">Hue:</span>
             <div className="flex flex-wrap gap-1">
               <button
+                type="button"
                 onClick={() => {
                   setActiveHue(null);
                 }}
-                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${!activeHue ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${isNil(activeHue) ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 All
               </button>
               {HUE_CATEGORIES.map((hue) => (
                 <button
                   key={hue}
+                  type="button"
                   onClick={() => {
                     setActiveHue(activeHue === hue ? null : hue);
                   }}
@@ -256,16 +263,18 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
             <span className="mt-0.5 w-10 shrink-0 text-xs text-gray-500">Rarity:</span>
             <div className="flex flex-wrap gap-1">
               <button
+                type="button"
                 onClick={() => {
                   setActiveRarity(null);
                 }}
-                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${!activeRarity ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${isNil(activeRarity) ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 Any
               </button>
               {RARITY_CATEGORIES.map((rarity) => (
                 <button
                   key={rarity}
+                  type="button"
                   onClick={() => {
                     setActiveRarity(activeRarity === rarity ? null : rarity);
                   }}
@@ -281,11 +290,12 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
           <div className="flex items-start gap-2">
             <span className="mt-0.5 w-10 shrink-0 text-xs text-gray-500">Sort:</span>
             <div className="flex flex-wrap gap-1">
-              {SORT_OPTIONS.map(({ key, label }) => {
+              {SORT_OPTIONS.map(({ key, label: optionLabel }) => {
                 const active = sort?.key === key ? sort : null;
                 return (
                   <button
                     key={key}
+                    type="button"
                     onClick={() => {
                       setSort((prev) => {
                         if (prev?.key !== key) return { key, dir: 'asc' };
@@ -297,7 +307,7 @@ export function ColorPicker({ colors, label = 'Color', value, onChange }: ColorP
                       active ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
-                    {label}
+                    {optionLabel}
                     {active ? (active.dir === 'asc' ? ' ↑' : ' ↓') : ''}
                   </button>
                 );

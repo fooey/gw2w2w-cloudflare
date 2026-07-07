@@ -1,9 +1,10 @@
 'use client';
 
-import type { Lang } from '#ui/wvw/config/lang';
-import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
 import type { WvWMatch } from '@repo/service-api/types';
+
+import type { Lang } from '#ui/wvw/config/lang';
 import { Link } from '#ui/Link';
+import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
 
 export function MatchupRow({ match, lang }: { match: WvWMatch; lang: Lang }) {
   return (

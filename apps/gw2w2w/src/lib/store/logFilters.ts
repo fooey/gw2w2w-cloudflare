@@ -1,7 +1,9 @@
-import { MAP_TYPES, TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
-import type { WvWObjective } from '@repo/service-api/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
+import type { WvWObjective } from '@repo/service-api/types';
+
+import { MAP_TYPES, TEAM_COLORS } from '#ui/wvw/config/teamColorConfig';
 
 export const OBJECTIVE_TYPES: WvWObjective['type'][] = ['Castle', 'Keep', 'Tower', 'Camp', 'Ruins'];
 export const EVENT_TYPES = ['capture', 'claim'] as const;
@@ -11,7 +13,9 @@ export type TimeWindow = (typeof TIME_WINDOWS)[number];
 
 export function getTimeCutoff(timeWindow: TimeWindow): Temporal.Instant | null {
   if (timeWindow === 'all') return null;
-  const hours = parseInt(timeWindow, 10);
+  // parseInt tolerates trailing garbage and doesn't auto-detect a leading "0x" as hex, unlike Number().
+  // eslint-disable-next-line unicorn/prefer-number-coercion
+  const hours = Number.parseInt(timeWindow, 10);
   return Temporal.Now.instant().subtract({ hours });
 }
 

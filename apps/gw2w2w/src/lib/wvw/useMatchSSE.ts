@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
+import type { EventRow, WvWMapType, WvWMatch, WvWTeamColor } from '@repo/service-api/types';
+
 import { getClientApi } from '#lib/api/api.client.ts';
 import { GW2W2W_API_BASE } from '#lib/api/constants.ts';
 import { fetchWvwEvents } from '#lib/api/wvw/events';
-import type { EventRow, WvWMapType, WvWMatch, WvWTeamColor } from '@repo/service-api/types';
-import { useEffect, useRef, useState } from 'react';
 
 // Narrow types matching what the DO actually inserts — subset of WvWObjective['type']
 type WvWObjectiveType = EventRow['objective_type'];
@@ -43,7 +45,8 @@ export function mergeInitialHistory(prev: EventRow[], incoming: EventRow[], fall
   const prevIds = new Set(prev.map((e) => e.id));
   const history = incoming
     .filter((e) => !prevIds.has(e.id))
-    .map((e) => ({ ...e, at: coerceEventAt(e.at, fallbackAt) }));
+    // eslint-disable-next-line prefer-object-spread -- oxc/no-map-spread wants Object.assign here instead of spread, to avoid an extra allocation per iteration.
+    .map((e) => Object.assign({}, e, { at: coerceEventAt(e.at, fallbackAt) }));
 
   // SSE events that arrived before history loaded stay at the front (they're newer)
   return [...prev, ...history];
@@ -103,18 +106,21 @@ export function useMatchSSE(matchId: string, initialMatch: WvWMatch, initialEven
     const es = new EventSource(`${GW2W2W_API_BASE}/wvw/stream?matchId=${matchId}`);
 
     const onMatchState = (e: MessageEvent) => {
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- trusted same-origin SSE payload from our own API, not user input.
       const payload = JSON.parse(e.data as string) as MatchStatePayload;
       matchStartTimeRef.current = payload.data.start_time;
       setMatch(payload.data);
     };
 
     const onCapture = (e: MessageEvent) => {
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- trusted same-origin SSE payload from our own API, not user input.
       const p = JSON.parse(e.data as string) as CapturePayload;
       const row = captureToRow({ ...p, at: coerceEventAt(p.at, matchStartTimeRef.current) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));
     };
 
     const onClaim = (e: MessageEvent) => {
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- trusted same-origin SSE payload from our own API, not user input.
       const p = JSON.parse(e.data as string) as ClaimPayload;
       const row = claimToRow({ ...p, at: coerceEventAt(p.at, matchStartTimeRef.current) });
       setEvents((prev) => (prev.some((r) => r.id === row.id) ? prev : [row, ...prev]));

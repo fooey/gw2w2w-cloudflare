@@ -1,16 +1,19 @@
-import type { CloudflareEnv } from '#index.ts';
-import { DEFAULT_EMBLEM_SIZE, renderEmblem, resizeEmblemImage, type EmblemSize } from '@repo/emblem-renderer';
-import type { ServiceApiAppType } from '@repo/service-api';
-import type { createCacheProviders } from '@repo/service-api/lib/cache-providers';
-import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
-import type { Color, Emblem, Guild } from '@repo/service-api/types';
 import type { Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
+
+import type { EmblemSize } from '@repo/emblem-renderer';
+import type { ServiceApiAppType } from '@repo/service-api';
+import type { createCacheProviders } from '@repo/service-api/lib/cache-providers';
+import type { Color, Emblem, Guild } from '@repo/service-api/types';
+import { DEFAULT_EMBLEM_SIZE, renderEmblem, resizeEmblemImage } from '@repo/emblem-renderer';
+import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
+
+import type { CloudflareEnv } from '#index.ts';
 
 export type ApiClient = ReturnType<typeof hc<ServiceApiAppType>>;
 
 export class HttpError extends Error {
-  constructor(
+  public constructor(
     public readonly status: number,
     message: string,
   ) {
@@ -29,26 +32,26 @@ export function getApiClient(
   });
 }
 
-export function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
+export async function getGuild(apiClient: ApiClient, guildId: string): Promise<Guild> {
   const guildApi = apiClient.gw2.guild[':guildId'];
   return parseResponse(guildApi.$get({ param: { guildId } }));
 }
 
-export function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
+export async function searchGuild(apiClient: ApiClient, name: string): Promise<Guild> {
   const guildApi = apiClient.gw2.guild.search;
   return parseResponse(guildApi.$get({ query: { name } }));
 }
 
-export function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
+export async function getColor(apiClient: ApiClient, colorId: number): Promise<Color> {
   const colorApi = apiClient.gw2.color[':colorId'];
   return parseResponse(colorApi.$get({ param: { colorId: colorId.toString() } }));
 }
 
-export function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
-  return Promise.all(colorIds.map((id) => getColor(apiClient, id)));
+export async function getColors(apiClient: ApiClient, colorIds: number[]): Promise<Color[]> {
+  return Promise.all(colorIds.map(async (id) => getColor(apiClient, id)));
 }
 
-export function getEmblemLayer(
+export async function getEmblemLayer(
   apiClient: ApiClient,
   layer: 'background' | 'foreground',
   emblemId: number,
@@ -67,11 +70,11 @@ export async function getEmblemBytesByGuildId(
 
   try {
     guild = await getGuild(apiClient, guildId);
-  } catch (err) {
-    if (err instanceof DetailedError && err.statusCode === 404) {
+  } catch (error) {
+    if (error instanceof DetailedError && error.statusCode === 404) {
       throw new HttpError(404, 'Guild not found');
     }
-    throw err;
+    throw error;
   }
 
   if (!guild.emblem) {
@@ -81,15 +84,15 @@ export async function getEmblemBytesByGuildId(
   return getEmblemBytes(apiClient, guild.emblem, cacheProviders, size);
 }
 
-function fetchLayerTextures(
+async function fetchLayerTextures(
   apiClient: ApiClient,
   layer: 'background' | 'foreground',
   emblemId: number,
   indices: number[],
   objectStore: ReturnType<typeof createCacheProviders>['objectStore'],
 ): Promise<(ArrayBuffer | null)[]> {
-  return getEmblemLayer(apiClient, layer, emblemId).then((def) =>
-    Promise.all(indices.map((i) => getTextureArrayBuffer(def.layers[i] ?? null, objectStore))),
+  return getEmblemLayer(apiClient, layer, emblemId).then(async (def) =>
+    Promise.all(indices.map(async (i) => getTextureArrayBuffer(def.layers[i] ?? null, objectStore))),
   );
 }
 
@@ -102,7 +105,7 @@ export async function getEmblemBytes(
   const { objectStore } = cacheProviders;
   const backgroundId = guildEmblem.background.id;
   const foregroundId = guildEmblem.foreground.id;
-  const uniqueColorIds = Array.from(new Set([...guildEmblem.background.colors, ...guildEmblem.foreground.colors]));
+  const uniqueColorIds = [...new Set([...guildEmblem.background.colors, ...guildEmblem.foreground.colors])];
 
   const [bgBufs, fgBufs, colors] = await Promise.all([
     backgroundId ? fetchLayerTextures(apiClient, 'background', backgroundId, [0], objectStore) : null,

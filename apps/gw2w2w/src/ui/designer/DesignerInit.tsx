@@ -1,7 +1,8 @@
 'use client';
 
-import type { Emblem } from '@repo/service-api/types';
 import { useEffect, useState } from 'react';
+
+import type { Emblem } from '@repo/service-api/types';
 
 import { TextureCacheManager } from './TextureCacheManager';
 import { initPhoton, isPhotonReady } from './TextureCacheManager/photon';
@@ -28,12 +29,12 @@ export function DesignerInit({ backgrounds, foregrounds, children }: DesignerIni
 
   return (
     <TextureCacheManager backgrounds={backgrounds} foregrounds={foregrounds}>
-      {!photonReady ? (
+      {photonReady ? (
+        children
+      ) : (
         <div className="flex items-center justify-center py-16">
           <div className="size-6 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-500" />
         </div>
-      ) : (
-        children
       )}
     </TextureCacheManager>
   );

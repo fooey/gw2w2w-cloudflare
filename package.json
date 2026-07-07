@@ -18,11 +18,15 @@
     "format": "oxfmt --config oxfmt.json .",
     "ci:format": "oxfmt --config oxfmt.json --check .",
     "ci:lint": "pnpm lint",
+    "ci:lint:force": "pnpm lint --force",
     "ci:types": "pnpm check-types",
+    "ci:types:force": "pnpm check-types --force",
     "ci:boundaries": "pnpm check-boundaries",
     "ci:audit": "pnpm audit",
     "ci:test": "pnpm test",
+    "ci:test:force": "pnpm test --force",
     "ci:all": "pnpm ci:format && pnpm ci:lint && pnpm ci:types && pnpm ci:boundaries && pnpm ci:test && pnpm ci:audit",
+    "ci:all:force": "pnpm ci:format && pnpm ci:lint:force && pnpm ci:types:force && pnpm ci:boundaries && pnpm ci:test:force && pnpm ci:audit",
     "devtools": "turbo devtools",
     "ts:clean": "turbo run ts:clean",
     "wrangler": "wrangler",
@@ -48,12 +52,12 @@
     "oxlint-tsgolint": "^0.23.0",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
-    "turbo": "^2.9.18",
+    "turbo": "^2.10.4",
     "typescript": "catalog:",
     "wrangler": "catalog:"
   },
   "engines": {
-    "node": ">=24",
+    "node": ">=26",
     "pnpm": ">=10"
   },
   "packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8"

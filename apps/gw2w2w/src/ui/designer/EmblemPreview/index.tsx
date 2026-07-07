@@ -1,11 +1,16 @@
 'use client';
 
-import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels, type ColorRGB } from '@repo/emblem-renderer/pixels';
-import type { Color, Emblem } from '@repo/service-api/types';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
-import { fetchTexture } from '#ui/designer/TextureCacheManager/textureCache';
+
+import type { ColorRGB } from '@repo/emblem-renderer/pixels';
+import type { Color, Emblem } from '@repo/service-api/types';
+import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from '@repo/emblem-renderer/pixels';
+import { isPresent } from '@repo/utils';
+
 import type { EmblemState } from '#ui/designer/types';
+import { fetchTexture } from '#ui/designer/TextureCacheManager/textureCache';
+
 import { decodeLayer } from './decodeLayer';
 
 interface EmblemPreviewProps {
@@ -63,9 +68,9 @@ export function EmblemPreview({
         const fg2Url = fgDef?.layers[2] ?? null;
 
         const [bgBuf, fg1Buf, fg2Buf] = await Promise.all([
-          bgUrl ? fetchTexture(bgUrl) : Promise.resolve(null),
-          fg1Url ? fetchTexture(fg1Url) : Promise.resolve(null),
-          fg2Url ? fetchTexture(fg2Url) : Promise.resolve(null),
+          isPresent(bgUrl) ? fetchTexture(bgUrl) : Promise.resolve(null),
+          isPresent(fg1Url) ? fetchTexture(fg1Url) : Promise.resolve(null),
+          isPresent(fg2Url) ? fetchTexture(fg2Url) : Promise.resolve(null),
         ]);
 
         if (renderIdRef.current !== myId) return;
@@ -82,11 +87,11 @@ export function EmblemPreview({
 
         const ctx = canvasEl.getContext('2d');
         if (!ctx) return;
-        const imageData = new ImageData(
-          new Uint8ClampedArray(result.data.buffer as ArrayBuffer),
-          result.width,
-          result.height,
-        );
+        // result.data is always a plain `new Uint8Array(...)` from the renderer, never a view
+        // over a SharedArrayBuffer, but TypedArray.buffer is typed as ArrayBufferLike.
+        // eslint-disable-next-line typescript/no-unsafe-type-assertion
+        const buffer = result.data.buffer as ArrayBuffer;
+        const imageData = new ImageData(new Uint8ClampedArray(buffer), result.width, result.height);
         ctx.putImageData(imageData, 0, 0);
       } catch (error) {
         console.error(error);
@@ -96,6 +101,9 @@ export function EmblemPreview({
     void render();
 
     const idRef = renderIdRef;
+    // React's useEffect callback intentionally allows either no cleanup (void, as in the
+    // early `if (!canvas) return;` above) or a cleanup function — not a bug.
+    // eslint-disable-next-line typescript/consistent-return
     return () => {
       idRef.current++;
     };
@@ -105,12 +113,12 @@ export function EmblemPreview({
 
   const bgClass = tileClassName ?? 'bg-gray-100';
   return (
-    <div className={clsx('flex flex-col items-center gap-1', tileClassName && 'rounded-xl')}>
+    <div className={clsx('flex flex-col items-center gap-1', isPresent(tileClassName) && 'rounded-xl')}>
       <div
-        className={clsx('relative rounded-xl', bgClass, tileClassName && 'p-2')}
+        className={clsx('relative rounded-xl', bgClass, isPresent(tileClassName) && 'p-2')}
         style={{
-          width: tileClassName ? undefined : size,
-          height: tileClassName ? undefined : size,
+          width: isPresent(tileClassName) ? undefined : size,
+          height: isPresent(tileClassName) ? undefined : size,
         }}
       >
         <canvas

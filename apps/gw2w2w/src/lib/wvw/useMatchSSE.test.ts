@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+
 import type { EventRow } from '@repo/service-api/types';
+
 import { captureToRow, claimToRow, coerceEventAt, mergeInitialHistory } from './useMatchSSE';
 
 function makeEvent(overrides: Partial<EventRow> = {}): EventRow {
@@ -37,7 +39,7 @@ describe('mergeInitialHistory', () => {
     ];
 
     const merged = mergeInitialHistory(live, history, 'fallback');
-    expect(merged.map((e) => e.id)).toEqual([100, 99]);
+    expect(merged.map((e) => e.id)).toStrictEqual([100, 99]);
   });
 
   it('coerces invalid history timestamps using fallback', () => {
@@ -61,7 +63,7 @@ describe('captureToRow', () => {
       at: '2026-06-22T00:00:00.000Z',
     });
 
-    expect(row).toEqual({
+    expect(row).toStrictEqual({
       id: 7,
       match_id: '1-1',
       type: 'capture',
@@ -88,7 +90,7 @@ describe('claimToRow', () => {
       at: '2026-06-22T00:00:00.000Z',
     });
 
-    expect(row).toEqual({
+    expect(row).toStrictEqual({
       id: 8,
       match_id: '1-1',
       type: 'claim',

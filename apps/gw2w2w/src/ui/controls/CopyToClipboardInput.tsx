@@ -1,7 +1,10 @@
 'use client';
 
-import { tryWriteClipboardText } from '#ui/controls/clipboard';
 import { useState } from 'react';
+
+import { isPresent } from '@repo/utils';
+
+import { tryWriteClipboardText } from '#ui/controls/clipboard';
 
 interface CopyToClipboardInputProps {
   label?: string;
@@ -27,7 +30,7 @@ export function CopyToClipboardInput({ label, value }: CopyToClipboardInputProps
 
   return (
     <div className="flex flex-col gap-1">
-      {label && <span className="text-xs text-gray-500">{label}</span>}
+      {isPresent(label) && <span className="text-xs text-gray-500">{label}</span>}
       <div className="flex items-center gap-2">
         <input
           type="text"

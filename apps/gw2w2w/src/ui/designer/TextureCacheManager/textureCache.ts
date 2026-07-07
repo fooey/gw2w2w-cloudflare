@@ -1,4 +1,5 @@
 import type { Emblem } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
 
 const CACHE_NAME = 'gw2-textures-v1';
 const STORAGE_KEY = 'gw2-textures-cached';
@@ -79,8 +80,8 @@ export async function prefetchAllTextures(
   const failedUrls: string[] = [];
 
   const urls: string[] = [
-    ...backgrounds.flatMap((b) => (b.layers[0] ? [b.layers[0]] : [])),
-    ...foregrounds.flatMap((f) => [f.layers[1], f.layers[2]].filter((l): l is string => !!l)),
+    ...backgrounds.flatMap((b) => (isPresent(b.layers[0]) ? [b.layers[0]] : [])),
+    ...foregrounds.flatMap((f) => [f.layers[1], f.layers[2]].filter((l) => isPresent(l))),
   ];
 
   const total = urls.length;
@@ -89,7 +90,14 @@ export async function prefetchAllTextures(
   const BATCH_SIZE = 20;
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
     const batch = urls.slice(i, i + BATCH_SIZE);
+    // Awaiting per-batch is the point here — it caps concurrent fetches at BATCH_SIZE
+    // instead of firing all of them at once.
+    // eslint-disable-next-line no-await-in-loop
     await Promise.allSettled(
+      // `completed` is a running counter across the whole call, incremented one batch at a time;
+      // each batch's Promise.allSettled always resolves before the next iteration starts, so there's
+      // no stale-closure risk despite closing over a variable mutated across loop iterations.
+      // eslint-disable-next-line no-loop-func
       batch.map(async (gw2Url) => {
         const proxyUrl = textureProxyUrl(gw2Url);
         try {

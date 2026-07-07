@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import { MatchupPoller } from './MatchupPoller';
 
 interface FakeStorage {
@@ -24,24 +25,24 @@ interface FakeEnv {
 function createHarness(initialAlarm: number | null | undefined): { state: FakeState; env: FakeEnv } {
   const storage: FakeStorage = {
     alarm: initialAlarm,
-    getAlarm: vi.fn(() => Promise.resolve(storage.alarm)),
-    setAlarm: vi.fn((value: number) => {
+    getAlarm: vi.fn<() => Promise<number | null | undefined>>(async () => storage.alarm),
+    setAlarm: vi.fn<(value: number) => Promise<void>>(async (value: number) => {
       storage.alarm = value;
-      return Promise.resolve();
     }),
   };
 
   const state: FakeState = {
     storage,
+    // eslint-disable-next-line promise/prefer-await-to-callbacks -- mocking DurableObjectState's blockConcurrencyWhile(callback) interface signature.
     blockConcurrencyWhile: async <T>(callback: () => Promise<T>) => callback(),
-    waitUntil: vi.fn(),
+    waitUntil: vi.fn<(promise: Promise<unknown>) => void>(),
   };
 
   const env: FakeEnv = {
     GW2_API_BASE: 'https://api.guildwars2.com',
     WVW_DB: {
-      prepare: vi.fn(() => ({
-        all: () => Promise.resolve({ results: [] }),
+      prepare: vi.fn<() => { all: () => Promise<{ results: unknown[] }> }>(() => ({
+        all: async () => ({ results: [] }),
       })),
     },
   };
@@ -56,18 +57,21 @@ async function flushConstructorWork(): Promise<void> {
 
 describe('MatchupPoller constructor alarm scheduling', () => {
   it('schedules an alarm when existing alarm is undefined', async () => {
+    // eslint-disable-next-line unicorn/no-useless-undefined -- createHarness's parameter is required, not optional.
     const { state, env } = createHarness(undefined);
 
+    // eslint-disable-next-line no-new -- constructing triggers the alarm-scheduling side effect under test.
     new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
 
     expect(state.storage.setAlarm).toHaveBeenCalledTimes(1);
-    expect(state.storage.setAlarm.mock.calls[0]?.[0]).toEqual(expect.any(Number));
+    expect(state.storage.setAlarm.mock.calls[0]?.[0]).toStrictEqual(expect.any(Number));
   });
 
   it('does not reschedule when an alarm is already in the future', async () => {
     const { state, env } = createHarness(Date.now() + 60_000);
 
+    // eslint-disable-next-line no-new -- constructing triggers the alarm-scheduling side effect under test.
     new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
 
@@ -96,7 +100,7 @@ describe('MatchupPoller status endpoint alarm fields', () => {
     const poller = new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
 
-    state.storage.alarm = Date.now() - 1_000;
+    state.storage.alarm = Date.now() - 1000;
 
     const res = await poller.fetch(new Request('http://localhost/status'));
     const body = (await res.json()) as { alarmIsStale: boolean };

@@ -210,6 +210,17 @@ Tests use [Vitest](https://vitest.dev/). All Vitest CLI flags are available afte
 
 If you add or change logic covered by tests, update the tests to match.
 
+**Unit tests are guardrails for AI-agent-driven changes, not just QA — fast execution matters more than exhaustive coverage.** Default `environment` (`packages/vitest-config/base.config.ts`) is `node` for speed; add `// @vitest-environment happy-dom` as the first line of a specific test file only when it renders React components, rather than flipping the global default (a DOM environment costs roughly +300ms per test _file_, not per suite — confirmed empirically, since each file runs in its own forked VM under `pool: 'vmForks'`).
+
+**Mocking:**
+
+- Use `vi.*` (`vi.fn()`, `vi.spyOn()`), never `jest.*` — this is Vitest, not Jest.
+- `restoreMocks: true` is set globally — mock call counts/implementations reset automatically before each test. Don't add manual `.mockClear()`/`.mockReset()` calls; they're redundant.
+
+**Before writing a new test file**, check a sibling test file in the same directory (or the file being tested's nearest existing test) for established fixture and naming conventions — this repo does not use snapshot testing anywhere, and keeps test names as concise present-tense behavior statements (`'renders X'`, `'omits Y when Z'`) rather than `'should ... when ...'` phrasing.
+
+**Component tests** using `@testing-library/react`: assert on rendered output (`getByText`, `getByRole`, attributes) a real user/consumer would observe, not on implementation details like internal state or which sub-function got called. Call `cleanup()` in `afterEach` (globals are not enabled, so import it explicitly from `@testing-library/react`).
+
 ## Documentation Maintenance
 
 **Always keep `README.md` up to date.** When you add, remove, or significantly change a feature, architecture decision, or package, update the relevant sections of `README.md` in the same change. This includes:

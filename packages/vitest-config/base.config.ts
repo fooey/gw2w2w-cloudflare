@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
+const isCI = Boolean(process.env.CI);
+
 export default defineConfig({
   test: {
     environment: 'node',
@@ -9,9 +11,10 @@ export default defineConfig({
      * proper module isolation — important once the suite grows large.
      */
     pool: 'vmForks',
+    restoreMocks: true,
     /** Compact dot-per-test output in CI; rich default UI locally. */
-    reporters: process.env.CI ? ['dot'] : ['default'],
+    reporters: isCI ? ['dot'] : ['default'],
     /** Stop the run on the first failure in CI to surface errors faster. */
-    bail: process.env.CI ? 1 : 0,
+    bail: isCI ? 1 : 0,
   },
 });

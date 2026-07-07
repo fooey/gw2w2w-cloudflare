@@ -1,8 +1,11 @@
-import { getClientApi } from '#lib/api/api.client.ts';
-import { fetchWvwUpgrades } from '#lib/api/gw2/wvw/upgrades';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+
 import type { WvWUpgrade } from '@repo/service-api/types';
 import { isNil } from '@repo/utils';
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+
+import { getClientApi } from '#lib/api/api.client.ts';
+import { fetchWvwUpgrades } from '#lib/api/gw2/wvw/upgrades';
 
 type WvwUpgradesQueryOptions = Partial<
   Omit<UseQueryOptions<WvWUpgrade[] | null>, 'queryKey' | 'queryFn' | 'staleTime'>
@@ -12,7 +15,7 @@ export function useWvwUpgrades(queryOptions?: WvwUpgradesQueryOptions) {
   return useQuery({
     ...queryOptions,
     queryKey: ['wvwUpgrades'],
-    queryFn: () => fetchWvwUpgrades(getClientApi()),
+    queryFn: async () => fetchWvwUpgrades(getClientApi()),
     staleTime: Infinity,
   });
 }
@@ -24,7 +27,7 @@ export function useWvwUpgrades(queryOptions?: WvwUpgradesQueryOptions) {
 function useWvwUpgradesMap() {
   return useQuery({
     queryKey: ['wvwUpgrades'],
-    queryFn: () => fetchWvwUpgrades(getClientApi()),
+    queryFn: async () => fetchWvwUpgrades(getClientApi()),
     staleTime: Infinity,
     select: (data): Map<number, number[]> => {
       const map = new Map<number, number[]>();

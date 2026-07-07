@@ -1,8 +1,9 @@
+import { z } from 'zod';
+
 import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
-import { z } from 'zod';
 
 export const WvWUpgradeEffectSchema = z
   .object({
@@ -31,8 +32,8 @@ export type WvWUpgradeEffect = z.infer<typeof WvWUpgradeEffectSchema>;
 export type WvWUpgradeTier = z.infer<typeof WvWUpgradeTierSchema>;
 export type WvWUpgrade = z.infer<typeof WvWUpgradeSchema>;
 
-function getWvWUpgradesFromApi(env: CloudflareEnv): Promise<WvWUpgrade[] | null> {
-  return apiFetch(env, '/wvw/upgrades?ids=all').then((response) => {
+async function getWvWUpgradesFromApi(env: CloudflareEnv): Promise<WvWUpgrade[] | null> {
+  return apiFetch(env, '/wvw/upgrades?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -44,5 +45,10 @@ function getWvWUpgradesFromApi(env: CloudflareEnv): Promise<WvWUpgrade[] | null>
 }
 
 export async function getWvWUpgrade(id: number | number[] | 'all', env: CloudflareEnv): Promise<WvWUpgrade[]> {
-  return withFilteredObjectCache('wvw-upgrades.json', id, () => getWvWUpgradesFromApi(env), createCacheProviders(env));
+  return withFilteredObjectCache(
+    'wvw-upgrades.json',
+    id,
+    async () => getWvWUpgradesFromApi(env),
+    createCacheProviders(env),
+  );
 }

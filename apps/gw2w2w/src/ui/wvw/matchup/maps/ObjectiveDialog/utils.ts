@@ -1,10 +1,20 @@
+import { isNil } from '@repo/utils';
+
+export const TIER_ROMAN: Record<number, string> = { 1: 'I', 2: 'II', 3: 'III' };
+
+export const TIER_CLASS: Record<number, string> = {
+  1: 'bg-amber-800 text-amber-100',
+  2: 'bg-slate-400 text-slate-900',
+  3: 'bg-yellow-400 text-yellow-900',
+};
+
 export function getEtaDisplay(
   yaksRequired: number,
   yaksDelivered: number,
   lastFlipped: string | null | undefined,
   now: Temporal.Instant | null | undefined,
 ): string | null {
-  if (!now || !lastFlipped || yaksDelivered === 0) return null;
+  if (isNil(now) || isNil(lastFlipped) || yaksDelivered === 0) return null;
   const elapsedSeconds = Math.max(0, Math.floor(Temporal.Instant.from(lastFlipped).until(now).total('seconds')));
   const remaining = yaksRequired - yaksDelivered;
   if (remaining <= 0 || elapsedSeconds === 0) return null;

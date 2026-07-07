@@ -1,8 +1,10 @@
 import { normalizeGuildName, validateArenaNetUuid } from '@repo/utils';
+
 import type { CloudflareEnv } from '#index.ts';
+import type { Guild } from '#lib/types/Guild.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
-import type { Guild } from '#lib/types/Guild.ts';
+
 import { withKvCache, withObjectCache } from './cache-wrapper';
 import { CACHE_TTL } from './constants';
 
@@ -11,9 +13,8 @@ export async function getGuildFromApi(guildId: string, env: CloudflareEnv): Prom
   if (!response.ok) {
     if (response.status === 404) {
       return null; // Guild not found
-    } else {
-      throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
     }
+    throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
   }
   return response.json();
 }
@@ -23,15 +24,17 @@ export async function searchGuildFromApi(name: string, env: CloudflareEnv): Prom
   if (!response.ok) {
     if (response.status === 404) {
       return null; // Guild not found
-    } else {
-      throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
     }
+    throw new Error(`API error: ${response.status.toString()} ${response.statusText}`);
   }
 
-  const result = await response.json();
+  const result: unknown = await response.json();
 
   if (Array.isArray(result) && result.length > 0 && typeof result[0] === 'string') {
-    const guildId = result[0];
+    // result is genuinely `unknown` here (tsgo confirms it) — oxlint's own type-aware pass
+    // doesn't track the explicit annotation through this destructure and reports it as `any`.
+    // eslint-disable-next-line typescript/no-unsafe-assignment
+    const [guildId] = result;
 
     if (typeof guildId !== 'string' || !validateArenaNetUuid(guildId)) {
       return null;

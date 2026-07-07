@@ -1,3 +1,9 @@
+import type { Metadata } from 'next';
+import { cache } from 'react';
+
+import type { Guild } from '@repo/service-api/types';
+import { isPresent, validateArenaNetUuid } from '@repo/utils';
+
 import { getApi } from '#lib/api/api.server.ts';
 import { fetchGuild, fetchGuildByName } from '#lib/api/gw2/guild';
 import { getEmblemSrc } from '#lib/emblems';
@@ -5,10 +11,6 @@ import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import { GuildDetail } from '#ui/guilds/GuildDetail';
 import { GuildNotFound } from '#ui/guilds/GuildNotFound';
 import { SiteLayout } from '#ui/layout/SiteLayout';
-import type { Guild } from '@repo/service-api/types';
-import { validateArenaNetUuid } from '@repo/utils';
-import type { Metadata } from 'next';
-import { cache } from 'react';
 
 export interface GuildPageProps {
   params: Promise<{ guildId: string }>;
@@ -51,14 +53,14 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
       description,
       keywords: `Guild Wars 2, GW2, guild, ${guild.name}, ${guild.tag}, gaming, MMORPG`,
       alternates: { canonical },
-      icons: emblemUrl ? { icon: emblemUrl, shortcut: emblemUrl, apple: emblemUrl } : undefined,
+      icons: isPresent(emblemUrl) ? { icon: emblemUrl, shortcut: emblemUrl, apple: emblemUrl } : undefined,
       openGraph: {
         title,
         description,
         url: canonical,
         siteName: 'GW2W2W',
         type: 'website',
-        images: emblemUrl
+        images: isPresent(emblemUrl)
           ? [
               {
                 url: emblemUrl,
@@ -73,11 +75,11 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
         card: 'summary',
         title,
         description,
-        images: emblemUrl ? [emblemUrl] : undefined,
+        images: isPresent(emblemUrl) ? [emblemUrl] : undefined,
       },
     };
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     return {
       title: `Error Loading Guild - GW2W2W`,
       description: `Unable to load guild information for ${guildId}. The guild may not exist or there may be a temporary service issue.`,
@@ -92,14 +94,14 @@ export default async function GuildPage({ params }: GuildPageProps) {
 
   if (!guild) {
     return (
-      <SiteLayout pageHeader={'Guild Not Found'} headerActions={<GuildSearch />}>
+      <SiteLayout pageHeader="Guild Not Found" headerActions={<GuildSearch />}>
         <GuildNotFound guildId={guildId} />
       </SiteLayout>
     );
   }
 
   return (
-    <SiteLayout pageHeader={'Guild Emblems'} headerActions={<GuildSearch />}>
+    <SiteLayout pageHeader="Guild Emblems" headerActions={<GuildSearch />}>
       <GuildDetail guild={guild} />
     </SiteLayout>
   );

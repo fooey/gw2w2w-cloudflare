@@ -1,5 +1,3 @@
-import { allowedCsrf, allowedOrigin } from '@repo/utils/routing/security';
-import { serviceEmblemRoute } from '#routes/emblem.ts';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
@@ -7,6 +5,10 @@ import { csrf } from 'hono/csrf';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
+
+import { allowedCsrf, allowedOrigin } from '@repo/utils/routing/security';
+
+import { serviceEmblemRoute } from '#routes/emblem.ts';
 
 export interface ErrorPayload {
   message: string;
@@ -39,7 +41,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
       origin: (origin, c) => allowedCsrf(origin, c.req.header('host')),
     }),
   )
-  .use('*', (c, next) => {
+  .use('*', async (c, next) => {
     c.header('X-Robots-Tag', 'noindex, nofollow');
     return next();
   })
@@ -63,7 +65,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   .get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'))
   .get('/favicon.ico', (c) => c.redirect('/97C007DC-87D5-E311-9621-AC162DAE8ACD', 302))
   .get('/guilds/*', (c) => {
-    const guildId = c.req.path.replace(/^\/guilds\//, '').split('/')[0];
+    const [guildId] = c.req.path.replace(/^\/guilds\//u, '').split('/');
     return c.redirect(`https://emblem.gw2w2w.com/${guildId}`, 308);
   })
   .get('/short/:guildId', (c) => {
@@ -79,6 +81,7 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
 
 app.notFound((c) => c.json({ error: { message: 'Not Found', status: 404 } }, 404));
 
+// eslint-disable-next-line promise/prefer-await-to-callbacks -- Hono's .onError() is a synchronous handler-registration API, not callback-style async code.
 app.onError((err, c) => {
   console.error(err);
   return c.json({ error: { message: 'Internal Server Error', status: 500 } }, 500);

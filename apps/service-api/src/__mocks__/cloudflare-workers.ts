@@ -5,7 +5,7 @@ export class DurableObject<Env = unknown> {
   protected ctx: DurableObjectState;
   protected env: Env;
 
-  constructor(ctx: DurableObjectState, env: Env) {
+  public constructor(ctx: DurableObjectState, env: Env) {
     this.ctx = ctx;
     this.env = env;
   }
@@ -13,12 +13,12 @@ export class DurableObject<Env = unknown> {
 export class WorkerEntrypoint {}
 
 interface DurableObjectStorage {
-  getAlarm(): Promise<number | null | undefined>;
-  setAlarm(value: number): Promise<void>;
+  getAlarm: () => Promise<number | null | undefined>;
+  setAlarm: (value: number) => Promise<void>;
 }
 
 interface DurableObjectState {
   storage: DurableObjectStorage;
-  blockConcurrencyWhile<T>(callback: () => Promise<T>): Promise<T>;
-  waitUntil(promise: Promise<unknown>): void;
+  blockConcurrencyWhile: <T>(callback: () => Promise<T>) => Promise<T>;
+  waitUntil: (promise: Promise<unknown>) => void;
 }

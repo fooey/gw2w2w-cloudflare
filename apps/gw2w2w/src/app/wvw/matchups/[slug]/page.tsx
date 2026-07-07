@@ -1,11 +1,15 @@
+import { notFound } from 'next/navigation';
+
+import type { WvWMatch } from '@repo/service-api/types';
+import { WVW_TEAMS } from '@repo/service-api/definitions';
+import { isNil, isPresent } from '@repo/utils';
+
 import { getApi } from '#lib/api/api.server.ts';
 import { fetchWvwMatch, fetchWvwMatchByTeam } from '#lib/api/gw2/wvw/matches';
-import { MatchupView } from '#ui/wvw/matchup/MatchupView';
 import { resolveSlug } from '#lib/wvw/matchup';
-import { notFound } from 'next/navigation';
-import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { SiteLayout } from '#ui/layout/SiteLayout';
 import { Link } from '#ui/Link';
+import { MatchupView } from '#ui/wvw/matchup/MatchupView';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,18 +18,26 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
   const { matchId, selectedTeamId } = resolveSlug(slug);
 
   const api = await getApi();
-  const match = matchId
-    ? await fetchWvwMatch(api, matchId)
-    : selectedTeamId
-      ? await fetchWvwMatchByTeam(api, selectedTeamId)
-      : null;
+  let match: WvWMatch | null;
+  if (isPresent(matchId)) {
+    match = await fetchWvwMatch(api, matchId);
+  } else if (isPresent(selectedTeamId)) {
+    match = await fetchWvwMatchByTeam(api, selectedTeamId);
+  } else {
+    match = null;
+  }
 
   if (!match) {
     // Slug didn't resolve to a known team or match ID format — genuine 404
-    if (!matchId && !selectedTeamId) notFound();
+    if (isNil(matchId) && isNil(selectedTeamId)) notFound();
 
     // Valid team/match but no active match right now — happens briefly during weekly reset
-    const teamName = selectedTeamId ? WVW_TEAMS[selectedTeamId as keyof typeof WVW_TEAMS].en : null;
+    // The `in` check above already guards against an unknown team id; tsgo just doesn't narrow it.
+    const teamName =
+      isPresent(selectedTeamId) && selectedTeamId in WVW_TEAMS
+        ? // eslint-disable-next-line typescript/no-unsafe-type-assertion
+          WVW_TEAMS[selectedTeamId as keyof typeof WVW_TEAMS].en
+        : null;
 
     return (
       <SiteLayout pageHeader="WvW Matchup">

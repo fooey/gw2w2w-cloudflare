@@ -1,6 +1,9 @@
+import path from 'node:path';
+
+import type { Plugin } from 'vitest/config';
+import { defineConfig, mergeConfig } from 'vitest/config';
+
 import baseConfig from '@repo/vitest-config/base';
-import path from 'path';
-import { defineConfig, mergeConfig, type Plugin } from 'vitest/config';
 
 const SERVICE_API_SRC = path.resolve(import.meta.dirname, './src');
 
@@ -9,8 +12,12 @@ function subpathImportResolver(): Plugin {
   return {
     name: 'subpath-import-resolver',
     resolveId(id, importer) {
-      if (!id.startsWith('#') || !importer) return;
-      return path.resolve(SERVICE_API_SRC, id.slice(1));
+      // Inlined rather than importing @repo/utils's isNonEmptyString — Vitest loads this
+      // config file before its own transform pipeline is active, so a workspace-package
+      // import here fails Node's native ESM resolution (unlike imports from test/src files).
+      return id.startsWith('#') && typeof importer === 'string' && importer.length > 0
+        ? path.resolve(SERVICE_API_SRC, id.slice(1))
+        : undefined;
     },
   };
 }
@@ -31,7 +38,7 @@ export default mergeConfig(
     test: {
       server: {
         deps: {
-          inline: [/@repo\//],
+          inline: [/@repo\//u],
         },
       },
     },

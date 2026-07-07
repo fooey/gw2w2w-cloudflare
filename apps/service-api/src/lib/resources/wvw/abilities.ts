@@ -1,8 +1,9 @@
+import { z } from 'zod';
+
 import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
-import { z } from 'zod';
 
 export const WvWAbilityRankSchema = z
   .object({
@@ -24,8 +25,8 @@ export const WvWAbilitySchema = z
 export type WvWAbilityRank = z.infer<typeof WvWAbilityRankSchema>;
 export type WvWAbility = z.infer<typeof WvWAbilitySchema>;
 
-function getWvWAbilitiesFromApi(env: CloudflareEnv): Promise<WvWAbility[] | null> {
-  return apiFetch(env, '/wvw/abilities?ids=all').then((response) => {
+async function getWvWAbilitiesFromApi(env: CloudflareEnv): Promise<WvWAbility[] | null> {
+  return apiFetch(env, '/wvw/abilities?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -40,7 +41,7 @@ export async function getWvWAbility(id: number | number[] | 'all', env: Cloudfla
   return withFilteredObjectCache(
     'wvw-abilities.json',
     id,
-    () => getWvWAbilitiesFromApi(env),
+    async () => getWvWAbilitiesFromApi(env),
     createCacheProviders(env),
   );
 }

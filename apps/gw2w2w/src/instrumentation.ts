@@ -7,7 +7,8 @@ export async function register() {
   const { Temporal, Intl, toTemporalInstant } = await import('@js-temporal/polyfill');
 
   // Only install if not already present (workerd may gain native Temporal later).
-  if (typeof globalThis.Temporal === 'undefined') {
+  // eslint-disable-next-line typescript/no-unnecessary-condition -- ambient types declare Temporal as always present; this is real runtime feature-detection for an environment where it may not be yet.
+  if (globalThis.Temporal === undefined) {
     Object.assign(globalThis, { Temporal, Intl, toTemporalInstant });
   }
 }

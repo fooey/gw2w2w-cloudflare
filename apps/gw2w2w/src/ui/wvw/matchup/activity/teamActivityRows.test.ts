@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+
 import type { EventRow } from '@repo/service-api/types';
+
 import { buildTeamRows, createEmptyTeamRow } from './teamActivityRows';
 
 function makeClaim(overrides: Partial<EventRow> = {}): EventRow {
@@ -19,7 +21,7 @@ function makeClaim(overrides: Partial<EventRow> = {}): EventRow {
 
 describe('createEmptyTeamRow', () => {
   it('returns a fully zeroed row', () => {
-    expect(createEmptyTeamRow()).toEqual({
+    expect(createEmptyTeamRow()).toStrictEqual({
       claims_castle: 0,
       claims_keep: 0,
       claims_tower: 0,

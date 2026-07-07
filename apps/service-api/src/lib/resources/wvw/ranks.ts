@@ -1,8 +1,9 @@
+import { z } from 'zod';
+
 import type { CloudflareEnv } from '#index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
-import { z } from 'zod';
 
 export const WvWRankSchema = z
   .object({
@@ -14,8 +15,8 @@ export const WvWRankSchema = z
 
 export type WvWRank = z.infer<typeof WvWRankSchema>;
 
-function getWvWRanksFromApi(env: CloudflareEnv): Promise<WvWRank[] | null> {
-  return apiFetch(env, '/wvw/ranks?ids=all').then((response) => {
+async function getWvWRanksFromApi(env: CloudflareEnv): Promise<WvWRank[] | null> {
+  return apiFetch(env, '/wvw/ranks?ids=all').then(async (response) => {
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -27,5 +28,5 @@ function getWvWRanksFromApi(env: CloudflareEnv): Promise<WvWRank[] | null> {
 }
 
 export async function getWvWRank(id: number | number[] | 'all', env: CloudflareEnv): Promise<WvWRank[]> {
-  return withFilteredObjectCache('wvw-ranks.json', id, () => getWvWRanksFromApi(env), createCacheProviders(env));
+  return withFilteredObjectCache('wvw-ranks.json', id, async () => getWvWRanksFromApi(env), createCacheProviders(env));
 }

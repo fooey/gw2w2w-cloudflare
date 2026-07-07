@@ -1,12 +1,14 @@
 'use client';
 
-import { EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
+import { clsx } from 'clsx';
+
+import { EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';
+
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
 import { getEmblemSrc } from '#lib/emblems';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { Card } from '#ui/Card';
 import { Link } from '#ui/Link';
-import { clsx } from 'clsx';
 
 interface GuildEmblemGridProps {
   guildId: string;
@@ -22,7 +24,8 @@ export function GuildEmblemGrid({ guildId, title = 'Example Guild Emblems', link
     <select
       value={size}
       onChange={(e) => {
-        setEmblemSize(Number(e.target.value) as Parameters<typeof setEmblemSize>[0]);
+        const n = Number(e.target.value);
+        if (isEmblemSize(n)) setEmblemSize(n);
       }}
       className="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-600"
     >

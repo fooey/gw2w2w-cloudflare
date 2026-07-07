@@ -1,12 +1,16 @@
-import type { CloudflareEnv } from '#index.ts';
 import { Hono } from 'hono';
 import { describeRoute } from 'hono-openapi';
+
+import { isEmpty, isNonEmptyString } from '@repo/utils';
+
+import type { CloudflareEnv } from '#index.ts';
+
 import { apiWvwEventsRoute } from './events';
 import { apiWvwGuildsRoute } from './guilds';
 import { apiWvwMatchesRoute } from './matches';
 
 // matchId format: region-tier, e.g. "1-1" through "1-4" (NA) or "2-1" through "2-5" (EU)
-const MATCH_ID_RE = /^\d-\d$/;
+const MATCH_ID_RE = /^\d-\d$/u;
 
 export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .route('/matches', apiWvwMatchesRoute)
@@ -39,7 +43,7 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
     async (c) => {
       const matchId = c.req.query('matchId');
 
-      if (!matchId) {
+      if (isEmpty(matchId)) {
         return c.json({ error: 'matchId required' }, 400);
       }
 
@@ -51,7 +55,7 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
       // The DO manages SSE connections directly — the Worker is just a thin proxy.
       const headers: HeadersInit = {};
       const lastEventId = c.req.header('last-event-id');
-      if (lastEventId) headers['last-event-id'] = lastEventId;
+      if (isNonEmptyString(lastEventId)) headers['last-event-id'] = lastEventId;
 
       const stub = c.env.MATCHUP_POLLER.getByName('global');
       return stub.fetch(

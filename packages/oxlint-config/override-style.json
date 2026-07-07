@@ -1,0 +1,103 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    // Confirmed conflicts with established conventions — see conversation/commit history.
+    "import/no-named-export": "off",
+    "import/prefer-default-export": "off",
+    "unicorn/no-null": "off",
+    "no-ternary": "off",
+    "no-continue": "off",
+    "vitest/prefer-to-be-truthy": "off",
+    "vitest/prefer-to-be-falsy": "off",
+    "vitest/max-expects": "off",
+    "curly": "off",
+    "vitest/prefer-lowercase-title": "off",
+    // oxfmt's sortImports now owns import ordering; this rule sorts by a different, conflicting
+    // scheme and would fight the formatter.
+    "sort-imports": "off",
+    // Conflicts with the standard test-cleanup-hook pattern used throughout the suite. Also
+    // directly contradicts vitest/require-hook, so at most one of the two could ever be enabled.
+    "vitest/no-hooks": "off",
+    // See vitest/no-hooks above — the two rules are mutually exclusive. Its only violation wasn't
+    // even a real test-authoring issue.
+    "vitest/require-hook": "off",
+    // Conflicts with the established describe-title-matches-tested-export naming convention. Same
+    // conflict as vitest/prefer-lowercase-title above.
+    "vitest/prefer-describe-function-title": "off",
+    // Conflicts with generic passthrough wrapper components, where prop spreading is the point.
+    "react/jsx-props-no-spreading": "off",
+    // The codebase's convention is nested ternaries are fine once parenthesized for clarity; this
+    // rule bans nesting outright with no parens escape hatch. unicorn/no-nested-ternary enforces
+    // the parens convention instead and is adopted.
+    "no-nested-ternary": "off",
+    // oxfmt normalizes hex literal casing on every format pass, structurally fighting this rule
+    // rather than as a one-off. Same treatment as sort-imports and no-nested-ternary above.
+    "unicorn/number-literal-case": "off",
+    // The established custom-error-class convention already combines parameter-properties with an
+    // explicit `this.name` assignment; forcing separate field declarations only adds boilerplate.
+    "typescript/parameter-properties": "off",
+    // Most real violations are typeof-window SSR-vs-client guards, where globalThis would break
+    // the check (it exists on the server too) — converting only the safe non-guard sites would
+    // leave an inconsistent mix within the same files.
+    "unicorn/prefer-global-this": "off",
+    // Directly contradicts vitest/prefer-called-times (already active via an earlier-adopted
+    // category), which wants the opposite: toHaveBeenCalledTimes(1) instead of
+    // toHaveBeenCalledOnce(). Both resolve to error simultaneously; the earlier rule wins.
+    "vitest/prefer-called-once": "off",
+    // Requires base.json's typescript/consistent-type-imports fixStyle to be
+    // "separate-type-imports" (not "inline-type-imports") and no-duplicate-imports's
+    // allowSeparateTypeImports: true (otherwise it fights no-duplicate-imports over splitting a
+    // mixed type+value import into two statements from the same module).
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+    // no magic imports, each suite should import what it needs
+    "vitest/no-importing-vitest-globals": "off",
+    // Component files and hooks/utils use different, deliberate ecosystem-standard casing
+    // conventions — not inconsistency.
+    "unicorn/filename-case": "off",
+    // Exports are defined inline where they're declared throughout the codebase, not grouped at
+    // the bottom — forcing regrouping fights that established layout.
+    "import/exports-last": "off",
+    // Many comments intentionally start lowercase (continuing a sentence from code context, or
+    // referencing a lowercase identifier) — not a real consistency problem.
+    "capitalized-comments": "off",
+    // Would require every test to declare explicit expect.assertions(n) counts — mostly guards
+    // against a forgotten assertion in async tests, which this suite's established await/assert
+    // patterns don't exhibit. Not worth rewriting every test file for.
+    "vitest/prefer-expect-assertions": "off",
+    // Would flag legitimate small integers everywhere — far too broad for this codebase's density
+    // of ordinary numeric literals.
+    "no-magic-numbers": "off",
+    // Object keys are frequently ordered by meaning, not alphabetically — alphabetizing would
+    // destroy that grouping.
+    "sort-keys": "off",
+    // Would flag pervasive, deliberate naming conventions (a short context-object param,
+    // comparator callback params) — not naming shortcuts worth fixing.
+    "id-length": "off",
+    // The codebase deliberately mixes function declarations and arrow function expressions;
+    // forcing one style would be highly disruptive for no functional gain.
+    "func-style": "off",
+    // Conflicts with the same export-as-you-define layout as import/exports-last above.
+    "import/group-exports": "off",
+    // Would force restructuring legitimately nested component trees at the default depth
+    // threshold, which isn't a real complexity signal here — complexity was already addressed via
+    // dedicated complexity rules in an earlier session.
+    "react/jsx-max-depth": "off",
+    // Real hits are mostly schema-builder call nesting, an idiomatic pattern in this codebase's
+    // route files, not actual complexity.
+    "unicorn/max-nested-calls": "off",
+    // Real hits are genuine multi-step functions with early returns and error branches, not
+    // spaghetti. Complexity is already addressed by dedicated complexity rules from an earlier
+    // session; this is a second, stricter, redundant lens on the same concern.
+    "max-statements": "off",
+    // Real hits are all genuinely wide utility signatures, not accidental parameter creep. Fixing
+    // means bundling params into an options object — a real refactor, not a rule to just flip on.
+    "max-params": "off",
+    // Real hits are variables assigned conditionally a few lines later inside branches — a
+    // standard, safe pattern. Forcing an initializer would mean inventing meaningless placeholder
+    // values just to satisfy the rule.
+    "init-declarations": "off",
+    // Violations are the standard RTL cleanup-hook pattern at module top-level, before any describe
+    // block. Same conflict as vitest/no-hooks above.
+    "vitest/require-top-level-describe": "off"
+  }
+}

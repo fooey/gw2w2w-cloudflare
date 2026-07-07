@@ -1,20 +1,22 @@
 'use client';
 
-import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useEventLogFilters } from '#lib/store/logFilters';
-import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
-import { getMapLabel } from '#ui/wvw/config/mapLabels';
-import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
-import type { EventRow } from '@repo/service-api/types';
-import { isPresent } from '@repo/utils';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 
+import type { EventRow } from '@repo/service-api/types';
+import { isPresent } from '@repo/utils';
+
+import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useEventLogFilters } from '#lib/store/logFilters';
+import { getMapLabel } from '#ui/wvw/config/mapLabels';
+import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
+import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
+import { ObjectiveLogsRow } from '#ui/wvw/matchup/activity/ObjectiveLogsRow';
+
 const TIME_WINDOW_TO_MAX_AGE: Record<string, number | undefined> = {
-  '1h': 3_600,
-  '4h': 4 * 3_600,
-  '8h': 8 * 3_600,
-  '24h': 24 * 3_600,
+  '1h': 3600,
+  '4h': 4 * 3600,
+  '8h': 8 * 3600,
+  '24h': 24 * 3600,
   'all': undefined,
 };
 
@@ -58,7 +60,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
 
   // Sort by actual event timestamp descending. ISO 8601 UTC strings are lexicographically comparable.
   // Use id as tiebreaker for events at the same second.
-  const rows = events.filter(matchesFilters).sort((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
+  const rows = events.filter((e) => matchesFilters(e)).toSorted((a, b) => b.at.localeCompare(a.at) || b.id - a.id);
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -70,7 +72,7 @@ export function ObjectiveLogs({ events }: ObjectiveLogsProps) {
   const virtualItems = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
   const paddingTop = virtualItems.length > 0 ? (virtualItems[0]?.start ?? 0) : 0;
-  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0;
+  const paddingBottom = virtualItems.length > 0 ? totalSize - (virtualItems.at(-1)?.end ?? 0) : 0;
 
   return (
     <section className="mt-8 rounded p-2 shadow">

@@ -1,14 +1,15 @@
+import type { EventRow } from '@repo/service-api/types';
+
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
+import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { getObjectiveDirection } from '#ui/wvw/config/objectivesLayoutConfig';
 import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
-import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { ObjectiveDirection } from '#ui/wvw/matchup/maps/objective/Direction';
 import { Guild } from '#ui/wvw/matchup/maps/objective/Guild';
 import { Name } from '#ui/wvw/matchup/maps/objective/Name';
 import { Timer } from '#ui/wvw/matchup/maps/objective/Timer';
-import type { EventRow } from '@repo/service-api/types';
 
 const RI_TIMER = 5 * 60;
 
