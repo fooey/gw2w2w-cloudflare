@@ -1,10 +1,13 @@
 'use client';
 
-import { type MouseEvent, useEffect, useRef } from 'react';
+import type { MouseEvent } from 'react';
+import { useEffect, useRef } from 'react';
 
 import type { WvWMapType, WvWMatchObjective } from '@repo/service-api/types';
 import { isNil, isPresent } from '@repo/utils';
 
+import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
+import type { TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { useWvwObjective } from '#lib/wvw/objectives';
@@ -14,8 +17,8 @@ import { useGuildUpgrades } from '#lib/wvw/useGuildUpgrades';
 import { tryWriteClipboardText } from '#ui/controls/clipboard';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { getMapLabelFull } from '#ui/wvw/config/mapLabels';
-import { getDirectionLabel, type Direction } from '#ui/wvw/config/objectivesLayoutConfig';
-import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
+import { getDirectionLabel } from '#ui/wvw/config/objectivesLayoutConfig';
+import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 
 import { ObjectiveDialogActiveUpgradesList } from './ObjectiveDialogActiveUpgradesList';
 import { ObjectiveDialogCaptureClaimTimes } from './ObjectiveDialogCaptureClaimTimes';

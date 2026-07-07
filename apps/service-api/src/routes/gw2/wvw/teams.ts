@@ -2,8 +2,8 @@ import { Hono } from 'hono';
 import { describeRoute, validator, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
-import { WvWTeamSchema } from '#definitions/wvw-teams.ts';
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
+import { WvWTeamSchema } from '#definitions/wvw-teams.ts';
 import { withCacheJson } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { getWvwTeam } from '#lib/resources/wvw/teams.ts';

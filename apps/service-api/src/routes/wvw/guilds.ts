@@ -1,13 +1,14 @@
-import { and, asc, count, desc, eq, gte, inArray, sql, type SQL } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { describeRoute, validator } from 'hono-openapi';
 import { z } from 'zod';
 
 import { isPresent } from '@repo/utils';
 
+import type { CloudflareEnv } from '#index.ts';
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
-import type { CloudflareEnv } from '#index.ts';
 
 export interface GuildActivityRow {
   guild_id: string;

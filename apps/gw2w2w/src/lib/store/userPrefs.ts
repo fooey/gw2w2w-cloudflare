@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, type EmblemSize } from '@repo/emblem-renderer/sizes';
+import type { EmblemSize } from '@repo/emblem-renderer/sizes';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES } from '@repo/emblem-renderer/sizes';
 
-import { DEFAULT_LANG, LANGS, type Lang } from '#ui/wvw/config/lang';
+import type { Lang } from '#ui/wvw/config/lang';
+import { DEFAULT_LANG, LANGS } from '#ui/wvw/config/lang';
 
 interface UserPrefsState {
   lang: Lang;

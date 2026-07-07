@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 
-import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import type { NextConfig } from 'next';
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 
 import { getEmblemSrc } from './src/lib/emblems';
 

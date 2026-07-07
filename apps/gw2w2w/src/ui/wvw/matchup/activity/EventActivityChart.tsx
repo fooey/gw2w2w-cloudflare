@@ -6,14 +6,8 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import type { EventRow } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
 
-import {
-  EVENT_TYPES,
-  OBJECTIVE_TYPES,
-  OWNER_TYPES,
-  useActivityChartFilters,
-  type Granularity,
-  type TimeWindow,
-} from '#lib/store/logFilters';
+import type { Granularity, TimeWindow } from '#lib/store/logFilters';
+import { EVENT_TYPES, OBJECTIVE_TYPES, OWNER_TYPES, useActivityChartFilters } from '#lib/store/logFilters';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, GranularityFilter, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';

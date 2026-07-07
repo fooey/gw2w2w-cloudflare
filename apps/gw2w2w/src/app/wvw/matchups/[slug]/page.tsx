@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
-import { WVW_TEAMS } from '@repo/service-api/definitions';
 import type { WvWMatch } from '@repo/service-api/types';
+import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { isNil, isPresent } from '@repo/utils';
 
 import { getApi } from '#lib/api/api.server.ts';

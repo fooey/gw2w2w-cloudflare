@@ -1,5 +1,6 @@
+import type { NextRequest } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
 import { isEmpty, isNonEmptyString } from '@repo/utils';

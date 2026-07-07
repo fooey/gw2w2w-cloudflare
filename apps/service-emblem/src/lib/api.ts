@@ -1,11 +1,12 @@
 import type { Context } from 'hono';
 import { DetailedError, hc, parseResponse } from 'hono/client';
 
-import { DEFAULT_EMBLEM_SIZE, renderEmblem, resizeEmblemImage, type EmblemSize } from '@repo/emblem-renderer';
+import type { EmblemSize } from '@repo/emblem-renderer';
 import type { ServiceApiAppType } from '@repo/service-api';
 import type { createCacheProviders } from '@repo/service-api/lib/cache-providers';
-import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
 import type { Color, Emblem, Guild } from '@repo/service-api/types';
+import { DEFAULT_EMBLEM_SIZE, renderEmblem, resizeEmblemImage } from '@repo/emblem-renderer';
+import { getTextureArrayBuffer } from '@repo/service-api/lib/resources';
 
 import type { CloudflareEnv } from '#index.ts';
 

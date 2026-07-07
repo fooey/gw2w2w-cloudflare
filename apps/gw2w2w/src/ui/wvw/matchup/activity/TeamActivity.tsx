@@ -4,13 +4,14 @@ import { useMemo } from 'react';
 
 import type { EventRow } from '@repo/service-api/types';
 
+import type { TeamRow } from '#ui/wvw/matchup/activity/teamActivityRows';
 import { OBJECTIVE_TYPES, useTeamActivityFilters } from '#lib/store/logFilters';
 import { cn } from '#lib/utils/cn';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
 import { getMapLabel } from '#ui/wvw/config/mapLabels';
 import { MAP_TYPES, teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { FilterGroup, TimeWindowFilter } from '#ui/wvw/matchup/activity/Filters';
-import { buildTeamRows, type TeamRow } from '#ui/wvw/matchup/activity/teamActivityRows';
+import { buildTeamRows } from '#ui/wvw/matchup/activity/teamActivityRows';
 
 const ACTIVITY_OBJ_TYPES = ['Castle', 'Keep', 'Tower', 'Camp'] as const;
 type ActivityObjType = (typeof ACTIVITY_OBJ_TYPES)[number];

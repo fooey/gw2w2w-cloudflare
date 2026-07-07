@@ -1,7 +1,7 @@
 import type { CloudflareEnv } from '#index.ts';
+import type { Emblem } from '#lib/types/index.ts';
 import { createCacheProviders } from '#lib/cache-providers/index.ts';
 import { apiFetch } from '#lib/resources/api.ts';
-import type { Emblem } from '#lib/types/index.ts';
 
 import { withFilteredObjectCache } from './cache-wrapper';
 

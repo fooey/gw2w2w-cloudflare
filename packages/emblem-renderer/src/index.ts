@@ -4,8 +4,9 @@ import { fliph, flipv, PhotonImage, resize, SamplingFilter } from '@cf-wasm/phot
 
 import type { Color, Guild } from '@repo/service-api/types';
 
-import { type ColorRGB, getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
+import type { ColorRGB } from './pixels';
 import type { EmblemSize } from './sizes';
+import { getFlipsFromFlags, IMAGE_DIMENSION, renderEmblemPixels } from './pixels';
 
 export type { DecodedLayer, RenderOptions } from './pixels';
 export { type ColorRGB, renderEmblemPixels } from './pixels';

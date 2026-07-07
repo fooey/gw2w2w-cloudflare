@@ -17,8 +17,9 @@ import { isNil } from '@repo/utils';
 
 import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
 
+import type { SortEntry } from './sorting';
 import { HUE_CATEGORIES, RARITY_CATEGORIES } from './filtering';
-import { SORT_OPTIONS, type SortEntry, sortColors } from './sorting';
+import { SORT_OPTIONS, sortColors } from './sorting';
 
 interface ColorPickerProps {
   colors: Color[];

@@ -1,5 +1,6 @@
-import { DEFAULT_EMBLEM_SIZE, type EmblemSize } from '@repo/emblem-renderer/sizes';
+import type { EmblemSize } from '@repo/emblem-renderer/sizes';
 import type { Guild } from '@repo/service-api/types';
+import { DEFAULT_EMBLEM_SIZE } from '@repo/emblem-renderer/sizes';
 import { isPresent } from '@repo/utils';
 
 import type { EmblemState } from '#ui/designer/types';

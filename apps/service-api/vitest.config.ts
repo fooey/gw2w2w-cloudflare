@@ -1,6 +1,7 @@
 import path from 'node:path';
 
-import { defineConfig, mergeConfig, type Plugin } from 'vitest/config';
+import type { Plugin } from 'vitest/config';
+import { defineConfig, mergeConfig } from 'vitest/config';
 
 import baseConfig from '@repo/vitest-config/base';
 

@@ -45,6 +45,11 @@
     // category), which wants the opposite: toHaveBeenCalledTimes(1) instead of
     // toHaveBeenCalledOnce(). Both resolve to error simultaneously; the earlier rule wins.
     "vitest/prefer-called-once": "off",
+    // Requires base.json's typescript/consistent-type-imports fixStyle to be
+    // "separate-type-imports" (not "inline-type-imports") and no-duplicate-imports's
+    // allowSeparateTypeImports: true (otherwise it fights no-duplicate-imports over splitting a
+    // mixed type+value import into two statements from the same module).
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
 
     // Enabled globally — each rule's few real violations carry an inline eslint-disable directive
     // at the exception site with specific reasoning, rather than disabling the rule outright.
@@ -65,7 +70,6 @@
     "unicorn/max-nested-calls": "off",
     "unicorn/filename-case": "off",
     "max-statements": "off",
-    "import/consistent-type-specifier-style": "off",
     "vitest/no-importing-vitest-globals": "off",
     "max-params": "off",
     "init-declarations": "off",

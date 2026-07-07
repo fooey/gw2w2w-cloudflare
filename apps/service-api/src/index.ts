@@ -1,9 +1,9 @@
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { z } from 'zod';
 
 import { allowedCsrf, allowedOrigin } from '@repo/utils';

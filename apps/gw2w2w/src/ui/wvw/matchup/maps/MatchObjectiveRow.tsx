@@ -1,13 +1,14 @@
 import type { WvWMatchObjective } from '@repo/service-api/types';
 import { isNil, isPresent } from '@repo/utils';
 
+import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
+import type { TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
 import { useClockStore } from '#lib/store/useClock';
 import { cn } from '#lib/utils/cn';
 import { useWvwObjective } from '#lib/wvw/objectives';
 import { useWvwUpgradeTier } from '#lib/wvw/upgrades';
 import { ObjectiveIcon } from '#ui/wvw/common/ObjectiveIcon';
-import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
-import { teamColorConfig, type TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
+import { teamColorConfig } from '#ui/wvw/config/teamColorConfig';
 import { ObjectiveDirection } from '#ui/wvw/matchup/maps/objective/Direction';
 import { Guild } from '#ui/wvw/matchup/maps/objective/Guild';
 import { Name } from '#ui/wvw/matchup/maps/objective/Name';

@@ -3,9 +3,9 @@ import { Hono } from 'hono';
 import { describeRoute, resolver } from 'hono-openapi';
 import { z } from 'zod';
 
+import type { CloudflareEnv } from '#index.ts';
 import { getDb } from '#db/index.ts';
 import { matchState } from '#db/schema.ts';
-import type { CloudflareEnv } from '#index.ts';
 import { WvWMatchSchema } from '#lib/resources/wvw/matches.ts';
 
 export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>().get(

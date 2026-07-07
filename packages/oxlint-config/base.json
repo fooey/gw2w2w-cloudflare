@@ -35,7 +35,13 @@
       "error",
       {
         "prefer": "type-imports",
-        "fixStyle": "inline-type-imports"
+        "fixStyle": "separate-type-imports"
+      }
+    ],
+    "no-duplicate-imports": [
+      "error",
+      {
+        "allowSeparateTypeImports": true
       }
     ]
   },

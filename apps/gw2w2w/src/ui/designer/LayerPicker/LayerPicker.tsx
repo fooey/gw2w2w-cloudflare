@@ -14,9 +14,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { Color, Emblem } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
 
+import type { EmblemState } from '#ui/designer/types';
 import { EmblemPreview } from '#ui/designer/EmblemPreview';
 import { getCryptoRandomUint32, getRandomIndex } from '#ui/designer/random';
-import type { EmblemState } from '#ui/designer/types';
 
 interface LayerPickerProps {
   layers: Emblem[];

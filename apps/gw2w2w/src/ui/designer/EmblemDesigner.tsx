@@ -4,8 +4,8 @@ import { ArrowsRightLeftIcon, ArrowsUpDownIcon } from '@heroicons/react/20/solid
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';
 import type { Color, Emblem } from '@repo/service-api/types';
+import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';
 import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
 
 import { emblemBackgroundClasses } from '#lib/definitions/emblem-backgrounds';
@@ -13,12 +13,12 @@ import { getCustomEmblemSrc } from '#lib/emblems';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { CopyToClipboardInput } from '#ui/controls/CopyToClipboardInput';
 
+import type { EmblemFlag, EmblemState } from './types';
 import { ColorPicker } from './ColorPicker';
 import { DesignerInit } from './DesignerInit';
 import { EmblemPreview } from './EmblemPreview';
 import { LayerPicker } from './LayerPicker';
 import { decodeShortlink, encodeShortlink } from './shortlink';
-import type { EmblemFlag, EmblemState } from './types';
 
 interface EmblemDesignerProps {
   colors: Color[];

@@ -5,9 +5,9 @@ import { z } from 'zod';
 
 import { isPresent } from '@repo/utils';
 
+import type { CloudflareEnv } from '#index.ts';
 import { getDb } from '#db/index.ts';
 import { events } from '#db/schema.ts';
-import type { CloudflareEnv } from '#index.ts';
 
 export type EventRow = typeof events.$inferSelect;
 
