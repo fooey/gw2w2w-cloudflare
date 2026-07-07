@@ -5,7 +5,7 @@ import { Link } from '#ui/Link';
 
 export default function MatchupError() {
   return (
-    <SiteLayout pageHeader={'WvW Matchup'}>
+    <SiteLayout pageHeader="WvW Matchup">
       <div className="space-y-4">
         <p className="text-gray-700">
           This matchup could not be loaded. The Guild Wars 2 API may be temporarily unavailable — this often happens

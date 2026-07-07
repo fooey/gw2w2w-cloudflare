@@ -78,8 +78,8 @@ export async function generateMetadata({ params }: GuildPageProps): Promise<Meta
         images: isPresent(emblemUrl) ? [emblemUrl] : undefined,
       },
     };
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     return {
       title: `Error Loading Guild - GW2W2W`,
       description: `Unable to load guild information for ${guildId}. The guild may not exist or there may be a temporary service issue.`,
@@ -94,14 +94,14 @@ export default async function GuildPage({ params }: GuildPageProps) {
 
   if (!guild) {
     return (
-      <SiteLayout pageHeader={'Guild Not Found'} headerActions={<GuildSearch />}>
+      <SiteLayout pageHeader="Guild Not Found" headerActions={<GuildSearch />}>
         <GuildNotFound guildId={guildId} />
       </SiteLayout>
     );
   }
 
   return (
-    <SiteLayout pageHeader={'Guild Emblems'} headerActions={<GuildSearch />}>
+    <SiteLayout pageHeader="Guild Emblems" headerActions={<GuildSearch />}>
       <GuildDetail guild={guild} />
     </SiteLayout>
   );

@@ -70,11 +70,11 @@ export async function getEmblemBytesByGuildId(
 
   try {
     guild = await getGuild(apiClient, guildId);
-  } catch (err) {
-    if (err instanceof DetailedError && err.statusCode === 404) {
+  } catch (error) {
+    if (error instanceof DetailedError && error.statusCode === 404) {
       throw new HttpError(404, 'Guild not found');
     }
-    throw err;
+    throw error;
   }
 
   if (!guild.emblem) {

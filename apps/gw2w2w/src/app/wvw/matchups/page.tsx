@@ -13,7 +13,7 @@ export default async function WvwMatchupsPage() {
   const matches = await getData();
 
   return (
-    <SiteLayout pageHeader={'WvW Matchups'}>
+    <SiteLayout pageHeader="WvW Matchups">
       <Dashboard matches={matches} />
     </SiteLayout>
   );

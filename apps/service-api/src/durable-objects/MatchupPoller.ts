@@ -106,10 +106,10 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     void ctx.blockConcurrencyWhile(async () => {
       try {
         await this.#rebuildFromD1();
-      } catch (err) {
+      } catch (error) {
         // If D1 rebuild fails, log and continue — cold-start state will be empty
         // but the alarm loop must not be disrupted. The next poll will re-seed.
-        console.error('[MatchupPoller] rebuildFromD1 failed, starting cold:', err);
+        console.error('[MatchupPoller] rebuildFromD1 failed, starting cold:', error);
       }
       // Only set alarm if one isn't already scheduled — avoids interfering with
       // an alarm that fired and is executing right now (constructor runs before alarm handler on wake).
@@ -128,22 +128,22 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     await this.ctx.storage.setAlarm(Date.now() + POLL_INTERVAL_MS);
     try {
       await this.#poll(requestId);
-    } catch (err) {
-      if (err instanceof RateLimitError) {
+    } catch (error) {
+      if (error instanceof RateLimitError) {
         this.#consecutiveRateLimits++;
         this.#lastRateLimitAt = new Date().toISOString();
-        const resumeAt = new Date(Date.now() + err.retryAfterMs).toISOString();
-        const burst = err.rateLimitBurst ?? 'unknown';
-        const ipSuffix = isPresent(err.egressIp) ? `, egressIp=${err.egressIp}` : '';
+        const resumeAt = new Date(Date.now() + error.retryAfterMs).toISOString();
+        const burst = error.rateLimitBurst ?? 'unknown';
+        const ipSuffix = isPresent(error.egressIp) ? `, egressIp=${error.egressIp}` : '';
         console.warn(
           `[MatchupPoller] [${requestId}] rate limited #${this.#consecutiveRateLimits} (burst=${burst}, refill=${GW2_RATE_LIMIT_REFILL}${ipSuffix})` +
-            ` — backing off ${err.retryAfterMs}ms, resuming ~${resumeAt}`,
+            ` — backing off ${error.retryAfterMs}ms, resuming ~${resumeAt}`,
         );
-        await this.ctx.storage.setAlarm(Date.now() + err.retryAfterMs);
-      } else if (err instanceof DOMException && err.name === 'TimeoutError') {
+        await this.ctx.storage.setAlarm(Date.now() + error.retryAfterMs);
+      } else if (error instanceof DOMException && error.name === 'TimeoutError') {
         console.error(`[MatchupPoller] [${requestId}] alarm timed out — GW2 API fetch exceeded 10s deadline`);
       } else {
-        console.error(`[MatchupPoller] [${requestId}] alarm error:`, err);
+        console.error(`[MatchupPoller] [${requestId}] alarm error:`, error);
       }
     }
   }
@@ -223,8 +223,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       (async () => {
         try {
           await this.#seedAndReplay(writer, matchId, matchRow, request.headers.get('last-event-id'));
-        } catch (err: unknown) {
-          console.error('[MatchupPoller] seed error:', err);
+        } catch (error: unknown) {
+          console.error('[MatchupPoller] seed error:', error);
           this.#subscribers.delete(subId);
           void closeWriterIgnoringErrors(writer);
         }
@@ -533,15 +533,15 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         this.#consecutiveD1Errors = 0;
       }
       return batchResults;
-    } catch (err) {
+    } catch (error) {
       this.#consecutiveD1Errors++;
       this.#lastD1ErrorAt = requestStartTime.toISOString();
       console.error(
         `[MatchupPoller] [${requestId}] D1 batch failed (consecutive=${this.#consecutiveD1Errors}, stmts=${plan.stmts.length}, ${stmtSummary}):`,
-        err,
+        error,
       );
       // Re-throw so in-memory state is not updated and the next poll retries.
-      throw err;
+      throw error;
     }
   }
 
@@ -641,8 +641,8 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
             }),
           ]);
           return null;
-        } catch (err) {
-          const reason = err instanceof Error ? err.message : String(err);
+        } catch (error) {
+          const reason = error instanceof Error ? error.message : String(error);
           console.warn(`${pfx} dropping subscriber ${subId} (${sub.matchId}): ${reason}`);
           return subId;
         }

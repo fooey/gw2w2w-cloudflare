@@ -4,7 +4,7 @@ import { SiteLayout } from '#ui/layout/SiteLayout';
 
 export default function EmblemsPage() {
   return (
-    <SiteLayout pageHeader={'Guild Emblems'} headerActions={<GuildSearch />}>
+    <SiteLayout pageHeader="Guild Emblems" headerActions={<GuildSearch />}>
       <DemoGuildList />
     </SiteLayout>
   );

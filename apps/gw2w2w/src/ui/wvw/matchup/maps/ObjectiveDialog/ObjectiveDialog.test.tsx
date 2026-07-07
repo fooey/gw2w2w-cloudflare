@@ -16,12 +16,12 @@ import { ObjectiveDialog } from './ObjectiveDialog';
 // ObjectiveDialog's own job is wiring hook data into the right children under the right
 // conditions — the fetch/query behavior of each hook has its own home elsewhere, so all of
 // them are mocked at the module boundary here.
-vi.mock('#lib/store/useClock');
-vi.mock('#lib/wvw/objectives');
-vi.mock('#lib/wvw/upgrades');
-vi.mock('#lib/wvw/useGuild');
-vi.mock('#lib/wvw/useGuildUpgrades');
-vi.mock('#ui/controls/clipboard');
+vi.mock(import('#lib/store/useClock'));
+vi.mock(import('#lib/wvw/objectives'));
+vi.mock(import('#lib/wvw/upgrades'));
+vi.mock(import('#lib/wvw/useGuild'));
+vi.mock(import('#lib/wvw/useGuildUpgrades'));
+vi.mock(import('#ui/controls/clipboard'));
 
 afterEach(cleanup);
 
