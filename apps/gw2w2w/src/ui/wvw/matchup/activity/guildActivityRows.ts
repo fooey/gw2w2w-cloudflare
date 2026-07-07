@@ -91,5 +91,5 @@ export function buildGuildRows(
     }
   }
 
-  return Array.from(map.values());
+  return [...map.values()];
 }

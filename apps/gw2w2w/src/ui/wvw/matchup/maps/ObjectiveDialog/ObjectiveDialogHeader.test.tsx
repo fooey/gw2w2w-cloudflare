@@ -20,7 +20,7 @@ describe('ObjectiveDialogHeader', () => {
         claimedBy="guild-1"
         guild={guild}
         name="Bravost Redoubt"
-        isClaimed={true}
+        isClaimed
         onClose={vi.fn<() => void>()}
       />,
     );
@@ -39,7 +39,7 @@ describe('ObjectiveDialogHeader', () => {
         claimedBy="guild-1"
         guild={undefined}
         name="Bravost Redoubt"
-        isClaimed={true}
+        isClaimed
         onClose={vi.fn<() => void>()}
       />,
     );

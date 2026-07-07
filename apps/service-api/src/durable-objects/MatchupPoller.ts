@@ -85,13 +85,13 @@ class RateLimitError extends Error {
 }
 
 export class MatchupPoller extends DurableObject<CloudflareEnv> {
-  #objectiveSnap: ObjectiveSnapMap = new Map<string, ObjectiveSnap>();
-  #matchEndTimes: Map<string, string> = new Map<string, string>();
+  readonly #objectiveSnap: ObjectiveSnapMap = new Map<string, ObjectiveSnap>();
+  readonly #matchEndTimes: Map<string, string> = new Map<string, string>();
   // Tracks the last-seen JSON for each match so we can skip D1 writes and fanout
   // when match state hasn't changed (common between skirmish score ticks).
-  #matchState: Map<string, WvWMatch> = new Map<string, WvWMatch>();
-  #subscribers: Map<string, Subscriber> = new Map<string, Subscriber>();
-  #encoder = new TextEncoder();
+  readonly #matchState: Map<string, WvWMatch> = new Map<string, WvWMatch>();
+  readonly #subscribers: Map<string, Subscriber> = new Map<string, Subscriber>();
+  readonly #encoder = new TextEncoder();
 
   // Observability counters — reset on cold start, exposed via /status.
   #consecutiveRateLimits = 0;

@@ -22,10 +22,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full bg-zinc-50" suppressHydrationWarning={true}>
+    <html lang="en" className="h-full bg-zinc-50" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} h-full font-sans text-zinc-900 antialiased`}
-        suppressHydrationWarning={true}
+        suppressHydrationWarning
       >
         <UpdateNotifier />
         {children}

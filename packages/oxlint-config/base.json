@@ -121,6 +121,16 @@
       "rules": {
         "import/no-default-export": "off"
       }
+    },
+    {
+      // Node-context tooling files (build/dev-time config, standalone maintenance scripts) run
+      // under Node, not the Workers/edge runtime — Node builtins and sync fs/child_process calls
+      // are legitimate here, unlike in src/.
+      "files": ["**/*.config.{ts,mts,cts,js,mjs,cjs}", "**/scripts/**"],
+      "rules": {
+        "import/no-nodejs-modules": "off",
+        "node/no-sync": "off"
+      }
     }
   ]
 }

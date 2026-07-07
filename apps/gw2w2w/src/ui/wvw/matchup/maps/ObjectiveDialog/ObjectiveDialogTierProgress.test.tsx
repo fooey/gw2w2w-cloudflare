@@ -68,7 +68,7 @@ describe('ObjectiveDialogTierProgress', () => {
         upgrade={upgrade}
         currentTier={3}
         remainingTiers={[]}
-        isFullyUpgraded={true}
+        isFullyUpgraded
         yaksDelivered={100}
         lastFlipped={oneHourAgo}
         now={now}

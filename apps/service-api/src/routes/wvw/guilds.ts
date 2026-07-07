@@ -109,10 +109,10 @@ export const apiWvwGuildsRoute = new Hono<{ Bindings: CloudflareEnv }>().get(
       const cutoff = new Date(Date.now() - maxAge * 1000).toISOString().replace(/\.\d{3}Z$/u, 'Z');
       conditions.push(gte(events.at, cutoff));
     }
-    if (isPresent(mapType) && mapType.length > 0) conditions.push(inArray(events.map_type, Array.from(mapType)));
+    if (isPresent(mapType) && mapType.length > 0) conditions.push(inArray(events.map_type, [...mapType]));
     if (isPresent(objectiveType) && objectiveType.length > 0)
-      conditions.push(inArray(events.objective_type, Array.from(objectiveType)));
-    if (isPresent(owner) && owner.length > 0) conditions.push(inArray(events.owner, Array.from(owner)));
+      conditions.push(inArray(events.objective_type, [...objectiveType]));
+    if (isPresent(owner) && owner.length > 0) conditions.push(inArray(events.owner, [...owner]));
 
     const whereExpr: SQL = and(...conditions) ?? eq(events.match_id, matchId);
 

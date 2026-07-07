@@ -74,6 +74,7 @@ export async function GET(request: NextRequest) {
   const buf = await upstream.arrayBuffer();
 
   // Write to R2 asynchronously — don't block the response
+  // eslint-disable-next-line unicorn/prefer-spread -- buf is an ArrayBuffer, not an array; slice(0) makes a real defensive copy since buf is also used below.
   void env.EMBLEM_ASSETS.put(r2Key, buf.slice(0), {
     customMetadata: {
       expiresAt: Temporal.Now.instant().add({ seconds: CACHE_TTL.immutable.kv }).toString(),

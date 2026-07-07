@@ -104,7 +104,7 @@ export async function getEmblemBytes(
   const { objectStore } = cacheProviders;
   const backgroundId = guildEmblem.background.id;
   const foregroundId = guildEmblem.foreground.id;
-  const uniqueColorIds = Array.from(new Set([...guildEmblem.background.colors, ...guildEmblem.foreground.colors]));
+  const uniqueColorIds = [...new Set([...guildEmblem.background.colors, ...guildEmblem.foreground.colors])];
 
   const [bgBufs, fgBufs, colors] = await Promise.all([
     backgroundId ? fetchLayerTextures(apiClient, 'background', backgroundId, [0], objectStore) : null,

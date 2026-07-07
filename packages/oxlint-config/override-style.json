@@ -36,6 +36,15 @@
     // The established custom-error-class convention already combines parameter-properties with an
     // explicit `this.name` assignment; forcing separate field declarations only adds boilerplate.
     "typescript/parameter-properties": "off",
+    // Its non-guard sites (window.location.reload()) would convert safely, but most real
+    // violations are typeof-window SSR-vs-client guards, where globalThis would break the check
+    // (it exists on the server too) — converting only the safe subset would leave an inconsistent
+    // mix within the same files.
+    "unicorn/prefer-global-this": "off",
+    // Directly contradicts vitest/prefer-called-times (already active via an earlier-adopted
+    // category), which wants the opposite: toHaveBeenCalledTimes(1) instead of
+    // toHaveBeenCalledOnce(). Both resolve to error simultaneously; the earlier rule wins.
+    "vitest/prefer-called-once": "off",
 
     // Enabled globally — each rule's few real violations carry an inline eslint-disable directive
     // at the exception site with specific reasoning, rather than disabling the rule outright.
@@ -59,19 +68,11 @@
     "import/consistent-type-specifier-style": "off",
     "vitest/no-importing-vitest-globals": "off",
     "max-params": "off",
-    "unicorn/switch-case-braces": "off",
     "init-declarations": "off",
-    "unicorn/prefer-global-this": "off",
     "vitest/require-top-level-describe": "off",
-    "unicorn/prefer-spread": "off",
     "unicorn/catch-error-name": "off",
     "react/jsx-curly-brace-presence": "off",
     "vitest/prefer-import-in-mock": "off",
-    "import/no-nodejs-modules": "off",
-    "typescript/prefer-readonly": "off",
-    "typescript/method-signature-style": "off",
-    "react/jsx-boolean-value": "off",
-    "node/no-sync": "off",
-    "vitest/prefer-called-once": "off"
+    "typescript/method-signature-style": "off"
   }
 }
