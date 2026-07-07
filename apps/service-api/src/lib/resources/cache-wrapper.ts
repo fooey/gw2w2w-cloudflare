@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-import { withJitter } from '@repo/utils';
+import { isNonEmptyString, withJitter } from '@repo/utils';
 
 import type { CacheProviders } from '#lib/resources/index.ts';
 import { GW2RateLimitError } from '#lib/resources/api.ts';
@@ -143,7 +143,7 @@ export async function withObjectCache<T>(
   } else {
     const expiresAt = object.customMetadata?.expiresAt;
     if (
-      expiresAt !== undefined &&
+      isNonEmptyString(expiresAt) &&
       Temporal.Instant.compare(Temporal.Instant.from(expiresAt), Temporal.Now.instant()) > 0
     ) {
       if (enableLogging) {
