@@ -11,6 +11,7 @@ missing and reinstalls the whole workspace on every build — and hard-fails in 
 `isCI` branch throws instead of auto-installing.
 
 Current workaround (`apps/gw2w2w/package.json` devDependencies):
+
 - `typescript` aliased to `npm:@typescript/typescript6@^6.0.2` (satisfies Next's stale check)
 - `typescript7` aliased to `npm:typescript@^7.0.2` (the real native compiler)
 - `check-types`/`build` scripts call `node ./node_modules/typescript7/bin/tsc` directly to avoid
