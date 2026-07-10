@@ -417,10 +417,7 @@ interface Guild {
 }
 
 type GuildEmblemFlag =
-  | 'FlipBackgroundHorizontal'
-  | 'FlipBackgroundVertical'
-  | 'FlipForegroundHorizontal'
-  | 'FlipForegroundVertical';
+  'FlipBackgroundHorizontal' | 'FlipBackgroundVertical' | 'FlipForegroundHorizontal' | 'FlipForegroundVertical';
 ```
 
 **Sample file:** [`samples/guild-id.json`](samples/guild-id.json) — ArenaNet guild (public guild, no auth required)

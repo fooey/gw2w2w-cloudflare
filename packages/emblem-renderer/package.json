@@ -15,7 +15,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@cf-wasm/photon": "^0.3.5",
+    "@cf-wasm/photon": "^0.3.6",
     "@repo/service-api": "workspace:*"
   },
   "devDependencies": {
