@@ -32,7 +32,19 @@ This repository uses OXC as the primary lint and format toolchain.
 
 - Next app (`apps/gw2w2w`): React + Next + React Compiler, all via native oxlint plugins.
 - Services (`apps/service-api`, `apps/service-emblem`): base + Node safety rules.
-- Libraries (`packages/*` runtime libs): base + Node safety rules.
+- Libraries (`packages/*` runtime libs): base + Node safety rules + stricter TypeScript contract
+  rules (`prefer-readonly-parameter-types`, `explicit-function-return-type`,
+  `explicit-module-boundary-types`, `method-signature-style`, `strict-boolean-expressions`) to
+  enforce immutable, explicitly-typed public APIs.
+
+### Per-Package Rule Exemptions
+
+A package extending a shared preset can narrow one of its rules locally via its own
+`.oxlintrc.json` instead of editing the preset — e.g. `packages/emblem-renderer/.oxlintrc.json`
+uses `prefer-readonly-parameter-types`'s `allow` option to exempt native/WASM types
+(`ArrayBuffer`, `Uint8Array`, `Uint32Array`, `PhotonImage`) that have no readonly-compatible
+TypeScript representation. Document the reasoning as a JSONC comment next to the exemption, the
+same way `packages/oxlint-config/override-style.json` documents repo-wide rule conflicts.
 
 ## Current Parity Notes
 
