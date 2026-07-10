@@ -176,7 +176,7 @@ This returns `isResolved` and `isOutdated` per thread — data the REST comments
 
 ## Code Formatting
 
-This repo uses Prettier with `prettier-plugin-tailwindcss`.
+This repo uses Oxfmt (`oxfmt.json` covers formatting rules, Tailwind class sorting, and import sorting).
 
 - **Format all files**: `pnpm format`
 - **Check without writing**: `pnpm ci:format`
