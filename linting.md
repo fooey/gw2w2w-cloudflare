@@ -41,10 +41,15 @@ This repository uses OXC as the primary lint and format toolchain.
 
 A package extending a shared preset can narrow one of its rules locally via its own
 `.oxlintrc.json` instead of editing the preset — e.g. `packages/emblem-renderer/.oxlintrc.json`
-uses `prefer-readonly-parameter-types`'s `allow` option to exempt native/WASM types
-(`ArrayBuffer`, `Uint8Array`, `Uint32Array`, `PhotonImage`) that have no readonly-compatible
-TypeScript representation. Document the reasoning as a JSONC comment next to the exemption, the
-same way `packages/oxlint-config/override-style.json` documents repo-wide rule conflicts.
+uses `prefer-readonly-parameter-types`'s `allow` option to exempt native buffer types
+(`ArrayBuffer`, `Uint8Array`, `Uint32Array`) that have no readonly-compatible TypeScript
+representation. Document the reasoning as a JSONC comment next to the exemption, the same way
+`packages/oxlint-config/override-style.json` documents repo-wide rule conflicts.
+
+Prefer a type-level fix over an allow-list entry when one exists: `PhotonImage`
+(`@cf-wasm/photon`) looked like it needed the same treatment, but it exposes zero public
+properties (methods only), so wrapping the parameter as `Readonly<PhotonImage>` satisfies the
+rule directly — no exemption needed.
 
 ## Current Parity Notes
 
