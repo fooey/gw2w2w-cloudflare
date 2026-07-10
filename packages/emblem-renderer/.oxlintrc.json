@@ -1,4 +1,23 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
-  "extends": ["../../packages/oxlint-config/library.json"]
+  "extends": ["../../packages/oxlint-config/library.json"],
+  "rules": {
+    // Exempted types have no readonly-compatible representation in TypeScript: ArrayBuffer/
+    // Uint8Array/Uint32Array are native TypedArray/buffer types (no readonly variant exists,
+    // unlike readonly T[]), and PhotonImage is an external WASM class instance (@cf-wasm/photon)
+    // whose methods aren't typed as readonly. Every other parameter in this package — including
+    // DecodedLayer/RenderOptions fields and the Guild/Color types from @repo/service-api/types
+    // flowing through renderEmblem — is fully readonly-checked.
+    "typescript/prefer-readonly-parameter-types": [
+      "error",
+      {
+        "allow": [
+          { "from": "lib", "name": "ArrayBuffer" },
+          { "from": "lib", "name": "Uint8Array" },
+          { "from": "lib", "name": "Uint32Array" },
+          { "from": "package", "name": "PhotonImage", "package": "@cf-wasm/photon" }
+        ]
+      }
+    ]
+  }
 }
