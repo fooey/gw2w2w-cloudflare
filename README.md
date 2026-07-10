@@ -238,7 +238,7 @@ The three services will be available at:
 ```sh
 pnpm format        # Oxfmt — format all files
 pnpm lint          # Oxlint across apps + packages
-pnpm ci:types      # TypeScript type checking (TS7 native compiler — ~3.4× faster than the old tsc)
+pnpm ci:types      # TypeScript type checking (TS7's native compiler — ~3.4× faster than the previous JS-based tsc)
 pnpm ci:boundaries # Enforce package import boundaries
 pnpm test          # Run all unit tests
 ```
