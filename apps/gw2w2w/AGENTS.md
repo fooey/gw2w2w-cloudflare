@@ -7,7 +7,7 @@ Rules specific to `apps/gw2w2w`. The root [AGENTS.md](../../AGENTS.md) covers mo
 - This app runs on Cloudflare Workers via `@opennextjs/cloudflare` — there is no Node.js runtime
 - `getCloudflareContext()` provides access to Cloudflare bindings (R2, KV, Service Bindings) in server components and API routes
 - Do not use Node.js-only APIs; use `@js-temporal/polyfill` for `Temporal` (installed via `instrumentation.ts`)
-- Type checking uses `tsgo --noEmit --checkers 4` before `next build` (see the `build` script)
+- Type checking uses TypeScript 7's native `tsc` (`node ./node_modules/typescript7/bin/tsc --noEmit --checkers 4`) before `next build` — see the `build` script and `TODOS.md` for why this app calls it via a `typescript7` alias instead of the plain `tsc` other packages use
 
 ## Route vs UI Separation
 

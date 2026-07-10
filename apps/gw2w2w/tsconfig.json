@@ -18,6 +18,9 @@
     "noImplicitOverride": true,
     "noUncheckedSideEffectImports": true,
 
+    /* TS 7 defaults `types` to [] instead of auto-discovering @types/* — process.env etc. need this explicit */
+    "types": ["node"],
+
     "allowJs": true,
     "jsx": "preserve",
     "noEmit": true

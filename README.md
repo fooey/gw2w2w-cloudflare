@@ -200,7 +200,7 @@ Real-time WvW data requires polling `api.guildwars2.com/v2/wvw/matches?ids=all` 
 
 - **[Turborepo](https://turbo.build/)** — Monorepo build system with intelligent task caching. Ensures only affected packages rebuild on change.
 - **[pnpm](https://pnpm.io/)** — Package manager. Uses a content-addressable store and hard links to avoid duplicating packages on disk, making installs significantly faster and lighter than npm or yarn, especially in a monorepo.
-- **[TypeScript](https://www.typescriptlang.org/)** — Used across all apps and packages with strict shared configs via `packages/typescript-config`. Type checking runs via [`tsgo`](https://github.com/microsoft/typescript-go) (`@typescript/native-preview`) — the native Go port of the TypeScript compiler (~3.4× faster than `tsc` on this codebase).
+- **[TypeScript](https://www.typescriptlang.org/)** — Used across all apps and packages with strict shared configs via `packages/typescript-config`. TypeScript 7's native Go compiler ships as the standard `tsc` (~3.4× faster than the old JS-based compiler on this codebase).
 - **[Oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)** — Linting and formatting enforced across the monorepo with OXC tooling. `oxfmt` also enables Tailwind class sorting via `sortTailwindcss`.
 
 ## Local Development
@@ -238,7 +238,7 @@ The three services will be available at:
 ```sh
 pnpm format        # Oxfmt — format all files
 pnpm lint          # Oxlint across apps + packages
-pnpm ci:types      # TypeScript type checking (tsgo — ~3.4× faster than tsc)
+pnpm ci:types      # TypeScript type checking (TS7's native compiler — ~3.4× faster than the previous JS-based tsc)
 pnpm ci:boundaries # Enforce package import boundaries
 pnpm test          # Run all unit tests
 ```

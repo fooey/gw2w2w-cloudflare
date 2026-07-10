@@ -24,7 +24,7 @@
     "db:query": "wrangler d1 execute wvw-events --remote --command",
     "deploy": "wrangler deploy",
     "lint": "oxlint .",
-    "check-types": "tsgo --noEmit",
+    "check-types": "tsc --noEmit",
     "format": "oxfmt --config ../../oxfmt.json .",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -47,7 +47,7 @@
     "@repo/vitest-config": "workspace:*",
     "@types/lodash-es": "catalog:",
     "@types/node": "catalog:",
-    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "wrangler": "catalog:"

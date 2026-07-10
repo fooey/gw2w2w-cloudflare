@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "oxlint .",
-    "check-types": "tsgo --noEmit",
+    "check-types": "tsc --noEmit",
     "format": "oxfmt --config ../../oxfmt.json .",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -22,7 +22,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@repo/typescript-config": "workspace:*",
     "@repo/vitest-config": "workspace:*",
-    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
