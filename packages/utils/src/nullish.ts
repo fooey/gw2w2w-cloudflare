@@ -39,8 +39,8 @@ export function isEmptyArray(value: readonly unknown[] | null | undefined): bool
 /**
  * True when value is neither null, undefined, nor an empty array.
  *
- * Shaped as `T[] | null | undefined` (not `isPresent`'s free `T`) so it narrows
- * correctly against complex discriminated-union types like react-query's `data`.
+ * Shaped as `readonly T[] | null | undefined` (not `isPresent`'s free `T`) so it
+ * narrows correctly against complex discriminated-union types like react-query's `data`.
  */
 export function isNonEmptyArray<T>(value: readonly T[] | null | undefined): value is readonly T[] {
   return !isEmptyArray(value);
