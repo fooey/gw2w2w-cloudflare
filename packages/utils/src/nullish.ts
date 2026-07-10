@@ -28,8 +28,11 @@ export function isNonEmptyString(value: string | null | undefined): value is str
 
 /**
  * True when value is null, undefined, or an empty array.
+ *
+ * Plain boolean, not a type predicate — the true branch also covers `[]`, which
+ * is neither null nor undefined, so `value is null | undefined` would be unsound.
  */
-export function isEmptyArray(value: readonly unknown[] | null | undefined): value is null | undefined {
+export function isEmptyArray(value: readonly unknown[] | null | undefined): boolean {
   return isNil(value) || value.length === 0;
 }
 

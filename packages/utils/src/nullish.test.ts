@@ -1,7 +1,7 @@
 // This file exercises null/undefined-handling logic directly, so explicit `undefined`
 // arguments are the point of the test, not redundant noise.
 /* eslint-disable unicorn/no-useless-undefined */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 
 import { isEmpty, isEmptyArray, isNil, isNonEmptyArray, isNonEmptyString, isPresent } from './nullish';
 
@@ -73,5 +73,33 @@ describe('isNonEmptyArray', () => {
   });
   it('returns true for a non-empty array', () => {
     expect(isNonEmptyArray([1])).toBe(true);
+  });
+
+  // Regression test: isPresent's free generic `<T>(value: T)` fails to narrow
+  // through complex discriminated unions like @tanstack/react-query's `data`
+  // field (found in ObjectiveDialog.tsx). isNonEmptyArray is shaped as
+  // `T[] | null | undefined` instead, which narrows correctly through the same
+  // kind of union — locked in via expectTypeOf, checked by `tsc` during
+  // `pnpm check-types`, not by the runtime assertion alone.
+  interface Item {
+    id: number;
+  }
+
+  type QueryResult<TData> =
+    | { status: 'pending'; data: undefined }
+    | { status: 'error'; data: undefined }
+    | { status: 'success'; data: TData };
+
+  it('narrows react-query-shaped data to a non-empty array', () => {
+    const result: QueryResult<Item[] | null> = { status: 'success', data: [{ id: 1 }] };
+
+    expect(isNonEmptyArray(result.data)).toBe(true);
+
+    // The `if` above already proves this branch always runs — it's a narrowing
+    // gate for the type-only check below, not a real conditional test path.
+    // eslint-disable-next-line vitest/no-conditional-in-test
+    if (isNonEmptyArray(result.data)) {
+      expectTypeOf(result.data).toEqualTypeOf<Item[]>();
+    }
   });
 });
