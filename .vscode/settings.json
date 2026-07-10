@@ -1,5 +1,4 @@
 {
-  "google.gemini.allowedShellCommands": ["pnpm", "git", "npx"],
   "eslint.workingDirectories": [
     {
       "pattern": "apps/*/"
@@ -27,34 +26,5 @@
   "[typescript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
-  "chat.tools.terminal.autoApprove": {
-    "/^pnpm --filter gw2w2w lint$/": {
-      "approve": true,
-      "matchCommandLine": true
-    },
-    "/^Set-Location 'c:\\\\src\\\\gw2w2w-cloudflare'; pnpm --filter gw2w2w lint 2>&1 \\| Select-Object -Last 250$/": {
-      "approve": true,
-      "matchCommandLine": true
-    },
-    "/^pnpm --filter gw2w2w lint 2>&1 \\| Select-String -Pattern 'WatchModeProbe\\|warning\\|error\\|eqeqeq\\|set-state-in-render\\|catch-or-return\\|no-useless-rename' -CaseSensitive:\\$false$/": {
-      "approve": true,
-      "matchCommandLine": true
-    },
-    "/^pnpm --filter \\./apps/gw2w2w build$/": {
-      "approve": true,
-      "matchCommandLine": true
-    },
-    "/^pnpm --filter \\./apps/gw2w2w test$/": {
-      "approve": true,
-      "matchCommandLine": true
-    },
-    "/^pnpm --filter \\./apps/gw2w2w lint$/": {
-      "approve": true,
-      "matchCommandLine": true
-    },
-    "/^pnpm --filter \\./apps/gw2w2w check-types$/": {
-      "approve": true,
-      "matchCommandLine": true
-    }
-  }
+  "js/ts.experimental.useTsgo": true
 }
