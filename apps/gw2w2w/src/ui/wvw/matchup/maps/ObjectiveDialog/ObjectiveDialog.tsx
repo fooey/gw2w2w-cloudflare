@@ -4,7 +4,7 @@ import type { MouseEvent } from 'react';
 import { useEffect, useRef } from 'react';
 
 import type { WvWMapType, WvWMatchObjective } from '@repo/service-api/types';
-import { isNil, isPresent } from '@repo/utils';
+import { isNil, isNonEmptyArray, isPresent } from '@repo/utils';
 
 import type { Direction } from '#ui/wvw/config/objectivesLayoutConfig';
 import type { TeamColorConfigKey } from '#ui/wvw/config/teamColorConfig';
@@ -71,7 +71,6 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
   const guild = guildQuery.data;
   const isClaimed = isPresent(matchObjective.claimed_by);
   const hasCaptureOrClaimData = isPresent(matchObjective.last_flipped) || isPresent(matchObjective.claimed_at);
-  const hasGuildUpgrades = isPresent(guildUpgrades) && guildUpgrades.length > 0;
   const hasActiveUpgrades = currentTier > 0 && isPresent(upgrade);
 
   function handleBackdropClick(e: MouseEvent<HTMLDialogElement>) {
@@ -143,7 +142,7 @@ export function ObjectiveDialog({ matchObjective, mapType, direction, onClose }:
           />
         )}
 
-        {hasGuildUpgrades && <ObjectiveDialogGuildUpgradesList guildUpgrades={guildUpgrades} />}
+        {isNonEmptyArray(guildUpgrades) && <ObjectiveDialogGuildUpgradesList guildUpgrades={guildUpgrades} />}
 
         {hasActiveUpgrades && <ObjectiveDialogActiveUpgradesList upgrade={upgrade} currentTier={currentTier} />}
 

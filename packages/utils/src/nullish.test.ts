@@ -3,7 +3,7 @@
 /* eslint-disable unicorn/no-useless-undefined */
 import { describe, expect, it } from 'vitest';
 
-import { isEmpty, isNil, isNonEmptyString, isPresent } from './nullish';
+import { isEmpty, isEmptyArray, isNil, isNonEmptyArray, isNonEmptyString, isPresent } from './nullish';
 
 describe('isNil', () => {
   it('returns true for null and undefined', () => {
@@ -51,5 +51,27 @@ describe('isNonEmptyString', () => {
   it('returns true for a non-empty string', () => {
     expect(isNonEmptyString('a')).toBe(true);
     expect(isNonEmptyString(' ')).toBe(true);
+  });
+});
+
+describe('isEmptyArray', () => {
+  it('returns true for null, undefined, and an empty array', () => {
+    expect(isEmptyArray(null)).toBe(true);
+    expect(isEmptyArray(undefined)).toBe(true);
+    expect(isEmptyArray([])).toBe(true);
+  });
+  it('returns false for a non-empty array', () => {
+    expect(isEmptyArray([1])).toBe(false);
+  });
+});
+
+describe('isNonEmptyArray', () => {
+  it('returns false for null, undefined, and an empty array', () => {
+    expect(isNonEmptyArray(null)).toBe(false);
+    expect(isNonEmptyArray(undefined)).toBe(false);
+    expect(isNonEmptyArray([])).toBe(false);
+  });
+  it('returns true for a non-empty array', () => {
+    expect(isNonEmptyArray([1])).toBe(true);
   });
 });

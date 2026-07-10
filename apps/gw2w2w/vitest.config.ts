@@ -5,8 +5,8 @@ import baseConfig from '@repo/vitest-config/base';
 export default mergeConfig(
   baseConfig,
   defineConfig({
-    esbuild: {
-      jsx: 'automatic',
+    oxc: {
+      jsx: { runtime: 'automatic' },
     },
     test: {
       server: {
