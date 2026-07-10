@@ -126,6 +126,8 @@ This formats all files, then runs all CI checks in order: format (verify) → li
 
 **A task is not complete until `pnpm ci:all` reports a full clear signal.** Don't stop at "I ran it and saw some warnings" or "the failures are pre-existing" without re-confirming — re-run after every fix until every stage passes (or the only failure is a known, separately-tracked issue like a dependency audit advisory that the user has explicitly told you to ignore). Partial verification is not verification.
 
+**`pnpm ci:all` doesn't cover every script.** Dev-utility scripts like `ts:clean` aren't wired into the CI pipeline. When you rename, remove, or re-alias a shared tool/binary, grep the affected `package.json`'s full `scripts` block for every reference to the old invocation, not just the ones `ci:all` exercises, and verify each one still resolves correctly.
+
 ## Addressing PR Review Comments
 
 When asked to address PR review comments, follow this workflow:
@@ -230,6 +232,8 @@ If you add or change logic covered by tests, update the tests to match.
 - The **Rendering Engine** section
 - The **Key Design Decisions** section
 - The **Tech Stack** section
+
+**When renaming or removing a tool, package, or config knob** (not just adding a feature), grep `README.md`, `AGENTS.md`, and other markdown docs for the old name before considering the change complete. `pnpm ci:all` does not check prose documentation.
 
 ## Overview
 
