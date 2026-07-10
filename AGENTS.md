@@ -14,7 +14,7 @@ This repo uses **pnpm catalogs** for shared dependency versions. The catalog is 
 
 **To upgrade a cataloged dependency**, update the version in `pnpm-workspace.yaml` and run `pnpm install`. Do not update individual `package.json` files.
 
-Current catalog entries: `wrangler`, `eslint`, `typescript`, `@typescript/native-preview`, `hono`, `zod`, `vitest`, `lodash-es`, `@types/lodash-es`, `@cloudflare/workers-types`, `@types/node`.
+Current catalog entries: `wrangler`, `eslint`, `typescript`, `hono`, `zod`, `vitest`, `lodash-es`, `@types/lodash-es`, `@cloudflare/workers-types`, `@types/node`.
 
 ## React Compiler
 
@@ -185,7 +185,7 @@ Primary linting is OXC-based. See `linting.md` for the active lint architecture,
 
 ## Type Checking
 
-- **Check all packages**: `pnpm ci:types` (uses `tsgo` from `@typescript/native-preview`)
+- **Check all packages**: `pnpm ci:types` (TypeScript 7's native `tsc`; `apps/gw2w2w` calls it via a `typescript7` alias — see `TODOS.md`)
 
 ## Package Boundaries
 
