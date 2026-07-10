@@ -30,34 +30,9 @@ This repository uses OXC as the primary lint and format toolchain.
 
 ## Rule Ownership by Package Type
 
-- Next app (`apps/gw2w2w`): React + Next + React Compiler + selected JS plugin rules.
+- Next app (`apps/gw2w2w`): React + Next + React Compiler, all via native oxlint plugins.
 - Services (`apps/service-api`, `apps/service-emblem`): base + Node safety rules.
 - Libraries (`packages/*` runtime libs): base + Node safety rules.
-
-## JS Plugin Dependencies
-
-Even though ESLint is not the primary lint runner, these packages must remain explicitly available at the root for `jsPlugins` loading:
-
-- `eslint-plugin-turbo`
-- `eslint-plugin-react-compiler`
-- `eslint-plugin-react-hooks`
-
-If these are removed from root `devDependencies`, OXC `jsPlugins` may fail to resolve in CI/editor runs.
-
-## React Compiler Rules via JS Plugin
-
-`packages/oxlint-config/nextjs-app.json` uses an alias for `eslint-plugin-react-hooks`:
-
-- alias: `react-hooks-js`
-
-Enabled compiler-adjacent rules:
-
-- `react-hooks-js/set-state-in-render` (error)
-- `react-hooks-js/set-state-in-effect` (warn)
-- `react-hooks-js/immutability` (warn)
-- `react-hooks-js/refs` (warn)
-
-These complement native OXC React and React Compiler coverage.
 
 ## Current Parity Notes
 
