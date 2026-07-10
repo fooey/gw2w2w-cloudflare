@@ -21,20 +21,19 @@ Add per-app/package documentation to the monorepo. Each doc must be verified aga
 
 ## Current State
 
-| File                                 | Status    | Notes                                        |
-| ------------------------------------ | --------- | -------------------------------------------- |
-| `README.md` (root)                   | ✅ Done   | Comprehensive overview, links to sub-READMEs |
-| `AGENTS.md` (root)                   | ✅ Done   | Project context, workflows, conventions      |
-| `apps/gw2w2w/README.md`              | ✅ Done   | Features, architecture, bindings, tech stack |
-| `apps/service-api/README.md`         | ✅ Done   | Endpoints, caching, DO, D1, bindings         |
-| `apps/service-emblem/README.md`      | ✅ Done   | Endpoints, rendering pipeline, caching       |
-| `packages/emblem-renderer/README.md` | ✅ Done   | Exports, compositing pipeline, testing       |
-| `packages/utils/README.md`           | ✅ Done   | Exports table with all functions             |
-| `packages/eslint-config/README.md`   | ✅ Exists | Basic description present                    |
-| `apps/gw2w2w/AGENTS.md`              | ✅ Done   | OpenNext, route/UI separation, WASM, SSE     |
-| `apps/service-api/AGENTS.md`         | ✅ Done   | Routes, OpenAPI, DO patterns, caching        |
-| `apps/service-emblem/AGENTS.md`      | ✅ Done   | WASM, rendering order, R2, service binding   |
-| `packages/emblem-renderer/AGENTS.md` | ✅ Done   | Platform independence, compositing rules     |
+| File                                 | Status  | Notes                                        |
+| ------------------------------------ | ------- | -------------------------------------------- |
+| `README.md` (root)                   | ✅ Done | Comprehensive overview, links to sub-READMEs |
+| `AGENTS.md` (root)                   | ✅ Done | Project context, workflows, conventions      |
+| `apps/gw2w2w/README.md`              | ✅ Done | Features, architecture, bindings, tech stack |
+| `apps/service-api/README.md`         | ✅ Done | Endpoints, caching, DO, D1, bindings         |
+| `apps/service-emblem/README.md`      | ✅ Done | Endpoints, rendering pipeline, caching       |
+| `packages/emblem-renderer/README.md` | ✅ Done | Exports, compositing pipeline, testing       |
+| `packages/utils/README.md`           | ✅ Done | Exports table with all functions             |
+| `apps/gw2w2w/AGENTS.md`              | ✅ Done | OpenNext, route/UI separation, WASM, SSE     |
+| `apps/service-api/AGENTS.md`         | ✅ Done | Routes, OpenAPI, DO patterns, caching        |
+| `apps/service-emblem/AGENTS.md`      | ✅ Done | WASM, rendering order, R2, service binding   |
+| `packages/emblem-renderer/AGENTS.md` | ✅ Done | Platform independence, compositing rules     |
 
 ---
 

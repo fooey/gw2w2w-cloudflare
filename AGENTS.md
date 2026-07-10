@@ -14,7 +14,7 @@ This repo uses **pnpm catalogs** for shared dependency versions. The catalog is 
 
 **To upgrade a cataloged dependency**, update the version in `pnpm-workspace.yaml` and run `pnpm install`. Do not update individual `package.json` files.
 
-Current catalog entries: `wrangler`, `eslint`, `typescript`, `hono`, `zod`, `vitest`, `lodash-es`, `@types/lodash-es`, `@cloudflare/workers-types`, `@types/node`.
+Current catalog entries: `wrangler`, `typescript`, `hono`, `zod`, `vitest`, `lodash-es`, `@types/lodash-es`, `@cloudflare/workers-types`, `@types/node`.
 
 ## React Compiler
 
@@ -176,7 +176,7 @@ This returns `isResolved` and `isOutdated` per thread — data the REST comments
 
 ## Code Formatting
 
-This repo uses Prettier with `prettier-plugin-tailwindcss`.
+This repo uses Oxfmt (`oxfmt.json` covers formatting rules, Tailwind class sorting, and import sorting).
 
 - **Format all files**: `pnpm format`
 - **Check without writing**: `pnpm ci:format`
@@ -260,7 +260,6 @@ An open-source suite of utilities for Guild Wars 2 players, built as a Turborepo
 | `packages/emblem-renderer`   | Emblem rendering logic. `pixels.ts` — shared pure compositing loop. `index.ts` — server-side Photon WASM wrapper (Workers only). |
 | `packages/utils`             | Shared routing, validation, string utilities                                                                                     |
 | `packages/oxlint-config`     | Shared Oxlint config presets                                                                                                     |
-| `packages/eslint-config`     | Deprecated ESLint config compatibility package                                                                                   |
 | `packages/typescript-config` | Shared TypeScript config                                                                                                         |
 
 ## Tech Stack
@@ -372,28 +371,6 @@ General API reference: https://wiki.guildwars2.com/wiki/API:Main
   - `wvw-matches-all-single.json` — single full match object (trimmed; full response is ~47 KB per match)
   - `wvw-matches-overview-all.json` — all 9 active matches from `/v2/wvw/matches/overview?ids=all`
   - `wvw-matches-stats-all.json` — all 9 active matches from `/v2/wvw/matches/stats?ids=all`
-
-## ESLint Config Structure
-
-This section is legacy context for the deprecated `packages/eslint-config` package and is not the primary lint path.
-
-Configs live in `packages/eslint-config/`. All packages extend `base.ts` either directly or via the React/Next wrappers.
-
-```
-base.ts              → strictTypeChecked + stylisticTypeChecked + turbo + prettier
-react-internal.ts    → base + @eslint-react recommended-type-checked + browser globals
-next.ts              → base + @eslint-react + @next/eslint-plugin-next + serviceworker+browser globals
-```
-
-**Key rules:**
-
-- `@typescript-eslint/consistent-type-imports` — enforces `import type` inline style
-- `@typescript-eslint/no-non-null-assertion` — forbids `!` assertions; use `as Type` instead
-- `@typescript-eslint/non-nullable-type-assertion-style` — disabled (conflicts with above)
-- `turbo/no-undeclared-env-vars` — warns on env vars not declared in `turbo.json`
-- `no-console` — warns except for `console.info`, `console.warn`, `console.error`
-
-**Do not re-spread** `tseslint.configs.recommended`, `js.configs.recommended`, or `eslintConfigPrettier` in `react-internal.ts` or `next.ts`. They already come in via `baseConfig`. Re-spreading silently downgrades `strictTypeChecked` rules since later flat-config entries win on conflicts.
 
 ## D1 Database (`service-api`)
 

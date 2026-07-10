@@ -47,6 +47,8 @@ const SORT_COLUMNS = [
   'claims_red_home',
 ] as const;
 
+export type GuildActivitySortColumn = (typeof SORT_COLUMNS)[number];
+
 // Maps each sort key to the SQL expression it represents in the GROUP BY query.
 // Cannot use column aliases in ORDER BY since Drizzle's sql<> templates don't
 // emit AS aliases into SQL — they are TypeScript-only property names.
@@ -66,6 +68,10 @@ const SORT_SQL = {
 const MAP_TYPES = ['Center', 'RedHome', 'BlueHome', 'GreenHome'] as const;
 const OBJECTIVE_TYPES = ['Camp', 'Tower', 'Keep', 'Castle'] as const;
 const OWNER_VALUES = ['Red', 'Blue', 'Green', 'Neutral'] as const;
+
+export type GuildActivityMapType = (typeof MAP_TYPES)[number];
+export type GuildActivityObjectiveType = (typeof OBJECTIVE_TYPES)[number];
+export type GuildActivityOwner = (typeof OWNER_VALUES)[number];
 
 const querySchema = z.object({
   matchId: z.string().regex(/^\d-\d$/u),

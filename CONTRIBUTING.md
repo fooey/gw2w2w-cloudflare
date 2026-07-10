@@ -79,7 +79,7 @@ Shared dependency versions live in the `catalog` in `pnpm-workspace.yaml`. When 
 
 - **TypeScript** — strict mode, no `any`
 - **React** — React 19 + React Compiler enabled. No `useMemo`, `useCallback`, or `React.memo()` — the compiler handles memoization automatically
-- **Formatting** — Prettier with `prettier-plugin-tailwindcss`. Run `pnpm format` after every change
+- **Formatting** — Oxfmt (handles Tailwind class sorting and import sorting natively). Run `pnpm format` after every change
 - **Tailwind CSS v4** — utility classes only, no custom CSS unless absolutely necessary
 
 ## Submitting Changes

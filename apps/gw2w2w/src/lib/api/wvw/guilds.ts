@@ -1,16 +1,22 @@
-import type { GuildActivityResponse } from '@repo/service-api/types';
+import type {
+  GuildActivityMapType,
+  GuildActivityObjectiveType,
+  GuildActivityOwner,
+  GuildActivityResponse,
+  GuildActivitySortColumn,
+} from '@repo/service-api/types';
 import { isNonEmptyString, isPresent } from '@repo/utils';
 
 import type { ServiceApiClient } from '#lib/api/api.client.ts';
 
 export interface FetchWvwGuildsParams {
   matchId: string;
-  sort?: string;
+  sort?: GuildActivitySortColumn;
   order?: 'asc' | 'desc';
   maxAge?: number;
-  mapType?: string[];
-  objectiveType?: string[];
-  owner?: string[];
+  mapType?: GuildActivityMapType[];
+  objectiveType?: GuildActivityObjectiveType[];
+  owner?: GuildActivityOwner[];
   limit?: number;
   page?: number;
 }
