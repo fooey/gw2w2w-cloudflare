@@ -233,7 +233,7 @@ If you add or change logic covered by tests, update the tests to match.
 - The **Key Design Decisions** section
 - The **Tech Stack** section
 
-**When renaming or removing a tool, package, or config knob** (not just adding a feature), grep `README.md`, `AGENTS.md`, and other markdown docs for the old name before considering the change complete. `pnpm ci:all` does not check prose documentation.
+**When renaming or removing a tool, package, or config knob** (not just adding a feature), grep `README.md` and every `AGENTS.md` in the repo — there's one per app/package in addition to this root one (`find . -iname AGENTS.md -not -path '*/node_modules/*'`) — plus other markdown docs, for the old name before considering the change complete. `pnpm ci:all` does not check prose documentation.
 
 ## Overview
 
