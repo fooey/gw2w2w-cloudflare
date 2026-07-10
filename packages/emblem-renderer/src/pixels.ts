@@ -1,25 +1,30 @@
 // This file does pixel/alpha-channel compositing math, so bitwise operators are intentional here.
 /* eslint-disable no-bitwise */
 export const IMAGE_DIMENSION = 128;
-export type ColorRGB = [number, number, number];
+export type ColorRGB = readonly [number, number, number];
 
 export interface DecodedLayer {
   /** Raw RGBA pixels in row-major order, same layout as ImageData.data */
-  data: Uint8Array;
+  readonly data: Uint8Array;
   /** Uint32 view over data for fast pixel access */
-  u32: Uint32Array;
-  width: number;
-  height: number;
+  readonly u32: Uint32Array;
+  readonly width: number;
+  readonly height: number;
 }
 
 export interface RenderOptions {
-  flags?: string[];
-  bgRGB: ColorRGB;
-  fg1RGB: ColorRGB;
-  fg2RGB: ColorRGB;
+  readonly flags?: readonly string[];
+  readonly bgRGB: ColorRGB;
+  readonly fg1RGB: ColorRGB;
+  readonly fg2RGB: ColorRGB;
 }
 
-export function getFlipsFromFlags(flags: string[] | undefined) {
+export function getFlipsFromFlags(flags: readonly string[] | undefined): {
+  flipBgH: boolean;
+  flipBgV: boolean;
+  flipFgH: boolean;
+  flipFgV: boolean;
+} {
   return {
     flipBgH: flags?.includes('FlipBackgroundHorizontal') ?? false,
     flipBgV: flags?.includes('FlipBackgroundVertical') ?? false,

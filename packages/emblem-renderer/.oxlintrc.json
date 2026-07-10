@@ -1,4 +1,23 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
-  "extends": ["../../packages/oxlint-config/library.json"]
+  "extends": ["../../packages/oxlint-config/library.json"],
+  "rules": {
+    // ArrayBuffer/Uint8Array/Uint32Array are native TypedArray/buffer types with no
+    // readonly-compatible representation in TypeScript (no `readonly` variant, unlike
+    // `readonly T[]`), so they're exempted here. Every other parameter in this package —
+    // including DecodedLayer/RenderOptions fields, the Guild/Color types from
+    // @repo/service-api/types flowing through renderEmblem, and PhotonImage (wrapped in
+    // `Readonly<PhotonImage>` where it appears as a parameter, since it exposes only
+    // methods and no mutable properties) — is fully readonly-checked without exemption.
+    "typescript/prefer-readonly-parameter-types": [
+      "error",
+      {
+        "allow": [
+          { "from": "lib", "name": "ArrayBuffer" },
+          { "from": "lib", "name": "Uint8Array" },
+          { "from": "lib", "name": "Uint32Array" }
+        ]
+      }
+    ]
+  }
 }
