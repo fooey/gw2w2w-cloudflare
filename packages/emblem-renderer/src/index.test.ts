@@ -50,12 +50,20 @@ function makeBgMaskBuffer(topLeft: number, topRight: number, bottomLeft: number,
 
 describe('resizeEmblemImage', () => {
   it('returns the same image reference when size equals IMAGE_DIMENSION', () => {
-    const image = new PhotonImage(new Uint8Array(2 * 2 * 4), 2, 2);
+    const image = new PhotonImage(
+      new Uint8Array(IMAGE_DIMENSION * IMAGE_DIMENSION * 4),
+      IMAGE_DIMENSION,
+      IMAGE_DIMENSION,
+    );
     expect(resizeEmblemImage(image, IMAGE_DIMENSION)).toBe(image);
   });
 
   it('resizes to the requested EmblemSize when different from IMAGE_DIMENSION', () => {
-    const image = new PhotonImage(new Uint8Array(2 * 2 * 4), 2, 2);
+    const image = new PhotonImage(
+      new Uint8Array(IMAGE_DIMENSION * IMAGE_DIMENSION * 4),
+      IMAGE_DIMENSION,
+      IMAGE_DIMENSION,
+    );
     const resized = resizeEmblemImage(image, 16);
     expect(resized).not.toBe(image);
     expect(resized.get_width()).toBe(16);
