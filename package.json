@@ -27,6 +27,8 @@
     "ci:test:force": "pnpm test --force",
     "ci:all": "pnpm ci:format && pnpm ci:lint && pnpm ci:types && pnpm ci:boundaries && pnpm ci:test && pnpm ci:audit",
     "ci:all:force": "pnpm ci:format && pnpm ci:lint:force && pnpm ci:types:force && pnpm ci:boundaries && pnpm ci:test:force && pnpm ci:audit",
+    "ci:all:quiet": "pnpm ci:format && pnpm ci:lint --output-logs=errors-only && pnpm ci:types --output-logs=errors-only && pnpm ci:boundaries && pnpm ci:test --output-logs=errors-only && pnpm ci:audit",
+    "ci:all:quiet-force": "pnpm ci:format && pnpm ci:lint:force --output-logs=errors-only && pnpm ci:types:force --output-logs=errors-only && pnpm ci:boundaries && pnpm ci:test:force --output-logs=errors-only && pnpm ci:audit",
     "devtools": "turbo devtools",
     "ts:clean": "turbo run ts:clean",
     "wrangler": "wrangler",
