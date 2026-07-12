@@ -53,6 +53,10 @@ const app = new Hono<{ Bindings: CloudflareEnv }>()
   })
   .get('/robots.txt', (c) => c.text('User-agent: *\nDisallow: /\n'))
   .get('/favicon.ico', (c) => c.newResponse(null, 404))
+  .get('/debug/echo-headers', async (c) => {
+    const res = await fetch('https://httpbin.org/headers');
+    return c.json(await res.json());
+  })
   .route('/gw2', apiGw2Route)
   .route('/wvw', apiWvwRoute)
   .notFound((c) => {
