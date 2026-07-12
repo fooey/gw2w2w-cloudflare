@@ -298,8 +298,12 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       console.warn(`[MatchupPoller] [${requestId}] GW2_API_KEY not set — skipping poll`);
       return null;
     }
+    if (isEmpty(this.env.GW2_PROXY_SHARED_KEY)) {
+      console.warn(`[MatchupPoller] [${requestId}] GW2_PROXY_SHARED_KEY not set — skipping poll`);
+      return null;
+    }
 
-    const fetchUrl = new URL(GW2_MATCHES_PATH, this.env.GW2_API_BASE);
+    const fetchUrl = new URL(GW2_MATCHES_PATH, this.env.GW2_PROXY_BASE);
 
     const fetchParams = new URLSearchParams({
       ids: 'all',
@@ -313,6 +317,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       'User-Agent': 'gw2w2w.com',
       'Cache-Control': 'no-cache',
       'X-Request-Id': requestId,
+      'X-Proxy-Key': this.env.GW2_PROXY_SHARED_KEY,
     };
 
     const response = await fetch(fetchUrl.toString(), {

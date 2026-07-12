@@ -13,16 +13,17 @@ export class GW2RateLimitError extends Error {
 }
 
 export async function apiFetch(env: CloudflareEnv, path: string, init?: RequestInit): Promise<Response> {
-  if (isEmpty(env.GW2_API_BASE) || isEmpty(env.GW2_API_KEY)) {
-    throw new Error('GW2_API_BASE and GW2_API_KEY must be set in environment variables');
+  if (isEmpty(env.GW2_PROXY_BASE) || isEmpty(env.GW2_API_KEY) || isEmpty(env.GW2_PROXY_SHARED_KEY)) {
+    throw new Error('GW2_PROXY_BASE, GW2_API_KEY, and GW2_PROXY_SHARED_KEY must be set in environment variables');
   }
 
-  const requestUrl = new URL(`${env.GW2_API_BASE}${path}`);
+  const requestUrl = new URL(`${env.GW2_PROXY_BASE}${path}`);
 
-  // attach api key to headers
+  // attach api key and proxy auth to headers
   const headers = new Headers(init?.headers);
   headers.set('Authorization', `Bearer ${env.GW2_API_KEY}`);
   headers.set('User-Agent', 'gw2w2w.com');
+  headers.set('X-Proxy-Key', env.GW2_PROXY_SHARED_KEY);
   const requestInit = { ...init, headers, signal: AbortSignal.timeout(20_000) };
 
   const response = await fetch(requestUrl, requestInit);

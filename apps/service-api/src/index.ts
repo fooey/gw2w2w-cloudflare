@@ -33,6 +33,8 @@ export interface CloudflareEnv {
   EMBLEM_ASSETS: R2Bucket;
   GW2_API_BASE: string;
   GW2_API_KEY?: string;
+  GW2_PROXY_BASE: string;
+  GW2_PROXY_SHARED_KEY?: string;
   WVW_DB: D1Database;
   MATCHUP_POLLER: DurableObjectNamespace;
 }

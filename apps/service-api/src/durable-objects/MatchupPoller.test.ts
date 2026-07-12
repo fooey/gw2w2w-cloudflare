@@ -17,6 +17,8 @@ interface FakeState {
 interface FakeEnv {
   GW2_API_KEY?: string;
   GW2_API_BASE: string;
+  GW2_PROXY_BASE: string;
+  GW2_PROXY_SHARED_KEY?: string;
   WVW_DB: {
     prepare: ReturnType<typeof vi.fn>;
   };
@@ -40,6 +42,7 @@ function createHarness(initialAlarm: number | null | undefined): { state: FakeSt
 
   const env: FakeEnv = {
     GW2_API_BASE: 'https://api.guildwars2.com',
+    GW2_PROXY_BASE: 'https://czt-proxy.gw2w2w.com',
     WVW_DB: {
       prepare: vi.fn<() => { all: () => Promise<{ results: unknown[] }> }>(() => ({
         all: async () => ({ results: [] }),
@@ -132,6 +135,7 @@ describe('MatchupPoller alarm backoff', () => {
 
     const { state, env } = createHarness(Date.now() + 60_000);
     env.GW2_API_KEY = 'test-key';
+    env.GW2_PROXY_SHARED_KEY = 'test-proxy-key';
 
     const poller = new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
@@ -166,6 +170,7 @@ describe('MatchupPoller alarm backoff', () => {
 
     const { state, env } = createHarness(Date.now() + 60_000);
     env.GW2_API_KEY = 'test-key';
+    env.GW2_PROXY_SHARED_KEY = 'test-proxy-key';
 
     const poller = new MatchupPoller(state as never, env as never);
     await flushConstructorWork();
