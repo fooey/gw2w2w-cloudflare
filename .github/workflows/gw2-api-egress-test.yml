@@ -16,8 +16,12 @@ jobs:
         run: curl -s https://ifconfig.me && echo
 
       - name: Call GW2 API
+        env:
+          GW2_API_KEY: ${{ secrets.GW2_API_KEY }}
         run: |
           curl -s -D - -o /tmp/body.json -w "\nHTTP_STATUS:%{http_code}\n" \
+            -H "Authorization: Bearer ${GW2_API_KEY}" \
+            -H "User-Agent: gw2w2w.com" \
             "https://api.guildwars2.com/v2/wvw/matches?ids=all"
 
       - name: Body preview
