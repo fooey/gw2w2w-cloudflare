@@ -1,0 +1,24 @@
+name: GW2 API Egress Test
+
+# Manual, one-off diagnostic: hits the GW2 API from a GitHub-hosted runner (Azure IP,
+# not Cloudflare's shared Workers egress pool) to check whether the sustained 429s
+# service-api sees are specific to Cloudflare's egress IPs or apply to datacenter/CI
+# IPs more broadly. Not intended to run on a schedule or serve as a proxy.
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test GW2 API reachability
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show runner egress IP
+        run: curl -s https://ifconfig.me && echo
+
+      - name: Call GW2 API
+        run: |
+          curl -s -D - -o /tmp/body.json -w "\nHTTP_STATUS:%{http_code}\n" \
+            "https://api.guildwars2.com/v2/wvw/matches?ids=all"
+
+      - name: Body preview
+        run: head -c 500 /tmp/body.json
