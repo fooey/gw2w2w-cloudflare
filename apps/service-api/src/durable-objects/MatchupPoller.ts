@@ -321,6 +321,9 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
 
     console.info(`[MatchupPoller] [${requestId}] fetch ${path}`);
     // Timeout is managed by gw2Fetch itself (per-attempt, not shared across direct+proxy) — don't set signal here.
+    // 8s per attempt: worst case (both direct and proxy time out) is 16s, leaving a gap before
+    // the next scheduled poll (POLL_INTERVAL_MS = 20s) rather than running back-to-back with
+    // zero pause during exactly the kind of incident this fallback exists to handle.
     const response = await gw2Fetch(
       this.env,
       path,
@@ -328,7 +331,7 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
         headers,
         cf: { cacheTtl: 0, cacheEverything: false },
       },
-      10_000,
+      8000,
     );
 
     if (!response.ok) {
