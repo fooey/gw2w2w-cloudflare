@@ -4,6 +4,7 @@ import { isEqual } from 'lodash-es';
 import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
 
 import type { CloudflareEnv } from '#index.ts';
+import { gw2Fetch } from '#lib/resources/gw2Fetch.ts';
 import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
 
 const POLL_INTERVAL_MS = 20_000;
@@ -11,7 +12,8 @@ const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
 // GW2 API rate limit parameters (observed from x-rate-limit-limit response header)
 // Bucket: 600 requests, refill: ~5 req/s
 const GW2_RATE_LIMIT_REFILL = '~5 req/s';
-const GW2_MATCHES_PATH = '/v2/wvw/matches';
+// Appended directly to GW2_API_BASE / GW2_PROXY_BASE via gw2Fetch — both already include `/v2`.
+const GW2_MATCHES_PATH = '/wvw/matches';
 // Cap replay to avoid large D1 reads on reconnect after a long disconnect.
 const MAX_REPLAY_EVENTS = 500;
 // Maximum time to wait for a single SSE subscriber write before treating the
@@ -303,29 +305,26 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
       return null;
     }
 
-    const fetchUrl = new URL(GW2_MATCHES_PATH, this.env.GW2_PROXY_BASE);
-
     const fetchParams = new URLSearchParams({
       ids: 'all',
       ts: requestTime.getTime().toString(),
       request_id: requestId,
     });
-    fetchUrl.search = fetchParams.toString();
+    const path = `${GW2_MATCHES_PATH}?${fetchParams.toString()}`;
 
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.env.GW2_API_KEY}`,
       'User-Agent': 'gw2w2w.com',
       'Cache-Control': 'no-cache',
       'X-Request-Id': requestId,
-      'X-Proxy-Key': this.env.GW2_PROXY_SHARED_KEY,
     };
 
-    const response = await fetch(fetchUrl.toString(), {
+    console.info(`[MatchupPoller] [${requestId}] fetch ${path}`);
+    const response = await gw2Fetch(this.env, path, {
       headers,
       cf: { cacheTtl: 0, cacheEverything: false },
       signal: AbortSignal.timeout(10_000),
     });
-    console.info(`[MatchupPoller] [${requestId}] fetch ${fetchUrl.toString()}`);
 
     if (!response.ok) {
       if (response.status === 429) {

@@ -19,6 +19,9 @@ interface FakeEnv {
   GW2_API_BASE: string;
   GW2_PROXY_BASE: string;
   GW2_PROXY_SHARED_KEY?: string;
+  EMBLEM_ENGINE_GUILD_LOOKUP: {
+    get: ReturnType<typeof vi.fn<() => Promise<string | null>>>;
+  };
   WVW_DB: {
     prepare: ReturnType<typeof vi.fn>;
   };
@@ -43,6 +46,10 @@ function createHarness(initialAlarm: number | null | undefined): { state: FakeSt
   const env: FakeEnv = {
     GW2_API_BASE: 'https://api.guildwars2.com',
     GW2_PROXY_BASE: 'https://czt-proxy.gw2w2w.com',
+    // Defaults to "healthy" (no circuit-breaker key set) so gw2Fetch tries direct first, matching prod defaults.
+    EMBLEM_ENGINE_GUILD_LOOKUP: {
+      get: vi.fn<() => Promise<string | null>>(async () => null),
+    },
     WVW_DB: {
       prepare: vi.fn<() => { all: () => Promise<{ results: unknown[] }> }>(() => ({
         all: async () => ({ results: [] }),
@@ -120,6 +127,9 @@ describe('MatchupPoller alarm backoff', () => {
 
     const fetchMock = vi
       .fn<typeof fetch>()
+      // direct attempt — 429, gw2Fetch falls through to proxy
+      .mockResolvedValueOnce(new Response('', { status: 429 }))
+      // proxy attempt — also 429; this is the response #fetchMatches/#handleRateLimit actually sees
       .mockResolvedValueOnce(
         new Response('', {
           status: 429,
@@ -129,6 +139,7 @@ describe('MatchupPoller alarm backoff', () => {
           },
         }),
       )
+      // 1.1.1.1/cdn-cgi/trace egress-IP diagnostic inside #handleRateLimit
       .mockResolvedValueOnce(new Response('ip=203.0.113.10\n', { status: 200 }));
 
     vi.stubGlobal('fetch', fetchMock);
@@ -156,6 +167,7 @@ describe('MatchupPoller alarm backoff', () => {
 
     const fetchMock = vi
       .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response('', { status: 429 }))
       .mockResolvedValueOnce(
         new Response('', {
           status: 429,
