@@ -102,13 +102,18 @@ const worker = {
       return;
     }
 
-    const didInvalidate = await checkBuildId(env);
-    if (didInvalidate) {
-      ctx.waitUntil(warmStaticCaches(env));
+    if (event.cron === '*/15 * * * *') {
+      const didInvalidate = await checkBuildId(env);
+      if (didInvalidate) {
+        ctx.waitUntil(warmStaticCaches(env));
+      }
+      // Ensure the MatchupPoller DO is awake. The DO schedules its own alarm loop;
+      // this fetch is only needed if the DO has been evicted and the alarm has lapsed.
+      ctx.waitUntil(env.MATCHUP_POLLER.getByName('global').fetch('https://internal/poller'));
+      return;
     }
-    // Ensure the MatchupPoller DO is awake. The DO schedules its own alarm loop;
-    // this fetch is only needed if the DO has been evicted and the alarm has lapsed.
-    ctx.waitUntil(env.MATCHUP_POLLER.getByName('global').fetch('https://internal/poller'));
+
+    console.warn(`[scheduled] Unrecognized cron pattern: ${event.cron}`);
   },
 };
 

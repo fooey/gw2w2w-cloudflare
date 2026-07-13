@@ -59,6 +59,10 @@ export async function gw2Fetch(
   init: RequestInit = {},
   timeoutMs = 10_000,
 ): Promise<Response> {
+  if (!path.startsWith('/')) {
+    throw new Error(`gw2Fetch: path must start with "/", got "${path}"`);
+  }
+
   const directHealthy = await isMarkedHealthy(env, GW2_DIRECT_UNHEALTHY_KV_KEY);
   let directResponse: Response | null = null;
 
