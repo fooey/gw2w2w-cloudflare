@@ -25,7 +25,7 @@ pattern = "api.gw2w2w.com"
 custom_domain = true
 
 [triggers]
-crons = ["*/15 * * * *"]
+crons = ["*/15 * * * *", "*/1 * * * *"]
 
 [[kv_namespaces]]
 binding = "EMBLEM_ENGINE_GUILD_LOOKUP"

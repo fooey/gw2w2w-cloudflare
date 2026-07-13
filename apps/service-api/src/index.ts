@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { allowedCsrf, allowedOrigin } from '@repo/utils';
 
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
+import { checkGw2Health } from './cron/gw2HealthCheck';
 import { GW2RateLimitError } from './lib/resources/api';
 import { apiGw2Route } from './routes/gw2';
 import { createOpenAPIRoutes } from './routes/openapi';
@@ -95,7 +96,12 @@ export type ServiceApiAppType = typeof app;
 
 const worker = {
   fetch: app.fetch,
-  async scheduled(_event: ScheduledEvent, env: CloudflareEnv, ctx: ExecutionContext): Promise<void> {
+  async scheduled(event: ScheduledEvent, env: CloudflareEnv, ctx: ExecutionContext): Promise<void> {
+    if (event.cron === '*/1 * * * *') {
+      ctx.waitUntil(checkGw2Health(env));
+      return;
+    }
+
     const didInvalidate = await checkBuildId(env);
     if (didInvalidate) {
       ctx.waitUntil(warmStaticCaches(env));
