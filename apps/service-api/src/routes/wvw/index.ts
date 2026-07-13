@@ -40,9 +40,13 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
       // eslint-disable-next-line typescript/no-unsafe-type-assertion
       const pollerStatus = (await pollerResponse.json()) as PollerStatus;
       const health = await getGw2Health(c.env);
-      const pollIsStale =
-        !isNonEmptyString(pollerStatus.lastSuccessfulPollAt) ||
-        Date.now() - new Date(pollerStatus.lastSuccessfulPollAt).getTime() > POLL_STALE_THRESHOLD_MS;
+      const lastPollMs = isNonEmptyString(pollerStatus.lastSuccessfulPollAt)
+        ? new Date(pollerStatus.lastSuccessfulPollAt).getTime()
+        : Number.NaN;
+      // An unparseable timestamp (NaN) must count as stale, not silently "fresh" —
+      // NaN comparisons are always false, so `Date.now() - NaN > threshold` would otherwise
+      // hide the exact poller failure this flag exists to surface.
+      const pollIsStale = Number.isNaN(lastPollMs) || Date.now() - lastPollMs > POLL_STALE_THRESHOLD_MS;
 
       return c.json({ ...pollerStatus, ...health, pollIsStale });
     },
