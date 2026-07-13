@@ -56,10 +56,8 @@ export async function warmStaticCaches(env: CloudflareEnv): Promise<void> {
  * Returns true if the build ID changed and caches were invalidated.
  */
 export async function checkBuildId(env: CloudflareEnv): Promise<boolean> {
-  const response = await gw2Fetch(env, GW2_BUILD_PATH, {
-    headers: { 'User-Agent': 'gw2w2w.com' },
-    signal: AbortSignal.timeout(20_000),
-  });
+  // Timeout is managed by gw2Fetch itself (per-attempt, not shared across direct+proxy) — don't set signal here.
+  const response = await gw2Fetch(env, GW2_BUILD_PATH, { headers: { 'User-Agent': 'gw2w2w.com' } }, 20_000);
 
   if (!response.ok) {
     console.error(`Build ID check failed: ${response.status.toString()} ${response.statusText}`);

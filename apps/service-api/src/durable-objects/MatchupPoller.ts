@@ -320,11 +320,16 @@ export class MatchupPoller extends DurableObject<CloudflareEnv> {
     };
 
     console.info(`[MatchupPoller] [${requestId}] fetch ${path}`);
-    const response = await gw2Fetch(this.env, path, {
-      headers,
-      cf: { cacheTtl: 0, cacheEverything: false },
-      signal: AbortSignal.timeout(10_000),
-    });
+    // Timeout is managed by gw2Fetch itself (per-attempt, not shared across direct+proxy) — don't set signal here.
+    const response = await gw2Fetch(
+      this.env,
+      path,
+      {
+        headers,
+        cf: { cacheTtl: 0, cacheEverything: false },
+      },
+      10_000,
+    );
 
     if (!response.ok) {
       if (response.status === 429) {

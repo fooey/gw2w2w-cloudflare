@@ -166,4 +166,28 @@ describe('gw2Fetch', () => {
     expect(response.status).toBe(429);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('gives the direct and proxy attempts independent timeout signals, not a shared/caller one', async () => {
+    const env = createEnv();
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response('', { status: 429 }))
+      .mockResolvedValueOnce(new Response('ok', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    // A signal a caller might mistakenly still pass — gw2Fetch must not reuse this for either
+    // attempt, since AbortSignal.timeout() fires once and stays aborted permanently: reusing
+    // one signal across both attempts would let a direct-side timeout poison the proxy fetch too.
+    const callerSignal = new AbortController().signal;
+
+    await gw2Fetch(env as never, '/build', { headers: { 'User-Agent': 'gw2w2w.com' }, signal: callerSignal }, 5000);
+
+    const [, directInit] = fetchMock.mock.calls[0] as [URL, RequestInit];
+    const [, proxyInit] = fetchMock.mock.calls[1] as [URL, RequestInit];
+    expect(directInit.signal).toBeInstanceOf(AbortSignal);
+    expect(proxyInit.signal).toBeInstanceOf(AbortSignal);
+    expect(directInit.signal).not.toBe(callerSignal);
+    expect(proxyInit.signal).not.toBe(callerSignal);
+    expect(directInit.signal).not.toBe(proxyInit.signal);
+  });
 });

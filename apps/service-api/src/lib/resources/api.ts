@@ -29,9 +29,10 @@ export async function apiFetch(env: CloudflareEnv, path: string, init?: RequestI
   const headers = new Headers(init?.headers);
   headers.set('Authorization', `Bearer ${env.GW2_API_KEY}`);
   headers.set('User-Agent', 'gw2w2w.com');
-  const requestInit = { ...init, headers, signal: AbortSignal.timeout(20_000) };
+  // Timeout is managed by gw2Fetch itself (per-attempt, not shared across direct+proxy) — don't set init.signal here.
+  const requestInit = { ...init, headers };
 
-  const response = await gw2Fetch(env, path, requestInit);
+  const response = await gw2Fetch(env, path, requestInit, 20_000);
 
   if (response.status === 429) {
     const retryAfter = response.headers.get('retry-after');

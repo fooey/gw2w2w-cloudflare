@@ -46,8 +46,19 @@ export async function getGw2Health(env: CloudflareEnv): Promise<Gw2Health> {
  * Callers are responsible for their own Authorization/User-Agent headers via `init`;
  * this function only adds X-Proxy-Key when the proxy path is actually used, since ArenaNet
  * must never see that header (Caddy also strips it, but it's not sent at all from here).
+ *
+ * Timeout is managed internally via `timeoutMs`, giving the direct and proxy attempts their
+ * own independent budgets — callers must NOT pass their own `init.signal`. AbortSignal.timeout()
+ * fires once and stays aborted permanently; reusing one caller-supplied signal across both
+ * attempts would mean a direct-side timeout poisons the proxy fetch too (it'd reject instantly
+ * on the already-aborted signal), defeating the fallback in exactly the case it exists for.
  */
-export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestInit = {}): Promise<Response> {
+export async function gw2Fetch(
+  env: CloudflareEnv,
+  path: string,
+  init: RequestInit = {},
+  timeoutMs = 10_000,
+): Promise<Response> {
   const directHealthy = await isMarkedHealthy(env, GW2_DIRECT_UNHEALTHY_KV_KEY);
   let directResponse: Response | null = null;
 
@@ -59,7 +70,11 @@ export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestIn
     const directHeaders = new Headers(init.headers);
     directHeaders.delete('X-Proxy-Key');
     try {
-      directResponse = await fetch(directUrl, { ...init, headers: directHeaders });
+      directResponse = await fetch(directUrl, {
+        ...init,
+        headers: directHeaders,
+        signal: AbortSignal.timeout(timeoutMs),
+      });
       // Cron owns writing circuit-breaker state — this call just falls back for itself,
       // trusting the next health-check tick to update shared state within ~1 minute.
       if (directResponse.status !== 429) return directResponse;
@@ -84,7 +99,11 @@ export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestIn
   }
 
   try {
-    const proxyResponse = await fetch(proxyUrl, { ...init, headers: proxyHeaders });
+    const proxyResponse = await fetch(proxyUrl, {
+      ...init,
+      headers: proxyHeaders,
+      signal: AbortSignal.timeout(timeoutMs),
+    });
     // Don't let a less-useful proxy failure (5xx, 401, etc.) replace a direct 429 we already
     // have in hand — a 429 from either path is a recognized, handleable response; anything
     // else from the proxy is strictly worse than the 429 we're about to discard.
