@@ -44,14 +44,15 @@ export async function getGw2Health(env: CloudflareEnv): Promise<Gw2Health> {
  */
 export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestInit = {}): Promise<Response> {
   const directHealthy = await isMarkedHealthy(env, GW2_DIRECT_UNHEALTHY_KV_KEY);
+  let directResponse: Response | null = null;
 
   if (directHealthy) {
     const directUrl = new URL(`${env.GW2_API_BASE}${path}`);
     try {
-      const response = await fetch(directUrl, init);
+      directResponse = await fetch(directUrl, init);
       // Cron owns writing circuit-breaker state — this call just falls back for itself,
       // trusting the next health-check tick to update shared state within ~1 minute.
-      if (response.status !== 429) return response;
+      if (directResponse.status !== 429) return directResponse;
     } catch {
       // Direct connection failed outright (network error, timeout, etc.) — fall through
       // to the proxy the same as a 429, rather than propagating and skipping the fallback.
@@ -63,5 +64,13 @@ export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestIn
   if (isNonEmptyString(env.GW2_PROXY_SHARED_KEY)) {
     proxyHeaders.set('X-Proxy-Key', env.GW2_PROXY_SHARED_KEY);
   }
-  return fetch(proxyUrl, { ...init, headers: proxyHeaders });
+
+  try {
+    return await fetch(proxyUrl, { ...init, headers: proxyHeaders });
+  } catch (proxyError) {
+    // Both paths failed — surface direct's real response (e.g. its 429) rather than an
+    // opaque network error the caller has no existing handling for, if we have one to give.
+    if (directResponse) return directResponse;
+    throw proxyError;
+  }
 }

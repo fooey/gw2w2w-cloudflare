@@ -57,6 +57,21 @@ describe('checkGw2Health', () => {
     expect(env.EMBLEM_ENGINE_GUILD_LOOKUP.delete).not.toHaveBeenCalled();
   });
 
+  it('marks an endpoint unhealthy on a 503, not just a 429', async () => {
+    const env = createEnv();
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(new Response('', { status: 503 })));
+
+    await checkGw2Health(env as never);
+
+    expect(env.EMBLEM_ENGINE_GUILD_LOOKUP.put).toHaveBeenCalledWith(GW2_DIRECT_UNHEALTHY_KV_KEY, expect.any(String), {
+      expirationTtl: 300,
+    });
+    expect(env.EMBLEM_ENGINE_GUILD_LOOKUP.put).toHaveBeenCalledWith(GW2_PROXY_UNHEALTHY_KV_KEY, expect.any(String), {
+      expirationTtl: 300,
+    });
+    expect(env.EMBLEM_ENGINE_GUILD_LOOKUP.delete).not.toHaveBeenCalled();
+  });
+
   it('marks an endpoint unhealthy when the probe itself throws (network error, timeout)', async () => {
     const env = createEnv();
     vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockRejectedValue(new Error('network down')));

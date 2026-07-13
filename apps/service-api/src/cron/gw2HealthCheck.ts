@@ -17,9 +17,11 @@ async function probeEndpoint(
 ): Promise<void> {
   try {
     const response = await fetch(url, { headers, signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT_MS) });
-    await (response.status === 429
-      ? env.EMBLEM_ENGINE_GUILD_LOOKUP.put(kvKey, String(Date.now() + UNHEALTHY_COOLDOWN_MS), { expirationTtl: 300 })
-      : env.EMBLEM_ENGINE_GUILD_LOOKUP.delete(kvKey));
+    // Any non-OK response (429, 5xx, or otherwise) means this simple /build request didn't
+    // succeed the way it always should — not just 429 specifically.
+    await (response.ok
+      ? env.EMBLEM_ENGINE_GUILD_LOOKUP.delete(kvKey)
+      : env.EMBLEM_ENGINE_GUILD_LOOKUP.put(kvKey, String(Date.now() + UNHEALTHY_COOLDOWN_MS), { expirationTtl: 300 }));
   } catch {
     // Network error, timeout, etc. — treat the same as a 429 for routing purposes.
     await env.EMBLEM_ENGINE_GUILD_LOOKUP.put(kvKey, String(Date.now() + UNHEALTHY_COOLDOWN_MS), {

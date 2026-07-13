@@ -58,6 +58,7 @@ export async function warmStaticCaches(env: CloudflareEnv): Promise<void> {
 export async function checkBuildId(env: CloudflareEnv): Promise<boolean> {
   const response = await gw2Fetch(env, GW2_BUILD_PATH, {
     headers: { 'User-Agent': 'gw2w2w.com' },
+    signal: AbortSignal.timeout(20_000),
   });
 
   if (!response.ok) {

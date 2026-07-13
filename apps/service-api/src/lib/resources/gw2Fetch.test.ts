@@ -7,7 +7,7 @@ interface FakeEnv {
   GW2_PROXY_BASE: string;
   GW2_PROXY_SHARED_KEY?: string;
   EMBLEM_ENGINE_GUILD_LOOKUP: {
-    get: ReturnType<typeof vi.fn<() => Promise<string | null>>>;
+    get: ReturnType<typeof vi.fn<(key: string) => Promise<string | null>>>;
   };
 }
 
@@ -17,7 +17,7 @@ function createEnv(kvValue: string | null = null): FakeEnv {
     GW2_PROXY_BASE: 'https://czt-proxy.gw2w2w.com/v2',
     GW2_PROXY_SHARED_KEY: 'test-proxy-key',
     EMBLEM_ENGINE_GUILD_LOOKUP: {
-      get: vi.fn<() => Promise<string | null>>(async () => kvValue),
+      get: vi.fn<(key: string) => Promise<string | null>>(async () => kvValue),
     },
   };
 }
@@ -77,6 +77,20 @@ describe('gw2Fetch', () => {
     const [proxyUrl, proxyInit] = fetchMock.mock.calls[1] as [URL, RequestInit];
     expect(proxyUrl.toString()).toBe('https://czt-proxy.gw2w2w.com/v2/build');
     expect(new Headers(proxyInit.headers).get('X-Proxy-Key')).toBe('test-proxy-key');
+  });
+
+  it("returns direct's 429 response when the proxy also fails outright, instead of throwing", async () => {
+    const env = createEnv(null);
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response('rate limited', { status: 429 }))
+      .mockRejectedValueOnce(new Error('proxy unreachable'));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await gw2Fetch(env as never, '/build', { headers: { 'User-Agent': 'gw2w2w.com' } });
+
+    expect(response.status).toBe(429);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('falls back to the proxy when the direct fetch throws outright', async () => {
