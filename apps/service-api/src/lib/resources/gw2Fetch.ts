@@ -48,8 +48,13 @@ export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestIn
 
   if (directHealthy) {
     const directUrl = new URL(`${env.GW2_API_BASE}${path}`);
+    // Strip X-Proxy-Key unconditionally, regardless of what a caller's init happens to
+    // contain — ArenaNet must never see it, and this shouldn't depend on every caller
+    // remembering not to include it.
+    const directHeaders = new Headers(init.headers);
+    directHeaders.delete('X-Proxy-Key');
     try {
-      directResponse = await fetch(directUrl, init);
+      directResponse = await fetch(directUrl, { ...init, headers: directHeaders });
       // Cron owns writing circuit-breaker state — this call just falls back for itself,
       // trusting the next health-check tick to update shared state within ~1 minute.
       if (directResponse.status !== 429) return directResponse;

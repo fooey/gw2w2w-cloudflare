@@ -57,6 +57,19 @@ describe('gw2Fetch', () => {
     expect(calledUrl.toString()).toBe('https://api.guildwars2.com/v2/build');
   });
 
+  it('strips X-Proxy-Key from the direct attempt even if a caller mistakenly included it', async () => {
+    const env = createEnv(null);
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(new Response('ok', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await gw2Fetch(env as never, '/build', {
+      headers: { 'User-Agent': 'gw2w2w.com', 'X-Proxy-Key': 'leaked-by-mistake' },
+    });
+
+    const [, directInit] = fetchMock.mock.calls[0] as [URL, RequestInit];
+    expect(new Headers(directInit.headers).has('X-Proxy-Key')).toBe(false);
+  });
+
   it('falls back to the proxy when direct returns 429, adding X-Proxy-Key only on the proxy attempt', async () => {
     const env = createEnv(null);
     const fetchMock = vi
