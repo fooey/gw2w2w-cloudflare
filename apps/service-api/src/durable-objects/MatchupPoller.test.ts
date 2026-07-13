@@ -44,8 +44,9 @@ function createHarness(initialAlarm: number | null | undefined): { state: FakeSt
   };
 
   const env: FakeEnv = {
-    GW2_API_BASE: 'https://api.guildwars2.com',
-    GW2_PROXY_BASE: 'https://czt-proxy.gw2w2w.com',
+    // Matches wrangler.toml's shape — both bases already include /v2, same as production.
+    GW2_API_BASE: 'https://api.guildwars2.com/v2',
+    GW2_PROXY_BASE: 'https://czt-proxy.gw2w2w.com/v2',
     // Defaults to "healthy" (no circuit-breaker key set) so gw2Fetch tries direct first, matching prod defaults.
     EMBLEM_ENGINE_GUILD_LOOKUP: {
       get: vi.fn<() => Promise<string | null>>(async () => null),

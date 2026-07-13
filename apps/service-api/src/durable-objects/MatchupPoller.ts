@@ -4,8 +4,8 @@ import { isEqual } from 'lodash-es';
 import { isEmpty, isNil, isNonEmptyString, isPresent } from '@repo/utils';
 
 import type { CloudflareEnv } from '#index.ts';
-import { gw2Fetch } from '#lib/resources/gw2Fetch.ts';
 import type { WvWMatch, WvWMatchObjective } from '#lib/resources/wvw/matches.ts';
+import { gw2Fetch } from '#lib/resources/gw2Fetch.ts';
 
 const POLL_INTERVAL_MS = 20_000;
 const BACKOFF_INTERVAL_MS = 60_000; // back off 1 minute on 429
