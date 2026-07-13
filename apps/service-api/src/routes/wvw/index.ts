@@ -4,6 +4,7 @@ import { describeRoute } from 'hono-openapi';
 import { isEmpty, isNonEmptyString } from '@repo/utils';
 
 import type { CloudflareEnv } from '#index.ts';
+import { getGw2Health } from '#lib/resources/gw2Fetch.ts';
 
 import { apiWvwEventsRoute } from './events';
 import { apiWvwGuildsRoute } from './guilds';
@@ -11,6 +12,14 @@ import { apiWvwMatchesRoute } from './matches';
 
 // matchId format: region-tier, e.g. "1-1" through "1-4" (NA) or "2-1" through "2-5" (EU)
 const MATCH_ID_RE = /^\d-\d$/u;
+// A touch above the health-check cron's own 90s cooldown, so a single delayed poll
+// doesn't get flagged stale before the poller itself has had a fair chance to recover.
+const POLL_STALE_THRESHOLD_MS = 90_000;
+
+interface PollerStatus {
+  lastSuccessfulPollAt: string | null;
+  [key: string]: unknown;
+}
 
 export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .route('/matches', apiWvwMatchesRoute)
@@ -26,7 +35,16 @@ export const apiWvwRoute = new Hono<{ Bindings: CloudflareEnv }>()
     }),
     async (c) => {
       const stub = c.env.MATCHUP_POLLER.getByName('global');
-      return stub.fetch(new Request('https://internal/status'));
+      const pollerResponse = await stub.fetch(new Request('https://internal/status'));
+      // The DO's own /status handler builds this shape — trusted, not external input.
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion
+      const pollerStatus = (await pollerResponse.json()) as PollerStatus;
+      const health = await getGw2Health(c.env);
+      const pollIsStale =
+        !isNonEmptyString(pollerStatus.lastSuccessfulPollAt) ||
+        Date.now() - new Date(pollerStatus.lastSuccessfulPollAt).getTime() > POLL_STALE_THRESHOLD_MS;
+
+      return c.json({ ...pollerStatus, ...health, pollIsStale });
     },
   )
   .get(
