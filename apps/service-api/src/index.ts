@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { allowedCsrf, allowedOrigin } from '@repo/utils';
 
 import { checkBuildId, warmStaticCaches } from './cron/buildWatcher';
+import { checkGw2Health } from './cron/gw2HealthCheck';
 import { GW2RateLimitError } from './lib/resources/api';
 import { apiGw2Route } from './routes/gw2';
 import { createOpenAPIRoutes } from './routes/openapi';
@@ -95,14 +96,24 @@ export type ServiceApiAppType = typeof app;
 
 const worker = {
   fetch: app.fetch,
-  async scheduled(_event: ScheduledEvent, env: CloudflareEnv, ctx: ExecutionContext): Promise<void> {
-    const didInvalidate = await checkBuildId(env);
-    if (didInvalidate) {
-      ctx.waitUntil(warmStaticCaches(env));
+  async scheduled(event: ScheduledEvent, env: CloudflareEnv, ctx: ExecutionContext): Promise<void> {
+    if (event.cron === '*/1 * * * *') {
+      ctx.waitUntil(checkGw2Health(env));
+      return;
     }
-    // Ensure the MatchupPoller DO is awake. The DO schedules its own alarm loop;
-    // this fetch is only needed if the DO has been evicted and the alarm has lapsed.
-    ctx.waitUntil(env.MATCHUP_POLLER.getByName('global').fetch('https://internal/poller'));
+
+    if (event.cron === '*/15 * * * *') {
+      const didInvalidate = await checkBuildId(env);
+      if (didInvalidate) {
+        ctx.waitUntil(warmStaticCaches(env));
+      }
+      // Ensure the MatchupPoller DO is awake. The DO schedules its own alarm loop;
+      // this fetch is only needed if the DO has been evicted and the alarm has lapsed.
+      ctx.waitUntil(env.MATCHUP_POLLER.getByName('global').fetch('https://internal/poller'));
+      return;
+    }
+
+    console.warn(`[scheduled] Unrecognized cron pattern: ${event.cron}`);
   },
 };
 

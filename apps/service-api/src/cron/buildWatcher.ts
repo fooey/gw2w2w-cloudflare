@@ -2,12 +2,14 @@ import type { CloudflareEnv } from '#index.ts';
 import { getColor } from '#lib/resources/color.ts';
 import { getEmblemBackground, getEmblemForeground } from '#lib/resources/emblem.ts';
 import { getGuildUpgrades } from '#lib/resources/guild/upgrades.ts';
+import { gw2Fetch } from '#lib/resources/gw2Fetch.ts';
 import { getWvWAbility } from '#lib/resources/wvw/abilities.ts';
 import { getWvWObjective } from '#lib/resources/wvw/objectives.ts';
 import { getWvWRank } from '#lib/resources/wvw/ranks.ts';
 import { getWvWUpgrade } from '#lib/resources/wvw/upgrades.ts';
 
-const GW2_BUILD_URL = 'https://api.guildwars2.com/v2/build';
+// Appended directly to GW2_API_BASE / GW2_PROXY_BASE via gw2Fetch — both already include `/v2`.
+const GW2_BUILD_PATH = '/build';
 const BUILD_ID_KV_KEY = 'meta:build_id';
 
 /**
@@ -54,9 +56,8 @@ export async function warmStaticCaches(env: CloudflareEnv): Promise<void> {
  * Returns true if the build ID changed and caches were invalidated.
  */
 export async function checkBuildId(env: CloudflareEnv): Promise<boolean> {
-  const response = await fetch(GW2_BUILD_URL, {
-    headers: { 'User-Agent': 'gw2w2w.com' },
-  });
+  // Timeout is managed by gw2Fetch itself (per-attempt, not shared across direct+proxy) — don't set signal here.
+  const response = await gw2Fetch(env, GW2_BUILD_PATH, { headers: { 'User-Agent': 'gw2w2w.com' } }, 20_000);
 
   if (!response.ok) {
     console.error(`Build ID check failed: ${response.status.toString()} ${response.statusText}`);
