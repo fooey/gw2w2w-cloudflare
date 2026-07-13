@@ -20,7 +20,7 @@ interface FakeEnv {
   GW2_PROXY_BASE: string;
   GW2_PROXY_SHARED_KEY?: string;
   EMBLEM_ENGINE_GUILD_LOOKUP: {
-    get: ReturnType<typeof vi.fn<() => Promise<string | null>>>;
+    get: ReturnType<typeof vi.fn<(key: string) => Promise<string | null>>>;
   };
   WVW_DB: {
     prepare: ReturnType<typeof vi.fn>;
@@ -49,7 +49,7 @@ function createHarness(initialAlarm: number | null | undefined): { state: FakeSt
     GW2_PROXY_BASE: 'https://czt-proxy.gw2w2w.com/v2',
     // Defaults to "healthy" (no circuit-breaker key set) so gw2Fetch tries direct first, matching prod defaults.
     EMBLEM_ENGINE_GUILD_LOOKUP: {
-      get: vi.fn<() => Promise<string | null>>(async () => null),
+      get: vi.fn<(key: string) => Promise<string | null>>(async () => null),
     },
     WVW_DB: {
       prepare: vi.fn<() => { all: () => Promise<{ results: unknown[] }> }>(() => ({
