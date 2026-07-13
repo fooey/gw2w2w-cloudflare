@@ -10,7 +10,7 @@ import { getGw2Health } from '#lib/resources/gw2Fetch.ts';
 const MATCH_ID_RE = /^\d-\d$/u;
 // A touch above the health-check cron's own 90s cooldown, so a single delayed poll
 // doesn't get flagged stale before the poller itself has had a fair chance to recover.
-const POLL_STALE_THRESHOLD_MS = 90_000;
+const POLL_STALE_THRESHOLD_MS = 100_000;
 
 interface PollerStatus {
   lastSuccessfulPollAt: string | null;

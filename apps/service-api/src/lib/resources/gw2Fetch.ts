@@ -35,6 +35,11 @@ export async function getGw2Health(env: CloudflareEnv): Promise<Gw2Health> {
  * home-network proxy (czt-proxy.gw2w2w.com) when direct is either known-unhealthy
  * (per the gw2HealthCheck cron, checked every minute) or returns a 429 for this call.
  *
+ * If direct returns a 429 and the proxy is *also* known-unhealthy, the proxy attempt is
+ * skipped entirely and direct's 429 is returned as-is — a real, recognized rate-limit
+ * response beats a proxy attempt unlikely to do better. The same preference applies if the
+ * proxy is attempted anyway but returns something less useful than a 429 (5xx, 401, etc.).
+ *
  * `path` is appended directly to GW2_API_BASE / GW2_PROXY_BASE (both already include
  * the `/v2` prefix) — callers should NOT include a leading `/v2`.
  *
@@ -64,6 +69,14 @@ export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestIn
     }
   }
 
+  // Direct already gave us a real, recognized 429 (Retry-After, GW2RateLimitError handling
+  // downstream). If the proxy is also known-unhealthy, attempting it is unlikely to produce
+  // anything better — skip straight to preserving the 429 we already have.
+  const proxyHealthy = await isMarkedHealthy(env, GW2_PROXY_UNHEALTHY_KV_KEY);
+  if (directResponse?.status === 429 && !proxyHealthy) {
+    return directResponse;
+  }
+
   const proxyUrl = new URL(`${env.GW2_PROXY_BASE}${path}`);
   const proxyHeaders = new Headers(init.headers);
   if (isNonEmptyString(env.GW2_PROXY_SHARED_KEY)) {
@@ -71,10 +84,17 @@ export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestIn
   }
 
   try {
-    return await fetch(proxyUrl, { ...init, headers: proxyHeaders });
+    const proxyResponse = await fetch(proxyUrl, { ...init, headers: proxyHeaders });
+    // Don't let a less-useful proxy failure (5xx, 401, etc.) replace a direct 429 we already
+    // have in hand — a 429 from either path is a recognized, handleable response; anything
+    // else from the proxy is strictly worse than the 429 we're about to discard.
+    if (directResponse && !proxyResponse.ok && proxyResponse.status !== 429) {
+      return directResponse;
+    }
+    return proxyResponse;
   } catch (proxyError) {
-    // Both paths failed — surface direct's real response (e.g. its 429) rather than an
-    // opaque network error the caller has no existing handling for, if we have one to give.
+    // Both paths failed outright — surface direct's real response (e.g. its 429) rather than
+    // an opaque network error the caller has no existing handling for, if we have one to give.
     if (directResponse) return directResponse;
     throw proxyError;
   }
