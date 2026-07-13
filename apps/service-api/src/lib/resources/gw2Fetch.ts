@@ -47,10 +47,15 @@ export async function gw2Fetch(env: CloudflareEnv, path: string, init: RequestIn
 
   if (directHealthy) {
     const directUrl = new URL(`${env.GW2_API_BASE}${path}`);
-    const response = await fetch(directUrl, init);
-    // Cron owns writing circuit-breaker state — this call just falls back for itself,
-    // trusting the next health-check tick to update shared state within ~1 minute.
-    if (response.status !== 429) return response;
+    try {
+      const response = await fetch(directUrl, init);
+      // Cron owns writing circuit-breaker state — this call just falls back for itself,
+      // trusting the next health-check tick to update shared state within ~1 minute.
+      if (response.status !== 429) return response;
+    } catch {
+      // Direct connection failed outright (network error, timeout, etc.) — fall through
+      // to the proxy the same as a 429, rather than propagating and skipping the fallback.
+    }
   }
 
   const proxyUrl = new URL(`${env.GW2_PROXY_BASE}${path}`);

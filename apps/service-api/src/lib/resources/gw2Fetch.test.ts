@@ -79,6 +79,22 @@ describe('gw2Fetch', () => {
     expect(new Headers(proxyInit.headers).get('X-Proxy-Key')).toBe('test-proxy-key');
   });
 
+  it('falls back to the proxy when the direct fetch throws outright', async () => {
+    const env = createEnv(null);
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockRejectedValueOnce(new Error('network down'))
+      .mockResolvedValueOnce(new Response('ok', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await gw2Fetch(env as never, '/build', { headers: { 'User-Agent': 'gw2w2w.com' } });
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const [proxyUrl] = fetchMock.mock.calls[1] as [URL, RequestInit];
+    expect(proxyUrl.toString()).toBe('https://czt-proxy.gw2w2w.com/v2/build');
+  });
+
   it('skips straight to the proxy when direct is already marked unhealthy', async () => {
     const env = createEnv(String(Date.now() + 60_000));
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(new Response('ok', { status: 200 }));
