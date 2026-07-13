@@ -80,8 +80,8 @@ describe('checkGw2Health', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     const calls = fetchMock.mock.calls as [string, RequestInit][];
-    const directCall = calls.find(([url]) => url.includes('api.guildwars2.com'));
-    const proxyCall = calls.find(([url]) => url.includes('czt-proxy.gw2w2w.com'));
+    const directCall = calls.find(([url]) => new URL(url).hostname === 'api.guildwars2.com');
+    const proxyCall = calls.find(([url]) => new URL(url).hostname === 'czt-proxy.gw2w2w.com');
 
     expect(directCall?.[1].headers).not.toHaveProperty('X-Proxy-Key');
     expect(proxyCall?.[1].headers).toMatchObject({ 'X-Proxy-Key': 'test-proxy-key' });
