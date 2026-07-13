@@ -28,8 +28,10 @@ export const apiWvwStreamRoute = new Hono<{ Bindings: CloudflareEnv }>()
     }),
     async (c) => {
       const stub = c.env.MATCHUP_POLLER.getByName('global');
-      const health = await getGw2Health(c.env);
-      const pollerResponse = await stub.fetch(new Request('https://internal/status'));
+      const [health, pollerResponse] = await Promise.all([
+        getGw2Health(c.env),
+        stub.fetch(new Request('https://internal/status')),
+      ]);
 
       // Degrade gracefully rather than 500ing the whole status endpoint (which also carries
       // gw2 health, useful on its own) if the DO ever returns non-OK or malformed JSON.

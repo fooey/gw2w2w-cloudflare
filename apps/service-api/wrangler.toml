@@ -41,7 +41,7 @@ GW2_API_BASE = "https://api.guildwars2.com/v2"
 # For production: pnpm dlx wrangler secret put GW2_API_KEY
 GW2_PROXY_BASE = "https://czt-proxy.gw2w2w.com/v2"
 # GW2_PROXY_SHARED_KEY is a secret — set it in .dev.vars for local dev
-# For production: pnpm dlx wrangler secret put GW2_PROXY_SHARED_KEY[observability]
+# For production: pnpm dlx wrangler secret put GW2_PROXY_SHARED_KEY
 
 [observability.logs]
 enabled = true
