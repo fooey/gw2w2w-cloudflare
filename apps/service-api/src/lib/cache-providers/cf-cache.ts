@@ -12,12 +12,20 @@ export async function withCache(c: Context, ttl: number, handler: () => Promise<
   if (cached) return new Response(cached.body, cached);
 
   const response = await handler();
-  if (response.ok) {
-    const clone = response.clone();
-    clone.headers.set('Cache-Control', `public, max-age=${ttl}`);
-    c.executionCtx.waitUntil(cache.put(c.req.raw, clone));
-  }
-  return response;
+  if (!response.ok) return response;
+
+  const cacheControl = `public, max-age=${ttl}`;
+  const forCache = response.clone();
+  forCache.headers.set('Cache-Control', cacheControl);
+  c.executionCtx.waitUntil(cache.put(c.req.raw, forCache));
+
+  // response's own headers may or may not be mutable depending on how the handler built it —
+  // wrap in a new Response (same defensive pattern as the cache-hit branch above) so the caller
+  // gets the same Cache-Control header on a miss as they would on a subsequent hit, instead of
+  // only the stored copy having it.
+  const forCaller = new Response(response.body, response);
+  forCaller.headers.set('Cache-Control', cacheControl);
+  return forCaller;
 }
 
 /**
