@@ -20,9 +20,16 @@ export interface MatchupPollerHealth {
   pollIsStale: boolean;
 }
 
-/** Milliseconds since an ISO timestamp, or Infinity if it's missing — so "never happened" and "too long ago" compare the same way. */
+/**
+ * Milliseconds since an ISO timestamp, or Infinity if it's missing or unparseable — so "never
+ * happened" and "too long ago" compare the same way. A malformed-but-present timestamp must also
+ * resolve to Infinity, not NaN: NaN comparisons are always false, which would otherwise make an
+ * invalid timestamp silently read as "fresh" instead of untrustworthy.
+ */
 function msSince(isoTimestamp: string | null | undefined): number {
-  return isNonEmptyString(isoTimestamp) ? Date.now() - new Date(isoTimestamp).getTime() : Number.POSITIVE_INFINITY;
+  if (!isNonEmptyString(isoTimestamp)) return Number.POSITIVE_INFINITY;
+  const ms = Date.now() - new Date(isoTimestamp).getTime();
+  return Number.isNaN(ms) ? Number.POSITIVE_INFINITY : ms;
 }
 
 /**
