@@ -8,7 +8,7 @@ import type { WvWMatch } from '@repo/service-api/types';
 import { withJitter } from '@repo/utils';
 
 import { getClientApi } from '#lib/api/api.client.ts';
-import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
+import { fetchWvwMatchesService } from '#lib/api/wvw/matches';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
 

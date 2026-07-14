@@ -1,5 +1,5 @@
 import { getApi } from '#lib/api/api.server.ts';
-import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
+import { fetchWvwMatchesService } from '#lib/api/wvw/matches';
 import { SiteLayout } from '#ui/layout/SiteLayout';
 import { Dashboard } from '#ui/wvw/dashboard/Dashboard';
 
