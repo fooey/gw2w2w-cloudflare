@@ -40,7 +40,16 @@ function msSince(isoTimestamp: string | null | undefined): number {
  */
 export async function getMatchupPollerHealth(env: CloudflareEnv): Promise<MatchupPollerHealth> {
   const stub = env.MATCHUP_POLLER.getByName('global');
-  const response = await stub.fetch(new Request('https://internal/status'));
+
+  let response: Response;
+  try {
+    response = await stub.fetch(new Request('https://internal/status'));
+  } catch {
+    // DO/infrastructure-level failure (not just a non-OK response) — degrade the same way a
+    // never-confirmed poll would, rather than letting this throw out to callers that expect
+    // graceful degradation (/wvw/stream/status, matchNotFoundResponse's 503-vs-404 decision).
+    return { pollerStatus: null, pollIsStale: true };
+  }
 
   let pollerStatus: MatchupPollerStatus | null = null;
   if (response.ok) {

@@ -62,11 +62,27 @@ describe('getMatchupPollerHealth', () => {
     expect(pollIsStale).toBe(false);
   });
 
-  it('is stale when the DO status fetch itself fails', async () => {
+  it('is stale when the DO status fetch returns a non-OK response', async () => {
     const env = makeEnv(null, false);
     const { pollIsStale, pollerStatus } = await getMatchupPollerHealth(env as never);
     expect(pollIsStale).toBe(true);
     expect(pollerStatus).toBeNull();
+  });
+
+  it('is stale when the DO stub fetch itself rejects, instead of throwing out to the caller', async () => {
+    const env: FakeEnv = {
+      MATCHUP_POLLER: {
+        getByName: () => ({
+          fetch: vi.fn<() => Promise<Response>>(async () => {
+            throw new Error('Durable Object is unreachable');
+          }),
+        }),
+      },
+    };
+    await expect(getMatchupPollerHealth(env as never)).resolves.toStrictEqual({
+      pollerStatus: null,
+      pollIsStale: true,
+    });
   });
 
   it('is stale when lastSuccessfulPollAt is a non-empty but unparseable timestamp', async () => {
