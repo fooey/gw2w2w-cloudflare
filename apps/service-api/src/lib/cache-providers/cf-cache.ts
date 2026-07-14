@@ -20,6 +20,25 @@ export async function withCache(c: Context, ttl: number, handler: () => Promise<
   return response;
 }
 
+/**
+ * Like withCache, but the handler itself decides what to compute and return, instead of the
+ * caller fetching data first and only caching its serialization. Use this when a cache hit needs
+ * to skip real work (a DB/API call) rather than just re-serializing data already fetched —
+ * withCacheJson's `data` argument is evaluated before it's called, so it can never skip a fetch
+ * the caller made ahead of time. Preserves the handler's own return type (e.g. a Hono
+ * TypedResponse union) instead of widening to a bare Response, so RPC clients keep precise
+ * inference.
+ */
+export async function withCachedResponse<T extends Response>(
+  c: Context,
+  ttl: number,
+  handler: () => Promise<T>,
+): Promise<T> {
+  // withCache's own signature intentionally widens to Response — T is guaranteed by handler's signature.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
+  return withCache(c, ttl, handler) as unknown as Promise<T>;
+}
+
 export async function withCacheJson<T, S extends ContentfulStatusCode = 200>(
   c: Context,
   ttl: number,

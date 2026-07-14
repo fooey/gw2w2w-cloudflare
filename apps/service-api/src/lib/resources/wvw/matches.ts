@@ -126,8 +126,7 @@ export async function getWvWMatches(id: string | string[], env: CloudflareEnv): 
   );
 }
 
-export async function getWvWMatchByWorld(worldId: number, env: CloudflareEnv): Promise<WvWMatch | null> {
-  const matches = await getWvWMatches('all', env);
+export function findMatchByWorld(matches: WvWMatch[], worldId: number): WvWMatch | null {
   return (
     matches.find(
       (m) =>
@@ -136,4 +135,9 @@ export async function getWvWMatchByWorld(worldId: number, env: CloudflareEnv): P
         m.all_worlds.green.includes(worldId),
     ) ?? null
   );
+}
+
+export async function getWvWMatchByWorld(worldId: number, env: CloudflareEnv): Promise<WvWMatch | null> {
+  const matches = await getWvWMatches('all', env);
+  return findMatchByWorld(matches, worldId);
 }

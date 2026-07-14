@@ -5,22 +5,12 @@ import { describeRoute, resolver, validator } from 'hono-openapi';
 import { z } from 'zod';
 
 import type { CloudflareEnv, ErrorPayload } from '#index.ts';
-import type { WvWMatch } from '#lib/resources/wvw/matches.ts';
 import { getDb } from '#db/index.ts';
 import { matchState } from '#db/schema.ts';
+import { withCachedResponse } from '#lib/cache-providers/cf-cache.ts';
+import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { getMatchupPollerHealth } from '#lib/resources/matchupPollerHealth.ts';
-import { WvWMatchSchema } from '#lib/resources/wvw/matches.ts';
-
-export function findMatchByWorld(matches: WvWMatch[], worldId: number): WvWMatch | null {
-  return (
-    matches.find(
-      (m) =>
-        m.all_worlds.red.includes(worldId) ||
-        m.all_worlds.blue.includes(worldId) ||
-        m.all_worlds.green.includes(worldId),
-    ) ?? null
-  );
-}
+import { findMatchByWorld, WvWMatchSchema } from '#lib/resources/wvw/matches.ts';
 
 /**
  * Called when D1 has no row for the requested match/world. A missing row is ambiguous on its own —
@@ -66,11 +56,12 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
         },
       },
     }),
-    async (c) => {
-      const db = getDb(c.env.WVW_DB);
-      const rows = await db.select({ data: matchState.data }).from(matchState).orderBy(asc(matchState.match_id));
-      return c.json(rows.map((r) => r.data));
-    },
+    async (c) =>
+      withCachedResponse(c, CACHE_TTL.live.http, async () => {
+        const db = getDb(c.env.WVW_DB);
+        const rows = await db.select({ data: matchState.data }).from(matchState).orderBy(asc(matchState.match_id));
+        return c.json(rows.map((r) => r.data));
+      }),
   )
   .get(
     '/:id',
@@ -89,18 +80,19 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       },
     }),
     validator('param', z.object({ id: z.string() })),
-    async (c) => {
-      const { id } = c.req.valid('param');
-      const db = getDb(c.env.WVW_DB);
-      const rows = await db
-        .select({ data: matchState.data })
-        .from(matchState)
-        .where(eq(matchState.match_id, id))
-        .limit(1);
-      const match = rows[0]?.data;
-      if (!match) return matchNotFoundResponse(c);
-      return c.json(match);
-    },
+    async (c) =>
+      withCachedResponse(c, CACHE_TTL.live.http, async () => {
+        const { id } = c.req.valid('param');
+        const db = getDb(c.env.WVW_DB);
+        const rows = await db
+          .select({ data: matchState.data })
+          .from(matchState)
+          .where(eq(matchState.match_id, id))
+          .limit(1);
+        const match = rows[0]?.data;
+        if (!match) return matchNotFoundResponse(c);
+        return c.json(match);
+      }),
   )
   .get(
     '/world/:worldId',
@@ -119,18 +111,19 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
       },
     }),
     validator('param', z.object({ worldId: z.coerce.number().int().positive() })),
-    async (c) => {
-      const { worldId } = c.req.valid('param');
-      const db = getDb(c.env.WVW_DB);
-      // worldId lives inside the JSON `data` blob, not a column — with only 9 matches total
-      // (NA tiers 1-4, EU tiers 1-5), fetching all rows and filtering in JS is simpler and
-      // cheaper than a json_each/json_extract query for a table this small.
-      const rows = await db.select({ data: matchState.data }).from(matchState);
-      const match = findMatchByWorld(
-        rows.map((r) => r.data),
-        worldId,
-      );
-      if (!match) return matchNotFoundResponse(c);
-      return c.json(match);
-    },
+    async (c) =>
+      withCachedResponse(c, CACHE_TTL.live.http, async () => {
+        const { worldId } = c.req.valid('param');
+        const db = getDb(c.env.WVW_DB);
+        // worldId lives inside the JSON `data` blob, not a column — with only 9 matches total
+        // (NA tiers 1-4, EU tiers 1-5), fetching all rows and filtering in JS is simpler and
+        // cheaper than a json_each/json_extract query for a table this small.
+        const rows = await db.select({ data: matchState.data }).from(matchState);
+        const match = findMatchByWorld(
+          rows.map((r) => r.data),
+          worldId,
+        );
+        if (!match) return matchNotFoundResponse(c);
+        return c.json(match);
+      }),
   );

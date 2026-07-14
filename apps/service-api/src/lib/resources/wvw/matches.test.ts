@@ -1,23 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import type { WvWMatch } from '#lib/resources/wvw/matches.ts';
-
+import type { WvWMatch } from './matches';
 import { findMatchByWorld } from './matches';
 
-function makeMatch(id: string, allWorlds: { red: number[]; blue: number[]; green: number[] }): WvWMatch {
-  return {
-    id,
-    start_time: '2026-01-01T00:00:00Z',
-    end_time: '2026-01-08T00:00:00Z',
-    scores: { red: 0, blue: 0, green: 0 },
-    worlds: { red: allWorlds.red[0] ?? 0, blue: allWorlds.blue[0] ?? 0, green: allWorlds.green[0] ?? 0 },
-    all_worlds: allWorlds,
-    deaths: { red: 0, blue: 0, green: 0 },
-    kills: { red: 0, blue: 0, green: 0 },
-    victory_points: { red: 0, blue: 0, green: 0 },
-    skirmishes: [],
-    maps: [],
-  };
+function makeMatch(id: string, all_worlds: WvWMatch['all_worlds']): WvWMatch {
+  // findMatchByWorld only reads id and all_worlds — the rest of WvWMatch is irrelevant here.
+  return { id, all_worlds } as WvWMatch;
 }
 
 describe('findMatchByWorld', () => {
