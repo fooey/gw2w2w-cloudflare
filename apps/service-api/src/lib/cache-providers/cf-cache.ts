@@ -34,9 +34,11 @@ export async function withCachedResponse<T extends Response>(
   ttl: number,
   handler: () => Promise<T>,
 ): Promise<T> {
+  const response = await withCache(c, ttl, handler);
   // withCache's own signature intentionally widens to Response — T is guaranteed by handler's signature.
+  // A direct cast (not through `unknown`) is safe here since T is constrained to extend Response.
   // eslint-disable-next-line typescript/no-unsafe-type-assertion
-  return withCache(c, ttl, handler) as unknown as Promise<T>;
+  return response as T;
 }
 
 export async function withCacheJson<T, S extends ContentfulStatusCode = 200>(
