@@ -24,6 +24,10 @@ async function matchNotFoundResponse(c: Context<{ Bindings: CloudflareEnv }>) {
 
   if (pollIsStale) {
     c.header('Retry-After', '5');
+    // withCachedResponse only writes to our own cache on response.ok, but an intermediate cache
+    // downstream of this Worker isn't bound by that — be explicit so a stale "unavailable" isn't
+    // stored anywhere past the point the poller has actually recovered.
+    c.header('Cache-Control', 'no-store');
     const payload: ErrorPayload = {
       message: 'WvW match data is temporarily unavailable — the poller is catching up, try again shortly',
       statusCode: 503,
@@ -107,6 +111,7 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
           content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
           description: 'WvW match object',
         },
+        400: { description: 'Invalid world ID format' },
         404: { description: 'Not found — the poller has confirmed this world genuinely is not in a match' },
         503: { description: 'Poller data is stale or unconfirmed — retry shortly (see Retry-After)' },
       },
