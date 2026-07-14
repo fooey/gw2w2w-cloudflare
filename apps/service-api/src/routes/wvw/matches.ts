@@ -1,3 +1,4 @@
+import type { Context } from 'hono';
 import { asc, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { describeRoute, resolver, validator } from 'hono-openapi';
@@ -7,6 +8,7 @@ import type { CloudflareEnv, ErrorPayload } from '#index.ts';
 import type { WvWMatch } from '#lib/resources/wvw/matches.ts';
 import { getDb } from '#db/index.ts';
 import { matchState } from '#db/schema.ts';
+import { getMatchupPollerHealth } from '#lib/resources/matchupPollerHealth.ts';
 import { WvWMatchSchema } from '#lib/resources/wvw/matches.ts';
 
 export function findMatchByWorld(matches: WvWMatch[], worldId: number): WvWMatch | null {
@@ -18,6 +20,36 @@ export function findMatchByWorld(matches: WvWMatch[], worldId: number): WvWMatch
         m.all_worlds.green.includes(worldId),
     ) ?? null
   );
+}
+
+/**
+ * Called when D1 has no row for the requested match/world. A missing row is ambiguous on its own —
+ * it could genuinely not exist, or the poller just hasn't caught up yet (cold start, missing
+ * secrets, sustained D1 errors) — so this checks the poller's own health (an internal DO fetch,
+ * not a GW2 API call) to decide which response is honest: 404 only when the poller has recently
+ * confirmed state and this really is absent, 503 when we can't currently trust that.
+ */
+async function matchNotFoundResponse(c: Context<{ Bindings: CloudflareEnv }>) {
+  const { pollIsStale } = await getMatchupPollerHealth(c.env);
+
+  if (pollIsStale) {
+    c.header('Retry-After', '5');
+    const payload: ErrorPayload = {
+      message: 'WvW match data is temporarily unavailable — the poller is catching up, try again shortly',
+      statusCode: 503,
+      url: new URL(c.req.url).pathname,
+      service: 'service-api/wvw/matches',
+    };
+    return c.json(payload, 503);
+  }
+
+  const payload: ErrorPayload = {
+    message: 'WvW Match Not Found',
+    statusCode: 404,
+    url: new URL(c.req.url).pathname,
+    service: 'service-api/wvw/matches',
+  };
+  return c.json(payload, 404);
 }
 
 export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
@@ -52,7 +84,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
           content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
           description: 'WvW match object',
         },
-        404: { description: 'Not found' },
+        404: { description: 'Not found — the poller has confirmed this match genuinely does not exist' },
+        503: { description: 'Poller data is stale or unconfirmed — retry shortly (see Retry-After)' },
       },
     }),
     validator('param', z.object({ id: z.string() })),
@@ -65,15 +98,7 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
         .where(eq(matchState.match_id, id))
         .limit(1);
       const match = rows[0]?.data;
-      if (!match) {
-        const payload: ErrorPayload = {
-          message: 'WvW Match Not Found',
-          statusCode: 404,
-          url: new URL(c.req.url).pathname,
-          service: 'service-api/wvw/matches',
-        };
-        return c.json(payload, 404);
-      }
+      if (!match) return matchNotFoundResponse(c);
       return c.json(match);
     },
   )
@@ -89,7 +114,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
           content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
           description: 'WvW match object',
         },
-        404: { description: 'Not found' },
+        404: { description: 'Not found — the poller has confirmed this world genuinely is not in a match' },
+        503: { description: 'Poller data is stale or unconfirmed — retry shortly (see Retry-After)' },
       },
     }),
     validator('param', z.object({ worldId: z.coerce.number().int().positive() })),
@@ -104,15 +130,7 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
         rows.map((r) => r.data),
         worldId,
       );
-      if (!match) {
-        const payload: ErrorPayload = {
-          message: 'WvW Match Not Found',
-          statusCode: 404,
-          url: new URL(c.req.url).pathname,
-          service: 'service-api/wvw/matches',
-        };
-        return c.json(payload, 404);
-      }
+      if (!match) return matchNotFoundResponse(c);
       return c.json(match);
     },
   );
