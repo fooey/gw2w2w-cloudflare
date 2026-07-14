@@ -6,9 +6,7 @@ import { isEmpty, isNonEmptyString } from '@repo/utils';
 import type { CloudflareEnv } from '#index.ts';
 import { getGw2Health } from '#lib/resources/gw2Fetch.ts';
 import { getMatchupPollerHealth } from '#lib/resources/matchupPollerHealth.ts';
-
-// matchId format: region-tier, e.g. "1-1" through "1-4" (NA) or "2-1" through "2-5" (EU)
-const MATCH_ID_RE = /^(?<matchId>1-[1-4]|2-[1-5])$/u;
+import { MATCH_ID_RE } from '#lib/resources/wvw/matches.ts';
 
 export const apiWvwStreamRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(

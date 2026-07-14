@@ -10,7 +10,7 @@ import { matchState } from '#db/schema.ts';
 import { withCachedResponse } from '#lib/cache-providers/cf-cache.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 import { getMatchupPollerHealth } from '#lib/resources/matchupPollerHealth.ts';
-import { findMatchByWorld, WvWMatchSchema } from '#lib/resources/wvw/matches.ts';
+import { findMatchByWorld, MATCH_ID_RE, WvWMatchSchema } from '#lib/resources/wvw/matches.ts';
 
 /**
  * Called when D1 has no row for the requested match/world. A missing row is ambiguous on its own —
@@ -75,11 +75,12 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
           content: { 'application/json': { schema: resolver(WvWMatchSchema) } },
           description: 'WvW match object',
         },
+        400: { description: 'Invalid match ID format' },
         404: { description: 'Not found — the poller has confirmed this match genuinely does not exist' },
         503: { description: 'Poller data is stale or unconfirmed — retry shortly (see Retry-After)' },
       },
     }),
-    validator('param', z.object({ id: z.string() })),
+    validator('param', z.object({ id: z.string().regex(MATCH_ID_RE, 'Invalid match ID format') })),
     async (c) =>
       withCachedResponse(c, CACHE_TTL.live.http, async () => {
         const { id } = c.req.valid('param');
