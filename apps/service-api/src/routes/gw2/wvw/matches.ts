@@ -28,7 +28,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     describeRoute({
       summary: 'List all WvW matches',
       description:
-        'Returns all active WvW matches with scores, kills, deaths, and world assignments. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
+        'Returns all active WvW matches with scores, kills, deaths, and world assignments. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches), R2-cached for up to 5 minutes. ' +
+        'For gw2w2w.com-facing use cases, prefer `/wvw/matches` — it reads from the ~20s-fresh D1 store the match poller already maintains, with no live GW2 API round-trip. This endpoint remains for consumers that specifically need a direct pass-through to the GW2 API.',
       tags: ['GW2 WvW Matches'],
       responses: {
         200: {
@@ -78,7 +79,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     describeRoute({
       summary: 'Get WvW match by ID',
       description:
-        'Returns a single WvW match by ID (format: `region-tier`, e.g. `1-1`). Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
+        'Returns a single WvW match by ID (format: `region-tier`, e.g. `1-1`). Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches), R2-cached for up to 5 minutes. ' +
+        'For gw2w2w.com-facing use cases, prefer `/wvw/matches/:id` — it reads from the ~20s-fresh D1 store the match poller already maintains, with no live GW2 API round-trip. This endpoint remains for consumers that specifically need a direct pass-through to the GW2 API.',
       tags: ['GW2 WvW Matches'],
       responses: {
         200: {
@@ -110,7 +112,8 @@ export const apiWvwMatchesRoute = new Hono<{ Bindings: CloudflareEnv }>()
     describeRoute({
       summary: 'Get WvW match by world ID',
       description:
-        'Finds the current WvW match that a given world is participating in. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches).',
+        'Finds the current WvW match that a given world is participating in. Proxied from [GW2 API v2/wvw/matches](https://wiki.guildwars2.com/wiki/API:2/wvw/matches), R2-cached for up to 5 minutes. ' +
+        'For gw2w2w.com-facing use cases, prefer `/wvw/matches/world/:worldId` — it reads from the ~20s-fresh D1 store the match poller already maintains, with no live GW2 API round-trip. This endpoint remains for consumers that specifically need a direct pass-through to the GW2 API.',
       tags: ['GW2 WvW Matches'],
       responses: {
         200: {
