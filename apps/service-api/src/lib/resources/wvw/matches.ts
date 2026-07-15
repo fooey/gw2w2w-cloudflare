@@ -6,6 +6,9 @@ import { apiFetch } from '#lib/resources/api.ts';
 import { withFilteredObjectCache } from '#lib/resources/cache-wrapper.ts';
 import { CACHE_TTL } from '#lib/resources/constants.ts';
 
+// matchId format: region-tier, e.g. "1-1" through "1-4" (NA) or "2-1" through "2-5" (EU)
+export const MATCH_ID_RE = /^(?:1-[1-4]|2-[1-5])$/u;
+
 // Generic helper — produces { red: T, blue: T, green: T } for any inner schema T
 const wvwMatchTeams = <T extends z.ZodType>(inner: T) => z.object({ red: inner, blue: inner, green: inner });
 
@@ -126,8 +129,7 @@ export async function getWvWMatches(id: string | string[], env: CloudflareEnv): 
   );
 }
 
-export async function getWvWMatchByWorld(worldId: number, env: CloudflareEnv): Promise<WvWMatch | null> {
-  const matches = await getWvWMatches('all', env);
+export function findMatchByWorld(matches: WvWMatch[], worldId: number): WvWMatch | null {
   return (
     matches.find(
       (m) =>
@@ -136,4 +138,9 @@ export async function getWvWMatchByWorld(worldId: number, env: CloudflareEnv): P
         m.all_worlds.green.includes(worldId),
     ) ?? null
   );
+}
+
+export async function getWvWMatchByWorld(worldId: number, env: CloudflareEnv): Promise<WvWMatch | null> {
+  const matches = await getWvWMatches('all', env);
+  return findMatchByWorld(matches, worldId);
 }

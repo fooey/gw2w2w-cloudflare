@@ -12,12 +12,41 @@ export async function withCache(c: Context, ttl: number, handler: () => Promise<
   if (cached) return new Response(cached.body, cached);
 
   const response = await handler();
-  if (response.ok) {
-    const clone = response.clone();
-    clone.headers.set('Cache-Control', `public, max-age=${ttl}`);
-    c.executionCtx.waitUntil(cache.put(c.req.raw, clone));
-  }
-  return response;
+  if (!response.ok) return response;
+
+  const cacheControl = `public, max-age=${ttl}`;
+  const forCache = response.clone();
+  forCache.headers.set('Cache-Control', cacheControl);
+  c.executionCtx.waitUntil(cache.put(c.req.raw, forCache));
+
+  // response's own headers may or may not be mutable depending on how the handler built it —
+  // wrap in a new Response (same defensive pattern as the cache-hit branch above) so the caller
+  // gets the same Cache-Control header on a miss as they would on a subsequent hit, instead of
+  // only the stored copy having it.
+  const forCaller = new Response(response.body, response);
+  forCaller.headers.set('Cache-Control', cacheControl);
+  return forCaller;
+}
+
+/**
+ * Like withCache, but the handler itself decides what to compute and return, instead of the
+ * caller fetching data first and only caching its serialization. Use this when a cache hit needs
+ * to skip real work (a DB/API call) rather than just re-serializing data already fetched —
+ * withCacheJson's `data` argument is evaluated before it's called, so it can never skip a fetch
+ * the caller made ahead of time. Preserves the handler's own return type (e.g. a Hono
+ * TypedResponse union) instead of widening to a bare Response, so RPC clients keep precise
+ * inference.
+ */
+export async function withCachedResponse<T extends Response>(
+  c: Context,
+  ttl: number,
+  handler: () => Promise<T>,
+): Promise<T> {
+  const response = await withCache(c, ttl, handler);
+  // withCache's own signature intentionally widens to Response — T is guaranteed by handler's signature.
+  // A direct cast (not through `unknown`) is safe here since T is constrained to extend Response.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
+  return response as T;
 }
 
 export async function withCacheJson<T, S extends ContentfulStatusCode = 200>(
@@ -28,10 +57,13 @@ export async function withCacheJson<T, S extends ContentfulStatusCode = 200>(
   // eslint-disable-next-line typescript/no-unsafe-type-assertion
   status: S = 200 as S,
 ): Promise<TypedResponse<T, S, 'json'>> {
-  // withCache operates on the untyped base Response; c.json(data, status) just above already
-  // produced a correctly-shaped TypedResponse, but that shape doesn't survive the generic boundary.
-  // async is required here since withCache's handler param must return Promise<Response>,
+  // async is required here since withCachedResponse's handler param must return a Promise,
   // but c.json(...) returns a Response synchronously — no real await needed.
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion, typescript/require-await
-  return withCache(c, ttl, async () => c.json(data, status)) as unknown as Promise<TypedResponse<T, S, 'json'>>;
+  // eslint-disable-next-line typescript/require-await
+  const response = await withCachedResponse(c, ttl, async () => c.json(data, status));
+  // c.json()'s return type (JSONRespondReturn) isn't structurally assignable to TypedResponse due
+  // to a Hono generic-variance quirk (JSONParsed<T> vs T) — a direct cast (not through `unknown`)
+  // is fine since c.json(data, status) genuinely does produce this shape at runtime.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
+  return response as TypedResponse<T, S, 'json'>;
 }

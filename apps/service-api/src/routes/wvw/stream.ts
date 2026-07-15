@@ -5,17 +5,8 @@ import { isEmpty, isNonEmptyString } from '@repo/utils';
 
 import type { CloudflareEnv } from '#index.ts';
 import { getGw2Health } from '#lib/resources/gw2Fetch.ts';
-
-// matchId format: region-tier, e.g. "1-1" through "1-4" (NA) or "2-1" through "2-5" (EU)
-const MATCH_ID_RE = /^(?<matchId>1-[1-4]|2-[1-5])$/u;
-// A touch above the health-check cron's own 90s cooldown, so a single delayed poll
-// doesn't get flagged stale before the poller itself has had a fair chance to recover.
-const POLL_STALE_THRESHOLD_MS = 100_000;
-
-interface PollerStatus {
-  lastSuccessfulPollAt: string | null;
-  [key: string]: unknown;
-}
+import { getMatchupPollerHealth } from '#lib/resources/matchupPollerHealth.ts';
+import { MATCH_ID_RE } from '#lib/resources/wvw/matches.ts';
 
 export const apiWvwStreamRoute = new Hono<{ Bindings: CloudflareEnv }>()
   .get(
@@ -27,33 +18,9 @@ export const apiWvwStreamRoute = new Hono<{ Bindings: CloudflareEnv }>()
       responses: { 200: { description: 'Poller status object' } },
     }),
     async (c) => {
-      const stub = c.env.MATCHUP_POLLER.getByName('global');
-      const [health, pollerResponse] = await Promise.all([
-        getGw2Health(c.env),
-        stub.fetch(new Request('https://internal/status')),
-      ]);
+      const [health, pollerHealth] = await Promise.all([getGw2Health(c.env), getMatchupPollerHealth(c.env)]);
 
-      // Degrade gracefully rather than 500ing the whole status endpoint (which also carries
-      // gw2 health, useful on its own) if the DO ever returns non-OK or malformed JSON.
-      let pollerStatus: PollerStatus | null = null;
-      if (pollerResponse.ok) {
-        try {
-          // The DO's own /status handler builds this shape — trusted, not external input.
-          // eslint-disable-next-line typescript/no-unsafe-type-assertion
-          pollerStatus = (await pollerResponse.json()) as PollerStatus;
-        } catch {
-          pollerStatus = null;
-        }
-      }
-      const lastPollMs = isNonEmptyString(pollerStatus?.lastSuccessfulPollAt)
-        ? new Date(pollerStatus.lastSuccessfulPollAt).getTime()
-        : Number.NaN;
-      // An unparseable timestamp (NaN) must count as stale, not silently "fresh" —
-      // NaN comparisons are always false, so `Date.now() - NaN > threshold` would otherwise
-      // hide the exact poller failure this flag exists to surface.
-      const pollIsStale = Number.isNaN(lastPollMs) || Date.now() - lastPollMs > POLL_STALE_THRESHOLD_MS;
-
-      return c.json({ ...pollerStatus, ...health, pollIsStale });
+      return c.json({ ...pollerHealth.pollerStatus, ...health, pollIsStale: pollerHealth.pollIsStale });
     },
   )
   .get(

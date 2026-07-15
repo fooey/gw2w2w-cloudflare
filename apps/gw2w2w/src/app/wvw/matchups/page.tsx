@@ -1,12 +1,12 @@
 import { getApi } from '#lib/api/api.server.ts';
-import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
+import { fetchWvwMatches } from '#lib/api/wvw/matches';
 import { SiteLayout } from '#ui/layout/SiteLayout';
 import { Dashboard } from '#ui/wvw/dashboard/Dashboard';
 
 export const dynamic = 'force-dynamic';
 
 export async function getData() {
-  return fetchWvwMatchesService(await getApi());
+  return fetchWvwMatches(await getApi());
 }
 
 export default async function WvwMatchupsPage() {

@@ -8,7 +8,7 @@ import type { WvWMatch } from '@repo/service-api/types';
 import { withJitter } from '@repo/utils';
 
 import { getClientApi } from '#lib/api/api.client.ts';
-import { fetchWvwMatchesService } from '#lib/api/gw2/wvw/matches';
+import { fetchWvwMatches } from '#lib/api/wvw/matches';
 import { useUserPrefs } from '#lib/store/userPrefs';
 import { LANGS } from '#ui/wvw/config/lang';
 
@@ -22,7 +22,7 @@ const matchupRegions = [
 function useMatches(queryOptions: Partial<UseQueryOptions<WvWMatch[] | null>>) {
   return useQuery({
     queryKey: ['wvwMatches'],
-    queryFn: async () => fetchWvwMatchesService(getClientApi()),
+    queryFn: async () => fetchWvwMatches(getClientApi()),
     refetchInterval: () => withJitter(60_000, 0.5),
     staleTime: 60_000,
     refetchOnWindowFocus: true,
