@@ -21,7 +21,10 @@ describe('withCache', () => {
     store = new Map();
     vi.stubGlobal('caches', {
       open: async () => ({
-        match: async (req: Request) => store.get(req.url) ?? null,
+        // Real Cache API implementations hand back an independently-readable response on every
+        // match — clone here so a stored entry can be matched more than once without a
+        // "body stream already read" error, same as production.
+        match: async (req: Request) => store.get(req.url)?.clone() ?? null,
         put: async (req: Request, res: Response) => {
           store.set(req.url, res);
         },
@@ -53,6 +56,20 @@ describe('withCache', () => {
 
     expect(hit.headers.get('Cache-Control')).toBe('public, max-age=20');
     await expect(hit.clone().text()).resolves.toBe(JSON.stringify({ ok: true }));
+  });
+
+  it('serves the same cached entry across more than one subsequent hit', async () => {
+    // Guards the test double itself: a naive mock that hands back the same Response instance on
+    // every match() would fail here with a "body stream already read" error on the third call,
+    // since each match's body must be independently readable in the real Cache API.
+    const c = makeContext();
+    await withCache(c as never, 20, async () => Response.json({ ok: true }));
+
+    const hit1 = await withCache(c as never, 20, async () => Response.json({ ok: 'should not run' }));
+    const hit2 = await withCache(c as never, 20, async () => Response.json({ ok: 'should not run either' }));
+
+    await expect(hit1.clone().text()).resolves.toBe(JSON.stringify({ ok: true }));
+    await expect(hit2.clone().text()).resolves.toBe(JSON.stringify({ ok: true }));
   });
 
   it('does not cache a non-ok response, and returns it without a Cache-Control header', async () => {

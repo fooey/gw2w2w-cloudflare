@@ -57,10 +57,13 @@ export async function withCacheJson<T, S extends ContentfulStatusCode = 200>(
   // eslint-disable-next-line typescript/no-unsafe-type-assertion
   status: S = 200 as S,
 ): Promise<TypedResponse<T, S, 'json'>> {
-  // withCache operates on the untyped base Response; c.json(data, status) just above already
-  // produced a correctly-shaped TypedResponse, but that shape doesn't survive the generic boundary.
-  // async is required here since withCache's handler param must return Promise<Response>,
+  // async is required here since withCachedResponse's handler param must return a Promise,
   // but c.json(...) returns a Response synchronously — no real await needed.
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion, typescript/require-await
-  return withCache(c, ttl, async () => c.json(data, status)) as unknown as Promise<TypedResponse<T, S, 'json'>>;
+  // eslint-disable-next-line typescript/require-await
+  const response = await withCachedResponse(c, ttl, async () => c.json(data, status));
+  // c.json()'s return type (JSONRespondReturn) isn't structurally assignable to TypedResponse due
+  // to a Hono generic-variance quirk (JSONParsed<T> vs T) — a direct cast (not through `unknown`)
+  // is fine since c.json(data, status) genuinely does produce this shape at runtime.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion
+  return response as TypedResponse<T, S, 'json'>;
 }
