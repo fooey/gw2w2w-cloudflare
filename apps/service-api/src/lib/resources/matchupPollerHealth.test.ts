@@ -93,13 +93,15 @@ describe('getMatchupPollerHealth', () => {
     expect(pollIsStale).toBe(true);
   });
 
-  it('does not count an unparseable lastD1ErrorAt as an active error', async () => {
+  it('treats an unparseable lastD1ErrorAt as an active error, not a resolved one', async () => {
+    // consecutiveD1Errors says there IS an error streak, but we can't confirm how old it is —
+    // defaulting to "still active" is the fail-safe choice, same as pollIsOld's own defaults.
     const env = makeEnv({
       lastSuccessfulPollAt: isoAgo(1000),
       consecutiveD1Errors: 3,
       lastD1ErrorAt: 'not-a-date',
     });
     const { pollIsStale } = await getMatchupPollerHealth(env as never);
-    expect(pollIsStale).toBe(false);
+    expect(pollIsStale).toBe(true);
   });
 });

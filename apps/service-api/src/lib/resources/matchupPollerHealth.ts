@@ -67,8 +67,13 @@ export async function getMatchupPollerHealth(env: CloudflareEnv): Promise<Matchu
   // lastSuccessfulPollAt is stamped right after the GW2 fetch succeeds, before the D1 write is even
   // attempted — a pure D1-write failure can leave it looking fresh while match_state never actually
   // got updated. An active run of recent D1 errors must also count as "can't be trusted".
-  const hasActiveD1Errors =
-    (pollerStatus?.consecutiveD1Errors ?? 0) > 0 && msSince(pollerStatus?.lastD1ErrorAt) < POLL_STALE_THRESHOLD_MS;
+  //
+  // Only a confirmed-old error (a parseable timestamp past the threshold) is excluded — a missing
+  // or unparseable lastD1ErrorAt defaults to "still active", not "healthy".
+  const consecutiveD1Errors = pollerStatus?.consecutiveD1Errors ?? 0;
+  const d1ErrorAge = msSince(pollerStatus?.lastD1ErrorAt);
+  const errorIsConfirmedOld = Number.isFinite(d1ErrorAge) && d1ErrorAge >= POLL_STALE_THRESHOLD_MS;
+  const hasActiveD1Errors = consecutiveD1Errors > 0 && !errorIsConfirmedOld;
 
   return { pollerStatus, pollIsStale: pollIsOld || hasActiveD1Errors };
 }
