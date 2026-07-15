@@ -2,7 +2,7 @@
 
 ## Package Manager
 
-This project uses **pnpm**. Always use `pnpm dlx` instead of `npx` when running one-off executables.
+This project uses **pnpm** (v11+). Always use `pnpx` instead of `npx` or `pnpm dlx` when running one-off executables — `pnpx` is pnpm's own long-standing `dlx` alias (not new to v11; only the even-shorter `pn`/`pnx` aliases were added in v11).
 
 ## Dependency Management
 
@@ -49,7 +49,7 @@ This lists every outdated dependency across all workspace packages, grouped by p
 | Category                | Where to update                                | How                                                                          |
 | ----------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------- |
 | **Cataloged**           | `pnpm-workspace.yaml` only                     | Bump the version in `catalog:`. Never touch individual `package.json` files. |
-| **Has its own codemod** | N/A — run the codemod                          | e.g. `pnpm dlx @turbo/codemod@latest update` for Turbo.                      |
+| **Has its own codemod** | N/A — run the codemod                          | e.g. `pnpx @turbo/codemod@latest update` for Turbo.                          |
 | **Non-cataloged**       | The specific `package.json`(s) that declare it | Edit version strings directly.                                               |
 
 **3. Review changelogs for non-patch bumps.** Patch-only bumps don't need changelog review — just update them. For minor and major version jumps:
@@ -65,7 +65,7 @@ This lists every outdated dependency across all workspace packages, grouped by p
 
 **4. Check for codemods before bumping.** These packages have dedicated update tools — always use them instead of manual version edits:
 
-- **Turbo**: `pnpm dlx @turbo/codemod@latest update` — interactive, must be run by the user
+- **Turbo**: `pnpx @turbo/codemod@latest update` — interactive, must be run by the user
 
 If a package's changelog or docs mention a codemod for the version jump, use it. **Codemods are interactive** — prompt the user to run them in their terminal before proceeding with the remaining updates. Wait for confirmation before continuing.
 

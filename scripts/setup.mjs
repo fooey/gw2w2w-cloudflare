@@ -51,7 +51,7 @@ try {
 console.log('\nApplying D1 migrations (local)…');
 
 try {
-  execSync('pnpm dlx wrangler d1 migrations apply wvw-events --local', {
+  execSync('pnpm exec wrangler d1 migrations apply wvw-events --local', {
     cwd: resolve(ROOT, 'apps/service-api'),
     stdio: 'inherit',
   });
