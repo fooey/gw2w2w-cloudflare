@@ -2,8 +2,9 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
-# Lets root-level `pnpm add`/`pnpm install` run without requiring -w each time — this repo
-# manages shared devDependencies (turbo, typescript, oxlint, etc.) directly at the root.
+# Lets root-level `pnpm add` (and similar mutating commands) run without requiring -w each
+# time — this repo manages shared devDependencies (turbo, typescript, oxlint, etc.) directly
+# at the root. Plain `pnpm install` was never gated by this check in the first place.
 ignoreWorkspaceRootCheck: true
 
 allowBuilds:
