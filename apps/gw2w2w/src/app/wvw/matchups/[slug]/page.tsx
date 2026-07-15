@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 
-import type { WvWMatch } from '@repo/service-api/types';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { isNil, isPresent } from '@repo/utils';
 
+import type { WvwMatchLookupResult } from '#lib/api/wvw/matches';
 import { getApi } from '#lib/api/api.server.ts';
 import { fetchWvwMatch, fetchWvwMatchByTeam } from '#lib/api/wvw/matches';
 import { resolveSlug } from '#lib/wvw/matchup';
@@ -18,34 +18,46 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
   const { matchId, selectedTeamId } = resolveSlug(slug);
 
   const api = await getApi();
-  let match: WvWMatch | null;
+  let result: WvwMatchLookupResult;
   if (isPresent(matchId)) {
-    match = await fetchWvwMatch(api, matchId);
+    result = await fetchWvwMatch(api, matchId);
   } else if (isPresent(selectedTeamId)) {
-    match = await fetchWvwMatchByTeam(api, selectedTeamId);
+    result = await fetchWvwMatchByTeam(api, selectedTeamId);
   } else {
-    match = null;
+    result = { status: 'not_found' };
   }
 
-  if (!match) {
+  if (result.status !== 'ok') {
     // Slug didn't resolve to a known team or match ID format — genuine 404
     if (isNil(matchId) && isNil(selectedTeamId)) notFound();
 
-    // Valid team/match but no active match right now — happens briefly during weekly reset
     // The `in` check above already guards against an unknown team id; tsgo just doesn't narrow it.
     const teamName =
       isPresent(selectedTeamId) && selectedTeamId in WVW_TEAMS
         ? // eslint-disable-next-line typescript/no-unsafe-type-assertion
           WVW_TEAMS[selectedTeamId as keyof typeof WVW_TEAMS].en
         : null;
+    const subject = teamName ? `${teamName}'s matchup` : `Matchup ${matchId ?? slug}`;
+    // Poller-outage case retries fast (matching the API's own Retry-After); the "no active match
+    // right now" case (weekly reset gap) retries slower since it's expected to resolve on its own.
+    const refreshSeconds = result.status === 'unavailable' ? (result.retryAfterSeconds ?? 5) : 30;
 
     return (
       <SiteLayout pageHeader="WvW Matchup">
-        <meta httpEquiv="refresh" content="30" />
+        <meta httpEquiv="refresh" content={String(refreshSeconds)} />
         <div className="space-y-4">
           <p className="text-gray-700">
-            {teamName ? `${teamName}'s matchup` : `Matchup ${matchId ?? slug}`} is not currently active. This typically
-            happens briefly during the weekly reset — check back in a few minutes.
+            {result.status === 'unavailable' ? (
+              <>
+                {subject} data is temporarily unavailable — the match poller is catching up. This page will retry
+                automatically.
+              </>
+            ) : (
+              <>
+                {subject} is not currently active. This typically happens briefly during the weekly reset — check back
+                in a few minutes.
+              </>
+            )}
           </p>
           <div className="flex gap-4">
             <Link
@@ -66,5 +78,5 @@ export default async function WvwMatchupPage({ params }: { params: Promise<{ slu
     );
   }
 
-  return <MatchupView match={match} selectedTeamId={selectedTeamId} />;
+  return <MatchupView match={result.match} selectedTeamId={selectedTeamId} />;
 }
