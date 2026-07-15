@@ -2,6 +2,10 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
+# Lets root-level `pnpm add`/`pnpm install` run without requiring -w each time — this repo
+# manages shared devDependencies (turbo, typescript, oxlint, etc.) directly at the root.
+ignoreWorkspaceRootCheck: true
+
 allowBuilds:
   esbuild: true
   sharp: true

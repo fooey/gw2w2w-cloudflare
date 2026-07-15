@@ -71,7 +71,7 @@ CI runs all four checks on every PR. PRs with failing checks will not be merged.
 
 ## Package Manager
 
-This project uses **pnpm**. Do not use `npm` or `yarn`. Use `pnpm dlx` instead of `npx` for one-off executables.
+This project uses **pnpm** (v11+). Do not use `npm` or `yarn`. Use `pnpx` instead of `npx` or `pnpm dlx` for one-off executables — `pnpx` is pnpm's own `dlx` shorthand, available since pnpm v11.
 
 Shared dependency versions live in the `catalog` in `pnpm-workspace.yaml`. When adding a dependency already in the catalog, reference it as `"catalog:"` in `package.json` rather than hardcoding the version.
 
