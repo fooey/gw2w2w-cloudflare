@@ -8,7 +8,12 @@ export type WvwMatchLookupResult =
   | { status: 'unavailable'; retryAfterSeconds: number | null };
 
 export function interpretErrorStatus(status: number, headers: Headers): WvwMatchLookupResult {
-  if (status !== 503) return { status: 'not_found' };
+  // 4xx (400 malformed id, 404 confirmed absent) won't be fixed by retrying the same request.
+  // Any 5xx — the API's own deliberate 503, or a generic 500 from service-api's catch-all error
+  // handler — is a server-side fault where retrying may actually help, so it gets the same
+  // "temporarily unavailable" treatment as a poller-stale 503, not the misleading
+  // "not currently active" weekly-reset copy.
+  if (status < 500) return { status: 'not_found' };
   const retryAfter = headers.get('Retry-After');
   const retryAfterSeconds = retryAfter === null ? null : Number(retryAfter);
   return {
