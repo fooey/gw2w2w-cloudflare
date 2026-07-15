@@ -2,7 +2,7 @@
 
 ## Package Manager
 
-This project uses **pnpm** (v11+). Always use `pnpx` instead of `npx` or `pnpm dlx` when running one-off executables — `pnpx` is pnpm's own `dlx` shorthand, available since pnpm v11.
+This project uses **pnpm** (v11+). Always use `pnpx` instead of `npx` or `pnpm dlx` when running one-off executables — `pnpx` is pnpm's own long-standing `dlx` alias (not new to v11; only the even-shorter `pn`/`pnx` aliases were added in v11).
 
 ## Dependency Management
 
