@@ -23,7 +23,7 @@ This lists every outdated dependency across all workspace packages, grouped by p
 
 **3. Review changelogs for non-patch bumps.** Patch-only bumps don't need changelog review — just update them. For minor and major version jumps:
 
-- **Resolve the GitHub repo** for each package: `npm view <pkg> repository.url`
+- **Resolve the GitHub repo** for each package: `pnpm view <pkg> repository.url`
 - **For major bumps** — fetch release notes and flag breaking changes to the user before proceeding:
   ```sh
   gh api repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "vX.Y.Z") | .body'

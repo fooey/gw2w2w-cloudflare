@@ -25,7 +25,7 @@ This returns `isResolved` and `isOutdated` per thread — data the REST comments
 
 **3. Deduplicate before acting.** Automated reviewers often flag the same root issue across multiple files. Group related unresolved comments and address them as a single fix rather than applying changes file-by-file.
 
-**4. Check the current file state.** Comments reference the diff at review time. `isOutdated == true` means the diff has moved. Always `read_file` before assuming an unresolved comment still applies.
+**4. Check the current file state.** Comments reference the diff at review time. `isOutdated == true` means the diff has moved. Always read the file's current contents before assuming an unresolved comment still applies.
 
 **5. Triage each unresolved comment into one of three categories:**
 
