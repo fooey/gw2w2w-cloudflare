@@ -242,11 +242,13 @@ pnpm ci:boundaries # Enforce package import boundaries
 pnpm test          # Run all unit tests
 ```
 
-Run all of the above in one shot (mirrors CI exactly):
+Run all of the above in one shot (mirrors CI's format/lint/type/boundary/test jobs):
 
 ```sh
 pnpm format && pnpm ci:all
 ```
+
+Before opening a PR, also run `pnpm ci:audit`. CI checks it too, in its own job, but it's kept separate from `ci:all` since it hits the npm registry over the network rather than checking anything in this codebase.
 
 ## Deployment
 

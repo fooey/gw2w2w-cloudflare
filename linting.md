@@ -14,7 +14,7 @@ This repository uses OXC as the primary lint and format toolchain.
 - `pnpm lint` -> `turbo run lint --log-order stream` (type-aware by default)
 - `pnpm lint:watch` -> `turbo watch lint` (continuous reruns on file changes)
 - `pnpm format` -> `oxfmt --config oxfmt.json .`
-- `pnpm ci:all` -> `ci:format && ci:lint && ci:types && ci:boundaries && ci:test && ci:audit`
+- `pnpm ci:all` -> `ci:format && ci:lint && ci:types && ci:boundaries && ci:test` (`ci:audit` is separate — see AGENTS.md's "Preparing a PR")
 - `pnpm ci:all:quiet` -> same pipeline, with `--output-logs=errors-only` on the turbo-driven steps
   (lint/types/test) so passing packages collapse to the task-graph summary; failures still print in
   full. Prefer this for agent/CLI runs where you don't need to eyeball passing output.
