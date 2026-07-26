@@ -38,13 +38,17 @@ Adhere to the following rules strictly:
 pnpm format && pnpm ci:all
 ```
 
-This formats all files, then runs all CI checks in order: format (verify) → lint (type-aware) → type-check → boundary-check → test → audit. Fix any errors before finishing. Individual commands are also available as `ci:format`, `ci:lint`, `ci:types`, `ci:boundaries`, and `ci:test`. Individual commands are documented below for reference.
+This formats all files, then runs all CI checks in order: format (verify) → lint (type-aware) → type-check → boundary-check → test. Fix any errors before finishing. Individual commands are also available as `ci:format`, `ci:lint`, `ci:types`, `ci:boundaries`, and `ci:test`. Individual commands are documented below for reference.
 
-**For agents/CLI use, `pnpm ci:all:quiet` (and `pnpm ci:all:quiet-force`, the cache-bypassing equivalent of `ci:all:force`) run the identical pipeline but pass `--output-logs=errors-only` to the turbo-driven steps (`ci:lint`, `ci:types`, `ci:test`).** Passing packages are collapsed to the task-graph summary line instead of full streamed output; any failing package still prints its full log automatically. `ci:format`, `ci:boundaries`, and `ci:audit` are already terse and unaffected by the flag. Prefer the quiet variant when you don't need to eyeball passing output, to keep verification runs out of the context window.
+**For agents/CLI use, `pnpm ci:all:quiet` (and `pnpm ci:all:quiet-force`, the cache-bypassing equivalent of `ci:all:force`) run the identical pipeline but pass `--output-logs=errors-only` to the turbo-driven steps (`ci:lint`, `ci:types`, `ci:test`).** Passing packages are collapsed to the task-graph summary line instead of full streamed output; any failing package still prints its full log automatically. `ci:format` and `ci:boundaries` are already terse and unaffected by the flag. Prefer the quiet variant when you don't need to eyeball passing output, to keep verification runs out of the context window.
 
-**A task is not complete until `pnpm ci:all` (or `ci:all:quiet`) reports a full clear signal.** Don't stop at "I ran it and saw some warnings" or "the failures are pre-existing" without re-confirming — re-run after every fix until every stage passes (or the only failure is a known, separately-tracked issue like a dependency audit advisory that the user has explicitly told you to ignore). Partial verification is not verification.
+**A task is not complete until `pnpm ci:all` (or `ci:all:quiet`) reports a full clear signal.** Don't stop at "I ran it and saw some warnings" or "the failures are pre-existing" without re-confirming — re-run after every fix until every stage passes (or the only failure is a known, separately-tracked issue that the user has explicitly told you to ignore). Partial verification is not verification.
 
 **`pnpm ci:all` doesn't cover every script.** Dev-utility scripts like `ts:clean` aren't wired into the CI pipeline. When you rename, remove, or re-alias a shared tool/binary, grep the affected `package.json`'s full `scripts` block for every reference to the old invocation, not just the ones `ci:all` exercises, and verify each one still resolves correctly.
+
+## Preparing a PR
+
+**`ci:audit` (`pnpm audit`) is deliberately not part of `ci:all`.** It's a different flavor of check than the rest of the pipeline — it hits the npm registry's audit endpoint over the network to check for security advisories, rather than validating anything in this codebase, and can fail on registry/network issues unrelated to your change. Before opening a PR, run it once alongside your final verification pass: `pnpm ci:all` (or `ci:all:quiet`) followed by `pnpm ci:audit`. CI also runs `ci:audit` as its own separate job on every push, so this isn't your only safety net — it's just a chance to catch new advisories before they show up in review.
 
 ## Code Formatting
 
