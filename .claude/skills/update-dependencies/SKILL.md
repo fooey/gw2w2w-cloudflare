@@ -65,7 +65,7 @@ If packages remain outdated, investigate — the semver range may need a bump (e
 - If a transitive dependency has a known vulnerability with a patched version, add a pnpm override in `pnpm-workspace.yaml` to force the patched version. Include the GHSA ID(s) in a comment.
 - Run `pnpm install` after adding overrides, then re-run `pnpm audit` to confirm a clean result.
 
-**9. Run `pnpm format && pnpm ci:all`** — the full verification pipeline. Fix any errors before finishing.
+**9. Run `pnpm format && pnpm ci:all`, then `pnpm ci:audit`** — the full verification pipeline, plus a fresh audit since dependency and override changes are exactly what can introduce or resolve advisories (`ci:audit` isn't part of `ci:all`, so run it explicitly). Fix any errors before finishing.
 
 **10. Review existing overrides in `pnpm-workspace.yaml`:**
 

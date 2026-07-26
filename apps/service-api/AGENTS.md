@@ -60,16 +60,21 @@ GW2-proxied resource schemas in `src/lib/resources/` and `src/lib/types/` use **
 
 ## GW2 API Endpoints Used
 
+- `GET /v2/build` — [docs](https://wiki.guildwars2.com/wiki/API:2/build) — polled every 15 minutes by the build-watcher cron (`src/cron/buildWatcher.ts`) for cache invalidation
 - `GET /v2/emblem/backgrounds?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/emblem/backgrounds)
 - `GET /v2/emblem/foregrounds?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/emblem/foregrounds)
 - `GET /v2/colors?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/colors)
 - `GET /v2/guild/search?name=<name>` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/search)
 - `GET /v2/guild/<id>` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/:id)
-- `GET /v2/wvw/matches` / `?ids=all` / `?world=<id>` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/matches)
-- `GET /v2/wvw/matches/overview?ids=all` — lightweight: worlds + schedule only
-- `GET /v2/wvw/matches/stats?ids=all` — kills/deaths per team per map
+- `GET /v2/guild/upgrades?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/guild/upgrades)
+- `GET /v2/wvw/matches?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/matches) — polled by the `MatchupPoller` Durable Object; only the `?ids=all` form is used, not the bare or `?world=<id>` variants
 - `GET /v2/wvw/objectives?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/objectives)
-- `GET /v2/worlds?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/worlds)
+- `GET /v2/wvw/abilities?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/abilities)
+- `GET /v2/wvw/ranks?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/ranks)
+- `GET /v2/wvw/upgrades?ids=all` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/upgrades)
+- `GET /v2/wvw/guilds/na`, `GET /v2/wvw/guilds/eu` — [docs](https://wiki.guildwars2.com/wiki/API:2/wvw/guilds/:region) — only these two regions are fetched, not a templated per-request region
+
+Note: `/v2/wvw/matches/overview`, `/v2/wvw/matches/stats`, and `/v2/worlds` are documented in the GW2 API but are **not** called anywhere in this codebase — don't assume they're wired up just because they're valid endpoints.
 
 General API reference: https://wiki.guildwars2.com/wiki/API:Main
 

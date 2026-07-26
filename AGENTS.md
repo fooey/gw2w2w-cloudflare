@@ -48,7 +48,7 @@ This formats all files, then runs all CI checks in order: format (verify) → li
 
 ## Preparing a PR
 
-**`ci:audit` (`pnpm audit`) is deliberately not part of `ci:all`.** It's a different flavor of check than the rest of the pipeline — it hits the npm registry's audit endpoint over the network to check for security advisories, rather than validating anything in this codebase, and can fail on registry/network issues unrelated to your change. Before opening a PR, run it once alongside your final verification pass: `pnpm ci:all` (or `ci:all:quiet`) followed by `pnpm ci:audit`. CI also runs `ci:audit` as its own separate job on every push, so this isn't your only safety net — it's just a chance to catch new advisories before they show up in review.
+**`ci:audit` (`pnpm audit`) is deliberately not part of `ci:all`.** It's a different flavor of check than the rest of the pipeline — it hits the npm registry's audit endpoint over the network to check for security advisories, rather than validating anything in this codebase, and can fail on registry/network issues unrelated to your change. Before opening a PR, run it once alongside your final verification pass: `pnpm ci:all` (or `ci:all:quiet`) followed by `pnpm ci:audit`. CI also runs `ci:audit` as its own separate job on every PR, so this isn't your only safety net — it's just a chance to catch new advisories before they show up in review.
 
 ## Code Formatting
 
