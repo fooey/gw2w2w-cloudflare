@@ -16,7 +16,7 @@ This lists every outdated dependency across all workspace packages, grouped by p
 **2. Classify each outdated dependency into one of these categories:**
 
 | Category                | Where to update                                | How                                                                          |
-| ----------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------ |
+| ----------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------- |
 | **Cataloged**           | `pnpm-workspace.yaml` only                     | Bump the version in `catalog:`. Never touch individual `package.json` files. |
 | **Has its own codemod** | N/A — run the codemod                          | e.g. `pnpx @turbo/codemod@latest update` for Turbo.                          |
 | **Non-cataloged**       | The specific `package.json`(s) that declare it | Edit version strings directly.                                               |
