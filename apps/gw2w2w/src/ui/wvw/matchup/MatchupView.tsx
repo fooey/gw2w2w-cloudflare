@@ -51,8 +51,11 @@ export function MatchupView({ match: initialMatch, selectedTeamId, initialEvents
           </ul>
         </section>
         <ObjectiveLogs events={events} />
-        {/* Reserve the chart's height so lazy-loading it doesn't shift the sections below. */}
-        <Suspense fallback={<div className="h-96" aria-hidden="true" />}>
+        {/* Roughly the chart section's height (heading + six filter rows + a 240px plot, ~470px),
+            rounded up to 30rem so loading it shifts the sections below as little as possible. It
+            cannot be exact — the filter rows wrap at narrow widths — so this reduces the shift
+            rather than removing it, and over-reserving settles content up rather than down. */}
+        <Suspense fallback={<div className="h-120" aria-hidden="true" />}>
           <EventActivityChart events={events} />
         </Suspense>
         <TeamActivity events={events} />
