@@ -48,7 +48,6 @@ export default defineConfig({
       'react/compiler-runtime',
       'recharts',
       'tailwind-merge',
-      'zod',
       'zustand',
       'zustand/middleware',
     ],
