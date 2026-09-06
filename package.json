@@ -10,6 +10,7 @@
     "deploy:app": "pnpm --filter gw2w2w run deploy",
     "build": "turbo run build",
     "dev": "turbo run dev dev:seed",
+    "preview": "pnpm --filter gw2w2w run preview",
     "preinstall": "npx only-allow pnpm",
     "lint": "turbo run lint --log-order stream",
     "lint:watch": "turbo watch lint",

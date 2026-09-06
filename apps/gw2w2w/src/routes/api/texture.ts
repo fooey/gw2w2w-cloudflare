@@ -1,9 +1,9 @@
-import type { NextRequest } from 'next/server';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { NextResponse } from 'next/server';
-
 import { CACHE_TTL } from '@repo/service-api/lib/resources/constants';
 import { isEmpty, isNonEmptyString } from '@repo/utils';
+
+import { cloudflareContext } from '#lib/cloudflare-context.ts';
+
+import type { Route } from './+types/texture';
 
 const ALLOWED_HOSTNAME = 'render.guildwars2.com';
 const ALLOWED_PATH_PREFIX = '/file/';
@@ -40,18 +40,18 @@ function parseAllowedTexturePath(raw: string): string | null {
   return canonicalPath;
 }
 
-export async function GET(request: NextRequest) {
-  const textureUrl = request.nextUrl.searchParams.get('url');
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const textureUrl = new URL(request.url).searchParams.get('url');
   const safePath = isNonEmptyString(textureUrl) ? parseAllowedTexturePath(textureUrl) : null;
 
   if (isEmpty(safePath)) {
-    return NextResponse.json({ error: 'Invalid url parameter' }, { status: 400 });
+    return Response.json({ error: 'Invalid url parameter' }, { status: 400 });
   }
 
   // Build upstream URL from server-controlled base + validated canonical path.
   const safeUrl = new URL(safePath, UPSTREAM_BASE_URL);
 
-  const { env } = await getCloudflareContext({ async: true });
+  const { env, ctx } = context.get(cloudflareContext);
   const r2Key = R2_KEY_PREFIX + encodeURIComponent(safeUrl.toString());
 
   // Check R2 cache first (shared with service-emblem)
@@ -69,18 +69,22 @@ export async function GET(request: NextRequest) {
   // R2 miss — fetch from GW2 CDN and populate cache
   const upstream = await fetch(safeUrl.toString(), { headers: { 'User-Agent': 'gw2w2w.com' } });
   if (!upstream.ok) {
-    return NextResponse.json({ error: 'Texture not found' }, { status: 404 });
+    return Response.json({ error: 'Texture not found' }, { status: 404 });
   }
 
   const buf = await upstream.arrayBuffer();
 
-  // Write to R2 asynchronously — don't block the response
-  // eslint-disable-next-line unicorn/prefer-spread -- buf is an ArrayBuffer, not an array; slice(0) makes a real defensive copy since buf is also used below.
-  void env.EMBLEM_ASSETS.put(r2Key, buf.slice(0), {
-    customMetadata: {
-      expiresAt: Temporal.Now.instant().add({ seconds: CACHE_TTL.immutable.kv }).toString(),
-    },
-  });
+  // Write to R2 without blocking the response. Must go through ctx.waitUntil rather than a floating
+  // promise — the runtime may cancel outstanding work once the response returns, so a bare `void`
+  // call can lose the write.
+  ctx.waitUntil(
+    // eslint-disable-next-line unicorn/prefer-spread -- buf is an ArrayBuffer, not an array; slice(0) makes a real defensive copy since buf is also used below.
+    env.EMBLEM_ASSETS.put(r2Key, buf.slice(0), {
+      customMetadata: {
+        expiresAt: Temporal.Now.instant().add({ seconds: CACHE_TTL.immutable.kv }).toString(),
+      },
+    }),
+  );
 
   return new Response(buf, {
     headers: {

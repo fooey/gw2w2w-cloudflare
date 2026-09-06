@@ -14,10 +14,9 @@ allowBuilds:
   workerd: true
 
 overrides:
-  postcss: '>=8.5.10' # GHSA-qx2v-qp2m-jg93 — next@16 pins postcss@8.4.31
-  qs: '>=6.15.2' # GHSA-q8mj-m7cp-5q26 — @opennextjs/aws>express>body-parser pins qs^6.14.1, which without this override can resolve to the vulnerable 6.15.1
-  esbuild: '>=0.28.1' # GHSA-67mh-4wv8-2f99 — @opennextjs/aws pins esbuild@0.25.4
-  form-data: '>=4.0.6' # GHSA-hmw2-7cc7-3qxx — @opennextjs/cloudflare>cloudflare>@types/node-fetch pins form-data^4.0.4, which without this override can resolve to a vulnerable version <4.0.6
+  postcss: '>=8.5.10' # GHSA-qx2v-qp2m-jg93 — floors transitive postcss (Tailwind/Vite) above the vulnerable range
+  esbuild: '>=0.28.1' # GHSA-67mh-4wv8-2f99 — floors transitive esbuild (Vite toolchain) above the vulnerable range
+  # `qs` and `form-data` overrides were dropped with @opennextjs/*; neither package is in the tree any more.
 
 catalog:
   '@cloudflare/workers-types': '^5.20260710.1'
@@ -26,7 +25,7 @@ catalog:
   hono: '^4.12.29'
   'lodash-es': '^4.18.1'
   typescript: '^7.0.2'
-  vite: '^8.1.4'
+  vite: '^8.2.2'
   vitest: '^4.1.10'
-  wrangler: '^4.110.0'
+  wrangler: '^4.129.0'
   zod: '^4.4.3'

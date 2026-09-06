@@ -22,8 +22,7 @@ coverage
 .vercel
 
 # Build Outputs
-.next/
-.open-next/
+.react-router/
 out/
 build
 dist

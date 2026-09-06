@@ -13,12 +13,7 @@ export const demoGuilds: Pick<Guild, 'id' | 'name' | 'tag'>[] = [
   },
   {
     id: '9C05A42C-1F3A-EE11-8465-02315AB41281',
-    name: 'Dobby Is Free',
+    name: 'The Matching',
     tag: 'SOCK',
-  },
-  {
-    id: '94698BF8-5519-EF11-BA1F-12061042B485',
-    name: 'Fellowship And Murder',
-    tag: 'FAM',
   },
 ];

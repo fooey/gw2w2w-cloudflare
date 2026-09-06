@@ -1,8 +1,8 @@
 'use client';
 
 import { ArrowsRightLeftIcon, ArrowsUpDownIcon } from '@heroicons/react/20/solid';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import type { Color, Emblem } from '@repo/service-api/types';
 import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';
@@ -80,9 +80,9 @@ function toggleFlag(flags: EmblemFlag[], flag: EmblemFlag): EmblemFlag[] {
 }
 
 export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesignerProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
 
   // Capture mount-time values in refs so the one-shot effect has no missing deps
   const mountPathnameRef = useRef(pathname);
@@ -95,9 +95,9 @@ export function EmblemDesigner({ colors, backgrounds, foregrounds }: EmblemDesig
   // Clear URL params after reading initial state once on mount
   useEffect(() => {
     if (mountSearchParamsSizeRef.current > 0) {
-      router.replace(mountPathnameRef.current, { scroll: false });
+      void navigate(mountPathnameRef.current, { replace: true, preventScrollReset: true });
     }
-  }, [router]);
+  }, [navigate]);
 
   const shortUrl =
     typeof window === 'undefined' ? '' : `${window.location.origin}${pathname}?s=${encodeShortlink(emblem)}`;

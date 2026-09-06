@@ -38,12 +38,12 @@ function SiteFooter() {
           Guild Wars 2 and all related content, artwork, and trademarks are the property of ArenaNet, LLC.
         </p>
         <p className="mt-3 font-mono text-xs text-gray-400">
-          {isNonEmptyString(process.env.NEXT_PUBLIC_BUILD_TIMESTAMP) ? (
-            <LocalTimestamp value={process.env.NEXT_PUBLIC_BUILD_TIMESTAMP} />
+          {isNonEmptyString(import.meta.env.VITE_BUILD_TIMESTAMP) ? (
+            <LocalTimestamp value={import.meta.env.VITE_BUILD_TIMESTAMP} />
           ) : (
             'dev'
           )}{' '}
-          &middot; {process.env.NEXT_PUBLIC_BUILD_HASH ?? 'dev'}
+          &middot; {import.meta.env.VITE_BUILD_HASH}
         </p>
       </div>
     </footer>

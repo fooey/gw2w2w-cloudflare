@@ -1,5 +1,7 @@
 'use client';
 
+import { lazy, Suspense } from 'react';
+
 import type { EventRow, WvWMapType, WvWMatchMap, WvWMatch } from '@repo/service-api/types';
 
 import { useUserPrefs } from '#lib/store/userPrefs';
@@ -7,12 +9,20 @@ import { useMatchSSE } from '#lib/wvw/useMatchSSE';
 import { SiteLayoutFullWidth } from '#ui/layout/SiteLayout';
 import { objectivesLayout } from '#ui/wvw/config/objectivesLayoutConfig';
 import { MAP_TYPES } from '#ui/wvw/config/teamColorConfig';
-import { EventActivityChart } from '#ui/wvw/matchup/activity/EventActivityChart';
 import { GuildActivity } from '#ui/wvw/matchup/activity/GuildActivity';
 import { ObjectiveLogs } from '#ui/wvw/matchup/activity/ObjectiveLogs';
 import { TeamActivity } from '#ui/wvw/matchup/activity/TeamActivity';
 import { MatchMap } from '#ui/wvw/matchup/maps/MatchMap';
 import { MatchScoreboard } from '#ui/wvw/shared/MatchScoreboard';
+
+/**
+ * recharts is ~2/3 of this route's client bundle and is used by this one component, which sits
+ * below the scoreboard and maps. Loading it lazily keeps it out of the initial matchup payload.
+ */
+const EventActivityChart = lazy(async () => {
+  const mod = await import('#ui/wvw/matchup/activity/EventActivityChart');
+  return { default: mod.EventActivityChart };
+});
 
 export interface MatchupViewProps {
   match: WvWMatch;
@@ -41,7 +51,10 @@ export function MatchupView({ match: initialMatch, selectedTeamId, initialEvents
           </ul>
         </section>
         <ObjectiveLogs events={events} />
-        <EventActivityChart events={events} />
+        {/* Reserve the chart's height so lazy-loading it doesn't shift the sections below. */}
+        <Suspense fallback={<div className="h-96" aria-hidden="true" />}>
+          <EventActivityChart events={events} />
+        </Suspense>
         <TeamActivity events={events} />
         <GuildActivity events={events} />
       </div>

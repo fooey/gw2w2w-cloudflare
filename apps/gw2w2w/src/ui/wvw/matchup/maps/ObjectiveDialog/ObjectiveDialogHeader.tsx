@@ -1,4 +1,5 @@
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import { href } from 'react-router';
 
 import type { Guild } from '@repo/service-api/types';
 import { isPresent } from '@repo/utils';
@@ -38,7 +39,7 @@ export function ObjectiveDialogHeader({
         <p className={cn('text-lg leading-tight font-semibold', ownerConfig.text)}>{name}</p>
         {guild ? (
           <a
-            href={`/guilds/${encodeURIComponent(guild.name)}`}
+            href={href('/guilds/:guildId', { guildId: guild.name })}
             target="_blank"
             rel="noopener noreferrer"
             className={cn('text-sm underline-offset-2 opacity-80 hover:underline', ownerConfig.text)}

@@ -12,7 +12,7 @@ import {
 import { AtSymbolIcon } from '@heroicons/react/20/solid';
 import { Bars3Icon, CodeBracketIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
-import { usePathname } from 'next/navigation';
+import { useLocation } from 'react-router';
 
 import { isPresent } from '@repo/utils';
 
@@ -51,7 +51,7 @@ const contactNavigation = [
 ];
 
 export function SiteNav() {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
 
   return (
     <Disclosure as="nav" className="border-b border-gray-200 bg-white">

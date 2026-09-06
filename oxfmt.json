@@ -6,7 +6,7 @@
   "quoteProps": "consistent",
   "jsxSingleQuote": false,
   "sortTailwindcss": {
-    "stylesheet": "./apps/gw2w2w/src/app/globals.css",
+    "stylesheet": "./apps/gw2w2w/src/globals.css",
     "functions": ["clsx", "cn"]
   },
   "sortImports": {

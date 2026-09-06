@@ -18,8 +18,9 @@ describe('getRandomIndex', () => {
 describe('getCryptoRandomUint32', () => {
   it('returns the random value from the provided crypto object', () => {
     const fakeCrypto: Pick<Crypto, 'getRandomValues'> = {
-      getRandomValues(array: Uint32Array) {
-        array[0] = 123_456;
+      // Must mirror Crypto's generic signature rather than narrowing to Uint32Array.
+      getRandomValues<T extends Exclude<BufferSource, ArrayBuffer>>(array: T): T {
+        new Uint32Array(array.buffer, array.byteOffset, 1)[0] = 123_456;
         return array;
       },
     };

@@ -9,8 +9,8 @@ dist/
 # Turbo cache
 .turbo/
 
-# Next.js auto-generated
-next-env.d.ts
+# React Router auto-generated route types
+.react-router/
 
 # pnpm
 pnpm-lock.yaml
