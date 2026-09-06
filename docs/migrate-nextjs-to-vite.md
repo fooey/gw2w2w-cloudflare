@@ -128,6 +128,30 @@ Also: Tailwind moved from `@tailwindcss/postcss` to `@tailwindcss/vite` (PostCSS
 
 ---
 
+## Toolchain updates that rode along
+
+- **pnpm 11.13.0 → 11.25.0.** Not migration-related: upstream marked 11.13.0 a broken release (`@pnpm/exe` shipped without a binary), so CI could not install it. Pre-existing on `main`; this branch was simply the first thing to run CI afterwards.
+- **Vite 8.1.4 → 8.2.2, Tailwind 4.3.2 → 4.3.3.** Patch/minor. The Tailwind bump aligns it with `@tailwindcss/vite`, which was added at 4.3.3.
+- **oxfmt 0.58.0 → 0.66.0.** Its only effect on this repo was reformatting the two generated `cloudflare-env.d.ts` files — which is exactly why those are now in `ignorePatterns` (see below).
+- **oxlint 1.73.0 → 1.81.0 and oxlint-tsgolint 0.24.0 → 7.0.2001.** tsgolint's version jump is a renumbering, not seven majors: it now tracks the typescript-go version it embeds. It moves with oxlint because oxlint invokes it for type-aware rules.
+
+### The `react/react-compiler` rule was split
+
+Directly relevant to this port. oxlint 1.81 removed the single `react/react-compiler` rule and replaced it with ~23 granular rules named after React Compiler's own validation passes — `react/purity`, `react/immutability`, `react/preserve-manual-memoization`, `react/set-state-in-render`, `react/incompatible-library`, `react/exhaustive-effect-dependencies`, and so on. They are enabled by the categories in `base.json`, so no explicit rule entry is needed.
+
+Two consequences worth knowing:
+
+- Suppressions must use the new rule name, and the granular rules report at a **different location** than the old one — `exhaustive-effect-dependencies` reports on the dependency array, so `eslint-disable-next-line` has to sit immediately above `}, [deps]);` rather than above the hook.
+- The finer rules surfaced diagnostics the monolithic one did not. One was a real redundant dependency (`flagKey` in `EmblemPreview`, already covered by the individual flip flags it derives from). Another was a **false positive in spirit**: `size` in `GuildEmblemUsage` is a deliberate trigger dependency — the effect never reads it, but removing it would leave the scroll firing only on mount. That one is suppressed with an explanation rather than "fixed".
+
+`eslint(one-var)` is disabled in `base.json`: it is enabled by the `style` category in 1.81 and produced 351 findings asking for consecutive declarations to be merged.
+
+### Generated type files are no longer formatted
+
+`**/cloudflare-env.d.ts` is in `ignorePatterns` for both oxfmt and oxlint. Wrangler rewrites those files wholesale on every `cf-typegen` (~28k lines across the two apps), so formatting them only creates churn the next regeneration undoes. They were regenerated here so the committed content matches raw generator output, making future `cf-typegen` runs a no-op. Hand-written ambient files such as `src/vite-env.d.ts` are still linted and formatted.
+
+---
+
 ## What we gave up
 
 Worth stating plainly — the port was not purely additive.

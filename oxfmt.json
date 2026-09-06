@@ -1,4 +1,8 @@
 {
+  // Wrangler rewrites these wholesale on every `cf-typegen` (~28k lines of runtime types), so
+  // formatting them only produces churn that the next regeneration undoes. Hand-written ambient
+  // files such as src/vite-env.d.ts are still formatted.
+  "ignorePatterns": ["**/cloudflare-env.d.ts"],
   "printWidth": 120,
   "semi": true,
   "trailingComma": "all",

@@ -10,6 +10,7 @@ describe('isNil', () => {
     expect(isNil(null)).toBe(true);
     expect(isNil(undefined)).toBe(true);
   });
+
   it('returns false for present values, including falsy ones', () => {
     expect(isNil(0)).toBe(false);
     expect(isNil('')).toBe(false);
@@ -23,6 +24,7 @@ describe('isPresent', () => {
     expect(isPresent(null)).toBe(false);
     expect(isPresent(undefined)).toBe(false);
   });
+
   it('returns true for present values, including falsy ones', () => {
     expect(isPresent(0)).toBe(true);
     expect(isPresent('')).toBe(true);
@@ -36,6 +38,7 @@ describe('isEmpty', () => {
     expect(isEmpty(undefined)).toBe(true);
     expect(isEmpty('')).toBe(true);
   });
+
   it('returns false for a non-empty string', () => {
     expect(isEmpty('a')).toBe(false);
     expect(isEmpty(' ')).toBe(false);
@@ -48,6 +51,7 @@ describe('isNonEmptyString', () => {
     expect(isNonEmptyString(undefined)).toBe(false);
     expect(isNonEmptyString('')).toBe(false);
   });
+
   it('returns true for a non-empty string', () => {
     expect(isNonEmptyString('a')).toBe(true);
     expect(isNonEmptyString(' ')).toBe(true);
@@ -60,6 +64,7 @@ describe('isEmptyArray', () => {
     expect(isEmptyArray(undefined)).toBe(true);
     expect(isEmptyArray([])).toBe(true);
   });
+
   it('returns false for a non-empty array', () => {
     expect(isEmptyArray([1])).toBe(false);
   });
@@ -71,6 +76,7 @@ describe('isNonEmptyArray', () => {
     expect(isNonEmptyArray(undefined)).toBe(false);
     expect(isNonEmptyArray([])).toBe(false);
   });
+
   it('returns true for a non-empty array', () => {
     expect(isNonEmptyArray([1])).toBe(true);
   });

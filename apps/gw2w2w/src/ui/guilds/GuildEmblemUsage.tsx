@@ -21,10 +21,14 @@ export function GuildEmblemUsage({ guildId, guildName }: GuildEmblemUsageProps) 
   const sectionRef = useRef<HTMLDivElement>(null);
   const userClickedRef = useRef(false);
 
+  // `size` is a trigger dependency, not a value the effect reads: it re-runs the scroll when the
+  // user picks a different size, gated by userClickedRef so it never fires on mount or on external
+  // preference changes. Removing it would leave the effect running only once.
   useEffect(() => {
     if (!userClickedRef.current) return;
     userClickedRef.current = false;
     sectionRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+    // eslint-disable-next-line react/exhaustive-effect-dependencies -- intentional trigger dependency; see comment above.
   }, [size]);
 
   return (

@@ -8,7 +8,10 @@
     "serviceworker": true
   },
   "rules": {
-    "react/react-compiler": "error",
+    // oxlint 1.81 replaced the single `react/react-compiler` rule with ~23 granular rules named
+    // after React Compiler's own validation passes (react/purity, react/immutability,
+    // react/preserve-manual-memoization, react/set-state-in-render, ...). They are enabled by the
+    // categories in base.json, so no explicit entry is needed here.
     "react/react-in-jsx-scope": "off"
   },
   "overrides": [

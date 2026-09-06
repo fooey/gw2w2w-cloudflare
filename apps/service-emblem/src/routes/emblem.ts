@@ -1,6 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import z from 'zod';
+import { z } from 'zod';
 
 import { DEFAULT_EMBLEM_SIZE, EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer';
 import { createCacheProviders } from '@repo/service-api/lib/cache-providers';

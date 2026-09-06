@@ -11,6 +11,7 @@ describe('withJitter', () => {
       expect(result).toBeLessThanOrEqual(1100);
     }
   });
+
   it('supports a custom jitter factor', () => {
     const ttl = 1000;
     const result = withJitter(ttl, 0.5);

@@ -7,6 +7,7 @@ describe('isMatchId', () => {
     expect(isMatchId('1-1')).toBe(true);
     expect(isMatchId('2-3')).toBe(true);
   });
+
   it('rejects non-match strings', () => {
     expect(isMatchId('11001')).toBe(false);
     expect(isMatchId('na')).toBe(false);
@@ -19,6 +20,7 @@ describe('isTeamId', () => {
     expect(isTeamId('11001')).toBe(true);
     expect(isTeamId('12001')).toBe(true);
   });
+
   it('rejects other strings', () => {
     expect(isTeamId('1-1')).toBe(false);
     expect(isTeamId('abc')).toBe(false);
@@ -30,6 +32,7 @@ describe('resolveTeamId', () => {
   it('returns a 5-digit team id as-is', () => {
     expect(resolveTeamId('11001')).toBe('11001');
   });
+
   it('returns null for unknown slugs', () => {
     expect(resolveTeamId('notaworld')).toBeNull();
   });
@@ -40,9 +43,11 @@ describe('resolveSlug', () => {
     expect(resolveSlug('1-1')).toStrictEqual({ matchId: '1-1', selectedTeamId: null });
     expect(resolveSlug('2-3')).toStrictEqual({ matchId: '2-3', selectedTeamId: null });
   });
+
   it('resolves a raw team id slug', () => {
     expect(resolveSlug('11001')).toStrictEqual({ matchId: null, selectedTeamId: '11001' });
   });
+
   it('returns nulls for completely unknown slug', () => {
     expect(resolveSlug('unknown-slug-xyz')).toStrictEqual({ matchId: null, selectedTeamId: null });
   });

@@ -14,15 +14,20 @@ allowBuilds:
   workerd: true
 
 overrides:
-  postcss: '>=8.5.10' # GHSA-qx2v-qp2m-jg93 — floors transitive postcss (Tailwind/Vite) above the vulnerable range
+  postcss: '>=8.5.23' # GHSA-qx2v-qp2m-jg93 + follow-up advisory — floors transitive postcss (Vite) above the vulnerable range
   esbuild: '>=0.28.1' # GHSA-67mh-4wv8-2f99 — floors transitive esbuild (Vite toolchain) above the vulnerable range
+  # GHSA-28wg-ghj8-5hjv — @scalar/types pins a vulnerable nanoid 5.x. Bounded to the 5 line on
+  # purpose: an open-ended `>=5.1.16` would also match 6.x and drag other consumers across a major.
+  # postcss needs no entry; the floor above pulls a release that already requires a patched nanoid.
+  nanoid@^5.0.0: '^5.1.16'
   # `qs` and `form-data` overrides were dropped with @opennextjs/*; neither package is in the tree any more.
+  # `shell-quote` needs no override: concurrently >=10.0.5 already depends on a patched 1.9.0.
 
 catalog:
   '@cloudflare/workers-types': '^5.20260710.1'
   '@types/lodash-es': '^4.17.12'
   '@types/node': '^26.1.1'
-  hono: '^4.12.29'
+  hono: '^4.13.7'
   'lodash-es': '^4.18.1'
   typescript: '^7.0.2'
   vite: '^8.2.2'
