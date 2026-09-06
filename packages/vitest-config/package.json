@@ -7,7 +7,16 @@
     "./base": "./base.config.ts"
   },
   "scripts": {
-    "lint": "oxlint ."
+    "lint": "oxlint .",
+    "check-types": "tsc --noEmit",
+    "format": "oxfmt --config ../../oxfmt.json ."
+  },
+  "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "vitest": "catalog:"

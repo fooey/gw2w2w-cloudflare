@@ -345,9 +345,19 @@ importers:
 
   packages/vitest-config:
     dependencies:
+      '@js-temporal/polyfill':
+        specifier: ^0.5.1
+        version: 0.5.1
       vitest:
         specifier: 'catalog:'
         version: 5.0.0(@types/node@26.1.1)(happy-dom@20.10.6)(vite@8.2.2(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.16.9)(yaml@2.8.3))
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
 
 packages:
 

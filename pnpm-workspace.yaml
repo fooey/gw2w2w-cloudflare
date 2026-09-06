@@ -7,6 +7,12 @@ packages:
 # at the root. Plain `pnpm install` was never gated by this check in the first place.
 ignoreWorkspaceRootCheck: true
 
+# Fail the install on an unsupported Node (see engines.node / .nvmrc) rather than letting it
+# surface later as something opaque — the test suite, for one, needs a native `Temporal`, which
+# only Node >= 26 provides. Belongs here rather than .npmrc: pnpm does not read `engine-strict`
+# from .npmrc any more.
+engineStrict: true
+
 allowBuilds:
   esbuild: true
   sharp: true
