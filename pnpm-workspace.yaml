@@ -31,6 +31,6 @@ catalog:
   'lodash-es': '^4.18.1'
   typescript: '^7.0.2'
   vite: '^8.2.2'
-  vitest: '^4.1.10'
+  vitest: '^5.0.0'
   wrangler: '^4.129.0'
   zod: '^4.4.3'
