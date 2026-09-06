@@ -1,0 +1,4 @@
+# Store and check out text files with LF endings on every platform. Without this, editing a file
+# on Windows can silently rewrite every line to CRLF, turning a one-line change into a whole-file
+# diff. Binary files are detected automatically by `text=auto` and left untouched.
+* text=auto eol=lf
