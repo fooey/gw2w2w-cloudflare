@@ -36,7 +36,7 @@
     "wrangler:login": "wrangler login",
     "wrangler:logout": "wrangler logout",
     "wrangler:relogin": "wrangler logout && wrangler login",
-    "wrangler:clean": "pnpm -r exec pnpx rimraf .wrangler/state",
+    "wrangler:clean": "pnpm -r exec pnpx rimraf .wrangler/state .wrangler/tmp",
     "db:query": "pnpm --filter service-api run db:query",
     "setup:dev": "node scripts/setup.mjs",
     "tail": "concurrently -n \"app   ,api   ,emblem\" -c blue,green,yellow \"pnpm tail:app\" \"pnpm tail:api\" \"pnpm tail:emblem\"",
