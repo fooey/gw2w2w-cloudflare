@@ -59,7 +59,9 @@ export const meta: Route.MetaFunction = ({ loaderData, params }) => {
   const { guild } = loaderData;
   if (!guild) return [{ title: `Not Found - GW2W2W` }];
 
-  const canonical = `https://gw2w2w.com/guild/${guild.id}`;
+  // Plural /guilds/ — must match the `guilds/:guildId` route, or the canonical points at a 404.
+  // Uses the guild id rather than params.guildId, since the route also accepts a guild name.
+  const canonical = `https://gw2w2w.com/guilds/${guild.id}`;
   const emblemUrl = guild.emblem ? getEmblemSrc(guild.id) : undefined;
   const title = `${guild.name} [${guild.tag}] - GW2W2W`;
   const description = `${guild.name} [${guild.tag}] guild emblem`;
