@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build",
+    "build": "react-router typegen && tsc --noEmit --checkers 4 && react-router build",
     "lint": "oxlint .",
     "check-types": "tsc --noEmit --checkers 4",
     "format": "oxfmt --config ../../oxfmt.json .",
