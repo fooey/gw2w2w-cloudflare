@@ -9,7 +9,7 @@ Rules specific to `apps/gw2w2w`. The root [AGENTS.md](../../AGENTS.md) covers mo
 - Bindings (R2, KV, Service Bindings) reach loaders and actions through the typed load context: `context.get(cloudflareContext)` returns `{ env, ctx }`. There is no ambient accessor — pass `env` explicitly to helpers like `getApi(env)`
 - Do not use Node.js-only APIs; use `@js-temporal/polyfill` for `Temporal`. It is installed at the top of `workers/app.ts` because workerd lacks the global and that entry is the only module guaranteed to run before any route
 - `import.meta.env.PROD` (not `process.env.NODE_ENV`) selects production behaviour, including the `SERVICE_API` service-binding path
-- Type checking uses TypeScript 7's native `tsc` (`node ./node_modules/typescript7/bin/tsc --noEmit --checkers 4`); `react-router typegen` must run first so generated `./+types/*` route modules exist
+- Type checking uses TypeScript 7's native `tsc` (`tsc --noEmit --checkers 4`); `react-router typegen` must run first so generated `./+types/*` route modules exist
 
 ## Route vs UI Separation
 

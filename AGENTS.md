@@ -2,7 +2,7 @@
 
 ## Package Manager
 
-This project uses **pnpm** (v11+). Always use `pnpx` instead of `npx` or `pnpm dlx` when running one-off executables — `pnpx` is pnpm's own long-standing `dlx` alias (not new to v11; only the even-shorter `pn`/`pnx` aliases were added in v11).
+This project uses **pnpm** (v11+). Always use `pnpx` instead of `npx` or `pnpm dlx` when running one-off executables — `pnpx` is pnpm's own long-standing `dlx` alias (not new to v11; only the even-shorter `pn`/`pnx` aliases were added in v11). The one exception is the root `preinstall` guard, which must stay on `npx`: it runs before install under whatever package manager was invoked, so on a machine without pnpm `pnpx` would not resolve and the user would get "command not found" instead of only-allow's "Use pnpm instead of npm".
 
 ## Dependency Management
 
@@ -63,7 +63,7 @@ Primary linting is OXC-based. See `linting.md` for the active lint architecture,
 
 ## Type Checking
 
-- **Check all packages**: `pnpm ci:types` (TypeScript 7's native `tsc`; `apps/gw2w2w` calls it via a `typescript7` alias — see `TODOS.md`)
+- **Check all packages**: `pnpm ci:types` (TypeScript 7's native `tsc`)
 
 ## Package Boundaries
 
