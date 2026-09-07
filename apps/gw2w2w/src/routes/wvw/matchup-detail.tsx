@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { href, isRouteErrorResponse, useRevalidator } from 'react-router';
+import { data, href, isRouteErrorResponse, useRevalidator } from 'react-router';
 
 import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { isNil, isPresent } from '@repo/utils';
@@ -47,7 +47,13 @@ export async function loader({ params, context }: Route.LoaderArgs) {
     // right now" case (weekly reset gap) retries slower since it's expected to resolve on its own.
     const refreshSeconds = result.status === 'unavailable' ? (result.retryAfterSeconds ?? 5) : 30;
 
-    return { ok: false as const, slug, subject, refreshSeconds, status: result.status };
+    // Same split as guild-detail: 'not_found' is a real 404 (no such matchup right now),
+    // 'unavailable' is a 503 (the poller is behind — ask again). Neither is a 200: the retry UI
+    // below still renders either way, since `data()` sets the status without throwing.
+    return data(
+      { ok: false as const, slug, subject, refreshSeconds, status: result.status },
+      { status: result.status === 'unavailable' ? 503 : 404 },
+    );
   }
 
   return { ok: true as const, match: result.match, selectedTeamId };
