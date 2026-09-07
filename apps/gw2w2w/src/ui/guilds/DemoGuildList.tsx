@@ -14,7 +14,7 @@ export function DemoGuildList() {
           <li key={guild.id} className="my-8">
             <GuildEmblemGrid
               guildId={guild.id}
-              linkHref={`/guilds/${guild.name}`}
+              linkHref={href('/guilds/:guildId', { guildId: guild.name })}
               title={
                 <>
                   <Link href={href('/guilds/:guildId', { guildId: guild.name })} className="hover:text-indigo-600">
