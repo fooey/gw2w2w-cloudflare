@@ -1,3 +1,5 @@
+import { data } from 'react-router';
+
 import type { Guild } from '@repo/service-api/types';
 import { isPresent, validateArenaNetUuid } from '@repo/utils';
 
@@ -7,6 +9,7 @@ import { cloudflareContext } from '#lib/cloudflare-context.ts';
 import { getEmblemSrc } from '#lib/emblems';
 import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import { GuildDetail } from '#ui/guilds/GuildDetail';
+import { GuildLoadError } from '#ui/guilds/GuildLoadError';
 import { GuildNotFound } from '#ui/guilds/GuildNotFound';
 import { SiteLayout } from '#ui/layout/SiteLayout';
 
@@ -30,15 +33,22 @@ async function getData(guildId: string, env: CloudflareEnv): Promise<Guild | nul
  * Runs once per request; its result feeds both `meta` and the component, so the guild is fetched a
  * single time and needs no dedupe wrapper. Errors are caught rather than thrown so `meta` can emit
  * noindex tags for the failure case instead of handing off to the ErrorBoundary.
+ *
+ * Three outcomes, three statuses: 200 with a guild, 404 for one that genuinely does not exist,
+ * 503 when the lookup itself failed. An outage is not the same answer as "no such guild", and a
+ * 200 on either would assert to users, crawlers and link unfurlers something never established.
+ * `data()` sets the status without throwing, so `meta` still runs and the page still renders its
+ * soft landing with a search box rather than a bare error screen.
  */
 export async function loader({ params, context }: Route.LoaderArgs) {
   try {
     const guild = await getData(params.guildId, context.get(cloudflareContext).env);
+    if (guild === null) return data({ guild, failed: false }, { status: 404 });
 
-    return { guild, failed: false };
+    return data({ guild, failed: false });
   } catch (error) {
     console.error(error);
-    return { guild: null, failed: true };
+    return data({ guild: null, failed: true }, { status: 503 });
   }
 }
 
@@ -103,7 +113,16 @@ export const meta: Route.MetaFunction = ({ loaderData, params }) => {
 };
 
 export default function GuildPage({ loaderData, params }: Route.ComponentProps) {
-  const { guild } = loaderData;
+  const { guild, failed } = loaderData;
+
+  // "We could not ask" is a different answer from "we asked and there is no such guild".
+  if (failed) {
+    return (
+      <SiteLayout pageHeader="Guild Unavailable" headerActions={<GuildSearch />}>
+        <GuildLoadError guildId={params.guildId} />
+      </SiteLayout>
+    );
+  }
 
   if (!guild) {
     return (
