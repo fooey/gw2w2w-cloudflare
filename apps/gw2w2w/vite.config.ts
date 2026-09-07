@@ -20,10 +20,12 @@ export default defineConfig({
     // busy port fail loudly instead of silently sliding to 3001 and breaking those bookmarks.
     port: 3000,
     strictPort: true,
-    // Bind dual-stack. Vite's default ('localhost') resolves to ::1 only on Windows, so browsers
-    // that try 127.0.0.1 first stall ~2s on a dead connection before falling back to IPv6 — which
-    // shows up as a slow first render even though the server responds in ~20ms.
-    host: '::',
+    // Windows only. Vite's default ('localhost') resolves to ::1 there, so browsers that try
+    // 127.0.0.1 first stall ~2s on a dead connection before falling back to IPv6 — which shows up
+    // as a slow first render even though the server responds in ~20ms. Binding '::' unconditionally
+    // would break dev *and* preview (which inherits host/port/strictPort from `server`) on hosts
+    // with IPv6 disabled: listening on :: fails EAFNOSUPPORT and strictPort leaves no fallback.
+    host: process.platform === 'win32' ? '::' : 'localhost',
   },
   preview: {
     port: 3000,
