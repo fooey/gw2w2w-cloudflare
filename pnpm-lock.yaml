@@ -9,6 +9,9 @@ catalogs:
     '@cloudflare/workers-types':
       specifier: ^5.20260710.1
       version: 5.20260710.1
+    '@js-temporal/polyfill':
+      specifier: ^0.5.1
+      version: 0.5.1
     '@types/lodash-es':
       specifier: ^4.17.12
       version: 4.17.12
@@ -80,7 +83,7 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(react@19.2.7)
       '@js-temporal/polyfill':
-        specifier: ^0.5.1
+        specifier: 'catalog:'
         version: 0.5.1
       '@repo/emblem-renderer':
         specifier: workspace:*
@@ -198,7 +201,7 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3(@standard-schema/spec@1.1.0)(hono@4.13.7)
       '@js-temporal/polyfill':
-        specifier: ^0.5.1
+        specifier: 'catalog:'
         version: 0.5.1
       '@repo/utils':
         specifier: workspace:*
@@ -346,7 +349,7 @@ importers:
   packages/vitest-config:
     dependencies:
       '@js-temporal/polyfill':
-        specifier: ^0.5.1
+        specifier: 'catalog:'
         version: 0.5.1
       vitest:
         specifier: 'catalog:'

@@ -30,7 +30,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
-    "@js-temporal/polyfill": "^0.5.1",
+    "@js-temporal/polyfill": "catalog:",
     "@repo/emblem-renderer": "workspace:*",
     "@repo/service-api": "workspace:*",
     "@repo/utils": "workspace:*",

@@ -12,7 +12,7 @@
     "format": "oxfmt --config ../../oxfmt.json ."
   },
   "dependencies": {
-    "@js-temporal/polyfill": "^0.5.1"
+    "@js-temporal/polyfill": "catalog:"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
