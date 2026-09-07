@@ -7,6 +7,7 @@ import { getApi } from '#lib/api/api.server.ts';
 import { fetchGuild, fetchGuildByName } from '#lib/api/gw2/guild';
 import { cloudflareContext } from '#lib/cloudflare-context.ts';
 import { getEmblemSrc } from '#lib/emblems';
+import { decodeRouteParam } from '#lib/utils/decodeRouteParam';
 import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 import { GuildDetail } from '#ui/guilds/GuildDetail';
 import { GuildLoadError } from '#ui/guilds/GuildLoadError';
@@ -16,12 +17,7 @@ import { SiteLayout } from '#ui/layout/SiteLayout';
 import type { Route } from './+types/guild-detail';
 
 async function getData(guildId: string, env: CloudflareEnv): Promise<Guild | null> {
-  let decoded: string;
-  try {
-    decoded = decodeURIComponent(guildId);
-  } catch {
-    return null;
-  }
+  const decoded = decodeRouteParam(guildId);
   const isUuid = validateArenaNetUuid(decoded);
 
   const api = getApi(env);

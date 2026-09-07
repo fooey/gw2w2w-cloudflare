@@ -1,6 +1,6 @@
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-import { decodeSafe } from '#lib/utils/decodeSafe';
+import { decodeRouteParam } from '#lib/utils/decodeRouteParam';
 import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 
 /**
@@ -13,12 +13,12 @@ export function GuildLoadError({ guildId }: { guildId: string }) {
     <div className="flex flex-col items-center gap-4 py-16 text-center">
       <ExclamationTriangleIcon className="size-16 text-amber-400" />
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-gray-900">Could not load &quot;{decodeSafe(guildId)}&quot;</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Could not load &quot;{decodeRouteParam(guildId)}&quot;</h2>
         <p className="text-sm text-gray-500">
           The guild service is not responding right now. This is temporary — try again in a moment.
         </p>
       </div>
-      <GuildSearch defaultValue={decodeSafe(guildId)} />
+      <GuildSearch defaultValue={decodeRouteParam(guildId)} />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import type { WvWMatch } from '@repo/service-api/types';
 import { WVW_TEAMS } from '@repo/service-api/definitions';
 import { isNil } from '@repo/utils';
 
-import { decodeSafe } from '#lib/utils/decodeSafe';
+import { decodeRouteParam } from '#lib/utils/decodeRouteParam';
 
 /** e.g. "1-1", "2-3" */
 export function isMatchId(slug: string): boolean {
@@ -17,7 +17,7 @@ export function isTeamId(slug: string): boolean {
 /** Resolve a teamId or team name (any lang) to a canonical teamId, or null if not found. */
 export function resolveTeamId(slug: string): string | null {
   if (isTeamId(slug)) return slug;
-  const decoded = decodeSafe(slug).toLowerCase();
+  const decoded = decodeRouteParam(slug).toLowerCase();
   const team = Object.values(WVW_TEAMS).find(
     (t) =>
       t.en.toLowerCase() === decoded ||
