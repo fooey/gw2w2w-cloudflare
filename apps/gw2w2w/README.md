@@ -49,6 +49,48 @@ Real-time WvW objective tracking with SSE updates.
 
 ## Architecture
 
+### How Vite, React Router, and Cloudflare Fit Together
+
+Three tools with distinct jobs: Vite builds, React Router routes and renders, Cloudflare runs and serves.
+
+**Build.** Vite builds `src/` twice, once per [environment](https://vite.dev/guide/api-environment):
+
+```
+src/  ─┬─ client ──→ build/client/          browser JS/CSS + static assets
+       └─ ssr    ──→ build/server/index.js   the Worker
+```
+
+`reactRouter()` configures both. Anything that must apply to only one is scoped by environment — the React Compiler runs on `client` only, because `react/compiler-runtime` reaches `useMemoCache` through React's _client_ internals dispatcher, which is null while server rendering.
+
+**Request.** Cloudflare checks static assets before invoking any code:
+
+```
+request → Cloudflare edge
+            ├── matches a file in build/client?  → served directly, Worker never invoked
+            └── otherwise                        → workers/app.ts
+```
+
+That short-circuit is load-bearing rather than trivia: `/favicon.ico` is only reachable as a route because no `public/favicon.ico` exists. Adding that file would silently shadow the route.
+
+**Render.** `workers/app.ts` does three things and then gets out of the way:
+
+1. Installs the `Temporal` polyfill (absent from workerd) before any route module loads
+2. Puts `env` and `ctx` into a `RouterContextProvider`
+3. Hands the request to React Router's `createRequestHandler`
+
+React Router matches against `src/routes.ts`, runs the matched `loader` server-side inside workerd, renders to HTML, and responds. Because loaders run there, `SERVICE_API` is a direct Worker-to-Worker call — the browser never talks to `api.gw2w2w.com`.
+
+**Navigation.** The first load is a full document; client navigations after that fetch only loader data ([single fetch](https://reactrouter.com/start/framework/data-loading)):
+
+| Request                | Response                                                   |
+| ---------------------- | ---------------------------------------------------------- |
+| `GET /guilds/:id`      | ~28 KB — full HTML, meta tags and content already rendered |
+| `GET /guilds/:id.data` | ~360 B — loader data only, no document shell               |
+
+Loaders also control the HTTP status through `data(value, { status })`. That is what lets a missing guild answer 404 and an upstream outage answer 503, instead of both rendering at 200.
+
+**This is SSR with hydration, not React Server Components.** Every component ships to the browser, and the boundary is loader-vs-component rather than server-vs-client — `'use client'` carries no meaning here.
+
 ### Project Structure
 
 Route modules live in `src/routes/` and are declared in `src/routes.ts`; `src/root.tsx` is the document shell and `workers/app.ts` is the Worker entry. Route modules are kept thin — loaders fetch data and the component composes UI, with minimal markup. All substantive UI lives in `src/ui/` (shared components) and `src/lib/ui/` (feature-specific components).
