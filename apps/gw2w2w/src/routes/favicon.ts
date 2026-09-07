@@ -19,5 +19,13 @@ const FAVICON_GUILD_ID = '97C007DC-87D5-E311-9621-AC162DAE8ACD';
  * service returns WebP, so the served image and its content type both change.
  */
 export function loader() {
-  return redirect(getEmblemSrc(FAVICON_GUILD_ID), 307);
+  // Cache the redirect itself. Without this the response carries no cache headers at all, so every
+  // cold page load re-runs the Worker just to be told where the icon lives — and root.tsx points
+  // both `icon` and `apple-touch-icon` here, so browsers ask twice. The target is a fixed guild id
+  // and never varies, so it is safe to hold; 24h matches what the emblem service sends for the
+  // image itself. Changing FAVICON_GUILD_ID would take up to that long to reach existing visitors.
+  return redirect(getEmblemSrc(FAVICON_GUILD_ID), {
+    status: 307,
+    headers: { 'Cache-Control': 'public, max-age=86400' },
+  });
 }

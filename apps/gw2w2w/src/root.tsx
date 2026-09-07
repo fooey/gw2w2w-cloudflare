@@ -18,8 +18,9 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 export const links: Route.LinksFunction = () => [
+  // Only one icon link: both entries pointed at /favicon.ico, so browsers fetched the same
+  // redirect twice on every cold load. apple-touch-icon wants a PNG anyway, not an .ico.
   { rel: 'icon', href: '/favicon.ico' },
-  { rel: 'apple-touch-icon', href: '/favicon.ico' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
