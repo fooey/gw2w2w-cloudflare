@@ -20,8 +20,11 @@ allowBuilds:
   workerd: true
 
 overrides:
-  postcss: '>=8.5.23' # GHSA-qx2v-qp2m-jg93 + follow-up advisory — floors transitive postcss (Vite) above the vulnerable range
-  esbuild: '>=0.28.1' # GHSA-67mh-4wv8-2f99 — floors transitive esbuild (Vite toolchain) above the vulnerable range
+  # Both are upper-bounded for the same reason as the nanoid entry below: an open-ended floor also
+  # matches the next major and would drag the Vite/Tailwind toolchain across it on the next update.
+  postcss: '>=8.5.23 <9' # GHSA-qx2v-qp2m-jg93 + follow-up advisory — floors transitive postcss (Vite) above the vulnerable range
+  # esbuild is 0.x, so every *minor* is a breaking release — the bound is per-minor, not per-major.
+  esbuild: '>=0.28.1 <0.29' # GHSA-67mh-4wv8-2f99 — floors transitive esbuild (Vite toolchain) above the vulnerable range
   # GHSA-28wg-ghj8-5hjv — @scalar/types pins a vulnerable nanoid 5.x. Bounded to the 5 line on
   # purpose: an open-ended `>=5.1.16` would also match 6.x and drag other consumers across a major.
   # postcss needs no entry; the floor above pulls a release that already requires a patched nanoid.
