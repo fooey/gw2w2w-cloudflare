@@ -168,6 +168,17 @@ interface GuildActivityProps {
 }
 
 export function GuildActivity({ events }: GuildActivityProps) {
+  // The React Compiler cannot compile this component: `useVirtualizer` trips its incompatible-library
+  // check (see the disable comment on that call below), so it bails out and emits no memo cache here.
+  // Verified by building with and without this directive — the compiled-component count in the
+  // matchup-detail chunk is identical either way, where opting out a compiled component drops it by one.
+  //
+  // Stating it outright rather than relying on the silent bail-out, because it is the reason the
+  // `useMemo` below stays: AGENTS.md forbids manual memoization on the grounds that the compiler
+  // handles it, and that premise does not hold for this component. `buildGuildRows` plus a
+  // `toSorted` over every row would otherwise rerun on each render of a live-updating page.
+  'use no memo';
+
   const { maps, objectiveTypes, owners, timeWindow, toggleMap, toggleObjectiveType, toggleOwner, setTimeWindow } =
     useGuildActivityFilters();
 

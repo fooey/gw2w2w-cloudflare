@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import type { EventRow } from '@repo/service-api/types';
 
 import type { TeamRow } from '#ui/wvw/matchup/activity/teamActivityRows';
@@ -65,10 +63,7 @@ interface TeamActivityProps {
 export function TeamActivity({ events }: TeamActivityProps) {
   const { maps, objectiveTypes, timeWindow, toggleMap, toggleObjectiveType, setTimeWindow } = useTeamActivityFilters();
 
-  const { teams, overall } = useMemo(
-    () => buildTeamRows(events, { maps, objectiveTypes, timeWindow }),
-    [events, maps, objectiveTypes, timeWindow],
-  );
+  const { teams, overall } = buildTeamRows(events, { maps, objectiveTypes, timeWindow });
 
   return (
     <section className="mt-4 rounded p-2 shadow">
