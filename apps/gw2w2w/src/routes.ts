@@ -9,8 +9,9 @@ export default [
   route('guild-search', 'routes/guild-search.ts'),
 
   // Public redirect targets — see each route module for why they exist.
-  route('guilds/:guildId/:size.svg', 'routes/guild-emblem-svg.ts'),
   route('favicon.ico', 'routes/favicon.ts'),
+  route('guild/:guildId', 'routes/guild-legacy-redirect.ts'),
+  route('guilds/:guildId/:size.svg', 'routes/guild-emblem-svg.ts'),
 
   // `matchups-layout` carries the QueryClientProvider that app/wvw/matchups/layout.tsx provided.
   ...prefix('wvw/matchups', [

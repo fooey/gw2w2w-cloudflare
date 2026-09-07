@@ -12,5 +12,5 @@ import type { Route } from './+types/guild-emblem-svg';
  * URLs return.
  */
 export function loader({ params }: Route.LoaderArgs) {
-  return redirect(getEmblemSrc(params.guildId), 302);
+  return redirect(getEmblemSrc(params.guildId), 307);
 }
