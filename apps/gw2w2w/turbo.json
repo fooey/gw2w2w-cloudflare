@@ -1,4 +1,31 @@
 {
   "extends": ["//"],
-  "tags": ["app"]
+  "tags": ["app"],
+  "tasks": {
+    // React Router generates the per-route `./+types/*` modules into .react-router/, which is
+    // gitignored — so on a fresh checkout anything that resolves route types must run this first.
+    // Declared once here rather than prefixed onto three scripts, and cached like any other task.
+    "typegen": {
+      // Generated output references route modules structurally (`typeof import("../x.js")`), so it
+      // only changes when the route tree does — not when a route's internals change. Scoping inputs
+      // this way keeps edits to components and lib code from invalidating the cache.
+      "inputs": ["src/routes.ts", "src/routes/**", "src/root.tsx", "react-router.config.ts"],
+      "outputs": [".react-router/**"]
+    },
+    // Each of these restates the root definition: a task defined in a package config replaces the
+    // root's entry for that task rather than merging with it.
+    "lint": {
+      "dependsOn": ["^lint", "typegen"]
+    },
+    "check-types": {
+      "inputs": ["**/*.{ts,tsx}"],
+      "dependsOn": ["transit", "typegen"]
+    },
+    "build": {
+      "dependsOn": ["^build", "typegen"],
+      "env": ["CF_PAGES_COMMIT_SHA"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["build/**", "dist/**"]
+    }
+  }
 }

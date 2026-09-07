@@ -1,5 +1,5 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
-  "extends": ["../../packages/oxlint-config/nextjs-app.json"],
+  "extends": ["../../packages/oxlint-config/react-router-app.json"],
   "ignorePatterns": ["cloudflare-env.d.ts"]
 }

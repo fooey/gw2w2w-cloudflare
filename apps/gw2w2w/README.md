@@ -1,19 +1,21 @@
 # gw2w2w
 
-Next.js 16 frontend for [gw2w2w.com](https://gw2w2w.com). Guild Wars 2 utilities including guild emblem rendering, an interactive emblem designer, and real-time WvW match tracking.
+[React Router v8](https://reactrouter.com/) frontend for [gw2w2w.com](https://gw2w2w.com), built with Vite. Guild Wars 2 utilities including guild emblem rendering, an interactive emblem designer, and real-time WvW match tracking.
 
-Deployed on Cloudflare Workers via [OpenNext](https://opennext.js.org/).
+Runs directly on Cloudflare Workers — the dev server executes the SSR bundle inside workerd via [`@cloudflare/vite-plugin`](https://developers.cloudflare.com/workers/vite-plugin/), so local development uses the same runtime and bindings as production.
 
 **Production:** `gw2w2w.com`
 
 ## Local Development
 
 ```sh
-pnpm dev       # starts Next.js on port 3000
-pnpm preview   # builds and previews via OpenNext/Cloudflare locally
+pnpm dev       # Vite dev server on port 3000 (SSR runs in workerd)
+pnpm preview   # builds, then serves the production bundle in workerd
 ```
 
 Requires `service-api` running on port 8788 for API calls during development.
+
+`pnpm preview` is worth using before a deploy: it sets `import.meta.env.PROD`, which switches the API client onto the `SERVICE_API` service binding — the code path `pnpm dev` never exercises.
 
 ## Features
 
@@ -49,7 +51,15 @@ Real-time WvW objective tracking with SSE updates.
 
 ### Project Structure
 
-Route files (`src/app/**/page.tsx`, `layout.tsx`) are kept thin — they handle data fetching and compose components but contain minimal UI markup. All substantive UI lives in `src/ui/` (shared components) and `src/lib/ui/` (feature-specific components).
+Route modules live in `src/routes/` and are declared in `src/routes.ts`; `src/root.tsx` is the document shell and `workers/app.ts` is the Worker entry. Route modules are kept thin — loaders fetch data and the component composes UI, with minimal markup. All substantive UI lives in `src/ui/` (shared components) and `src/lib/ui/` (feature-specific components).
+
+Cloudflare bindings reach loaders and actions through the typed load context rather than an ambient accessor:
+
+```ts
+export async function loader({ context }: Route.LoaderArgs) {
+  const api = getApi(context.get(cloudflareContext).env);
+}
+```
 
 ### Cloudflare Bindings
 
@@ -60,12 +70,14 @@ Route files (`src/app/**/page.tsx`, `layout.tsx`) are kept thin — they handle 
 | `WORKER_SELF_REFERENCE`      | Service | Self-reference for internal routing |
 | `EMBLEM_ASSETS`              | R2      | Cached GW2 render textures          |
 | `EMBLEM_ENGINE_GUILD_LOOKUP` | KV      | Guild emblem spec cache             |
-| `ASSETS`                     | Assets  | Static assets from OpenNext build   |
+
+Static assets are served from the Vite client build (`build/client`), configured via `[assets]` in `wrangler.toml`.
 
 ### Key Tech
 
-- **React 19** with **React Compiler** enabled — no manual memoization
-- **Tailwind CSS v4** via `@tailwindcss/postcss`
+- **React Router v8** in framework mode — SSR with per-route loaders and generated route types
+- **Vite 8** with **React Compiler** via [`oxc-transform-react`](https://www.npmjs.com/package/oxc-transform-react) (the Rust port, no Babel) — no manual memoization
+- **Tailwind CSS v4** via `@tailwindcss/vite`
 - **TanStack Query** for client-side data fetching
 - **Zustand** for client-side state (user preferences, clock)
 - **Recharts** for WvW activity charts

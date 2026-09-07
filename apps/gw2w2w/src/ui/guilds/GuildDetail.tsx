@@ -1,3 +1,5 @@
+import { href } from 'react-router';
+
 import type { Guild } from '@repo/service-api/types';
 
 import { Card } from '#ui/Card';
@@ -16,7 +18,7 @@ export function GuildDetail({ guild }: GuildDetailProps) {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-          <Link href={`/guilds/${guild.name}`}>
+          <Link href={href('/guilds/:guildId', { guildId: guild.name })}>
             {guild.name} [{guild.tag}]
           </Link>
         </h2>

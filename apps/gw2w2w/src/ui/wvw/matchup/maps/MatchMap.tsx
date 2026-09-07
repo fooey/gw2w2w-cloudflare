@@ -1,6 +1,4 @@
-'use client';
-
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { useState } from 'react';
 
 import type { WvWMatchMap, WvWMatchObjective, WvWObjective } from '@repo/service-api/types';

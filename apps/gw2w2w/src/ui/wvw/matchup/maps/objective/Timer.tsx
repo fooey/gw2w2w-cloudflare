@@ -1,5 +1,3 @@
-'use client';
-
 import { isNil } from '@repo/utils';
 
 import { useClockStore } from '#lib/store/useClock';

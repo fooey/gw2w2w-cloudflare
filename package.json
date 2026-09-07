@@ -10,6 +10,7 @@
     "deploy:app": "pnpm --filter gw2w2w run deploy",
     "build": "turbo run build",
     "dev": "turbo run dev dev:seed",
+    "preview": "pnpm --filter gw2w2w run preview",
     "preinstall": "npx only-allow pnpm",
     "lint": "turbo run lint --log-order stream",
     "lint:watch": "turbo watch lint",
@@ -35,7 +36,7 @@
     "wrangler:login": "wrangler login",
     "wrangler:logout": "wrangler logout",
     "wrangler:relogin": "wrangler logout && wrangler login",
-    "wrangler:clean": "pnpm -r exec pnpx rimraf .wrangler/state",
+    "wrangler:clean": "pnpm -r exec pnpx rimraf .wrangler/state .wrangler/tmp",
     "db:query": "pnpm --filter service-api run db:query",
     "setup:dev": "node scripts/setup.mjs",
     "tail": "concurrently -n \"app   ,api   ,emblem\" -c blue,green,yellow \"pnpm tail:app\" \"pnpm tail:api\" \"pnpm tail:emblem\"",
@@ -48,11 +49,11 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "concurrently": "^10.0.3",
-    "oxfmt": "^0.58.0",
-    "oxlint": "^1.73.0",
-    "oxlint-tsgolint": "^0.24.0",
-    "turbo": "^2.10.5",
+    "concurrently": "^10.0.5",
+    "oxfmt": "^0.66.0",
+    "oxlint": "^1.81.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "turbo": "^2.10.12",
     "typescript": "catalog:",
     "wrangler": "catalog:"
   },
@@ -60,5 +61,5 @@
     "node": ">=26",
     "pnpm": ">=11"
   },
-  "packageManager": "pnpm@11.13.0+sha512.88d94724d8f2e6c186744a5584c6e59ecac869ec7ba15e9cb4cd628e8dc7066820b2481d8ee3b51ea8da323a7378068aa58c556a3720d32b7c20a051d088363a"
+  "packageManager": "pnpm@11.25.0+sha512.5cde925b4f075f725eb71fbae18a42ffe784524789f19b61c731cb8721ec28aaee160e01a8d5af4fedb2a42cdbf300efe23db356b0d4a17b4d63e11f8ab7c956"
 }

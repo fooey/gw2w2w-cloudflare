@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 
 import type { Granularity, TimeWindow } from '#lib/store/logFilters';
 import { GRANULARITIES, TIME_WINDOWS } from '#lib/store/logFilters';

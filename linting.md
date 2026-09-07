@@ -26,14 +26,14 @@ This repository uses OXC as the primary lint and format toolchain.
 - Root baseline: `.oxlintrc.json`
 - Shared presets: `packages/oxlint-config/`
   - `base.json`
-  - `nextjs-app.json`
+  - `react-router-app.json`
   - `service.json`
   - `library.json`
 - Package-level configs extend one of the shared presets.
 
 ## Rule Ownership by Package Type
 
-- Next app (`apps/gw2w2w`): React + Next + React Compiler, all via native oxlint plugins.
+- Frontend app (`apps/gw2w2w`): React + React Compiler, all via native oxlint plugins.
 - Services (`apps/service-api`, `apps/service-emblem`): base + Node safety rules.
 - Libraries (`packages/*` runtime libs): base + Node safety rules + stricter TypeScript contract
   rules (`prefer-readonly-parameter-types`, `explicit-function-return-type`,
@@ -56,7 +56,7 @@ rule directly — no exemption needed.
 
 ## Current Parity Notes
 
-- Strong parity: TypeScript strictness, core correctness, Next coverage, import/promise/vitest subsets.
+- Strong parity: TypeScript strictness, core correctness, React coverage, import/promise/vitest subsets.
 - Improved parity: service/library Node rules.
 - Partial parity remains: full breadth of historical ESLint React bundles is not fully mirrored 1:1.
 

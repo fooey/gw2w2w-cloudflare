@@ -26,6 +26,7 @@ describe('getFlipsFromFlags', () => {
       flipFgV: false,
     });
   });
+
   it('returns all false with empty flags array', () => {
     expect(getFlipsFromFlags([])).toStrictEqual({
       flipBgH: false,
@@ -34,6 +35,7 @@ describe('getFlipsFromFlags', () => {
       flipFgV: false,
     });
   });
+
   it('sets the correct flip booleans', () => {
     expect(getFlipsFromFlags(['FlipBackgroundHorizontal', 'FlipForegroundVertical'])).toStrictEqual({
       flipBgH: true,
@@ -42,6 +44,7 @@ describe('getFlipsFromFlags', () => {
       flipFgV: true,
     });
   });
+
   it('handles all four flags', () => {
     expect(
       getFlipsFromFlags([

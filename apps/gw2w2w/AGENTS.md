@@ -2,18 +2,21 @@
 
 Rules specific to `apps/gw2w2w`. The root [AGENTS.md](../../AGENTS.md) covers monorepo-wide conventions (including React Compiler rules) — don't repeat those here.
 
-## OpenNext / Cloudflare Workers
+## React Router / Vite / Cloudflare Workers
 
-- This app runs on Cloudflare Workers via `@opennextjs/cloudflare` — there is no Node.js runtime
-- `getCloudflareContext()` provides access to Cloudflare bindings (R2, KV, Service Bindings) in server components and API routes
-- Do not use Node.js-only APIs; use `@js-temporal/polyfill` for `Temporal` (installed via `instrumentation.ts`)
-- Type checking uses TypeScript 7's native `tsc` (`node ./node_modules/typescript7/bin/tsc --noEmit --checkers 4`) before `next build` — see the `build` script and `TODOS.md` for why this app calls it via a `typescript7` alias instead of the plain `tsc` other packages use
+- This app is React Router v8 in framework mode, built by Vite and running on Cloudflare Workers via `@cloudflare/vite-plugin` — there is no Node.js runtime
+- The Worker entry is `workers/app.ts`; `src/routes.ts` declares the route table and `src/root.tsx` is the document shell
+- Bindings (R2, KV, Service Bindings) reach loaders and actions through the typed load context: `context.get(cloudflareContext)` returns `{ env, ctx }`. There is no ambient accessor — pass `env` explicitly to helpers like `getApi(env)`
+- Do not use Node.js-only APIs; use `@js-temporal/polyfill` for `Temporal`. It is installed at the top of `workers/app.ts` because workerd lacks the global and that entry is the only module guaranteed to run before any route
+- `import.meta.env.PROD` (not `process.env.NODE_ENV`) selects production behaviour, including the `SERVICE_API` service-binding path
+- Type checking uses TypeScript 7's native `tsc` (`tsc --noEmit --checkers 4`); `react-router typegen` must run first so generated `./+types/*` route modules exist
 
 ## Route vs UI Separation
 
-- Route files (`src/app/**/page.tsx`, `layout.tsx`) should contain minimal UI — just the site shell, data fetching, and composition of components
+- Route modules (`src/routes/**`) should contain minimal UI — loaders/actions, `meta`, and composition of components
 - All substantive UI lives in `src/ui/` (shared components) and `src/lib/ui/` (feature-specific components)
 - Keep route files thin: fetch data, import components, compose layout — no complex markup or styling
+- Server-only work belongs in the loader, not the component: a loader runs once per request and its data feeds both `meta` and the component
 
 ## Photon WASM
 
@@ -32,6 +35,12 @@ Rules specific to `apps/gw2w2w`. The root [AGENTS.md](../../AGENTS.md) covers mo
 - `useMatchSSE` connects to `service-api`'s `/wvw/stream` via `EventSource`
 - The hook handles `matchState`, `capture`, `claim`, and `reset` event types
 - On `reset` events (match rollover), the page reloads to pick up new match data
+
+## Links and Navigation
+
+- Use `#ui/Link`, not React Router's `Link` directly — the wrapper keeps an `href` prop, falls back to a plain `<a>` for external/absolute URLs, and defaults to `prefetch="intent"` (hover/focus)
+- Build internal paths with React Router's `href()` helper so a renamed route is a type error: `href('/guilds/:guildId', { guildId })`
+- `href()` percent-encodes params itself — pass raw values, never `encodeURIComponent(...)` output, or they double-encode
 
 ## URL State
 

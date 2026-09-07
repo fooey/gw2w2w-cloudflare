@@ -6,9 +6,11 @@ import { isPresent } from '@repo/utils';
 import type { EmblemState } from '#ui/designer/types';
 
 const EMBLEM_HOST_PRODUCTION = 'https://emblem.gw2w2w.com';
-const EMBLEM_HOST_DEVELOPMENT = 'http://localhost:8787';
+// 127.0.0.1 rather than localhost: wrangler dev binds IPv4 only, so a browser that resolves
+// localhost to ::1 first stalls ~2s per connection and the emblem images fail outright.
+const EMBLEM_HOST_DEVELOPMENT = 'http://127.0.0.1:8787';
 
-const emblemHost = process.env.NODE_ENV === 'production' ? EMBLEM_HOST_PRODUCTION : EMBLEM_HOST_DEVELOPMENT;
+const emblemHost = import.meta.env.PROD ? EMBLEM_HOST_PRODUCTION : EMBLEM_HOST_DEVELOPMENT;
 
 export const getEmblemSrc = (guildId: string, size?: EmblemSize) => {
   const url = `${emblemHost}/${guildId}`;

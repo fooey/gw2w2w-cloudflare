@@ -19,7 +19,7 @@ graph TD
     User["Browser / Client"]
 
     subgraph CF["Cloudflare Edge"]
-        GW2W2W["gw2w2w.com<br/>Next.js · OpenNext"]
+        GW2W2W["gw2w2w.com<br/>React Router · Vite"]
         Emblem["emblem.gw2w2w.com<br/>service-emblem · Hono"]
         API["api.gw2w2w.com<br/>service-api · Hono"]
         D1[("D1<br/>match_state<br/>events")]
@@ -49,7 +49,7 @@ graph TD
 
 | App                                                      | Domain              | Description                                                                                                                                               |
 | -------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`apps/gw2w2w`](./apps/gw2w2w/README.md)                 | `gw2w2w.com`        | Next.js 16 frontend, deployed via [OpenNext](https://opennext.js.org/) on Cloudflare Workers (no Node.js required)                                        |
+| [`apps/gw2w2w`](./apps/gw2w2w/README.md)                 | `gw2w2w.com`        | React Router v8 + Vite frontend, running directly on Cloudflare Workers (no Node.js required)                                                             |
 | [`apps/service-emblem`](./apps/service-emblem/README.md) | `emblem.gw2w2w.com` | Hono Worker — renders guild emblems as WebP, caches in R2 (port `8787` locally)                                                                           |
 | [`apps/service-api`](./apps/service-api/README.md)       | `api.gw2w2w.com`    | Hono Worker — GW2 API proxy with KV + R2 tiered caching; MatchupPoller Durable Object for real-time WvW event tracking via D1 + SSE (port `8788` locally) |
 
@@ -59,7 +59,7 @@ graph TD
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`packages/emblem-renderer`](./packages/emblem-renderer/README.md) | Shared emblem rendering logic. `index.ts` — server-side (Photon WASM, Workers-only). `pixels.ts` — pure platform-independent compositing loop shared by both server and browser. |
 | [`packages/utils`](./packages/utils/README.md)                     | Shared routing, validation, and string utilities                                                                                                                                 |
-| `packages/oxlint-config`                                           | Shared Oxlint configuration presets (`base`, `nextjs-app`, `service`, `library`)                                                                                                 |
+| `packages/oxlint-config`                                           | Shared Oxlint configuration presets (`base`, `react-router-app`, `service`, `library`)                                                                                           |
 | `packages/typescript-config`                                       | Shared TypeScript configuration                                                                                                                                                  |
 
 ### Rendering Engine
@@ -76,7 +76,7 @@ The rendering pipeline is split across three files in `packages/emblem-renderer`
 
 **Resize strategy**: Emblems are always composited at the native 128×128px resolution (the texture source size). When a non-default size is requested (via `?size=N`), the composited image is resized _after_ compositing using Photon's CatmullRom filter. This means upscaled emblems are interpolated from the 128px composite rather than rendered natively at the target size — they will appear softer at large sizes. Each unique `guildId:size` combination is cached separately in R2. 128px is the sharpest option and the default.
 
-**Browser path** (designer preview): textures fetched via `/api/texture` Next.js route (reads from the shared R2 cache) → `@silvia-odwyer/photon` WASM decodes PNGs and applies flip transforms → `pixels.ts` composites → `ImageData` painted to `<canvas>`. Colors re-composite instantly without re-fetching or re-decoding. The Photon WASM module (~1.8 MB) is loaded once in the browser when the user initiates the texture download.
+**Browser path** (designer preview): textures fetched via the `/api/texture` resource route (reads from the shared R2 cache) → `@silvia-odwyer/photon` WASM decodes PNGs and applies flip transforms → `pixels.ts` composites → `ImageData` painted to `<canvas>`. Colors re-composite instantly without re-fetching or re-decoding. The Photon WASM module (~1.8 MB) is loaded once in the browser when the user initiates the texture download.
 
 ### Caching Strategy
 
@@ -156,8 +156,8 @@ Cloudflare Workers enforce a **50ms CPU time limit**. The WASM-based pixel compo
 **Placement hints near the upstream API**
 `service-api` sets `placement.hostname = "api.guildwars2.com"` in its `wrangler.toml`. Cloudflare uses HTTP HEAD probes to locate the GW2 API and routes all Worker invocations to the nearest PoP. For the cold-cache path (500-guild fan-out), this cuts per-round-trip latency from ~200ms (cross-continent) to ~5–10ms, reducing total cold fill time by over 10×.
 
-**Texture proxy route in the Next.js app**
-`GET /api/texture?url=<encoded-gw2-render-url>` serves texture PNGs for the browser designer. It reads from the same `EMBLEM_ASSETS` R2 bucket bound to the Next.js worker, so the cache is shared with `service-emblem` — any texture pre-warmed by a guild emblem render is instantly available to the designer. The route validates that the `url` parameter is strictly a `render.guildwars2.com` path before fetching, preventing open-proxy abuse.
+**Texture proxy route in the frontend app**
+`GET /api/texture?url=<encoded-gw2-render-url>` serves texture PNGs for the browser designer. It reads from the same `EMBLEM_ASSETS` R2 bucket bound to the frontend Worker, so the cache is shared with `service-emblem` — any texture pre-warmed by a guild emblem render is instantly available to the designer. The route validates that the `url` parameter is strictly a `render.guildwars2.com` path before fetching, preventing open-proxy abuse.
 
 **One-time browser texture download**
 The Emblem Designer requires textures to be downloaded to the browser's Cache API before it can render previews. The designer blocks on first visit until the user explicitly triggers the download (~650 textures, ~30 MB). Completion is recorded in `localStorage` so subsequent visits skip the gate. A "Re-download / verify" option is provided for cache invalidation. The Photon WASM module is also loaded in parallel during this download phase so it is ready by the time the user starts designing.
@@ -179,7 +179,8 @@ Real-time WvW data requires polling `api.guildwars2.com/v2/wvw/matches?ids=all` 
 
 ### Frontend
 
-- **[Next.js 16](https://nextjs.org/) + [React 19](https://react.dev/)** — Frontend framework. Deployed to Cloudflare Workers via [@opennextjs/cloudflare](https://github.com/opennextjs/opennextjs-cloudflare), which adapts Next.js to run without Node.js.
+- **[React Router v8](https://reactrouter.com/) + [React 19](https://react.dev/)** — Frontend framework in SSR framework mode, bundled by [Vite 8](https://vite.dev/) and running natively on Cloudflare Workers via [@cloudflare/vite-plugin](https://developers.cloudflare.com/workers/vite-plugin/). The dev server runs SSR inside workerd, so local development uses the production runtime and real bindings.
+- **[React Compiler](https://react.dev/learn/react-compiler)** — Automatic memoization, run through [`oxc-transform-react`](https://www.npmjs.com/package/oxc-transform-react) (the Rust port) rather than Babel, matching the repo's oxlint/oxfmt toolchain.
 - **[Tailwind CSS v4](https://tailwindcss.com/)** — Utility-first CSS framework.
 - **[TanStack Query v5](https://tanstack.com/query)** — Async state management for guild data fetching. Deduplicates concurrent requests by key and caches results in-memory across components.
 - **[TanStack Virtual v3](https://tanstack.com/virtual)** — Virtualizes the WvW event log and guild activity tables, rendering only the visible rows out of potentially thousands.
@@ -228,7 +229,7 @@ A Cloudflare account is **not** required for local development — wrangler simu
 
 The three services will be available at:
 
-- `http://localhost:3000` — Next.js frontend (`apps/gw2w2w`)
+- `http://localhost:3000` — React Router frontend (`apps/gw2w2w`)
 - `http://localhost:8787` — service-emblem
 - `http://localhost:8788` — service-api
 

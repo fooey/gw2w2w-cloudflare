@@ -1,8 +1,6 @@
-'use client';
-
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 
 import type { WvWMatch } from '@repo/service-api/types';
 import { withJitter } from '@repo/utils';

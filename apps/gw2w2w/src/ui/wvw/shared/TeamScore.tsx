@@ -1,4 +1,4 @@
-'use client';
+import { href } from 'react-router';
 
 import type { WvWMatchObjective, WvWTeam } from '@repo/service-api/types';
 
@@ -50,7 +50,7 @@ export function TeamScore({
     <div className={cn('flex flex-col justify-end')}>
       <Link
         className={cn(bg, 'block overflow-hidden rounded-lg shadow-sm')}
-        href={`/wvw/matchups/${encodeURIComponent(team[lang])}`}
+        href={href('/wvw/matchups/:slug', { slug: team[lang] })}
       >
         <div className="flex flex-row transition-all duration-300 ease-in-out">
           <div className={cn(placeBadgeConfig[place], 'p-2 text-3xl leading-none font-extralight')}>{place}</div>

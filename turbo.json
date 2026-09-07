@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-10-5.turborepo.dev/schema.json",
+  "$schema": "https://v2-10-12.turborepo.dev/schema.json",
   "ui": "tui",
   "globalEnv": ["CI", "NODE_ENV"],
   "boundaries": {
@@ -26,7 +26,7 @@
       "dependsOn": ["^build"],
       "env": ["CF_PAGES_COMMIT_SHA"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": ["build/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]

@@ -1,5 +1,3 @@
-'use client';
-
 import type { WvWMatchObjective, WvWObjective } from '@repo/service-api/types';
 import { isNil } from '@repo/utils';
 

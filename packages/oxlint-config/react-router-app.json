@@ -1,0 +1,43 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["./base.json"],
+  "plugins": ["unicorn", "typescript", "react"],
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "serviceworker": true
+  },
+  "rules": {
+    // oxlint 1.81 replaced the single `react/react-compiler` rule with ~23 granular rules named
+    // after React Compiler's own validation passes (react/purity, react/immutability,
+    // react/preserve-manual-memoization, react/set-state-in-render, ...). They are enabled by the
+    // categories in base.json, so no explicit entry is needed here.
+    "react/react-in-jsx-scope": "off"
+  },
+  "overrides": [
+    {
+      // Ambient declaration files augment global interfaces and are intentionally not modules.
+      "files": ["**/*.d.ts"],
+      "rules": {
+        "import/unambiguous": "off"
+      }
+    },
+    {
+      // React Router route modules are default-exported by convention and deliberately mix
+      // component and non-component exports (loader/action/meta/links) in one file. root.tsx also
+      // side-effect-imports the global stylesheet.
+      "files": [
+        "**/src/routes/**/*.{ts,tsx,mts,cts}",
+        "**/src/root.tsx",
+        "**/src/routes.ts",
+        "**/src/entry.*.tsx",
+        "**/workers/**/*.{ts,mts,cts}"
+      ],
+      "rules": {
+        "import/no-default-export": "off",
+        "import/no-unassigned-import": "off",
+        "react/only-export-components": "off"
+      }
+    }
+  ]
+}

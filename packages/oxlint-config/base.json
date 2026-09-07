@@ -26,6 +26,9 @@
     "builtin": true
   },
   "rules": {
+    // Enabled by the `style` category in oxlint 1.81+. Combining consecutive declarations into one
+    // `const` hurts readability and churns diffs; we declare one binding per statement.
+    "one-var": "off",
     "no-console": [
       "error",
       {
@@ -107,7 +110,10 @@
       "files": ["**/*.config.{ts,mts,cts,js,mjs,cjs}", "**/scripts/**"],
       "rules": {
         "import/no-nodejs-modules": "off",
-        "node/no-sync": "off"
+        "node/no-sync": "off",
+        // Guards against `require(esm)` breaking on published packages; these scripts are private
+        // and executed directly, never required.
+        "node/no-top-level-await": "off"
       }
     }
   ]

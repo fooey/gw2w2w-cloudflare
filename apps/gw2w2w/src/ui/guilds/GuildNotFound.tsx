@@ -1,5 +1,6 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
+import { decodeRouteParam } from '#lib/utils/decodeRouteParam';
 import { GuildSearch } from '#ui/guilds/guild-search/GuildSearch';
 
 export function GuildNotFound({ guildId }: { guildId: string }) {
@@ -8,11 +9,11 @@ export function GuildNotFound({ guildId }: { guildId: string }) {
       <MagnifyingGlassIcon className="size-16 text-gray-300" />
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-gray-900">
-          No guild found for &quot;{decodeURIComponent(guildId)}&quot;
+          No guild found for &quot;{decodeRouteParam(guildId)}&quot;
         </h2>
         <p className="text-sm text-gray-500">Try searching by exact guild name or UUID.</p>
       </div>
-      <GuildSearch defaultValue={decodeURIComponent(guildId)} />
+      <GuildSearch defaultValue={decodeRouteParam(guildId)} />
     </div>
   );
 }

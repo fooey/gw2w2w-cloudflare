@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     "./base": "./base.json",
-    "./nextjs-app": "./nextjs-app.json",
+    "./react-router-app": "./react-router-app.json",
     "./service": "./service.json",
     "./library": "./library.json"
   }

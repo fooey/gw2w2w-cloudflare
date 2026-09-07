@@ -1,8 +1,6 @@
 {
-  "extends": "@repo/typescript-config/nextjs.json",
+  "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "plugins": [{ "name": "next" }],
-
     /* Modernize the Engine */
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -18,13 +16,17 @@
     "noImplicitOverride": true,
     "noUncheckedSideEffectImports": true,
 
-    /* TS 7 defaults `types` to [] instead of auto-discovering @types/* — process.env etc. need this explicit */
-    "types": ["node"],
+    /* Workers runtime types come from cloudflare-env.d.ts, so @cloudflare/workers-types is
+       deliberately absent here — listing both duplicates every global. */
+    "types": ["node", "vite/client"],
+
+    /* React Router generates per-route `./+types/*` modules into .react-router/types */
+    "rootDirs": [".", "./.react-router/types"],
 
     "allowJs": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "noEmit": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.mts", ".react-router/types/**/*", "workers/**/*", "cloudflare-env.d.ts"],
   "exclude": ["node_modules"]
 }

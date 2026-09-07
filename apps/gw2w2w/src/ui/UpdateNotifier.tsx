@@ -1,8 +1,6 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
 
-const CURRENT_BUILD_ID = process.env.NEXT_PUBLIC_BUILD_HASH ?? 'dev';
+const CURRENT_BUILD_ID = import.meta.env.VITE_BUILD_HASH;
 const POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export function UpdateNotifier() {

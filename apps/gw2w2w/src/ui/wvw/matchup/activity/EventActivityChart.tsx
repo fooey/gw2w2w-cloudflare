@@ -1,6 +1,3 @@
-'use client';
-
-import { useMemo } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import type { EventRow } from '@repo/service-api/types';
@@ -126,10 +123,7 @@ export function EventActivityChart({ events }: EventActivityChartProps) {
     setGranularity,
   } = useActivityChartFilters();
 
-  const data = useMemo(
-    () => buildChartData(events, { maps, objectiveTypes, eventTypes, owners, timeWindow, granularity }),
-    [events, maps, objectiveTypes, eventTypes, owners, timeWindow, granularity],
-  );
+  const data = buildChartData(events, { maps, objectiveTypes, eventTypes, owners, timeWindow, granularity });
 
   return (
     <section className="mt-4 rounded p-2 shadow">

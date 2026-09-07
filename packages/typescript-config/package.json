@@ -5,18 +5,13 @@
   "license": "MIT",
   "files": [
     "base.json",
-    "nextjs.json",
     "react-library.json"
   ],
   "exports": {
     "./base.json": "./base.json",
-    "./nextjs.json": "./nextjs.json",
     "./react-library.json": "./react-library.json"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "next": "^16.2.10"
   }
 }

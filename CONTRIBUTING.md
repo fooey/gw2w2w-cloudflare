@@ -52,7 +52,7 @@ This starts all three services in parallel and automatically runs `dev:seed`, wh
 
 The three services start at:
 
-- `http://localhost:3000` — Next.js frontend
+- `http://localhost:3000` — React Router frontend
 - `http://localhost:8787` — service-emblem
 - `http://localhost:8788` — service-api
 

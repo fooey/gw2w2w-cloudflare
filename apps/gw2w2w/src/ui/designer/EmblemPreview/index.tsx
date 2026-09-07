@@ -1,6 +1,4 @@
-'use client';
-
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { useEffect, useRef } from 'react';
 
 import type { ColorRGB } from '@repo/emblem-renderer/pixels';
@@ -39,7 +37,6 @@ export function EmblemPreview({
   const bgColorId = emblem.background.colors[0] ?? null;
   const fg1ColorId = emblem.foreground.colors[0] ?? null;
   const fg2ColorId = emblem.foreground.colors[1] ?? null;
-  const flagKey = emblem.flags.join(',');
   const { flipBgH, flipBgV, flipFgH, flipFgV } = getFlipsFromFlags(emblem.flags);
 
   useEffect(() => {
@@ -107,7 +104,7 @@ export function EmblemPreview({
     return () => {
       idRef.current++;
     };
-  }, [bgDef, fgDef, bgColorId, fg1ColorId, fg2ColorId, flagKey, flipBgH, flipBgV, flipFgH, flipFgV, colors]);
+  }, [bgDef, fgDef, bgColorId, fg1ColorId, fg2ColorId, flipBgH, flipBgV, flipFgH, flipFgV, colors]);
 
   const hasSelection = bgDef ?? fgDef;
 

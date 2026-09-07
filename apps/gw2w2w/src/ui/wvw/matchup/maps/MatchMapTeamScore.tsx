@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 
 import type { WvWMatchObjective } from '@repo/service-api/types';
 

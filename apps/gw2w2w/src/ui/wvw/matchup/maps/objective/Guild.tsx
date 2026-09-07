@@ -1,7 +1,6 @@
-'use client';
-
 import { NoSymbolIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
+import { href } from 'react-router';
 
 import { isEmpty, isNonEmptyString } from '@repo/utils';
 
@@ -48,7 +47,9 @@ export function Guild({
   if (linkable) {
     return (
       <Link
-        href={`/guilds/${isNonEmptyString(guildQuery.data?.name) ? encodeURIComponent(guildQuery.data.name) : claimedBy}`}
+        href={href('/guilds/:guildId', {
+          guildId: isNonEmptyString(guildQuery.data?.name) ? guildQuery.data.name : claimedBy,
+        })}
         className={cn('flex w-full items-center justify-between gap-1', className)}
         title={`${guildQuery.data?.name ?? ''} (${guildQuery.data?.tag ?? ''})`}
       >

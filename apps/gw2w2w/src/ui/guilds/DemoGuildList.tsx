@@ -1,3 +1,5 @@
+import { href } from 'react-router';
+
 import { demoGuilds } from '#lib/definitions/demo-guilds';
 import { Link } from '#ui/Link';
 
@@ -12,10 +14,10 @@ export function DemoGuildList() {
           <li key={guild.id} className="my-8">
             <GuildEmblemGrid
               guildId={guild.id}
-              linkHref={`/guilds/${guild.name}`}
+              linkHref={href('/guilds/:guildId', { guildId: guild.name })}
               title={
                 <>
-                  <Link href={`/guilds/${guild.name}`} className="hover:text-indigo-600">
+                  <Link href={href('/guilds/:guildId', { guildId: guild.name })} className="hover:text-indigo-600">
                     {guild.name}
                   </Link>
                   <span className="ml-2 text-sm font-medium text-gray-400">[{guild.tag}]</span>

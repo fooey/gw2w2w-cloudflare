@@ -1,10 +1,9 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
-
-import { searchGuild } from '#ui/guilds/guild-search/actions';
+import { Form } from 'react-router';
 
 export function GuildSearch({ defaultValue }: { defaultValue?: string }) {
   return (
-    <form action={searchGuild} className="flex items-center gap-2">
+    <Form method="post" action="/guild-search" className="flex items-center gap-2">
       <input
         type="search"
         name="guild"
@@ -18,6 +17,6 @@ export function GuildSearch({ defaultValue }: { defaultValue?: string }) {
       >
         <MagnifyingGlassIcon className="size-4" />
       </button>
-    </form>
+    </Form>
   );
 }

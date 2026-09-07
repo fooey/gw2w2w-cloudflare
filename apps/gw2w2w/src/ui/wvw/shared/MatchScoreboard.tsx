@@ -1,6 +1,4 @@
-'use client';
-
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 
 import type { WvWMatch, WvWTeamId } from '@repo/service-api/types';
 import { WVW_TEAMS } from '@repo/service-api/definitions';

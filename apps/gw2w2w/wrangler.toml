@@ -1,13 +1,15 @@
 name = 'gw2w2w-cloudflare'
-main = ".open-next/worker.js"
+main = "./workers/app.ts"
 compatibility_date = "2026-01-01"
 
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
+# Ships the sourcemaps Vite emits so Workers stack traces symbolicate to real source lines.
+upload_source_maps = true
+
 
 [assets]
-directory = ".open-next/assets"
-binding = "ASSETS"
+directory = "./build/client"
 
 [[routes]]
 pattern = "gw2w2w.com"
@@ -32,11 +34,6 @@ service = "service-api"
 [limits]
 cpu_ms = 100
 subrequests = 1000
-
-[images]
-# Enable image optimization
-# see https://opennext.js.org/cloudflare/howtos/image
-binding = "IMAGES"
 
 [[kv_namespaces]]
 binding = "EMBLEM_ENGINE_GUILD_LOOKUP"
