@@ -1,5 +1,3 @@
-'use client';
-
 import { useMemo } from 'react';
 
 import type { EventRow } from '@repo/service-api/types';

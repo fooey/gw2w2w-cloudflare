@@ -1,5 +1,3 @@
-'use client';
-
 import { clsx } from 'clsx';
 
 import { EMBLEM_SIZES, isEmblemSize } from '@repo/emblem-renderer/sizes';

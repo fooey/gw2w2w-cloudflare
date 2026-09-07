@@ -1,5 +1,3 @@
-'use client';
-
 import { clsx } from 'clsx';
 
 import type { WvWMatch, WvWTeamId } from '@repo/service-api/types';

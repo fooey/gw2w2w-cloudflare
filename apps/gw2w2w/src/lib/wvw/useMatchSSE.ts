@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
 
 import type { EventRow, WvWMapType, WvWMatch, WvWTeamColor } from '@repo/service-api/types';

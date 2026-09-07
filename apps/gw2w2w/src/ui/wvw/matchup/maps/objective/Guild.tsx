@@ -1,5 +1,3 @@
-'use client';
-
 import { NoSymbolIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 import { href } from 'react-router';

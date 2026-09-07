@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef, useState } from 'react';
 
 const CURRENT_BUILD_ID = import.meta.env.VITE_BUILD_HASH;

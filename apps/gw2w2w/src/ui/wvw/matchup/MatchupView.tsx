@@ -1,5 +1,3 @@
-'use client';
-
 import { lazy, Suspense } from 'react';
 
 import type { EventRow, WvWMapType, WvWMatchMap, WvWMatch } from '@repo/service-api/types';

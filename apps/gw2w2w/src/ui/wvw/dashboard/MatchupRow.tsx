@@ -1,5 +1,3 @@
-'use client';
-
 import { href } from 'react-router';
 
 import type { WvWMatch } from '@repo/service-api/types';
